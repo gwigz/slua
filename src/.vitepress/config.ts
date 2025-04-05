@@ -19,6 +19,12 @@ export default defineConfig({
 			// biome-ignore lint/suspicious/noExplicitAny: types don't match vitepress
 			tailwindcss() as any,
 		],
+		optimizeDeps: {
+			exclude: ["@nolebase/vitepress-plugin-inline-link-preview/markdown-it"],
+		},
+		ssr: {
+			noExternal: ["@nolebase/*"],
+		},
 	},
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config

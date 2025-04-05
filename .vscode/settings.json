@@ -1,12 +1,9 @@
 {
-	"[javascript]": {
+	"[javascript][typescript][typescriptreact][vue]": {
 		"editor.defaultFormatter": "biomejs.biome"
 	},
-	"[typescript]": {
-		"editor.defaultFormatter": "biomejs.biome"
-	},
-	"[typescriptreact]": {
-		"editor.defaultFormatter": "biomejs.biome"
+	"[yaml][markdown]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.biome": "explicit",

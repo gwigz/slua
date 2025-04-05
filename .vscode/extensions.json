@@ -1,7 +1,9 @@
 {
-  "recommendations": [
-    "biomejs.biome",
-    "oven.bun-vscode",
-    "editorconfig.editorconfig"
-  ]
+	"recommendations": [
+		"biomejs.biome",
+		"bradlc.vscode-tailwindcss",
+		"editorconfig.editorconfig",
+		"esbenp.prettier-vscode",
+		"vue.volar"
+	]
 }

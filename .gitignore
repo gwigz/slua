@@ -18,11 +18,6 @@
 /prisma/db.sqlite-journal
 db.sqlite
 
-# next.js
-/.next/
-/out/
-next-env.d.ts
-
 # production
 /build
 
@@ -49,3 +44,7 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# vite
+**/.vitepress/cache
+**/.vitepress/dist

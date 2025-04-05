@@ -1,36 +1,31 @@
 {
   "name": "slua-tips",
-  "version": "0.1.0",
+  "version": "0.0.0",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@nolebase/vitepress-plugin-git-changelog": "^2.15.1",
+    "@nolebase/vitepress-plugin-inline-link-preview": "^2.15.1",
+    "@shikijs/vitepress-twoslash": "^3.2.1",
+    "@tailwindcss/vite": "^4.1.3",
+    "@types/bun": "^1.2.8",
+    "@types/node": "^20.14.10",
+    "@types/react": "^19.1.0",
+    "react": "^19.1.0",
+    "tailwindcss": "^4.1.3",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.5",
+    "vitepress": "^1.6.3",
+    "vitepress-plugin-comment-with-giscus": "^1.1.15"
+  },
   "private": true,
-  "type": "module",
   "scripts": {
-    "build": "next build",
     "check": "biome check .",
     "check:unsafe": "biome check --write --unsafe .",
     "check:write": "biome check --write .",
-    "dev": "next dev --turbo",
-    "preview": "next build && next start",
-    "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "dev": "vitepress dev src",
+    "build": "vitepress build src",
+    "preview": "vitepress preview src"
   },
-  "dependencies": {
-    "@t3-oss/env-nextjs": "^0.12.0",
-    "next": "^15.2.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "@tailwindcss/postcss": "^4.0.15",
-    "@types/node": "^20.14.10",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^4.0.15",
-    "typescript": "^5.8.2"
-  },
-  "ct3aMetadata": {
-    "initVersion": "7.39.2"
-  }
+  "type": "module"
 }

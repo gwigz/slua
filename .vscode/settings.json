@@ -1,8 +1,8 @@
 {
-	"[javascript][typescript][typescriptreact][vue]": {
+	"[javascript][typescript][typescriptreact]": {
 		"editor.defaultFormatter": "biomejs.biome"
 	},
-	"[yaml][markdown]": {
+	"[yaml][markdown][vue]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"editor.codeActionsOnSave": {

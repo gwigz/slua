@@ -6,6 +6,7 @@ import { defineConfig } from "vitepress";
 // } from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { InlineLinkPreviewElementTransform } from "@nolebase/vitepress-plugin-inline-link-preview/markdown-it";
 import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
+import { createFileSystemTypesCache } from "@shikijs/vitepress-twoslash/cache-fs";
 
 import tailwindcss from "@tailwindcss/vite";
 
@@ -18,6 +19,18 @@ export default defineConfig({
 		plugins: [
 			// biome-ignore lint/suspicious/noExplicitAny: types don't match vitepress
 			tailwindcss() as any,
+			{
+				name: "vp-tw-order-fix",
+				configResolved(c) {
+					movePlugin(
+						// biome-ignore lint/suspicious/noExplicitAny: types don't match vitepress
+						c.plugins as any,
+						"@tailwindcss/vite:scan",
+						"after",
+						"vitepress",
+					);
+				},
+			},
 		],
 		optimizeDeps: {
 			exclude: ["@nolebase/vitepress-plugin-inline-link-preview/markdown-it"],
@@ -28,10 +41,8 @@ export default defineConfig({
 	},
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
-		nav: [
-			{ text: "Home", link: "/" },
-			{ text: "Examples", link: "/markdown-examples" },
-		],
+		logo: "/assets/logo.png",
+		nav: [{ text: "Examples", link: "/markdown-examples" }],
 		sidebar: [
 			{
 				text: "Examples",
@@ -47,6 +58,10 @@ export default defineConfig({
 		editLink: {
 			text: "Edit this page on GitHub",
 			pattern: "https://github.com/gwigz/slua-tips/edit/main/src/:path",
+		},
+		footer: {
+			message:
+				'<span class="font-normal"><a href="https://slua.tips">slua.tips</a> is not affiliated with Second Life, Linden Lab, or Luau.<br />All trademarks and registered trademarks are the property of their respective owners.</span>',
 		},
 	},
 	head: [
@@ -64,8 +79,10 @@ export default defineConfig({
 			dark: "github-dark",
 		},
 		codeTransformers: [
-			// biome-ignore lint/suspicious/noExplicitAny: types don't match vitepress
-			transformerTwoslash() as any,
+			transformerTwoslash({
+				typesCache: createFileSystemTypesCache(),
+				// biome-ignore lint/suspicious/noExplicitAny: types don't match vitepress
+			}) as any,
 		],
 		config: (md) => {
 			md.use(InlineLinkPreviewElementTransform);
@@ -73,3 +90,26 @@ export default defineConfig({
 	},
 	lastUpdated: true,
 });
+
+function movePlugin(
+	plugins: { name: string }[],
+	pluginAName: string,
+	order: "before" | "after",
+	pluginBName: string,
+) {
+	const pluginBIndex = plugins.findIndex((p) => p.name === pluginBName);
+	if (pluginBIndex === -1) return;
+
+	const pluginAIndex = plugins.findIndex((p) => p.name === pluginAName);
+	if (pluginAIndex === -1) return;
+
+	if (order === "before" && pluginAIndex > pluginBIndex) {
+		const pluginA = plugins.splice(pluginAIndex, 1)[0];
+		plugins.splice(pluginBIndex, 0, pluginA);
+	}
+
+	if (order === "after" && pluginAIndex < pluginBIndex) {
+		const pluginA = plugins.splice(pluginAIndex, 1)[0];
+		plugins.splice(pluginBIndex, 0, pluginA);
+	}
+}

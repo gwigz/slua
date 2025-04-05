@@ -48,3 +48,6 @@ yarn-error.log*
 # vite
 **/.vitepress/cache
 **/.vitepress/dist
+
+# slua
+**/.vitepress/slua/keywords.json

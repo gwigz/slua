@@ -2,13 +2,11 @@ import type { Theme } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import { h } from "vue";
 
-import Gradient from "./gradient.vue";
-
-import TwoslashFloatingVue from "@shikijs/vitepress-twoslash/client";
-import "@shikijs/vitepress-twoslash/style.css";
-
 import { NolebaseInlineLinkPreviewPlugin } from "@nolebase/vitepress-plugin-inline-link-preview/client";
 import "@nolebase/vitepress-plugin-inline-link-preview/client/style.css";
+
+import Gradient from "./components/gradient.vue";
+import ResourceCard from "./components/resource-card.vue";
 
 import "../../tailwind.css";
 
@@ -21,7 +19,7 @@ export default {
 		});
 	},
 	enhanceApp({ app }) {
-		app.use(TwoslashFloatingVue);
+		app.component("ResourceCard", ResourceCard);
 		app.use(NolebaseInlineLinkPreviewPlugin);
 	},
 } satisfies Theme;

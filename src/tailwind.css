@@ -126,7 +126,11 @@
 .VPSidebar,
 .VPSidebar .curtain,
 .VPNavBar:not(.home.top) .content-body {
-	@apply !bg-transparent;
+	@apply min-[960px]:!bg-transparent;
+}
+
+.VPSidebar {
+	@apply min-[960px]:mt-8.5 !transition-none;
 }
 
 .VPNavBarTitle.has-sidebar .title {
@@ -138,11 +142,33 @@
 }
 
 .VPLocalNav {
-	@apply block md:hidden;
+	@apply min-[960px]:hidden;
 }
 .VPLocalNav .container {
-	@apply !max-w-full;
+	@apply !max-w-full min-[960px]:justify-end;
 }
 .VPLocalNav .outline {
 	@apply outline-0;
+}
+
+.vp-doc div[class*="language-"],
+.vp-block {
+	@apply bg-muted/20 border-4 border-card outline-1 outline-muted;
+}
+
+.vp-doc h1 .VPBadge {
+	@apply absolute right-0;
+}
+
+code .line.highlighted {
+	@apply !bg-muted/50;
+}
+code .line.highlighted.warning {
+	@apply !bg-yellow-600/10;
+}
+code .line.highlighted.error {
+	@apply !bg-red-600/10;
+}
+code .highlighted-word {
+	@apply border bg-muted/20 px-px py-0.75 -mx-px -my-0.75 rounded-sm;
 }

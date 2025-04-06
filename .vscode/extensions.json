@@ -4,6 +4,7 @@
 		"bradlc.vscode-tailwindcss",
 		"editorconfig.editorconfig",
 		"esbenp.prettier-vscode",
-		"vue.volar"
+		"vue.volar",
+		"csstools.postcss"
 	]
 }

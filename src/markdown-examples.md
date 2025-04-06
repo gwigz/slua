@@ -32,11 +32,6 @@ export default {
 }
 ```
 
-```ts twoslash
-console.log('hello')
-//      ^?
-```
-
 ## Custom Containers
 
 **Input**

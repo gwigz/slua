@@ -1,14 +1,17 @@
-import { defineConfig } from "vitepress";
-
-// import {
-// 	GitChangelog,
-// 	GitChangelogMarkdownSection,
-// } from "@nolebase/vitepress-plugin-git-changelog/vite";
+import {
+	GitChangelog,
+	GitChangelogMarkdownSection,
+} from "@nolebase/vitepress-plugin-git-changelog/vite";
 import { InlineLinkPreviewElementTransform } from "@nolebase/vitepress-plugin-inline-link-preview/markdown-it";
-import { transformerTwoslash } from "@shikijs/vitepress-twoslash";
-import { createFileSystemTypesCache } from "@shikijs/vitepress-twoslash/cache-fs";
-
+import {
+	transformerNotationDiff,
+	transformerNotationErrorLevel,
+	transformerNotationHighlight,
+	transformerNotationWordHighlight,
+} from "@shikijs/transformers";
 import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vitepress";
+import { sluaTransformer } from "./slua/transformer";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -31,6 +34,10 @@ export default defineConfig({
 					);
 				},
 			},
+			GitChangelog({
+				repoURL: () => "https://github.com/gwigz/slua-tips",
+			}),
+			GitChangelogMarkdownSection(),
 		],
 		optimizeDeps: {
 			exclude: ["@nolebase/vitepress-plugin-inline-link-preview/markdown-it"],
@@ -42,26 +49,27 @@ export default defineConfig({
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
 		logo: "/assets/logo.png",
-		nav: [{ text: "Examples", link: "/markdown-examples" }],
+		nav: [{ text: "Resources", link: "/resources" }],
 		sidebar: [
 			{
-				text: "Examples",
-				items: [
-					{ text: "Markdown Examples", link: "/markdown-examples" },
-					{ text: "Runtime API Examples", link: "/api-examples" },
-				],
+				text: "Resources",
+				link: "/resources",
+				items: [{ text: "Fetch", link: "/resources/fetch" }],
 			},
 		],
 		socialLinks: [
 			{ icon: "github", link: "https://github.com/gwigz/slua-tips" },
 		],
+		outline: {
+			level: [2, 3],
+		},
 		editLink: {
 			text: "Edit this page on GitHub",
 			pattern: "https://github.com/gwigz/slua-tips/edit/main/src/:path",
 		},
 		footer: {
 			message:
-				'<span class="font-normal"><a href="https://slua.tips">slua.tips</a> is not affiliated with Second Life, Linden Lab, or Luau.<br />All trademarks and registered trademarks are the property of their respective owners.</span>',
+				'<span class="font-normal"><a href="https://slua.tips">slua.tips</a> is not affiliated with Second Life, Linden Lab, or Luau.<br class="hidden sm:block" /> All trademarks and registered trademarks are the property of their respective owners.</span>',
 		},
 	},
 	head: [
@@ -75,14 +83,17 @@ export default defineConfig({
 	],
 	markdown: {
 		theme: {
-			light: "github-light",
-			dark: "github-dark",
+			light: "catppuccin-latte",
+			dark: "catppuccin-mocha",
 		},
 		codeTransformers: [
-			transformerTwoslash({
-				typesCache: createFileSystemTypesCache(),
-				// biome-ignore lint/suspicious/noExplicitAny: types don't match vitepress
-			}) as any,
+			sluaTransformer,
+
+			// biome-ignore lint/suspicious/noExplicitAny: types being dumb
+			transformerNotationDiff() as any,
+			transformerNotationHighlight(),
+			transformerNotationWordHighlight(),
+			transformerNotationErrorLevel(),
 		],
 		config: (md) => {
 			md.use(InlineLinkPreviewElementTransform);

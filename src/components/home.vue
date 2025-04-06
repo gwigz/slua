@@ -4,7 +4,7 @@ import { Icon } from "@iconify/vue";
 
 <template>
 	<header
-		class="container max-w-5xl mx-auto px-4 py-20 flex flex-col justify-center items-center text-center"
+		class="container max-w-5xl mx-auto px-4 pt-32 flex flex-col justify-center items-center text-center"
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -31,18 +31,30 @@ import { Icon } from "@iconify/vue";
 		</svg>
 
 		<h1
-			class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-sky-300 via-purple-400 to-violet-400 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 text-transparent bg-clip-text pb-6"
+			class="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-sky-300 via-purple-400 to-violet-400 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 text-transparent bg-clip-text pb-6"
 		>
 			Luau resources for Second Life
 		</h1>
 
 		<p
-			class="text-xl md:text-2xl text-gray-900 dark:text-white/90 dark:text-shadow-xs mb-10 max-w-2xl"
+			class="text-xl md:text-2xl opacity-70 dark:text-shadow-xs mb-10 max-w-2xl"
 		>
 			A curated list of resources to help you get started with Luau scripting in
 			Second Life. Check back for updates and tutorials!
 		</p>
 	</header>
+
+	<!-- <div class="max-w-md mx-auto px-4 py-16">
+		<div
+			class="bg-white/80 dark:bg-neutral-900/60 backdrop-blur-sm rounded-lg p-4 border"
+		>
+			<div
+				class="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-md overflow-x-auto [&_.lang,&_.copy]:hidden"
+			>
+				<slot name="hello-world"></slot>
+			</div>
+		</div>
+	</div> -->
 
 	<section class="container mx-auto px-4 py-12">
 		<h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">

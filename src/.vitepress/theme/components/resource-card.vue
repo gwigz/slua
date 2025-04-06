@@ -17,7 +17,7 @@ const props = withDefaults(
 <template>
 	<a
 		:href="`/resources/${props.name}`"
-		class="!no-underline block p-4 border border-border rounded-lg hover:bg-primary/5 hover:border-primary/30 transition-colors"
+		class="!no-underline block p-4 border border-border rounded-lg bg-card hover:bg-primary/5 hover:border-primary/30 transition-colors"
 		><div class="flex justify-between items-center">
 			<div class="">
 				<div class="font-medium text-primary">

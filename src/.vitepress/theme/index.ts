@@ -5,6 +5,9 @@ import { h } from "vue";
 import { NolebaseInlineLinkPreviewPlugin } from "@nolebase/vitepress-plugin-inline-link-preview/client";
 import "@nolebase/vitepress-plugin-inline-link-preview/client/style.css";
 
+import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
+import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
+
 import Gradient from "./components/gradient.vue";
 import ResourceCard from "./components/resource-card.vue";
 
@@ -21,5 +24,6 @@ export default {
 	enhanceApp({ app }) {
 		app.component("ResourceCard", ResourceCard);
 		app.use(NolebaseInlineLinkPreviewPlugin);
+		app.use(NolebaseGitChangelogPlugin);
 	},
 } satisfies Theme;

@@ -48,7 +48,6 @@ export default defineConfig({
 	},
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
-		logo: "/assets/logo.png",
 		nav: [{ text: "Resources", link: "/resources" }],
 		sidebar: [
 			{

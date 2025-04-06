@@ -107,6 +107,7 @@ export default defineConfig({
 			md.use(InlineLinkPreviewElementTransform);
 		},
 	},
+	cleanUrls: true,
 	lastUpdated: true,
 });
 

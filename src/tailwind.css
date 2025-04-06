@@ -156,6 +156,10 @@
 	@apply bg-muted/20 border-4 border-card outline-1 outline-muted;
 }
 
+details div[class*="language-"] {
+	@apply !bg-[var(--vp-c-bg)] border-none !outline-foreground/5;
+}
+
 .vp-doc h1 .VPBadge {
 	@apply absolute right-0;
 }

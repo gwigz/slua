@@ -106,6 +106,8 @@ fetch("GET", url, nil, nil, function(status, response)
 end)
 ```
 
+::: details Custom authorization header
+
 Request with a custom authorization header, using [`ll.HTTPRequest`](https://wiki.secondlife.com/wiki/LlHTTPRequest) parameters.
 
 ```luau
@@ -120,6 +122,8 @@ fetch("GET", url, params, nil, function(status, response)
 	ll.OwnerSay(`[{status}]: {response}`)
 end)
 ```
+
+:::
 
 ::: details More useful `ll.HTTPRequest` parameters
 
@@ -159,6 +163,33 @@ fetch("POST", url, params, request, function(status, response)
 end)
 ```
 
+::: details Plain text
+
+Plain text can just be posted as normal.
+
+```luau
+-- TODO: add a valid example URL here
+local url = "http://localhost:3000"
+
+-- [!code highlight]
+local request = "My plain text"
+
+-- [!code word:request:1]
+fetch("POST", url, params, request, function(status, response)
+	local ok, data = pcall(lljson.decode, response)
+
+	if status < 300 and ok then
+		ll.OwnerSay("Post successful: " .. data)
+	else
+		ll.OwnerSay("Post failed: " .. response)
+	end
+end)
+```
+
+:::
+
+::: details Form data
+
 Form data, and similar requests need to be manually adjusted for using [`ll.HTTPRequest`](https://wiki.secondlife.com/wiki/LlHTTPRequest) parameters.
 
 ```luau
@@ -188,6 +219,8 @@ fetch("POST", url, params, request, function(status, response)
 	end
 end)
 ```
+
+:::
 
 ## Tips
 

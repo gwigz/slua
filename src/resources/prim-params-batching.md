@@ -1,7 +1,7 @@
 ---
 title: Resources - Prim Params Batching
 category: Resources
-tags: ["resources", "callbacks", "http"]
+tags: ["resources", "slppf"]
 ---
 
 # Prim Params Batching

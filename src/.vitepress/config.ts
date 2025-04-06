@@ -48,8 +48,20 @@ export default defineConfig({
 	},
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
-		nav: [{ text: "Resources", link: "/resources" }],
+		nav: [
+			{ text: "Guides", link: "/guides/lsl-to-slua" },
+			{ text: "Resources", link: "/resources" },
+		],
 		sidebar: [
+			{
+				text: "Guides",
+				items: [
+					{
+						text: "LSL to SLua",
+						link: "/guides/lsl-to-slua",
+					},
+				],
+			},
 			{
 				text: "Resources",
 				link: "/resources",

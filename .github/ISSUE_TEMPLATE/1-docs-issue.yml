@@ -1,0 +1,31 @@
+name: Issue Report
+description: Let us know about a problem with our site
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue with our documentation! Please fill out the form below to help us understand the problem better.
+  - type: dropdown
+    attributes:
+      label: Type
+      description: What type of issue are you reporting?
+      options:
+        - Missing documentation
+        - Confusing documentation
+        - Outdated information
+        - Incorrect information, or broken example
+        - Something else
+  - type: textarea
+    attributes:
+      label: Describe the issue
+      description: Please provide a clear and concise description of the issue.
+      placeholder: Detailed description of the problem...
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: URL(s)
+      description: Where did you encounter this issue? (Specific URLs)
+      placeholder: https://slua.tips/some/page

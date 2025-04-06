@@ -26,10 +26,12 @@
     "check:unsafe": "biome check --write --unsafe .",
     "check:write": "biome check --write .",
     "dev": "vitepress dev src",
-    "prebuild": "git apply theme.patch || true",
     "build": "vitepress build src",
     "preview": "vitepress preview src",
     "update": "mkdir -p src/.vitepress/slua && wget https://slua.wlf.io/dist/slua_keywords.json -O src/.vitepress/slua/keywords.json"
   },
-  "type": "module"
+  "type": "module",
+  "patchedDependencies": {
+    "vitepress@1.6.3": "patches/vitepress@1.6.3.patch"
+  }
 }

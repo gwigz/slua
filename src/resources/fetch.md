@@ -24,6 +24,7 @@ This snippet comes in two parts, the function itself and the event handler.
 ```luau
 type FetchCallback = (status: string, response: string, metadata: { number }) -> ()
 
+-- where we store callbacks, till the `http_response` event happens
 local fetch_callbacks = {} :: { [uuid]: FetchCallback }
 
 --- @param params -- see https://wiki.secondlife.com/wiki/LlHTTPRequest
@@ -46,8 +47,9 @@ local function fetch(
 	table.insert(parameters, HTTP_ACCEPT)
 	table.insert(parameters, "application/json")
 
-	local request = body
+	local request = body or ""
 
+	-- automatically handle JSON
 	if type(body) == "table" then
 		request = lljson.encode(body)
 
@@ -55,10 +57,10 @@ local function fetch(
 		table.insert(parameters, "application/json")
 	end
 
-	local id = ll.HTTPRequest(url, parameters, request or "")
+	local id = ll.HTTPRequest(url, parameters, request)
 
 	if callback then
-		requests[id] = callback
+		fetch_callbacks[id] = callback
 	end
 
 	return id
@@ -71,7 +73,7 @@ The following is snippet also required (for at least an early exit) in your glob
 
 ```luau
 function http_response(id: uuid, status: number, metadata: { number }, body: string)
-	local ok, response = pcall(lljson.decode, body)
+	local callback = fetch_callbacks[id]
 
 	if callback then
 		callback(status, body, metadata)
@@ -99,7 +101,7 @@ fetch("GET", url, nil, nil, function(status, response)
 	if status == 200 and ok then
 		ll.OwnerSay(`WOW, YOU FOUND A {data.results[1].name:upper()}!`)
 	else
-		ll.OwnerSay("Something went wrong... " .. data)
+		ll.OwnerSay("Something went wrong... " .. response)
 	end
 end)
 ```
@@ -114,8 +116,8 @@ local params = {
 	HTTP_CUSTOM_HEADER, "Authorization: Bearer token123"
 }
 
-fetch("GET", url, params, nil, function(status, body)
-	ll.OwnerSay(`[{status}]: {body}`)
+fetch("GET", url, params, nil, function(status, response)
+	ll.OwnerSay(`[{status}]: {response}`)
 end)
 ```
 
@@ -152,7 +154,7 @@ fetch("POST", url, params, request, function(status, response)
 	if status < 300 and ok then
 		ll.OwnerSay("Created: " .. tostring(data.id))
 	else
-		ll.OwnerSay("Failed: " .. data)
+		ll.OwnerSay("Failed: " .. response)
 	end
 end)
 ```
@@ -182,7 +184,7 @@ fetch("POST", url, params, request, function(status, response)
 	if status < 300 and ok then
 		ll.OwnerSay("Post successful: " .. data)
 	else
-		ll.OwnerSay("Post failed: " .. data)
+		ll.OwnerSay("Post failed: " .. response)
 	end
 end)
 ```

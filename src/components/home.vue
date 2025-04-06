@@ -188,10 +188,4 @@ import { Icon } from "@iconify/vue";
 			></a>
 		</div>
 	</section>
-
-	<img
-		class="max-w-[16ch] absolute bottom-0 right-8 text-red-500"
-		src="/assets/hell-yeah.svg"
-		alt="hell yeah"
-	/>
 </template>

@@ -60,6 +60,10 @@ export default defineConfig({
 						text: "LSL to SLua",
 						link: "/guides/lsl-to-slua",
 					},
+					{
+						text: "Object DNS",
+						link: "/guides/object-dns",
+					},
 				],
 			},
 			{

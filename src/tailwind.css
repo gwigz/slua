@@ -176,3 +176,7 @@ code .line.highlighted.error {
 code .highlighted-word {
 	@apply border bg-muted/20 px-px py-0.75 -mx-px -my-0.75 rounded-sm;
 }
+
+.vp-nolebase-git-changelog.vp-nolebase-git-changelog-history {
+	@apply !bg-[var(--vp-custom-block-details-bg)];
+}

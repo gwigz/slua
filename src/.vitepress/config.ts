@@ -53,7 +53,16 @@ export default defineConfig({
 			{
 				text: "Resources",
 				link: "/resources",
-				items: [{ text: "Fetch", link: "/resources/fetch" }],
+				items: [
+					{
+						text: "Fetch",
+						link: "/resources/fetch",
+					},
+					{
+						text: "Prim Params Batching",
+						link: "/resources/prim-params-batching",
+					},
+				],
 			},
 		],
 		socialLinks: [

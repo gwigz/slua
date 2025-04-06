@@ -1,3 +1,8 @@
+---
+title: Resources
+gitChangelog: false
+---
+
 # Resources
 
 More to come later!

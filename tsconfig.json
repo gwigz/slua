@@ -5,6 +5,7 @@
 	},
 	"include": [
 		"**/.vitepress/**/*.ts",
+		"**/.vitepress/**/*.d.ts",
 		"**/.vitepress/**/*.mts",
 		"**/.vitepress/**/*.vue"
 	],

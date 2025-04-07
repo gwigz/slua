@@ -4,7 +4,7 @@
 	>
 		<div
 			ref="editorContainer"
-			class="w-full min-h-[50vh] bg-transparent rounded-lg overflow-hidden"
+			class="w-full min-h-[40vh] bg-transparent rounded-lg"
 		></div>
 	</div>
 </template>
@@ -15,6 +15,9 @@ import * as monaco from "monaco-editor";
 import { createHighlighter } from "shiki";
 import { useData } from "vitepress";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+
+import documentation from "../../slua/documentation";
+import globals from "../../slua/globals";
 
 const { isDark } = useData();
 const editorContainer = ref<HTMLElement | null>(null);
@@ -53,15 +56,100 @@ const updateErrorDecorations = () => {
 };
 
 onMounted(async () => {
-	if (!editorContainer.value) return;
-
+	if (!editorContainer.value) {
+		return;
+	}
 	const highlighter = await createHighlighter({
 		themes: ["catppuccin-latte", "catppuccin-mocha"],
-		langs: ["luau", "typescript"],
+		langs: ["luau"],
 	});
 
 	monaco.languages.register({ id: "luau" });
-	monaco.languages.register({ id: "typescript" });
+
+	const globalRegex = new RegExp(
+		`(?:^|\\(|\\s|,|=)(${Object.keys(globals).join("|")})\.([a-zA-Z0-9]+)?$`
+	);
+
+	// const constRegex = new RegExp(
+	// 	`(?:^|\(|\s|,|=)(${Object.keys(globals)
+	// 		.map((name) => name[0])
+	// 		.join("|")}|[A-Z])$`
+	// );
+
+	monaco.languages.registerCompletionItemProvider("luau", {
+		provideCompletionItems(model, position) {
+			const line = model.getValueInRange({
+				startLineNumber: position.lineNumber,
+				endLineNumber: position.lineNumber,
+				startColumn: 0,
+				endColumn: position.column,
+			});
+
+			const word = model.getWordUntilPosition(position);
+
+			const range = {
+				startLineNumber: position.lineNumber,
+				endLineNumber: position.lineNumber,
+				startColumn: word.startColumn,
+				endColumn: word.endColumn,
+			};
+
+			const match = line.match(globalRegex);
+			const suggestions = match && globals[match[1] as keyof typeof globals];
+
+			if (suggestions) {
+				return {
+					suggestions: suggestions.map((suggestion) => ({
+						label: suggestion,
+						kind: monaco.languages.CompletionItemKind.Function,
+						insertText: suggestion,
+						range,
+					})),
+				};
+			}
+
+			return null;
+		},
+	});
+
+	function formatArgs(args: { name: string; desc: string; type: string[] }[]) {
+		return args.map((arg) => `${arg.name}: ${arg.type.join(" | ")}`).join(", ");
+	}
+
+	monaco.languages.registerHoverProvider("luau", {
+		provideHover(model, position) {
+			const line = model.getValueInRange({
+				startLineNumber: position.lineNumber,
+				endLineNumber: position.lineNumber,
+				startColumn: 0,
+				endColumn: position.column,
+			});
+
+			const match = line.match(globalRegex);
+			const { word } = model.getWordAtPosition(position);
+
+			const parent =
+				match && documentation[match[1] as keyof typeof documentation];
+
+			const details = parent?.[word];
+
+			if (details) {
+				return {
+					contents: [
+						{
+							value: `**function ${match[1]}.${word}(${formatArgs(
+								details.args
+							)})**`,
+						},
+						{ value: details.desc },
+						...(details.link
+							? [{ value: `[${details.link}](${details.link})` }]
+							: []),
+					],
+				};
+			}
+		},
+	});
 
 	shikiToMonaco(highlighter, monaco);
 
@@ -79,6 +167,53 @@ onMounted(async () => {
 		roundedSelection: false,
 		scrollBeyondLastLine: false,
 		automaticLayout: true,
+	});
+
+	editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash, () => {
+		const selection = editor?.getSelection();
+		const model = editor?.getModel();
+
+		if (!selection || !model) {
+			return;
+		}
+
+		const startLine = selection.startLineNumber;
+		const endLine = selection.endLineNumber;
+		const startColumn = selection.startColumn;
+		const endColumn = selection.endColumn;
+
+		let isCommented = true;
+
+		for (let i = startLine; i <= endLine; i++) {
+			const lineContent = model.getLineContent(i);
+			if (!lineContent.trim().startsWith("--")) {
+				isCommented = false;
+				break;
+			}
+		}
+
+		editor?.executeEdits("", [
+			...Array.from({ length: endLine - startLine + 1 }, (_, i) => {
+				const lineNumber = startLine + i;
+				const lineContent = model.getLineContent(lineNumber);
+
+				if (isCommented) {
+					return {
+						range: new monaco.Range(lineNumber, 1, lineNumber, 3),
+						text: "",
+					};
+				}
+
+				return {
+					range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+					text: "--",
+				};
+			}),
+		]);
+
+		editor?.setSelection(
+			new monaco.Selection(startLine, startColumn, endLine, endColumn)
+		);
 	});
 
 	editor.onDidChangeModelContent(() => {
@@ -106,9 +241,7 @@ watch(
 
 watch(
 	() => props.errorLines,
-	() => {
-		updateErrorDecorations();
-	},
+	() => updateErrorDecorations(),
 	{ deep: true }
 );
 
@@ -143,5 +276,9 @@ watch(
 
 .monaco-editor .margin {
 	@apply !bg-transparent;
+}
+
+.monaco-hover .rendered-markdown p {
+	@apply leading-snug;
 }
 </style>

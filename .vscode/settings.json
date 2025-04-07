@@ -10,6 +10,11 @@
 		"source.organizeImports.biome": "explicit"
 	},
 	"search.exclude": {
-		"**/assets/js": true
-	}
+		"**/assets/js": true,
+		"**/slua/documentation.ts": true,
+		"**/slua/globals.ts": true
+	},
+	"cSpell.words": [
+		"ccall"
+	]
 }

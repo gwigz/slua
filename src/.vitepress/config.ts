@@ -43,7 +43,7 @@ export default defineConfig({
 			exclude: ["@nolebase/vitepress-plugin-inline-link-preview/markdown-it"],
 		},
 		ssr: {
-			noExternal: ["@nolebase/*"],
+			noExternal: ["@nolebase/*", "monaco-editor"],
 		},
 	},
 	themeConfig: {

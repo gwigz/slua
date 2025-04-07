@@ -11,6 +11,8 @@ import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 import Gradient from "./components/gradient.vue";
 import ResourceCard from "./components/resource-card.vue";
 
+import LuauRepl from "./components/luau-repl.vue";
+
 import "../../tailwind.css";
 
 export default {
@@ -22,8 +24,10 @@ export default {
 		});
 	},
 	enhanceApp({ app }) {
-		app.component("ResourceCard", ResourceCard);
 		app.use(NolebaseInlineLinkPreviewPlugin);
 		app.use(NolebaseGitChangelogPlugin);
+
+		app.component("ResourceCard", ResourceCard);
+		app.component("LuauRepl", LuauRepl);
 	},
 } satisfies Theme;

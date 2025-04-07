@@ -1,4 +1,8 @@
 {
+	"vue.server.includeLanguages": [
+		"vue",
+		"markdown"
+	],
 	"[javascript][typescript][typescriptreact]": {
 		"editor.defaultFormatter": "biomejs.biome"
 	},

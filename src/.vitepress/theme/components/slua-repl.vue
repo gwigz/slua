@@ -1,6 +1,8 @@
 <template>
 	<div class="flex flex-col gap-4 rounded-lg">
 		<div class="flex flex-col gap-2">
+			<Cube />
+
 			<div class="flex-1">
 				<MonacoEditor
 					v-model="code"
@@ -58,6 +60,8 @@
 </template>
 
 <script setup lang="ts">
+import Cube from "./cube.vue";
+
 import { inBrowser } from "vitepress";
 import { computed, defineAsyncComponent, onMounted, ref, useSlots } from "vue";
 

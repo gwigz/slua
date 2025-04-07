@@ -10,6 +10,7 @@ import {
 	transformerNotationWordHighlight,
 } from "@shikijs/transformers";
 import tailwindcss from "@tailwindcss/vite";
+import { templateCompilerOptions } from "@tresjs/core";
 import { defineConfig } from "vitepress";
 import { sluaTransformer } from "./slua/transformer";
 
@@ -18,6 +19,9 @@ export default defineConfig({
 	lang: "en-US",
 	title: "slua.tips",
 	description: "Tips and tricks for SLua",
+	vue: {
+		...templateCompilerOptions,
+	},
 	vite: {
 		plugins: [
 			// biome-ignore lint/suspicious/noExplicitAny: types don't match vitepress

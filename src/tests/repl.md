@@ -1,10 +1,11 @@
 ---
 title: SLua REPL
+sidebar: false
+aside: false
+gitChangelog: false
 ---
 
-# SLua REPL
-
-Nothing to see here.
+# SLua REPL <Badge type="info" text="work in progress" />
 
 <SLuaRepl>
 

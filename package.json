@@ -36,5 +36,10 @@
   "type": "module",
   "patchedDependencies": {
     "vitepress@1.6.3": "patches/vitepress@1.6.3.patch"
+  },
+  "dependencies": {
+    "@tresjs/cientos": "^4.3.0",
+    "@tresjs/core": "^4.3.3",
+    "three": "^0.175.0"
   }
 }

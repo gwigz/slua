@@ -50,4 +50,6 @@ yarn-error.log*
 **/.vitepress/dist
 
 # slua
-codegen/keywords.json
+keywords.json
+codegen/out/**
+!.gitkeep

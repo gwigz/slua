@@ -1,0 +1,10 @@
+{
+	"languageMode": "strict",
+	"lintErrors": true,
+	"typeErrors": true,
+	"lint": {
+		"*": true,
+		"FunctionUnused": false,
+		"BuiltinGlobalWrite": false
+	}
+}

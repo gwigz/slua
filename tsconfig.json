@@ -4,10 +4,10 @@
 		"moduleResolution": "Bundler",
 	},
 	"include": [
-		"**/.vitepress/**/*.ts",
-		"**/.vitepress/**/*.d.ts",
-		"**/.vitepress/**/*.mts",
-		"**/.vitepress/**/*.vue"
+		"src/**/*.ts",
+		"src/**/*.d.ts",
+		"src/**/*.vue",
+		"src/**/*.md"
 	],
 	"exclude": [
 		"node_modules"

@@ -1,12 +1,8 @@
 <template>
 	<div
-		class="bg-muted/20 border-4 rounded-lg border-card outline-1 outline-muted"
-	>
-		<div
-			ref="editorContainer"
-			class="w-full min-h-[40vh] bg-transparent rounded-lg"
-		></div>
-	</div>
+		ref="editorContainer"
+		class="bg-muted/20 border-4 rounded-lg border-card outline-1 outline-muted h-full"
+	></div>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +23,7 @@ const props = defineProps<{
 	language?: string;
 	theme?: string;
 	errorLines?: number[];
+	storageKey?: string;
 }>();
 
 const emit = defineEmits<(e: "update:modelValue", value: string) => void>();
@@ -59,6 +56,12 @@ onMounted(async () => {
 	if (!editorContainer.value) {
 		return;
 	}
+
+	// Load from localStorage if storageKey is provided
+	const initialValue = props.storageKey
+		? localStorage.getItem(props.storageKey) ?? props.modelValue
+		: props.modelValue;
+
 	const highlighter = await createHighlighter({
 		themes: ["catppuccin-latte", "catppuccin-mocha"],
 		langs: ["luau"],
@@ -126,14 +129,14 @@ onMounted(async () => {
 			});
 
 			const match = line.match(globalRegex);
-			const { word } = model.getWordAtPosition(position);
+			const word = model.getWordAtPosition(position)?.word;
 
 			const parent =
 				match && documentation[match[1] as keyof typeof documentation];
 
-			const details = parent?.[word];
+			const details = word && parent?.[word];
 
-			if (details) {
+			if (details && match) {
 				return {
 					contents: [
 						{
@@ -154,7 +157,7 @@ onMounted(async () => {
 	shikiToMonaco(highlighter, monaco);
 
 	editor = monaco.editor.create(editorContainer.value, {
-		value: props.modelValue,
+		value: initialValue,
 		language: props.language ?? "luau",
 		theme: isDark.value ? "catppuccin-mocha" : "catppuccin-latte",
 		padding: {
@@ -219,6 +222,11 @@ onMounted(async () => {
 	editor.onDidChangeModelContent(() => {
 		const value = editor?.getValue() ?? "";
 		emit("update:modelValue", value);
+
+		// Save to localStorage if storageKey is provided
+		if (props.storageKey) {
+			localStorage.setItem(props.storageKey, value);
+		}
 	});
 
 	updateErrorDecorations();

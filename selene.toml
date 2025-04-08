@@ -1,0 +1,10 @@
+std = "selene_defs"
+
+[rules]
+global_usage = "allow"
+shadowing = "allow"
+must_use = "warn"
+
+[config]
+empty_if = { comments_count = true }
+unused_variable = { ignore_pattern = "^_|^changed$|^attached$|^on_rez$|^touch_start$|^touch_end$|^touch$|^listen$|^timer$|^http_request$|^http_response$|^link_message$" }

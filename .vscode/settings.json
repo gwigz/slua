@@ -9,6 +9,9 @@
 	"[yaml][markdown][vue]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
+	"[luau][lua]": {
+		"editor.defaultFormatter": "JohnnyMorganz.stylua"
+	},
 	"editor.codeActionsOnSave": {
 		"source.fixAll.biome": "explicit",
 		"source.organizeImports.biome": "explicit"
@@ -20,5 +23,15 @@
 	},
 	"cSpell.words": [
 		"ccall"
-	]
+	],
+	"luau-lsp.platform.type": "standard",
+	"luau-lsp.sourcemap.autogenerate": false,
+	"luau-lsp.completion.imports.requireStyle": "alwaysRelative",
+	"luau-lsp.types.definitionFiles": [
+		"ll.d.luau"
+	],
+	"luau-lsp.types.documentationFiles": [
+		"ll.d.json"
+	],
+	"luau-lsp.sourcemap.enabled": false
 }

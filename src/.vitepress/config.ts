@@ -55,6 +55,7 @@ export default defineConfig({
 		nav: [
 			{ text: "Guides", link: "/guides/lsl-to-slua" },
 			{ text: "Resources", link: "/resources" },
+			// { text: "Playground", link: "/playground" },
 		],
 		sidebar: [
 			{

@@ -1,4 +1,4 @@
-type Type = string | string[] | { value: string }[];
+export type Type = string | string[] | { value: string }[];
 
 interface Arg {
 	def: string;
@@ -18,7 +18,7 @@ interface Result {
 	optional: boolean;
 }
 
-interface Signature {
+export interface Signature {
 	result: Result[];
 	args: Arg[];
 }
@@ -33,6 +33,8 @@ interface Prop {
 	desc?: string;
 	link?: string;
 	props?: Record<string, Prop>;
+	value?: string | number | null;
+	type?: string | { value: string } | { custom: string };
 }
 
 interface Global {

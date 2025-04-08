@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@plugin "daisyui" {
+  prefix: "d-";
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -35,6 +39,19 @@
 	--sidebar-accent-foreground: oklch(0.21 0.006 285.885);
 	--sidebar-border: oklch(0.92 0.004 286.32);
 	--sidebar-ring: oklch(0.645 0.246 16.439);
+
+	--color-primary: var(--primary);
+	--color-primary-content: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-content: var(--secondary-foreground);
+	--color-accent: var(--accent);
+	--color-accent-content: var(--accent-foreground);
+	--color-neutral: var(--muted);
+	--color-neutral-content: var(--muted-foreground);
+	--color-base-100: var(--background);
+	--color-base-200: var(--card);
+	--color-base-300: var(--popover);
+	--color-base-content: var(--foreground);
 }
 
 .dark {

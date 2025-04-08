@@ -5,6 +5,7 @@
 		"editorconfig.editorconfig",
 		"esbenp.prettier-vscode",
 		"vue.volar",
-		"csstools.postcss"
+		"csstools.postcss",
+		"johnnymorganz.stylua"
 	]
 }

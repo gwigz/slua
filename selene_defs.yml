@@ -1,0 +1,6345 @@
+# DO NOT USE THESE
+# GET THEM FROM https://slua.wlf.io
+
+base: luau
+name: selene_defs
+globals:
+  integer:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          - string
+          - number
+  uuid:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  toquaternion:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  tovector:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  quaternion:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32:
+    property: full-write
+  bit32.arshift:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32.band:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: ...
+  bit32.bnot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  bit32.bor:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: ...
+  bit32.bxor:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: ...
+  bit32.btest:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: ...
+  bit32.extract:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32.lrotate:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32.lshift:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32.replace:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32.rrotate:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32.rshift:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  bit32.countlz:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  bit32.countrz:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  bit32.byteswap:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  lljson:
+    property: full-write
+  lljson._NAME:
+    property: read-only
+  lljson._VERSION:
+    property: read-only
+  lljson.array_mt:
+    property: read-only
+  lljson.empty_array:
+    property: read-only
+  lljson.null:
+    property: read-only
+  lljson.encode:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          - string
+          - number
+          - bool
+          - table
+          - nil
+  lljson.decode:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  llbase64:
+    property: full-write
+  llbase64.encode:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  llbase64.decode:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: false
+        observes: read
+        type: bool
+  vector:
+    property: full-write
+  vector.zero:
+    property: read-only
+  vector.one:
+    property: read-only
+  vector.create:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  vector.magnitude:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.normalize:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.cross:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.dot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.angle:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.floor:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.ceil:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.abs:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.sign:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.clamp:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  vector.max:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: ...
+  vector.min:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: ...
+  ll:
+    property: full-write
+  ll.Abs:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Acos:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.AddToLandBanList:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.AddToLandPassList:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.AdjustDamage:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.AdjustSoundVolume:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.AgentInExperience:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.AllowInventoryDrop:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.AngleBetween:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.ApplyImpulse:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.ApplyRotationalImpulse:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.Asin:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Atan2:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.AttachToAvatar:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.AttachToAvatarTemp:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.AvatarOnLinkSitTarget:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.AvatarOnSitTarget:
+    must_use: true
+    args: []
+  ll.Axes2Rot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.AxisAngle2Rot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.Base64ToInteger:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Base64ToString:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.BreakAllLinks:
+    must_use: true
+    args: []
+  ll.BreakLink:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.CSV2List:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.CastRay:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.Ceil:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Char:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.ClearCameraParams:
+    must_use: false
+    args: []
+  ll.ClearLinkMedia:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ClearPrimMedia:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.CloseRemoteDataChannel:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Cloud:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.CollisionFilter:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.CollisionSound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.CollisionSprite:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.ComputeHash:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.Cos:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.CreateCharacter:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.CreateKeyValue:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.CreateLink:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.Damage:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.DataSizeKeyValue:
+    must_use: false
+    args: []
+  ll.DeleteCharacter:
+    must_use: false
+    args: []
+  ll.DeleteKeyValue:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.DeleteSubList:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.DeleteSubString:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.DerezObject:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.DetachFromAvatar:
+    must_use: true
+    args: []
+  ll.DetectedDamage:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedGrab:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedGroup:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedKey:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedLinkNumber:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedName:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedOwner:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedPos:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedRezzer:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedRot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedTouchBinormal:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedTouchFace:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedTouchNormal:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedTouchPos:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedTouchST:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedTouchUV:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedType:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.DetectedVel:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Dialog:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.Die:
+    must_use: true
+    args: []
+  ll.DumpList2String:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: string
+  ll.EdgeOfWorld:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.EjectFromLand:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Email:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.EscapeURL:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Euler2Rot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.Evade:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.ExecCharacterCmd:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.Fabs:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.FindNotecardTextCount:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.FindNotecardTextSync:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.FleeFrom:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.Floor:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.ForceMouselook:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Frand:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GenerateKey:
+    must_use: true
+    args: []
+  ll.GetAccel:
+    must_use: true
+    args: []
+  ll.GetAgentInfo:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetAgentLanguage:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetAgentList:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.GetAgentSize:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetAlpha:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetAndResetTime:
+    must_use: false
+    args: []
+  ll.GetAnimation:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetAnimationList:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetAnimationOverride:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetAttached:
+    must_use: true
+    args: []
+  ll.GetAttachedList:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetAttachedListFiltered:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.GetBoundingBox:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetCameraAspect:
+    must_use: true
+    args: []
+  ll.GetCameraFOV:
+    must_use: true
+    args: []
+  ll.GetCameraPos:
+    must_use: true
+    args: []
+  ll.GetCameraRot:
+    must_use: true
+    args: []
+  ll.GetCenterOfMass:
+    must_use: true
+    args: []
+  ll.GetClosestNavPoint:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.GetColor:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetCreator:
+    must_use: true
+    args: []
+  ll.GetDate:
+    must_use: true
+    args: []
+  ll.GetDayLength:
+    must_use: true
+    args: []
+  ll.GetDayOffset:
+    must_use: true
+    args: []
+  ll.GetDisplayName:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetEnergy:
+    must_use: true
+    args: []
+  ll.GetEnv:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetEnvironment:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.GetExperienceDetails:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetExperienceErrorMessage:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetForce:
+    must_use: true
+    args: []
+  ll.GetFreeMemory:
+    must_use: true
+    args: []
+  ll.GetFreeURLs:
+    must_use: true
+    args: []
+  ll.GetGMTclock:
+    must_use: true
+    args: []
+  ll.GetGeometricCenter:
+    must_use: true
+    args: []
+  ll.GetHTTPHeader:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.GetHealth:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetInventoryAcquireTime:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetInventoryCreator:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetInventoryDesc:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetInventoryKey:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetInventoryName:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.GetInventoryNumber:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetInventoryPermMask:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.GetInventoryType:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetKey:
+    must_use: true
+    args: []
+  ll.GetLandOwnerAt:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.GetLinkKey:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetLinkMedia:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.GetLinkName:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetLinkNumber:
+    must_use: true
+    args: []
+  ll.GetLinkNumberOfSides:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetLinkPrimitiveParams:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.GetLinkSitFlags:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetListEntryType:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.GetListLength:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.GetLocalPos:
+    must_use: true
+    args: []
+  ll.GetLocalRot:
+    must_use: true
+    args: []
+  ll.GetMass:
+    must_use: true
+    args: []
+  ll.GetMassMKS:
+    must_use: true
+    args: []
+  ll.GetMaxScaleFactor:
+    must_use: true
+    args: []
+  ll.GetMemoryLimit:
+    must_use: true
+    args: []
+  ll.GetMinScaleFactor:
+    must_use: true
+    args: []
+  ll.GetMoonDirection:
+    must_use: true
+    args: []
+  ll.GetMoonRotation:
+    must_use: true
+    args: []
+  ll.GetNextEmail:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.GetNotecardLine:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.GetNotecardLineSync:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.GetNumberOfNotecardLines:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetNumberOfPrims:
+    must_use: true
+    args: []
+  ll.GetNumberOfSides:
+    must_use: true
+    args: []
+  ll.GetObjectAnimationNames:
+    must_use: true
+    args: []
+  ll.GetObjectDesc:
+    must_use: true
+    args: []
+  ll.GetObjectDetails:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.GetObjectLinkKey:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.GetObjectMass:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetObjectName:
+    must_use: true
+    args: []
+  ll.GetObjectPermMask:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetObjectPrimCount:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetOmega:
+    must_use: true
+    args: []
+  ll.GetOwner:
+    must_use: true
+    args: []
+  ll.GetOwnerKey:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetParcelDetails:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.GetParcelFlags:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.GetParcelMaxPrims:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.GetParcelMusicURL:
+    must_use: true
+    args: []
+  ll.GetParcelPrimCount:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.GetParcelPrimOwners:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.GetPermissions:
+    must_use: true
+    args: []
+  ll.GetPermissionsKey:
+    must_use: true
+    args: []
+  ll.GetPhysicsMaterial:
+    must_use: true
+    args: []
+  ll.GetPos:
+    must_use: true
+    args: []
+  ll.GetPrimMediaParams:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.GetPrimitiveParams:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.GetRegionAgentCount:
+    must_use: true
+    args: []
+  ll.GetRegionCorner:
+    must_use: true
+    args: []
+  ll.GetRegionDayLength:
+    must_use: true
+    args: []
+  ll.GetRegionDayOffset:
+    must_use: true
+    args: []
+  ll.GetRegionFPS:
+    must_use: true
+    args: []
+  ll.GetRegionFlags:
+    must_use: true
+    args: []
+  ll.GetRegionMoonDirection:
+    must_use: true
+    args: []
+  ll.GetRegionMoonRotation:
+    must_use: true
+    args: []
+  ll.GetRegionName:
+    must_use: true
+    args: []
+  ll.GetRegionSunDirection:
+    must_use: true
+    args: []
+  ll.GetRegionSunRotation:
+    must_use: true
+    args: []
+  ll.GetRegionTimeDilation:
+    must_use: true
+    args: []
+  ll.GetRegionTimeOfDay:
+    must_use: true
+    args: []
+  ll.GetRenderMaterial:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetRootPosition:
+    must_use: true
+    args: []
+  ll.GetRootRotation:
+    must_use: true
+    args: []
+  ll.GetRot:
+    must_use: true
+    args: []
+  ll.GetSPMaxMemory:
+    must_use: true
+    args: []
+  ll.GetScale:
+    must_use: true
+    args: []
+  ll.GetScriptName:
+    must_use: true
+    args: []
+  ll.GetScriptState:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetSimStats:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetSimulatorHostname:
+    must_use: true
+    args: []
+  ll.GetStartParameter:
+    must_use: true
+    args: []
+  ll.GetStartString:
+    must_use: true
+    args: []
+  ll.GetStaticPath:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.GetStatus:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetSubString:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.GetSunDirection:
+    must_use: true
+    args: []
+  ll.GetSunRotation:
+    must_use: true
+    args: []
+  ll.GetTexture:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetTextureOffset:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetTextureRot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetTextureScale:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.GetTime:
+    must_use: true
+    args: []
+  ll.GetTimeOfDay:
+    must_use: true
+    args: []
+  ll.GetTimestamp:
+    must_use: true
+    args: []
+  ll.GetTorque:
+    must_use: true
+    args: []
+  ll.GetUnixTime:
+    must_use: true
+    args: []
+  ll.GetUsedMemory:
+    must_use: true
+    args: []
+  ll.GetUsername:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.GetVel:
+    must_use: true
+    args: []
+  ll.GetVisualParams:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.GetWallclock:
+    must_use: true
+    args: []
+  ll.GiveAgentInventory:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+  ll.GiveInventory:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.GiveInventoryList:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.GiveMoney:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.GodLikeRezObject:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.Ground:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.GroundContour:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.GroundNormal:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.GroundRepel:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.GroundSlope:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.HMAC:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.HTTPRequest:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: string
+  ll.HTTPResponse:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.Hash:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.InsertString:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.InstantMessage:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.IntegerToBase64:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.IsFriend:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Json2List:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.JsonGetValue:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.JsonSetValue:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: string
+  ll.JsonValueType:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.Key2Name:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.KeyCountKeyValue:
+    must_use: false
+    args: []
+  ll.KeysKeyValue:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.Linear2sRGB:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.LinkAdjustSoundVolume:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.LinkParticleSystem:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.LinkPlaySound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.LinkSetSoundQueueing:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.LinkSetSoundRadius:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.LinkSitTarget:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.LinkStopSound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.LinksetDataAvailable:
+    must_use: true
+    args: []
+  ll.LinksetDataCountFound:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.LinksetDataCountKeys:
+    must_use: true
+    args: []
+  ll.LinksetDataDelete:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.LinksetDataDeleteFound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.LinksetDataDeleteProtected:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.LinksetDataFindKeys:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.LinksetDataListKeys:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.LinksetDataRead:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.LinksetDataReadProtected:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.LinksetDataReset:
+    must_use: false
+    args: []
+  ll.LinksetDataWrite:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.LinksetDataWriteProtected:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.List2CSV:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.List2Float:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.List2Integer:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.List2Json:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.List2Key:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.List2List:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.List2ListSlice:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.List2ListStrided:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.List2Rot:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.List2String:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.List2Vector:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.ListFindList:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+  ll.ListFindListNext:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.ListFindStrided:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ListInsertList:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.ListRandomize:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+  ll.ListReplaceList:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ListSort:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ListSortStrided:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ListStatistics:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.Listen:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.ListenControl:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ListenRemove:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.LoadURL:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.Log:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Log10:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.LookAt:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.LoopSound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.LoopSoundMaster:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.LoopSoundSlave:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.MD5String:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.MakeExplosion:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.MakeFire:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.MakeFountain:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.MakeSmoke:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.ManageEstateAccess:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.MapBeacon:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.MapDestination:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.MessageLinked:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.MinEventDelay:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.ModPow:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ModifyLand:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.MoveToTarget:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.Name2Key:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.NavigateTo:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.OffsetTexture:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.OpenFloater:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.OpenRemoteDataChannel:
+    must_use: true
+    args: []
+  ll.Ord:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.OverMyLand:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.OwnerSay:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.ParcelMediaCommandList:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.ParcelMediaQuery:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.ParseString2List:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+  ll.ParseStringKeepNulls:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+  ll.ParticleSystem:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.PassCollisions:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.PassTouches:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.PatrolPoints:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+  ll.PlaySound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.PlaySoundSlave:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.Pow:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.PreloadSound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Pursue:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.PushObject:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.ReadKeyValue:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RefreshPrimURL:
+    must_use: true
+    args: []
+  ll.RegionSay:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.RegionSayTo:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.ReleaseCamera:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.ReleaseControls:
+    must_use: false
+    args: []
+  ll.ReleaseURL:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RemoteDataReply:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.RemoteDataSetRegion:
+    must_use: false
+    args: []
+  ll.RemoteLoadScriptPin:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.RemoveFromLandBanList:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RemoveFromLandPassList:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RemoveInventory:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RemoveVehicleFlags:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.ReplaceAgentEnvironment:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.ReplaceEnvironment:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ReplaceSubString:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.RequestAgentData:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.RequestDisplayName:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RequestExperiencePermissions:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.RequestInventoryData:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RequestPermissions:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.RequestSecureURL:
+    must_use: false
+    args: []
+  ll.RequestSimulatorData:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.RequestURL:
+    must_use: false
+    args: []
+  ll.RequestUserKey:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.RequestUsername:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.ResetAnimationOverride:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.ResetLandBanList:
+    must_use: false
+    args: []
+  ll.ResetLandPassList:
+    must_use: false
+    args: []
+  ll.ResetOtherScript:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.ResetScript:
+    must_use: false
+    args: []
+  ll.ResetTime:
+    must_use: false
+    args: []
+  ll.ReturnObjectsByID:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.ReturnObjectsByOwner:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.RezAtRoot:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+      - required: true
+        observes: read
+        type: number
+  ll.RezObject:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+      - required: true
+        observes: read
+        type: number
+  ll.RezObjectWithParams:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: table
+  ll.Rot2Angle:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.Rot2Axis:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.Rot2Euler:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.Rot2Fwd:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.Rot2Left:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.Rot2Up:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.RotBetween:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.RotLookAt:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.RotTarget:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+      - required: true
+        observes: read
+        type: number
+  ll.RotTargetRemove:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.RotateTexture:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.Round:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SHA1String:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SHA256String:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SameGroup:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Say:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.ScaleByFactor:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.ScaleTexture:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.ScriptDanger:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.ScriptProfiler:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SendRemoteData:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.Sensor:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SensorRemove:
+    must_use: false
+    args: []
+  ll.SensorRepeat:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetAgentEnvironment:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.SetAgentRot:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+      - required: true
+        observes: read
+        type: number
+  ll.SetAlpha:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetAngularVelocity:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.SetAnimationOverride:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.SetBuoyancy:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetCameraAtOffset:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.SetCameraEyeOffset:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.SetCameraParams:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.SetClickAction:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetColor:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.SetContentType:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SetDamage:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetEnvironment:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.SetForce:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.SetForceAndTorque:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.SetGroundTexture:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.SetHoverHeight:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetInventoryPermMask:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetKeyframedMotion:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+      - required: true
+        observes: read
+        type: table
+  ll.SetLinkAlpha:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetLinkCamera:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.SetLinkColor:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.SetLinkMedia:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.SetLinkPrimitiveParams:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.SetLinkPrimitiveParamsFast:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.SetLinkRenderMaterial:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SetLinkSitFlags:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetLinkTexture:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SetLinkTextureAnim:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetLocalRot:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.SetMemoryLimit:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetObjectDesc:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SetObjectName:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SetObjectPermMask:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetParcelMusicURL:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SetPayPrice:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.SetPhysicsMaterial:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetPos:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.SetPrimMediaParams:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.SetPrimURL:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SetPrimitiveParams:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.SetRegionPos:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.SetRemoteScriptAccessPin:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetRenderMaterial:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SetRot:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.SetScale:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.SetScriptState:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SetSitText:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SetSoundQueueing:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetSoundRadius:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetStatus:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetText:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.SetTexture:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SetTextureAnim:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetTimerEvent:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetTorque:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.SetTouchText:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.SetVehicleFlags:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetVehicleFloatParam:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SetVehicleRotationParam:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.SetVehicleType:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SetVehicleVectorParam:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.SetVelocity:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.Shout:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.SignRSA:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.Sin:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.SitOnLink:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SitTarget:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: Quaternion
+  ll.Sleep:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Sound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.SoundPreload:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.Sqrt:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.StartAnimation:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.StartObjectAnimation:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.StopAnimation:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.StopHover:
+    must_use: false
+    args: []
+  ll.StopLookAt:
+    must_use: false
+    args: []
+  ll.StopMoveToTarget:
+    must_use: false
+    args: []
+  ll.StopObjectAnimation:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.StopSound:
+    must_use: false
+    args: []
+  ll.StringLength:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.StringToBase64:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.StringTrim:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.SubStringIndex:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.TakeCamera:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.TakeControls:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: bool
+      - required: true
+        observes: read
+        type: bool
+  ll.Tan:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.Target:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+  ll.TargetOmega:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: number
+  ll.TargetRemove:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.TargetedEmail:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.TeleportAgent:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.TeleportAgentGlobalCoords:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.TeleportAgentHome:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.TextBox:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.ToLower:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.ToUpper:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.TransferLindenDollars:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.TransferOwnership:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: table
+  ll.TriggerSound:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+  ll.TriggerSoundLimited:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.UnSit:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.UnescapeURL:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+  ll.UpdateCharacter:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: table
+  ll.UpdateKeyValue:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.VecDist:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.VecMag:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.VecNorm:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.VerifyRSA:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.VolumeDetect:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+  ll.WanderWithin:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type:
+          display: vector
+      - required: true
+        observes: read
+        type: table
+  ll.Water:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.Whisper:
+    must_use: false
+    args:
+      - required: true
+        observes: read
+        type: number
+      - required: true
+        observes: read
+        type: string
+  ll.Wind:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.WorldPosToHUD:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ll.XorBase64:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.XorBase64Strings:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.XorBase64StringsCorrect:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: string
+  ll.sRGB2Linear:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type:
+          display: vector
+  ACTIVE:
+    property: read-only
+  AGENT:
+    property: read-only
+  AGENT_ALWAYS_RUN:
+    property: read-only
+  AGENT_ATTACHMENTS:
+    property: read-only
+  AGENT_AUTOMATED:
+    property: read-only
+  AGENT_AUTOPILOT:
+    property: read-only
+  AGENT_AWAY:
+    property: read-only
+  AGENT_BUSY:
+    property: read-only
+  AGENT_BY_LEGACY_NAME:
+    property: read-only
+  AGENT_BY_USERNAME:
+    property: read-only
+  AGENT_CROUCHING:
+    property: read-only
+  AGENT_FLOATING_VIA_SCRIPTED_ATTACHMENT:
+    property: read-only
+  AGENT_FLYING:
+    property: read-only
+  AGENT_IN_AIR:
+    property: read-only
+  AGENT_LIST_PARCEL:
+    property: read-only
+  AGENT_LIST_PARCEL_OWNER:
+    property: read-only
+  AGENT_LIST_REGION:
+    property: read-only
+  AGENT_MOUSELOOK:
+    property: read-only
+  AGENT_ON_OBJECT:
+    property: read-only
+  AGENT_SCRIPTED:
+    property: read-only
+  AGENT_SITTING:
+    property: read-only
+  AGENT_TYPING:
+    property: read-only
+  AGENT_WALKING:
+    property: read-only
+  ALL_SIDES:
+    property: read-only
+  ANIM_ON:
+    property: read-only
+  ATTACH_ANY_HUD:
+    property: read-only
+  ATTACH_AVATAR_CENTER:
+    property: read-only
+  ATTACH_BACK:
+    property: read-only
+  ATTACH_BELLY:
+    property: read-only
+  ATTACH_CHEST:
+    property: read-only
+  ATTACH_CHIN:
+    property: read-only
+  ATTACH_FACE_JAW:
+    property: read-only
+  ATTACH_FACE_LEAR:
+    property: read-only
+  ATTACH_FACE_LEYE:
+    property: read-only
+  ATTACH_FACE_REAR:
+    property: read-only
+  ATTACH_FACE_REYE:
+    property: read-only
+  ATTACH_FACE_TONGUE:
+    property: read-only
+  ATTACH_GROIN:
+    property: read-only
+  ATTACH_HEAD:
+    property: read-only
+  ATTACH_HIND_LFOOT:
+    property: read-only
+  ATTACH_HIND_RFOOT:
+    property: read-only
+  ATTACH_HUD_BOTTOM:
+    property: read-only
+  ATTACH_HUD_BOTTOM_LEFT:
+    property: read-only
+  ATTACH_HUD_BOTTOM_RIGHT:
+    property: read-only
+  ATTACH_HUD_CENTER_1:
+    property: read-only
+  ATTACH_HUD_CENTER_2:
+    property: read-only
+  ATTACH_HUD_TOP_CENTER:
+    property: read-only
+  ATTACH_HUD_TOP_LEFT:
+    property: read-only
+  ATTACH_HUD_TOP_RIGHT:
+    property: read-only
+  ATTACH_LEAR:
+    property: read-only
+  ATTACH_LEFT_PEC:
+    property: read-only
+  ATTACH_LEYE:
+    property: read-only
+  ATTACH_LFOOT:
+    property: read-only
+  ATTACH_LHAND:
+    property: read-only
+  ATTACH_LHAND_RING1:
+    property: read-only
+  ATTACH_LHIP:
+    property: read-only
+  ATTACH_LLARM:
+    property: read-only
+  ATTACH_LLLEG:
+    property: read-only
+  ATTACH_LPEC:
+    property: read-only
+  ATTACH_LSHOULDER:
+    property: read-only
+  ATTACH_LUARM:
+    property: read-only
+  ATTACH_LULEG:
+    property: read-only
+  ATTACH_LWING:
+    property: read-only
+  ATTACH_MOUTH:
+    property: read-only
+  ATTACH_NECK:
+    property: read-only
+  ATTACH_NOSE:
+    property: read-only
+  ATTACH_PELVIS:
+    property: read-only
+  ATTACH_REAR:
+    property: read-only
+  ATTACH_REYE:
+    property: read-only
+  ATTACH_RFOOT:
+    property: read-only
+  ATTACH_RHAND:
+    property: read-only
+  ATTACH_RHAND_RING1:
+    property: read-only
+  ATTACH_RHIP:
+    property: read-only
+  ATTACH_RIGHT_PEC:
+    property: read-only
+  ATTACH_RLARM:
+    property: read-only
+  ATTACH_RLLEG:
+    property: read-only
+  ATTACH_RPEC:
+    property: read-only
+  ATTACH_RSHOULDER:
+    property: read-only
+  ATTACH_RUARM:
+    property: read-only
+  ATTACH_RULEG:
+    property: read-only
+  ATTACH_RWING:
+    property: read-only
+  ATTACH_TAIL_BASE:
+    property: read-only
+  ATTACH_TAIL_TIP:
+    property: read-only
+  AVOID_CHARACTERS:
+    property: read-only
+  AVOID_DYNAMIC_OBSTACLES:
+    property: read-only
+  AVOID_NONE:
+    property: read-only
+  BEACON_MAP:
+    property: read-only
+  CAMERA_ACTIVE:
+    property: read-only
+  CAMERA_BEHINDNESS_ANGLE:
+    property: read-only
+  CAMERA_BEHINDNESS_LAG:
+    property: read-only
+  CAMERA_DISTANCE:
+    property: read-only
+  CAMERA_FOCUS:
+    property: read-only
+  CAMERA_FOCUS_LAG:
+    property: read-only
+  CAMERA_FOCUS_LOCKED:
+    property: read-only
+  CAMERA_FOCUS_OFFSET:
+    property: read-only
+  CAMERA_FOCUS_THRESHOLD:
+    property: read-only
+  CAMERA_PITCH:
+    property: read-only
+  CAMERA_POSITION:
+    property: read-only
+  CAMERA_POSITION_LAG:
+    property: read-only
+  CAMERA_POSITION_LOCKED:
+    property: read-only
+  CAMERA_POSITION_THRESHOLD:
+    property: read-only
+  CHANGED_ALLOWED_DROP:
+    property: read-only
+  CHANGED_COLOR:
+    property: read-only
+  CHANGED_INVENTORY:
+    property: read-only
+  CHANGED_LINK:
+    property: read-only
+  CHANGED_MEDIA:
+    property: read-only
+  CHANGED_OWNER:
+    property: read-only
+  CHANGED_REGION:
+    property: read-only
+  CHANGED_REGION_START:
+    property: read-only
+  CHANGED_RENDER_MATERIAL:
+    property: read-only
+  CHANGED_SCALE:
+    property: read-only
+  CHANGED_SHAPE:
+    property: read-only
+  CHANGED_TELEPORT:
+    property: read-only
+  CHANGED_TEXTURE:
+    property: read-only
+  CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES:
+    property: read-only
+  CHARACTER_AVOIDANCE_MODE:
+    property: read-only
+  CHARACTER_CMD_JUMP:
+    property: read-only
+  CHARACTER_CMD_SMOOTH_STOP:
+    property: read-only
+  CHARACTER_CMD_STOP:
+    property: read-only
+  CHARACTER_DESIRED_SPEED:
+    property: read-only
+  CHARACTER_DESIRED_TURN_SPEED:
+    property: read-only
+  CHARACTER_LENGTH:
+    property: read-only
+  CHARACTER_MAX_ACCEL:
+    property: read-only
+  CHARACTER_MAX_DECEL:
+    property: read-only
+  CHARACTER_MAX_SPEED:
+    property: read-only
+  CHARACTER_MAX_TURN_RADIUS:
+    property: read-only
+  CHARACTER_ORIENTATION:
+    property: read-only
+  CHARACTER_RADIUS:
+    property: read-only
+  CHARACTER_STAY_WITHIN_PARCEL:
+    property: read-only
+  CHARACTER_TYPE:
+    property: read-only
+  CHARACTER_TYPE_A:
+    property: read-only
+  CHARACTER_TYPE_B:
+    property: read-only
+  CHARACTER_TYPE_C:
+    property: read-only
+  CHARACTER_TYPE_D:
+    property: read-only
+  CHARACTER_TYPE_NONE:
+    property: read-only
+  CLICK_ACTION_BUY:
+    property: read-only
+  CLICK_ACTION_DISABLED:
+    property: read-only
+  CLICK_ACTION_IGNORE:
+    property: read-only
+  CLICK_ACTION_NONE:
+    property: read-only
+  CLICK_ACTION_OPEN:
+    property: read-only
+  CLICK_ACTION_OPEN_MEDIA:
+    property: read-only
+  CLICK_ACTION_PAY:
+    property: read-only
+  CLICK_ACTION_PLAY:
+    property: read-only
+  CLICK_ACTION_SIT:
+    property: read-only
+  CLICK_ACTION_TOUCH:
+    property: read-only
+  CLICK_ACTION_ZOOM:
+    property: read-only
+  COMBAT_CHANNEL:
+    property: read-only
+  COMBAT_LOG_ID:
+    property: read-only
+  CONTENT_TYPE_ATOM:
+    property: read-only
+  CONTENT_TYPE_FORM:
+    property: read-only
+  CONTENT_TYPE_HTML:
+    property: read-only
+  CONTENT_TYPE_JSON:
+    property: read-only
+  CONTENT_TYPE_LLSD:
+    property: read-only
+  CONTENT_TYPE_RSS:
+    property: read-only
+  CONTENT_TYPE_TEXT:
+    property: read-only
+  CONTENT_TYPE_XHTML:
+    property: read-only
+  CONTENT_TYPE_XML:
+    property: read-only
+  CONTROL_BACK:
+    property: read-only
+  CONTROL_DOWN:
+    property: read-only
+  CONTROL_FWD:
+    property: read-only
+  CONTROL_LBUTTON:
+    property: read-only
+  CONTROL_LEFT:
+    property: read-only
+  CONTROL_ML_LBUTTON:
+    property: read-only
+  CONTROL_RIGHT:
+    property: read-only
+  CONTROL_ROT_LEFT:
+    property: read-only
+  CONTROL_ROT_RIGHT:
+    property: read-only
+  CONTROL_UP:
+    property: read-only
+  DAMAGEABLE:
+    property: read-only
+  DAMAGE_TYPE_ACID:
+    property: read-only
+  DAMAGE_TYPE_BLUDGEONING:
+    property: read-only
+  DAMAGE_TYPE_COLD:
+    property: read-only
+  DAMAGE_TYPE_ELECTRIC:
+    property: read-only
+  DAMAGE_TYPE_EMOTIONAL:
+    property: read-only
+  DAMAGE_TYPE_FIRE:
+    property: read-only
+  DAMAGE_TYPE_FORCE:
+    property: read-only
+  DAMAGE_TYPE_GENERIC:
+    property: read-only
+  DAMAGE_TYPE_IMPACT:
+    property: read-only
+  DAMAGE_TYPE_NECROTIC:
+    property: read-only
+  DAMAGE_TYPE_PIERCING:
+    property: read-only
+  DAMAGE_TYPE_POISON:
+    property: read-only
+  DAMAGE_TYPE_PSYCHIC:
+    property: read-only
+  DAMAGE_TYPE_RADIANT:
+    property: read-only
+  DAMAGE_TYPE_SLASHING:
+    property: read-only
+  DAMAGE_TYPE_SONIC:
+    property: read-only
+  DATA_BORN:
+    property: read-only
+  DATA_NAME:
+    property: read-only
+  DATA_ONLINE:
+    property: read-only
+  DATA_PAYINFO:
+    property: read-only
+  DATA_RATING:
+    property: read-only
+  DATA_SIM_POS:
+    property: read-only
+  DATA_SIM_RATING:
+    property: read-only
+  DATA_SIM_STATUS:
+    property: read-only
+  DEBUG_CHANNEL:
+    property: read-only
+  DEG_TO_RAD:
+    property: read-only
+  DENSITY:
+    property: read-only
+  DEREZ_DIE:
+    property: read-only
+  DEREZ_MAKE_TEMP:
+    property: read-only
+  ENVIRONMENT_DAYINFO:
+    property: read-only
+  ENV_INVALID_AGENT:
+    property: read-only
+  ENV_INVALID_RULE:
+    property: read-only
+  ENV_NOT_EXPERIENCE:
+    property: read-only
+  ENV_NO_ENVIRONMENT:
+    property: read-only
+  ENV_NO_EXPERIENCE_LAND:
+    property: read-only
+  ENV_NO_EXPERIENCE_PERMISSION:
+    property: read-only
+  ENV_NO_PERMISSIONS:
+    property: read-only
+  ENV_THROTTLE:
+    property: read-only
+  ENV_VALIDATION_FAIL:
+    property: read-only
+  EOF:
+    property: read-only
+  ERR_GENERIC:
+    property: read-only
+  ERR_MALFORMED_PARAMS:
+    property: read-only
+  ERR_PARCEL_PERMISSIONS:
+    property: read-only
+  ERR_RUNTIME_PERMISSIONS:
+    property: read-only
+  ERR_THROTTLED:
+    property: read-only
+  ESTATE_ACCESS_ALLOWED_AGENT_ADD:
+    property: read-only
+  ESTATE_ACCESS_ALLOWED_AGENT_REMOVE:
+    property: read-only
+  ESTATE_ACCESS_ALLOWED_GROUP_ADD:
+    property: read-only
+  ESTATE_ACCESS_ALLOWED_GROUP_REMOVE:
+    property: read-only
+  ESTATE_ACCESS_BANNED_AGENT_ADD:
+    property: read-only
+  ESTATE_ACCESS_BANNED_AGENT_REMOVE:
+    property: read-only
+  "FALSE":
+    property: read-only
+  FILTER_FLAGS:
+    property: read-only
+  FILTER_FLAG_HUDS:
+    property: read-only
+  FILTER_INCLUDE:
+    property: read-only
+  FORCE_DIRECT_PATH:
+    property: read-only
+  FRICTION:
+    property: read-only
+  GAME_CONTROL_AXIS_LEFTX:
+    property: read-only
+  GAME_CONTROL_AXIS_LEFTY:
+    property: read-only
+  GAME_CONTROL_AXIS_RIGHTX:
+    property: read-only
+  GAME_CONTROL_AXIS_RIGHTY:
+    property: read-only
+  GAME_CONTROL_AXIS_TRIGGERLEFT:
+    property: read-only
+  GAME_CONTROL_AXIS_TRIGGERRIGHT:
+    property: read-only
+  GAME_CONTROL_BUTTON_A:
+    property: read-only
+  GAME_CONTROL_BUTTON_B:
+    property: read-only
+  GAME_CONTROL_BUTTON_BACK:
+    property: read-only
+  GAME_CONTROL_BUTTON_DPAD_DOWN:
+    property: read-only
+  GAME_CONTROL_BUTTON_DPAD_LEFT:
+    property: read-only
+  GAME_CONTROL_BUTTON_DPAD_RIGHT:
+    property: read-only
+  GAME_CONTROL_BUTTON_DPAD_UP:
+    property: read-only
+  GAME_CONTROL_BUTTON_GUIDE:
+    property: read-only
+  GAME_CONTROL_BUTTON_LEFTSHOULDER:
+    property: read-only
+  GAME_CONTROL_BUTTON_LEFTSTICK:
+    property: read-only
+  GAME_CONTROL_BUTTON_MISC1:
+    property: read-only
+  GAME_CONTROL_BUTTON_PADDLE1:
+    property: read-only
+  GAME_CONTROL_BUTTON_PADDLE2:
+    property: read-only
+  GAME_CONTROL_BUTTON_PADDLE3:
+    property: read-only
+  GAME_CONTROL_BUTTON_PADDLE4:
+    property: read-only
+  GAME_CONTROL_BUTTON_RIGHTSHOULDER:
+    property: read-only
+  GAME_CONTROL_BUTTON_RIGHTSTICK:
+    property: read-only
+  GAME_CONTROL_BUTTON_START:
+    property: read-only
+  GAME_CONTROL_BUTTON_TOUCHPAD:
+    property: read-only
+  GAME_CONTROL_BUTTON_X:
+    property: read-only
+  GAME_CONTROL_BUTTON_Y:
+    property: read-only
+  GCNP_RADIUS:
+    property: read-only
+  GCNP_STATIC:
+    property: read-only
+  GRAVITY_MULTIPLIER:
+    property: read-only
+  HORIZONTAL:
+    property: read-only
+  HTTP_ACCEPT:
+    property: read-only
+  HTTP_BODY_MAXLENGTH:
+    property: read-only
+  HTTP_BODY_TRUNCATED:
+    property: read-only
+  HTTP_CUSTOM_HEADER:
+    property: read-only
+  HTTP_EXTENDED_ERROR:
+    property: read-only
+  HTTP_METHOD:
+    property: read-only
+  HTTP_MIMETYPE:
+    property: read-only
+  HTTP_PRAGMA_NO_CACHE:
+    property: read-only
+  HTTP_USER_AGENT:
+    property: read-only
+  HTTP_VERBOSE_THROTTLE:
+    property: read-only
+  HTTP_VERIFY_CERT:
+    property: read-only
+  IMG_USE_BAKED_AUX1:
+    property: read-only
+  IMG_USE_BAKED_AUX2:
+    property: read-only
+  IMG_USE_BAKED_AUX3:
+    property: read-only
+  IMG_USE_BAKED_EYES:
+    property: read-only
+  IMG_USE_BAKED_HAIR:
+    property: read-only
+  IMG_USE_BAKED_HEAD:
+    property: read-only
+  IMG_USE_BAKED_LEFTARM:
+    property: read-only
+  IMG_USE_BAKED_LEFTLEG:
+    property: read-only
+  IMG_USE_BAKED_LOWER:
+    property: read-only
+  IMG_USE_BAKED_SKIRT:
+    property: read-only
+  IMG_USE_BAKED_UPPER:
+    property: read-only
+  INVENTORY_ALL:
+    property: read-only
+  INVENTORY_ANIMATION:
+    property: read-only
+  INVENTORY_BODYPART:
+    property: read-only
+  INVENTORY_CLOTHING:
+    property: read-only
+  INVENTORY_GESTURE:
+    property: read-only
+  INVENTORY_LANDMARK:
+    property: read-only
+  INVENTORY_MATERIAL:
+    property: read-only
+  INVENTORY_NONE:
+    property: read-only
+  INVENTORY_NOTECARD:
+    property: read-only
+  INVENTORY_OBJECT:
+    property: read-only
+  INVENTORY_SCRIPT:
+    property: read-only
+  INVENTORY_SETTING:
+    property: read-only
+  INVENTORY_SOUND:
+    property: read-only
+  INVENTORY_TEXTURE:
+    property: read-only
+  JSON_APPEND:
+    property: read-only
+  JSON_ARRAY:
+    property: read-only
+  JSON_DELETE:
+    property: read-only
+  JSON_FALSE:
+    property: read-only
+  JSON_INVALID:
+    property: read-only
+  JSON_NULL:
+    property: read-only
+  JSON_NUMBER:
+    property: read-only
+  JSON_OBJECT:
+    property: read-only
+  JSON_STRING:
+    property: read-only
+  JSON_TRUE:
+    property: read-only
+  KFM_CMD_PAUSE:
+    property: read-only
+  KFM_CMD_PLAY:
+    property: read-only
+  KFM_CMD_STOP:
+    property: read-only
+  KFM_COMMAND:
+    property: read-only
+  KFM_DATA:
+    property: read-only
+  KFM_FORWARD:
+    property: read-only
+  KFM_LOOP:
+    property: read-only
+  KFM_MODE:
+    property: read-only
+  KFM_PING_PONG:
+    property: read-only
+  KFM_REVERSE:
+    property: read-only
+  KFM_ROTATION:
+    property: read-only
+  KFM_TRANSLATION:
+    property: read-only
+  LAND_LARGE_BRUSH:
+    property: read-only
+  LAND_LEVEL:
+    property: read-only
+  LAND_LOWER:
+    property: read-only
+  LAND_MEDIUM_BRUSH:
+    property: read-only
+  LAND_NOISE:
+    property: read-only
+  LAND_RAISE:
+    property: read-only
+  LAND_REVERT:
+    property: read-only
+  LAND_SMALL_BRUSH:
+    property: read-only
+  LAND_SMOOTH:
+    property: read-only
+  LINKSETDATA_DELETE:
+    property: read-only
+  LINKSETDATA_EMEMORY:
+    property: read-only
+  LINKSETDATA_ENOKEY:
+    property: read-only
+  LINKSETDATA_EPROTECTED:
+    property: read-only
+  LINKSETDATA_MULTIDELETE:
+    property: read-only
+  LINKSETDATA_NOTFOUND:
+    property: read-only
+  LINKSETDATA_NOUPDATE:
+    property: read-only
+  LINKSETDATA_OK:
+    property: read-only
+  LINKSETDATA_RESET:
+    property: read-only
+  LINKSETDATA_UPDATE:
+    property: read-only
+  LINK_ALL_CHILDREN:
+    property: read-only
+  LINK_ALL_OTHERS:
+    property: read-only
+  LINK_ROOT:
+    property: read-only
+  LINK_SET:
+    property: read-only
+  LINK_THIS:
+    property: read-only
+  LIST_STAT_GEOMETRIC_MEAN:
+    property: read-only
+  LIST_STAT_MAX:
+    property: read-only
+  LIST_STAT_MEAN:
+    property: read-only
+  LIST_STAT_MEDIAN:
+    property: read-only
+  LIST_STAT_MIN:
+    property: read-only
+  LIST_STAT_NUM_COUNT:
+    property: read-only
+  LIST_STAT_RANGE:
+    property: read-only
+  LIST_STAT_STD_DEV:
+    property: read-only
+  LIST_STAT_SUM:
+    property: read-only
+  LIST_STAT_SUM_SQUARES:
+    property: read-only
+  LOOP:
+    property: read-only
+  MASK_BASE:
+    property: read-only
+  MASK_COMBINED:
+    property: read-only
+  MASK_EVERYONE:
+    property: read-only
+  MASK_GROUP:
+    property: read-only
+  MASK_NEXT:
+    property: read-only
+  MASK_OWNER:
+    property: read-only
+  NAK:
+    property: read-only
+  NULL_KEY:
+    property: read-only
+  OBJECT_ACCOUNT_LEVEL:
+    property: read-only
+  OBJECT_ANIMATED_COUNT:
+    property: read-only
+  OBJECT_ANIMATED_SLOTS_AVAILABLE:
+    property: read-only
+  OBJECT_ATTACHED_POINT:
+    property: read-only
+  OBJECT_ATTACHED_SLOTS_AVAILABLE:
+    property: read-only
+  OBJECT_BODY_SHAPE_TYPE:
+    property: read-only
+  OBJECT_CHARACTER_TIME:
+    property: read-only
+  OBJECT_CLICK_ACTION:
+    property: read-only
+  OBJECT_CREATION_TIME:
+    property: read-only
+  OBJECT_CREATOR:
+    property: read-only
+  OBJECT_DAMAGE:
+    property: read-only
+  OBJECT_DAMAGE_TYPE:
+    property: read-only
+  OBJECT_DESC:
+    property: read-only
+  OBJECT_GROUP:
+    property: read-only
+  OBJECT_GROUP_TAG:
+    property: read-only
+  OBJECT_HEALTH:
+    property: read-only
+  OBJECT_HOVER_HEIGHT:
+    property: read-only
+  OBJECT_LAST_OWNER_ID:
+    property: read-only
+  OBJECT_LINK_NUMBER:
+    property: read-only
+  OBJECT_MASS:
+    property: read-only
+  OBJECT_MATERIAL:
+    property: read-only
+  OBJECT_NAME:
+    property: read-only
+  OBJECT_OMEGA:
+    property: read-only
+  OBJECT_OWNER:
+    property: read-only
+  OBJECT_PATHFINDING_TYPE:
+    property: read-only
+  OBJECT_PERMS:
+    property: read-only
+  OBJECT_PERMS_COMBINED:
+    property: read-only
+  OBJECT_PHANTOM:
+    property: read-only
+  OBJECT_PHYSICS:
+    property: read-only
+  OBJECT_PHYSICS_COST:
+    property: read-only
+  OBJECT_POS:
+    property: read-only
+  OBJECT_PRIM_COUNT:
+    property: read-only
+  OBJECT_PRIM_EQUIVALENCE:
+    property: read-only
+  OBJECT_RENDER_WEIGHT:
+    property: read-only
+  OBJECT_RETURN_PARCEL:
+    property: read-only
+  OBJECT_RETURN_PARCEL_OWNER:
+    property: read-only
+  OBJECT_RETURN_REGION:
+    property: read-only
+  OBJECT_REZZER_KEY:
+    property: read-only
+  OBJECT_REZ_TIME:
+    property: read-only
+  OBJECT_ROOT:
+    property: read-only
+  OBJECT_ROT:
+    property: read-only
+  OBJECT_RUNNING_SCRIPT_COUNT:
+    property: read-only
+  OBJECT_SCALE:
+    property: read-only
+  OBJECT_SCRIPT_MEMORY:
+    property: read-only
+  OBJECT_SCRIPT_TIME:
+    property: read-only
+  OBJECT_SELECT_COUNT:
+    property: read-only
+  OBJECT_SERVER_COST:
+    property: read-only
+  OBJECT_SIT_COUNT:
+    property: read-only
+  OBJECT_STREAMING_COST:
+    property: read-only
+  OBJECT_TEMP_ATTACHED:
+    property: read-only
+  OBJECT_TEMP_ON_REZ:
+    property: read-only
+  OBJECT_TEXT:
+    property: read-only
+  OBJECT_TEXT_ALPHA:
+    property: read-only
+  OBJECT_TEXT_COLOR:
+    property: read-only
+  OBJECT_TOTAL_INVENTORY_COUNT:
+    property: read-only
+  OBJECT_TOTAL_SCRIPT_COUNT:
+    property: read-only
+  OBJECT_UNKNOWN_DETAIL:
+    property: read-only
+  OBJECT_VELOCITY:
+    property: read-only
+  OPT_AVATAR:
+    property: read-only
+  OPT_CHARACTER:
+    property: read-only
+  OPT_EXCLUSION_VOLUME:
+    property: read-only
+  OPT_LEGACY_LINKSET:
+    property: read-only
+  OPT_MATERIAL_VOLUME:
+    property: read-only
+  OPT_OTHER:
+    property: read-only
+  OPT_STATIC_OBSTACLE:
+    property: read-only
+  OPT_WALKABLE:
+    property: read-only
+  PARCEL_COUNT_GROUP:
+    property: read-only
+  PARCEL_COUNT_OTHER:
+    property: read-only
+  PARCEL_COUNT_OWNER:
+    property: read-only
+  PARCEL_COUNT_SELECTED:
+    property: read-only
+  PARCEL_COUNT_TEMP:
+    property: read-only
+  PARCEL_COUNT_TOTAL:
+    property: read-only
+  PARCEL_DETAILS_AREA:
+    property: read-only
+  PARCEL_DETAILS_DESC:
+    property: read-only
+  PARCEL_DETAILS_FLAGS:
+    property: read-only
+  PARCEL_DETAILS_GROUP:
+    property: read-only
+  PARCEL_DETAILS_ID:
+    property: read-only
+  PARCEL_DETAILS_LANDING_LOOKAT:
+    property: read-only
+  PARCEL_DETAILS_LANDING_POINT:
+    property: read-only
+  PARCEL_DETAILS_NAME:
+    property: read-only
+  PARCEL_DETAILS_OWNER:
+    property: read-only
+  PARCEL_DETAILS_PRIM_CAPACITY:
+    property: read-only
+  PARCEL_DETAILS_PRIM_USED:
+    property: read-only
+  PARCEL_DETAILS_SCRIPT_DANGER:
+    property: read-only
+  PARCEL_DETAILS_SEE_AVATARS:
+    property: read-only
+  PARCEL_DETAILS_TP_ROUTING:
+    property: read-only
+  PARCEL_FLAG_ALLOW_ALL_OBJECT_ENTRY:
+    property: read-only
+  PARCEL_FLAG_ALLOW_CREATE_GROUP_OBJECTS:
+    property: read-only
+  PARCEL_FLAG_ALLOW_CREATE_OBJECTS:
+    property: read-only
+  PARCEL_FLAG_ALLOW_DAMAGE:
+    property: read-only
+  PARCEL_FLAG_ALLOW_FLY:
+    property: read-only
+  PARCEL_FLAG_ALLOW_GROUP_OBJECT_ENTRY:
+    property: read-only
+  PARCEL_FLAG_ALLOW_GROUP_SCRIPTS:
+    property: read-only
+  PARCEL_FLAG_ALLOW_LANDMARK:
+    property: read-only
+  PARCEL_FLAG_ALLOW_SCRIPTS:
+    property: read-only
+  PARCEL_FLAG_ALLOW_TERRAFORM:
+    property: read-only
+  PARCEL_FLAG_LOCAL_SOUND_ONLY:
+    property: read-only
+  PARCEL_FLAG_RESTRICT_PUSHOBJECT:
+    property: read-only
+  PARCEL_FLAG_USE_ACCESS_GROUP:
+    property: read-only
+  PARCEL_FLAG_USE_ACCESS_LIST:
+    property: read-only
+  PARCEL_FLAG_USE_BAN_LIST:
+    property: read-only
+  PARCEL_FLAG_USE_LAND_PASS_LIST:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_AGENT:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_AUTO_ALIGN:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_DESC:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_LOOP:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_LOOP_SET:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_PAUSE:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_PLAY:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_SIZE:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_STOP:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_TEXTURE:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_TIME:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_TYPE:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_UNLOAD:
+    property: read-only
+  PARCEL_MEDIA_COMMAND_URL:
+    property: read-only
+  PASSIVE:
+    property: read-only
+  PASS_ALWAYS:
+    property: read-only
+  PASS_IF_NOT_HANDLED:
+    property: read-only
+  PASS_NEVER:
+    property: read-only
+  PATROL_PAUSE_AT_WAYPOINTS:
+    property: read-only
+  PAYMENT_INFO_ON_FILE:
+    property: read-only
+  PAYMENT_INFO_USED:
+    property: read-only
+  PAY_DEFAULT:
+    property: read-only
+  PAY_HIDE:
+    property: read-only
+  PERMISSION_ATTACH:
+    property: read-only
+  PERMISSION_CHANGE_JOINTS:
+    property: read-only
+  PERMISSION_CHANGE_LINKS:
+    property: read-only
+  PERMISSION_CHANGE_PERMISSIONS:
+    property: read-only
+  PERMISSION_CONTROL_CAMERA:
+    property: read-only
+  PERMISSION_DEBIT:
+    property: read-only
+  PERMISSION_OVERRIDE_ANIMATIONS:
+    property: read-only
+  PERMISSION_RELEASE_OWNERSHIP:
+    property: read-only
+  PERMISSION_REMAP_CONTROLS:
+    property: read-only
+  PERMISSION_RETURN_OBJECTS:
+    property: read-only
+  PERMISSION_SILENT_ESTATE_MANAGEMENT:
+    property: read-only
+  PERMISSION_TAKE_CONTROLS:
+    property: read-only
+  PERMISSION_TELEPORT:
+    property: read-only
+  PERMISSION_TRACK_CAMERA:
+    property: read-only
+  PERMISSION_TRIGGER_ANIMATION:
+    property: read-only
+  PERM_ALL:
+    property: read-only
+  PERM_COPY:
+    property: read-only
+  PERM_MODIFY:
+    property: read-only
+  PERM_MOVE:
+    property: read-only
+  PERM_TRANSFER:
+    property: read-only
+  PI:
+    property: read-only
+  PING_PONG:
+    property: read-only
+  PI_BY_TWO:
+    property: read-only
+  PRIM_ALLOW_UNSIT:
+    property: read-only
+  PRIM_ALPHA_MODE:
+    property: read-only
+  PRIM_ALPHA_MODE_BLEND:
+    property: read-only
+  PRIM_ALPHA_MODE_EMISSIVE:
+    property: read-only
+  PRIM_ALPHA_MODE_MASK:
+    property: read-only
+  PRIM_ALPHA_MODE_NONE:
+    property: read-only
+  PRIM_BUMP_BARK:
+    property: read-only
+  PRIM_BUMP_BLOBS:
+    property: read-only
+  PRIM_BUMP_BRICKS:
+    property: read-only
+  PRIM_BUMP_BRIGHT:
+    property: read-only
+  PRIM_BUMP_CHECKER:
+    property: read-only
+  PRIM_BUMP_CONCRETE:
+    property: read-only
+  PRIM_BUMP_DARK:
+    property: read-only
+  PRIM_BUMP_DISKS:
+    property: read-only
+  PRIM_BUMP_GRAVEL:
+    property: read-only
+  PRIM_BUMP_LARGETILE:
+    property: read-only
+  PRIM_BUMP_NONE:
+    property: read-only
+  PRIM_BUMP_SHINY:
+    property: read-only
+  PRIM_BUMP_SIDING:
+    property: read-only
+  PRIM_BUMP_STONE:
+    property: read-only
+  PRIM_BUMP_STUCCO:
+    property: read-only
+  PRIM_BUMP_SUCTION:
+    property: read-only
+  PRIM_BUMP_TILE:
+    property: read-only
+  PRIM_BUMP_WEAVE:
+    property: read-only
+  PRIM_BUMP_WOOD:
+    property: read-only
+  PRIM_CAST_SHADOWS:
+    property: read-only
+  PRIM_CLICK_ACTION:
+    property: read-only
+  PRIM_COLLISION_SOUND:
+    property: read-only
+  PRIM_COLOR:
+    property: read-only
+  PRIM_DAMAGE:
+    property: read-only
+  PRIM_DESC:
+    property: read-only
+  PRIM_FLEXIBLE:
+    property: read-only
+  PRIM_FULLBRIGHT:
+    property: read-only
+  PRIM_GLOW:
+    property: read-only
+  PRIM_GLTF_ALPHA_MODE_BLEND:
+    property: read-only
+  PRIM_GLTF_ALPHA_MODE_MASK:
+    property: read-only
+  PRIM_GLTF_ALPHA_MODE_OPAQUE:
+    property: read-only
+  PRIM_GLTF_BASE_COLOR:
+    property: read-only
+  PRIM_GLTF_EMISSIVE:
+    property: read-only
+  PRIM_GLTF_METALLIC_ROUGHNESS:
+    property: read-only
+  PRIM_GLTF_NORMAL:
+    property: read-only
+  PRIM_HEALTH:
+    property: read-only
+  PRIM_HOLE_CIRCLE:
+    property: read-only
+  PRIM_HOLE_DEFAULT:
+    property: read-only
+  PRIM_HOLE_SQUARE:
+    property: read-only
+  PRIM_HOLE_TRIANGLE:
+    property: read-only
+  PRIM_LINK_TARGET:
+    property: read-only
+  PRIM_MATERIAL:
+    property: read-only
+  PRIM_MATERIAL_FLESH:
+    property: read-only
+  PRIM_MATERIAL_GLASS:
+    property: read-only
+  PRIM_MATERIAL_LIGHT:
+    property: read-only
+  PRIM_MATERIAL_METAL:
+    property: read-only
+  PRIM_MATERIAL_PLASTIC:
+    property: read-only
+  PRIM_MATERIAL_RUBBER:
+    property: read-only
+  PRIM_MATERIAL_STONE:
+    property: read-only
+  PRIM_MATERIAL_WOOD:
+    property: read-only
+  PRIM_MEDIA_ALT_IMAGE_ENABLE:
+    property: read-only
+  PRIM_MEDIA_AUTO_LOOP:
+    property: read-only
+  PRIM_MEDIA_AUTO_PLAY:
+    property: read-only
+  PRIM_MEDIA_AUTO_SCALE:
+    property: read-only
+  PRIM_MEDIA_AUTO_ZOOM:
+    property: read-only
+  PRIM_MEDIA_CONTROLS:
+    property: read-only
+  PRIM_MEDIA_CONTROLS_MINI:
+    property: read-only
+  PRIM_MEDIA_CONTROLS_STANDARD:
+    property: read-only
+  PRIM_MEDIA_CURRENT_URL:
+    property: read-only
+  PRIM_MEDIA_FIRST_CLICK_INTERACT:
+    property: read-only
+  PRIM_MEDIA_HEIGHT_PIXELS:
+    property: read-only
+  PRIM_MEDIA_HOME_URL:
+    property: read-only
+  PRIM_MEDIA_MAX_HEIGHT_PIXELS:
+    property: read-only
+  PRIM_MEDIA_MAX_URL_LENGTH:
+    property: read-only
+  PRIM_MEDIA_MAX_WHITELIST_COUNT:
+    property: read-only
+  PRIM_MEDIA_MAX_WHITELIST_SIZE:
+    property: read-only
+  PRIM_MEDIA_MAX_WIDTH_PIXELS:
+    property: read-only
+  PRIM_MEDIA_PARAM_MAX:
+    property: read-only
+  PRIM_MEDIA_PERMS_CONTROL:
+    property: read-only
+  PRIM_MEDIA_PERMS_INTERACT:
+    property: read-only
+  PRIM_MEDIA_PERM_ANYONE:
+    property: read-only
+  PRIM_MEDIA_PERM_GROUP:
+    property: read-only
+  PRIM_MEDIA_PERM_NONE:
+    property: read-only
+  PRIM_MEDIA_PERM_OWNER:
+    property: read-only
+  PRIM_MEDIA_WHITELIST:
+    property: read-only
+  PRIM_MEDIA_WHITELIST_ENABLE:
+    property: read-only
+  PRIM_MEDIA_WIDTH_PIXELS:
+    property: read-only
+  PRIM_NAME:
+    property: read-only
+  PRIM_NORMAL:
+    property: read-only
+  PRIM_OMEGA:
+    property: read-only
+  PRIM_PHANTOM:
+    property: read-only
+  PRIM_PHYSICS:
+    property: read-only
+  PRIM_PHYSICS_SHAPE_CONVEX:
+    property: read-only
+  PRIM_PHYSICS_SHAPE_NONE:
+    property: read-only
+  PRIM_PHYSICS_SHAPE_PRIM:
+    property: read-only
+  PRIM_PHYSICS_SHAPE_TYPE:
+    property: read-only
+  PRIM_POINT_LIGHT:
+    property: read-only
+  PRIM_POSITION:
+    property: read-only
+  PRIM_POS_LOCAL:
+    property: read-only
+  PRIM_PROJECTOR:
+    property: read-only
+  PRIM_REFLECTION_PROBE:
+    property: read-only
+  PRIM_REFLECTION_PROBE_BOX:
+    property: read-only
+  PRIM_REFLECTION_PROBE_DYNAMIC:
+    property: read-only
+  PRIM_REFLECTION_PROBE_MIRROR:
+    property: read-only
+  PRIM_RENDER_MATERIAL:
+    property: read-only
+  PRIM_ROTATION:
+    property: read-only
+  PRIM_ROT_LOCAL:
+    property: read-only
+  PRIM_SCRIPTED_SIT_ONLY:
+    property: read-only
+  PRIM_SCULPT_FLAG_ANIMESH:
+    property: read-only
+  PRIM_SCULPT_FLAG_INVERT:
+    property: read-only
+  PRIM_SCULPT_FLAG_MIRROR:
+    property: read-only
+  PRIM_SCULPT_TYPE_CYLINDER:
+    property: read-only
+  PRIM_SCULPT_TYPE_MASK:
+    property: read-only
+  PRIM_SCULPT_TYPE_MESH:
+    property: read-only
+  PRIM_SCULPT_TYPE_PLANE:
+    property: read-only
+  PRIM_SCULPT_TYPE_SPHERE:
+    property: read-only
+  PRIM_SCULPT_TYPE_TORUS:
+    property: read-only
+  PRIM_SHINY_HIGH:
+    property: read-only
+  PRIM_SHINY_LOW:
+    property: read-only
+  PRIM_SHINY_MEDIUM:
+    property: read-only
+  PRIM_SHINY_NONE:
+    property: read-only
+  PRIM_SIT_FLAGS:
+    property: read-only
+  PRIM_SIT_TARGET:
+    property: read-only
+  PRIM_SIZE:
+    property: read-only
+  PRIM_SLICE:
+    property: read-only
+  PRIM_SPECULAR:
+    property: read-only
+  PRIM_TEMP_ON_REZ:
+    property: read-only
+  PRIM_TEXGEN:
+    property: read-only
+  PRIM_TEXGEN_DEFAULT:
+    property: read-only
+  PRIM_TEXGEN_PLANAR:
+    property: read-only
+  PRIM_TEXT:
+    property: read-only
+  PRIM_TEXTURE:
+    property: read-only
+  PRIM_TYPE:
+    property: read-only
+  PRIM_TYPE_BOX:
+    property: read-only
+  PRIM_TYPE_CYLINDER:
+    property: read-only
+  PRIM_TYPE_PRISM:
+    property: read-only
+  PRIM_TYPE_RING:
+    property: read-only
+  PRIM_TYPE_SCULPT:
+    property: read-only
+  PRIM_TYPE_SPHERE:
+    property: read-only
+  PRIM_TYPE_TORUS:
+    property: read-only
+  PRIM_TYPE_TUBE:
+    property: read-only
+  PROFILE_NONE:
+    property: read-only
+  PROFILE_SCRIPT_MEMORY:
+    property: read-only
+  PSYS_PART_BF_DEST_COLOR:
+    property: read-only
+  PSYS_PART_BF_ONE:
+    property: read-only
+  PSYS_PART_BF_ONE_MINUS_DEST_COLOR:
+    property: read-only
+  PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA:
+    property: read-only
+  PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR:
+    property: read-only
+  PSYS_PART_BF_SOURCE_ALPHA:
+    property: read-only
+  PSYS_PART_BF_SOURCE_COLOR:
+    property: read-only
+  PSYS_PART_BF_ZERO:
+    property: read-only
+  PSYS_PART_BLEND_FUNC_DEST:
+    property: read-only
+  PSYS_PART_BLEND_FUNC_SOURCE:
+    property: read-only
+  PSYS_PART_BOUNCE_MASK:
+    property: read-only
+  PSYS_PART_EMISSIVE_MASK:
+    property: read-only
+  PSYS_PART_END_ALPHA:
+    property: read-only
+  PSYS_PART_END_COLOR:
+    property: read-only
+  PSYS_PART_END_GLOW:
+    property: read-only
+  PSYS_PART_END_SCALE:
+    property: read-only
+  PSYS_PART_FLAGS:
+    property: read-only
+  PSYS_PART_FOLLOW_SRC_MASK:
+    property: read-only
+  PSYS_PART_FOLLOW_VELOCITY_MASK:
+    property: read-only
+  PSYS_PART_INTERP_COLOR_MASK:
+    property: read-only
+  PSYS_PART_INTERP_SCALE_MASK:
+    property: read-only
+  PSYS_PART_MAX_AGE:
+    property: read-only
+  PSYS_PART_RIBBON_MASK:
+    property: read-only
+  PSYS_PART_START_ALPHA:
+    property: read-only
+  PSYS_PART_START_COLOR:
+    property: read-only
+  PSYS_PART_START_GLOW:
+    property: read-only
+  PSYS_PART_START_SCALE:
+    property: read-only
+  PSYS_PART_TARGET_LINEAR_MASK:
+    property: read-only
+  PSYS_PART_TARGET_POS_MASK:
+    property: read-only
+  PSYS_PART_WIND_MASK:
+    property: read-only
+  PSYS_SRC_ACCEL:
+    property: read-only
+  PSYS_SRC_ANGLE_BEGIN:
+    property: read-only
+  PSYS_SRC_ANGLE_END:
+    property: read-only
+  PSYS_SRC_BURST_PART_COUNT:
+    property: read-only
+  PSYS_SRC_BURST_RADIUS:
+    property: read-only
+  PSYS_SRC_BURST_RATE:
+    property: read-only
+  PSYS_SRC_BURST_SPEED_MAX:
+    property: read-only
+  PSYS_SRC_BURST_SPEED_MIN:
+    property: read-only
+  PSYS_SRC_INNERANGLE:
+    property: read-only
+  PSYS_SRC_MAX_AGE:
+    property: read-only
+  PSYS_SRC_OMEGA:
+    property: read-only
+  PSYS_SRC_OUTERANGLE:
+    property: read-only
+  PSYS_SRC_PATTERN:
+    property: read-only
+  PSYS_SRC_PATTERN_ANGLE:
+    property: read-only
+  PSYS_SRC_PATTERN_ANGLE_CONE:
+    property: read-only
+  PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY:
+    property: read-only
+  PSYS_SRC_PATTERN_DROP:
+    property: read-only
+  PSYS_SRC_PATTERN_EXPLODE:
+    property: read-only
+  PSYS_SRC_TARGET_KEY:
+    property: read-only
+  PSYS_SRC_TEXTURE:
+    property: read-only
+  PUBLIC_CHANNEL:
+    property: read-only
+  PURSUIT_FUZZ_FACTOR:
+    property: read-only
+  PURSUIT_GOAL_TOLERANCE:
+    property: read-only
+  PURSUIT_INTERCEPT:
+    property: read-only
+  PURSUIT_OFFSET:
+    property: read-only
+  PU_EVADE_HIDDEN:
+    property: read-only
+  PU_EVADE_SPOTTED:
+    property: read-only
+  PU_FAILURE_DYNAMIC_PATHFINDING_DISABLED:
+    property: read-only
+  PU_FAILURE_INVALID_GOAL:
+    property: read-only
+  PU_FAILURE_INVALID_START:
+    property: read-only
+  PU_FAILURE_NO_NAVMESH:
+    property: read-only
+  PU_FAILURE_NO_VALID_DESTINATION:
+    property: read-only
+  PU_FAILURE_OTHER:
+    property: read-only
+  PU_FAILURE_PARCEL_UNREACHABLE:
+    property: read-only
+  PU_FAILURE_TARGET_GONE:
+    property: read-only
+  PU_FAILURE_UNREACHABLE:
+    property: read-only
+  PU_GOAL_REACHED:
+    property: read-only
+  PU_SLOWDOWN_DISTANCE_REACHED:
+    property: read-only
+  RAD_TO_DEG:
+    property: read-only
+  RCERR_CAST_TIME_EXCEEDED:
+    property: read-only
+  RCERR_SIM_PERF_LOW:
+    property: read-only
+  RCERR_UNKNOWN:
+    property: read-only
+  RC_DATA_FLAGS:
+    property: read-only
+  RC_DETECT_PHANTOM:
+    property: read-only
+  RC_GET_LINK_NUM:
+    property: read-only
+  RC_GET_NORMAL:
+    property: read-only
+  RC_GET_ROOT_KEY:
+    property: read-only
+  RC_MAX_HITS:
+    property: read-only
+  RC_REJECT_AGENTS:
+    property: read-only
+  RC_REJECT_LAND:
+    property: read-only
+  RC_REJECT_NONPHYSICAL:
+    property: read-only
+  RC_REJECT_PHYSICAL:
+    property: read-only
+  RC_REJECT_TYPES:
+    property: read-only
+  REGION_FLAG_ALLOW_DAMAGE:
+    property: read-only
+  REGION_FLAG_ALLOW_DIRECT_TELEPORT:
+    property: read-only
+  REGION_FLAG_BLOCK_FLY:
+    property: read-only
+  REGION_FLAG_BLOCK_FLYOVER:
+    property: read-only
+  REGION_FLAG_BLOCK_TERRAFORM:
+    property: read-only
+  REGION_FLAG_DISABLE_COLLISIONS:
+    property: read-only
+  REGION_FLAG_DISABLE_PHYSICS:
+    property: read-only
+  REGION_FLAG_FIXED_SUN:
+    property: read-only
+  REGION_FLAG_RESTRICT_PUSHOBJECT:
+    property: read-only
+  REGION_FLAG_SANDBOX:
+    property: read-only
+  REMOTE_DATA_CHANNEL:
+    property: read-only
+  REMOTE_DATA_REPLY:
+    property: read-only
+  REMOTE_DATA_REQUEST:
+    property: read-only
+  REQUIRE_LINE_OF_SIGHT:
+    property: read-only
+  RESTITUTION:
+    property: read-only
+  REVERSE:
+    property: read-only
+  REZ_ACCEL:
+    property: read-only
+  REZ_DAMAGE:
+    property: read-only
+  REZ_DAMAGE_TYPE:
+    property: read-only
+  REZ_FLAGS:
+    property: read-only
+  REZ_FLAG_BLOCK_GRAB_OBJECT:
+    property: read-only
+  REZ_FLAG_DIE_ON_COLLIDE:
+    property: read-only
+  REZ_FLAG_DIE_ON_NOENTRY:
+    property: read-only
+  REZ_FLAG_NO_COLLIDE_FAMILY:
+    property: read-only
+  REZ_FLAG_NO_COLLIDE_OWNER:
+    property: read-only
+  REZ_FLAG_PHANTOM:
+    property: read-only
+  REZ_FLAG_PHYSICAL:
+    property: read-only
+  REZ_FLAG_TEMP:
+    property: read-only
+  REZ_LOCK_AXES:
+    property: read-only
+  REZ_OMEGA:
+    property: read-only
+  REZ_PARAM:
+    property: read-only
+  REZ_PARAM_STRING:
+    property: read-only
+  REZ_POS:
+    property: read-only
+  REZ_ROT:
+    property: read-only
+  REZ_SOUND:
+    property: read-only
+  REZ_SOUND_COLLIDE:
+    property: read-only
+  REZ_VEL:
+    property: read-only
+  ROTATE:
+    property: read-only
+  SCALE:
+    property: read-only
+  SCRIPTED:
+    property: read-only
+  SIM_STAT_ACTIVE_SCRIPT_COUNT:
+    property: read-only
+  SIM_STAT_AGENT_COUNT:
+    property: read-only
+  SIM_STAT_AGENT_MS:
+    property: read-only
+  SIM_STAT_AGENT_UPDATES:
+    property: read-only
+  SIM_STAT_AI_MS:
+    property: read-only
+  SIM_STAT_ASSET_DOWNLOADS:
+    property: read-only
+  SIM_STAT_ASSET_UPLOADS:
+    property: read-only
+  SIM_STAT_CHILD_AGENT_COUNT:
+    property: read-only
+  SIM_STAT_FRAME_MS:
+    property: read-only
+  SIM_STAT_IMAGE_MS:
+    property: read-only
+  SIM_STAT_IO_PUMP_MS:
+    property: read-only
+  SIM_STAT_NET_MS:
+    property: read-only
+  SIM_STAT_OTHER_MS:
+    property: read-only
+  SIM_STAT_PACKETS_IN:
+    property: read-only
+  SIM_STAT_PACKETS_OUT:
+    property: read-only
+  SIM_STAT_PCT_CHARS_STEPPED:
+    property: read-only
+  SIM_STAT_PHYSICS_FPS:
+    property: read-only
+  SIM_STAT_PHYSICS_MS:
+    property: read-only
+  SIM_STAT_PHYSICS_OTHER_MS:
+    property: read-only
+  SIM_STAT_PHYSICS_SHAPE_MS:
+    property: read-only
+  SIM_STAT_PHYSICS_STEP_MS:
+    property: read-only
+  SIM_STAT_SCRIPT_EPS:
+    property: read-only
+  SIM_STAT_SCRIPT_MS:
+    property: read-only
+  SIM_STAT_SCRIPT_RUN_PCT:
+    property: read-only
+  SIM_STAT_SLEEP_MS:
+    property: read-only
+  SIM_STAT_SPARE_MS:
+    property: read-only
+  SIM_STAT_UNACKED_BYTES:
+    property: read-only
+  SIT_FLAG_ALLOW_UNSIT:
+    property: read-only
+  SIT_FLAG_NO_COLLIDE:
+    property: read-only
+  SIT_FLAG_NO_DAMAGE:
+    property: read-only
+  SIT_FLAG_SCRIPTED_ONLY:
+    property: read-only
+  SIT_FLAG_SIT_TARGET:
+    property: read-only
+  SIT_INVALID_AGENT:
+    property: read-only
+  SIT_INVALID_LINK:
+    property: read-only
+  SIT_INVALID_OBJECT:
+    property: read-only
+  SIT_NOT_EXPERIENCE:
+    property: read-only
+  SIT_NO_ACCESS:
+    property: read-only
+  SIT_NO_EXPERIENCE_PERMISSION:
+    property: read-only
+  SIT_NO_SIT_TARGET:
+    property: read-only
+  SKY_AMBIENT:
+    property: read-only
+  SKY_BLUE:
+    property: read-only
+  SKY_CLOUDS:
+    property: read-only
+  SKY_CLOUD_TEXTURE:
+    property: read-only
+  SKY_DOME:
+    property: read-only
+  SKY_GAMMA:
+    property: read-only
+  SKY_GLOW:
+    property: read-only
+  SKY_HAZE:
+    property: read-only
+  SKY_LIGHT:
+    property: read-only
+  SKY_MOON:
+    property: read-only
+  SKY_MOON_TEXTURE:
+    property: read-only
+  SKY_PLANET:
+    property: read-only
+  SKY_REFLECTION_PROBE_AMBIANCE:
+    property: read-only
+  SKY_REFRACTION:
+    property: read-only
+  SKY_STAR_BRIGHTNESS:
+    property: read-only
+  SKY_SUN:
+    property: read-only
+  SKY_SUN_TEXTURE:
+    property: read-only
+  SKY_TEXTURE_DEFAULTS:
+    property: read-only
+  SKY_TRACKS:
+    property: read-only
+  SMOOTH:
+    property: read-only
+  SOUND_LOOP:
+    property: read-only
+  SOUND_PLAY:
+    property: read-only
+  SOUND_SYNC:
+    property: read-only
+  SOUND_TRIGGER:
+    property: read-only
+  SQRT2:
+    property: read-only
+  STATUS_BLOCK_GRAB:
+    property: read-only
+  STATUS_BLOCK_GRAB_OBJECT:
+    property: read-only
+  STATUS_BOUNDS_ERROR:
+    property: read-only
+  STATUS_CAST_SHADOWS:
+    property: read-only
+  STATUS_DIE_AT_EDGE:
+    property: read-only
+  STATUS_DIE_AT_NO_ENTRY:
+    property: read-only
+  STATUS_INTERNAL_ERROR:
+    property: read-only
+  STATUS_MALFORMED_PARAMS:
+    property: read-only
+  STATUS_NOT_FOUND:
+    property: read-only
+  STATUS_NOT_SUPPORTED:
+    property: read-only
+  STATUS_OK:
+    property: read-only
+  STATUS_PHANTOM:
+    property: read-only
+  STATUS_PHYSICS:
+    property: read-only
+  STATUS_RETURN_AT_EDGE:
+    property: read-only
+  STATUS_ROTATE_X:
+    property: read-only
+  STATUS_ROTATE_Y:
+    property: read-only
+  STATUS_ROTATE_Z:
+    property: read-only
+  STATUS_SANDBOX:
+    property: read-only
+  STATUS_TYPE_MISMATCH:
+    property: read-only
+  STATUS_WHITELIST_FAILED:
+    property: read-only
+  STRING_TRIM:
+    property: read-only
+  STRING_TRIM_HEAD:
+    property: read-only
+  STRING_TRIM_TAIL:
+    property: read-only
+  TARGETED_EMAIL_OBJECT_OWNER:
+    property: read-only
+  TARGETED_EMAIL_ROOT_CREATOR:
+    property: read-only
+  TERRAIN_DETAIL_1:
+    property: read-only
+  TERRAIN_DETAIL_2:
+    property: read-only
+  TERRAIN_DETAIL_3:
+    property: read-only
+  TERRAIN_DETAIL_4:
+    property: read-only
+  TERRAIN_HEIGHT_RANGE_NE:
+    property: read-only
+  TERRAIN_HEIGHT_RANGE_NW:
+    property: read-only
+  TERRAIN_HEIGHT_RANGE_SE:
+    property: read-only
+  TERRAIN_HEIGHT_RANGE_SW:
+    property: read-only
+  TERRAIN_PBR_OFFSET_1:
+    property: read-only
+  TERRAIN_PBR_OFFSET_2:
+    property: read-only
+  TERRAIN_PBR_OFFSET_3:
+    property: read-only
+  TERRAIN_PBR_OFFSET_4:
+    property: read-only
+  TERRAIN_PBR_ROTATION_1:
+    property: read-only
+  TERRAIN_PBR_ROTATION_2:
+    property: read-only
+  TERRAIN_PBR_ROTATION_3:
+    property: read-only
+  TERRAIN_PBR_ROTATION_4:
+    property: read-only
+  TERRAIN_PBR_SCALE_1:
+    property: read-only
+  TERRAIN_PBR_SCALE_2:
+    property: read-only
+  TERRAIN_PBR_SCALE_3:
+    property: read-only
+  TERRAIN_PBR_SCALE_4:
+    property: read-only
+  TEXTURE_BLANK:
+    property: read-only
+  TEXTURE_DEFAULT:
+    property: read-only
+  TEXTURE_MEDIA:
+    property: read-only
+  TEXTURE_PLYWOOD:
+    property: read-only
+  TEXTURE_TRANSPARENT:
+    property: read-only
+  TOUCH_INVALID_FACE:
+    property: read-only
+  TOUCH_INVALID_TEXCOORD:
+    property: read-only
+  TOUCH_INVALID_VECTOR:
+    property: read-only
+  TP_ROUTING_BLOCKED:
+    property: read-only
+  TP_ROUTING_FREE:
+    property: read-only
+  TP_ROUTING_LANDINGP:
+    property: read-only
+  TRANSFER_BAD_OPTS:
+    property: read-only
+  TRANSFER_BAD_ROOT:
+    property: read-only
+  TRANSFER_DEST:
+    property: read-only
+  TRANSFER_FLAGS:
+    property: read-only
+  TRANSFER_FLAG_COPY:
+    property: read-only
+  TRANSFER_FLAG_RESERVED:
+    property: read-only
+  TRANSFER_FLAG_TAKE:
+    property: read-only
+  TRANSFER_NO_ATTACHMENT:
+    property: read-only
+  TRANSFER_NO_ITEMS:
+    property: read-only
+  TRANSFER_NO_PERMS:
+    property: read-only
+  TRANSFER_NO_TARGET:
+    property: read-only
+  TRANSFER_OK:
+    property: read-only
+  TRANSFER_THROTTLE:
+    property: read-only
+  TRAVERSAL_TYPE:
+    property: read-only
+  TRAVERSAL_TYPE_FAST:
+    property: read-only
+  TRAVERSAL_TYPE_NONE:
+    property: read-only
+  TRAVERSAL_TYPE_SLOW:
+    property: read-only
+  "TRUE":
+    property: read-only
+  TWO_PI:
+    property: read-only
+  TYPE_FLOAT:
+    property: read-only
+  TYPE_INTEGER:
+    property: read-only
+  TYPE_INVALID:
+    property: read-only
+  TYPE_KEY:
+    property: read-only
+  TYPE_ROTATION:
+    property: read-only
+  TYPE_STRING:
+    property: read-only
+  TYPE_VECTOR:
+    property: read-only
+  URL_REQUEST_DENIED:
+    property: read-only
+  URL_REQUEST_GRANTED:
+    property: read-only
+  VEHICLE_ANGULAR_DEFLECTION_EFFICIENCY:
+    property: read-only
+  VEHICLE_ANGULAR_DEFLECTION_TIMESCALE:
+    property: read-only
+  VEHICLE_ANGULAR_FRICTION_TIMESCALE:
+    property: read-only
+  VEHICLE_ANGULAR_MOTOR_DECAY_TIMESCALE:
+    property: read-only
+  VEHICLE_ANGULAR_MOTOR_DIRECTION:
+    property: read-only
+  VEHICLE_ANGULAR_MOTOR_TIMESCALE:
+    property: read-only
+  VEHICLE_BANKING_EFFICIENCY:
+    property: read-only
+  VEHICLE_BANKING_MIX:
+    property: read-only
+  VEHICLE_BANKING_TIMESCALE:
+    property: read-only
+  VEHICLE_BUOYANCY:
+    property: read-only
+  VEHICLE_FLAG_BLOCK_INTERFERENCE:
+    property: read-only
+  VEHICLE_FLAG_CAMERA_DECOUPLED:
+    property: read-only
+  VEHICLE_FLAG_HOVER_GLOBAL_HEIGHT:
+    property: read-only
+  VEHICLE_FLAG_HOVER_TERRAIN_ONLY:
+    property: read-only
+  VEHICLE_FLAG_HOVER_UP_ONLY:
+    property: read-only
+  VEHICLE_FLAG_HOVER_WATER_ONLY:
+    property: read-only
+  VEHICLE_FLAG_LIMIT_MOTOR_UP:
+    property: read-only
+  VEHICLE_FLAG_LIMIT_ROLL_ONLY:
+    property: read-only
+  VEHICLE_FLAG_MOUSELOOK_BANK:
+    property: read-only
+  VEHICLE_FLAG_MOUSELOOK_STEER:
+    property: read-only
+  VEHICLE_FLAG_NO_DEFLECTION_UP:
+    property: read-only
+  VEHICLE_FLAG_NO_FLY_UP:
+    property: read-only
+  VEHICLE_HOVER_EFFICIENCY:
+    property: read-only
+  VEHICLE_HOVER_HEIGHT:
+    property: read-only
+  VEHICLE_HOVER_TIMESCALE:
+    property: read-only
+  VEHICLE_LINEAR_DEFLECTION_EFFICIENCY:
+    property: read-only
+  VEHICLE_LINEAR_DEFLECTION_TIMESCALE:
+    property: read-only
+  VEHICLE_LINEAR_FRICTION_TIMESCALE:
+    property: read-only
+  VEHICLE_LINEAR_MOTOR_DECAY_TIMESCALE:
+    property: read-only
+  VEHICLE_LINEAR_MOTOR_DIRECTION:
+    property: read-only
+  VEHICLE_LINEAR_MOTOR_OFFSET:
+    property: read-only
+  VEHICLE_LINEAR_MOTOR_TIMESCALE:
+    property: read-only
+  VEHICLE_REFERENCE_FRAME:
+    property: read-only
+  VEHICLE_TYPE_AIRPLANE:
+    property: read-only
+  VEHICLE_TYPE_BALLOON:
+    property: read-only
+  VEHICLE_TYPE_BOAT:
+    property: read-only
+  VEHICLE_TYPE_CAR:
+    property: read-only
+  VEHICLE_TYPE_NONE:
+    property: read-only
+  VEHICLE_TYPE_SLED:
+    property: read-only
+  VEHICLE_VERTICAL_ATTRACTION_EFFICIENCY:
+    property: read-only
+  VEHICLE_VERTICAL_ATTRACTION_TIMESCALE:
+    property: read-only
+  VERTICAL:
+    property: read-only
+  WANDER_PAUSE_AT_WAYPOINTS:
+    property: read-only
+  WATER_BLUR_MULTIPLIER:
+    property: read-only
+  WATER_FOG:
+    property: read-only
+  WATER_FRESNEL:
+    property: read-only
+  WATER_NORMAL_SCALE:
+    property: read-only
+  WATER_NORMAL_TEXTURE:
+    property: read-only
+  WATER_REFRACTION:
+    property: read-only
+  WATER_TEXTURE_DEFAULTS:
+    property: read-only
+  WATER_WAVE_DIRECTION:
+    property: read-only
+  XP_ERROR_EXPERIENCES_DISABLED:
+    property: read-only
+  XP_ERROR_EXPERIENCE_DISABLED:
+    property: read-only
+  XP_ERROR_EXPERIENCE_SUSPENDED:
+    property: read-only
+  XP_ERROR_INVALID_EXPERIENCE:
+    property: read-only
+  XP_ERROR_INVALID_PARAMETERS:
+    property: read-only
+  XP_ERROR_KEY_NOT_FOUND:
+    property: read-only
+  XP_ERROR_MATURITY_EXCEEDED:
+    property: read-only
+  XP_ERROR_NONE:
+    property: read-only
+  XP_ERROR_NOT_FOUND:
+    property: read-only
+  XP_ERROR_NOT_PERMITTED:
+    property: read-only
+  XP_ERROR_NOT_PERMITTED_LAND:
+    property: read-only
+  XP_ERROR_NO_EXPERIENCE:
+    property: read-only
+  XP_ERROR_QUOTA_EXCEEDED:
+    property: read-only
+  XP_ERROR_REQUEST_PERM_TIMEOUT:
+    property: read-only
+  XP_ERROR_RETRY_UPDATE:
+    property: read-only
+  XP_ERROR_STORAGE_EXCEPTION:
+    property: read-only
+  XP_ERROR_STORE_DISABLED:
+    property: read-only
+  XP_ERROR_THROTTLED:
+    property: read-only
+  XP_ERROR_UNKNOWN_ERROR:
+    property: read-only
+  ZERO_ROTATION:
+    property: read-only
+  ZERO_VECTOR:
+    property: read-only

@@ -275,7 +275,7 @@ watch(
 }
 
 .monaco-editor {
-	@apply !bg-transparent !outline-none !bg-transparent !bg-transparent;
+	@apply !bg-transparent !outline-none;
 }
 
 .monaco-editor-background {

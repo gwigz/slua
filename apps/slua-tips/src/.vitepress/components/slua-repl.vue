@@ -23,6 +23,10 @@
 					<button @click="script?.touch()" class="d-btn d-btn-primary">
 						Touch
 					</button>
+
+					<button @click="script?.collision()" class="d-btn d-btn-primary">
+						Collide
+					</button>
 				</template>
 
 				<button @click="runCode()" :class="['d-btn', script ? 'd-btn-secondary' : 'd-btn-primary']">
@@ -245,10 +249,11 @@ function confirmReset() {
 
 	output.splice(0, output.length);
 
-	code.value = newCode;
 	lastError.value = undefined;
-	showResetModal.value = false;
+	script.value = null;
 	code.value = '';
+
+	showResetModal.value = false;
 
 	nextTick(() => {
 		code.value = newCode;

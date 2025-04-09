@@ -6,6 +6,8 @@ import sandboxContent from './sandbox.luau' with { type: 'text' };
 const INTERNAL = '__INTERNAL_DO_NOT_USE';
 const SANDBOX = sandboxContent.replace(/internal/g, INTERNAL);
 
+type JsonArrayValue = (string | number | boolean | null) | JsonArrayValue[];
+
 export type SLuaEvent = 'touch';
 
 export type SLuaOutput = {
@@ -36,17 +38,206 @@ export type SLuaConfig = {
 
 export type SLuaScript = {
 	/**
-	 * Calls a global function by name
+	 * Calls a global function by name, can target tables by using dot notation.
 	 *
 	 * @param name - The name of the global function to call
 	 * @param args - Array of arguments to pass to the function
 	 */
-	call: (name: string, args?: (string | number | boolean | null)[]) => string;
+	call: (name: string, args?: JsonArrayValue[]) => string;
 
 	/**
-	 * Calls `touch_start`, `touch`, and `touch_end` functions in sequence.
+	 * Calls `attach` event handler.
+	 */
+	attach: (key: string) => void;
+
+	/**
+	 * Calls `at_rot_target` event handler.
+	 */
+	atRotTarget: (
+		handle: number,
+		rotation: [number, number, number, number],
+		ourRotation: [number, number, number, number],
+	) => void;
+
+	/**
+	 * Calls `at_target` event handler.
+	 */
+	atTarget: (
+		handle: number,
+		position: [number, number, number],
+		ourPosition: [number, number, number],
+	) => void;
+
+	/**
+	 * Calls `collision_start`, `collision`, and `collision_end` event handlers in sequence.
+	 */
+	collision: (detected?: number) => void;
+
+	/**
+	 * Calls `changed` event handlers in sequence.
+	 */
+	changed: (change?: number) => void;
+
+	/**
+	 * Calls `control` event handler.
+	 */
+	control: (id: string, level: number, edge: number) => void;
+
+	/**
+	 * Calls `dataserver` event handler.
+	 */
+	dataserver: (id: string, data: string) => void;
+
+	/**
+	 * Calls `email` event handler.
+	 */
+	email: (
+		time: string,
+		address: string,
+		subject: string,
+		message: string,
+		numLeft: number,
+	) => void;
+
+	/**
+	 * Calls `experience_permissions` event handler.
+	 */
+	experiencePermissions: (id: string) => void;
+
+	/**
+	 * Calls `experience_permissions_denied` event handler.
+	 */
+	experiencePermissionsDenied: (id: string, reason: number) => void;
+
+	/**
+	 * Calls `final_damage` event handler.
+	 */
+	finalDamage: (detected?: number) => void;
+
+	/**
+	 * Calls `game_control` event handler.
+	 */
+	gameControl: (id: string, levels: number, axis: number[]) => void;
+
+	/**
+	 * Calls `http_request` event handler.
+	 */
+	httpRequest: (id: string, method: string, body: string) => void;
+
+	/**
+	 * Calls `http_response` event handler.
+	 */
+	httpResponse: (
+		id: string,
+		status: number,
+		metadata: number[],
+		body: string,
+	) => void;
+
+	/**
+	 * Calls `land_collision` event handler.
+	 */
+	landCollision: (position: [number, number, number]) => void;
+
+	/**
+	 * Calls `linkset_data` event handler.
+	 */
+	linksetData: (action: number, key: string, value: string) => void;
+
+	/**
+	 * Calls `link_message` event handler.
+	 */
+	linkMessage: (
+		sender: number,
+		integer: number,
+		data: string,
+		key: string,
+	) => void;
+
+	/**
+	 * Calls `listen` event handler.
+	 */
+	listen: (channel: number, name: string, key: string, message: string) => void;
+
+	/**
+	 * Calls `money` event handler.
+	 */
+	money: (key: string, amount?: number) => void;
+
+	/**
+	 * Calls `moving_start` event handler.
+	 */
+	movingStart: () => void;
+
+	/**
+	 * Calls `moving_end` event handler.
+	 */
+	movingEnd: () => void;
+
+	/**
+	 * Calls `not_at_rot_target` event handler.
+	 */
+	notAtRotTarget: () => void;
+
+	/**
+	 * Calls `not_at_target` event handler.
+	 */
+	notAtTarget: () => void;
+
+	/**
+	 * Calls `no_sensor` event handler.
+	 */
+	noSensor: () => void;
+
+	/**
+	 * Calls `object_rez` event handler.
+	 */
+	objectRez: (key?: string) => void;
+
+	/**
+	 * Calls `on_damage` event handler.
+	 */
+	onDamage: (damage?: number) => void;
+
+	/**
+	 * Calls `on_death` event handler.
+	 */
+	onDeath: () => void;
+
+	/**
+	 * Calls `on_rez` event handler.
+	 */
+	onRez: (param?: number) => void;
+
+	/**
+	 * Calls `path_update` event handler.
+	 */
+	pathUpdate: (type: number, reserved?: (string | number)[]) => void;
+
+	/**
+	 * Calls `run_time_permissions` event handler.
+	 */
+	runTimePermissions: (permissions?: number) => void;
+
+	/**
+	 * Calls `sensor` event handler.
+	 */
+	sensor: (detected?: number) => void;
+
+	/**
+	 * Calls `timer` event handler.
+	 */
+	timer: () => void;
+
+	/**
+	 * Calls `touch_start`, `touch`, and `touch_end` event handlers in sequence.
 	 */
 	touch: (detected?: number) => void;
+
+	/**
+	 * Calls `transaction_result` event handler.
+	 */
+	transactionResult: (id: string, success: number, data: string) => void;
 
 	/**
 	 * Gets the value of a global variable by name
@@ -174,7 +365,111 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 	// these are custom functions, not part of the normal Luau.Web.js API
 	const script: SLuaScript = {
 		call,
+
+		attach: (key: string) => call(`${INTERNAL}.attach`, [key]),
+
+		atRotTarget: (
+			handle: number,
+			rotation: [number, number, number, number],
+			ourRotation: [number, number, number, number],
+		) => call(`${INTERNAL}.at_rot_target`, [handle, rotation, ourRotation]),
+
+		atTarget: (
+			handle: number,
+			position: [number, number, number],
+			ourPosition: [number, number, number],
+		) => call(`${INTERNAL}.at_target`, [handle, position, ourPosition]),
+
+		collision: (detected?: number) =>
+			call(`${INTERNAL}.collision`, [detected ?? 1]),
+
+		changed: (change?: number) => call(`${INTERNAL}.changed`, [change ?? 0]),
+
+		control: (id: string, level: number, edge: number) =>
+			call(`${INTERNAL}.control`, [id, level, edge]),
+
+		dataserver: (id: string, data: string) =>
+			call(`${INTERNAL}.dataserver`, [id, data]),
+
+		email: (
+			time: string,
+			address: string,
+			subject: string,
+			message: string,
+			numLeft: number,
+		) => call(`${INTERNAL}.email`, [time, address, subject, message, numLeft]),
+
+		experiencePermissions: (id: string) =>
+			call(`${INTERNAL}.experience_permissions`, [id]),
+
+		experiencePermissionsDenied: (id: string, reason: number) =>
+			call(`${INTERNAL}.experience_permissions_denied`, [id, reason]),
+
+		finalDamage: (detected?: number) =>
+			call(`${INTERNAL}.final_damage`, [detected ?? 1]),
+
+		gameControl: (id: string, levels: number, axis: number[]) =>
+			call(`${INTERNAL}.game_control`, [id, levels, axis]),
+
+		httpRequest: (id: string, method: string, body: string) =>
+			call(`${INTERNAL}.http_request`, [id, method, body]),
+
+		httpResponse: (
+			id: string,
+			status: number,
+			metadata: number[],
+			body: string,
+		) => call(`${INTERNAL}.http_response`, [id, status, metadata, body]),
+
+		landCollision: (position: [number, number, number]) =>
+			call(`${INTERNAL}.land_collision`, [position]),
+
+		linksetData: (action: number, key: string, value: string) =>
+			call(`${INTERNAL}.linkset_data`, [action, key, value]),
+
+		linkMessage: (sender: number, integer: number, data: string, key: string) =>
+			call(`${INTERNAL}.link_message`, [sender, integer, data, key]),
+
+		listen: (channel: number, name: string, key: string, message: string) =>
+			call(`${INTERNAL}.listen`, [channel, name, key, message]),
+
+		money: (key: string, amount?: number) =>
+			call(`${INTERNAL}.money`, [key, amount ?? 0]),
+
+		movingStart: () => call(`${INTERNAL}.moving_start`),
+
+		movingEnd: () => call(`${INTERNAL}.moving_end`),
+
+		notAtRotTarget: () => call(`${INTERNAL}.not_at_rot_target`),
+
+		notAtTarget: () => call(`${INTERNAL}.not_at_target`),
+
+		noSensor: () => call(`${INTERNAL}.no_sensor`),
+
+		objectRez: (key?: string) => call(`${INTERNAL}.object_rez`, [key ?? '']),
+
+		onDamage: (damage?: number) => call(`${INTERNAL}.on_damage`, [damage ?? 1]),
+
+		onDeath: () => call(`${INTERNAL}.on_death`),
+
+		onRez: (param?: number) => call(`${INTERNAL}.on_rez`, [param ?? 0]),
+
+		pathUpdate: (type: number, reserved?: (string | number)[]) =>
+			call(`${INTERNAL}.path_update`, [type, reserved ?? []]),
+
+		runTimePermissions: (permissions?: number) =>
+			call(`${INTERNAL}.run_time_permissions`, [permissions ?? 0]),
+
+		sensor: (detected?: number) => call(`${INTERNAL}.sensor`, [detected ?? 1]),
+
+		timer: () => call(`${INTERNAL}.timer`),
+
 		touch: (detected?: number) => call(`${INTERNAL}.touch`, [detected ?? 1]),
+
+		transactionResult: (id: string, success: number, data: string) =>
+			call(`${INTERNAL}.transaction_result`, [id, success, data]),
+
+		// utilities
 		get: (name: string) => null,
 		set: (name: string, value: string) => {},
 	};

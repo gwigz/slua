@@ -11,6 +11,23 @@ uuid = function(key)
 	return tostring(key)
 end
 
+-- TODO: this is not correct, lmao
+quaternion = vector
+
+toquaternion = function(str: string)
+	error("not implemented")
+end
+
+tovector = function(str: string)
+	return vector.zero
+end
+
+quaternion = function(x: number, y: number, z: number, s: number)
+	error("not implemented")
+end
+
+at_rot_target = function() end
+
 ACTIVE = 2
 AGENT = 1
 AGENT_ALWAYS_RUN = 4096
@@ -1017,6 +1034,307 @@ internal.log = function(type: number, msg: string)
 	print("#SLUA#", os.time(), os.clock(), type, internal.name, msg)
 end
 
+internal.at_rot_target = function(
+	handle: number,
+	rotation: { number },
+	ourRotation: { number }
+)
+	if type(at_rot_target) == "function" then
+		error("not implemented")
+	end
+end
+
+at_target = function() end
+
+internal.at_target = function(
+	handle: number,
+	position: { number },
+	ourPosition: { number }
+)
+	if type(at_target) == "function" then
+		at_target(
+			handle,
+			vector.create(position[1], position[2], position[3]),
+			vector.create(ourPosition[1], ourPosition[2], ourPosition[3])
+		)
+	end
+end
+
+attach = function() end
+
+internal.attach = function(key: string)
+	if type(attach) == "function" then
+		attach(key)
+	end
+end
+
+changed = function() end
+
+internal.changed = function(detected: number?)
+	if type(changed) == "function" then
+		changed(detected or 0)
+	end
+end
+
+collision_start = function() end
+collision = function() end
+collision_end = function() end
+
+internal.collision = function(detected: number?)
+	if type(collision_start) == "function" then
+		collision_start(detected or 1)
+	end
+
+	if type(collision) == "function" then
+		collision(detected or 1)
+	end
+
+	if type(collision_end) == "function" then
+		collision_end(detected or 1)
+	end
+end
+
+control = function() end
+
+internal.control = function(id: string, level: number, edge: number)
+	if type(control) == "function" then
+		control(id, level, edge)
+	end
+end
+
+dataserver = function() end
+
+internal.dataserver = function(id: string, data: string)
+	if type(dataserver) == "function" then
+		dataserver(id, data)
+	end
+end
+
+email = function() end
+
+internal.email = function(
+	time: string,
+	address: string,
+	subject: string,
+	message: string,
+	numLeft: number
+)
+	if type(email) == "function" then
+		email(time, address, subject, message, numLeft)
+	end
+end
+
+experience_permissions = function() end
+
+internal.experience_permissions = function(id: string)
+	if type(experience_permissions) == "function" then
+		experience_permissions(id)
+	end
+end
+
+experience_permissions_denied = function() end
+
+internal.experience_permissions_denied = function(id: string, reason: number)
+	if type(experience_permissions_denied) == "function" then
+		experience_permissions_denied(id, reason)
+	end
+end
+
+final_damage = function() end
+
+internal.final_damage = function(detected: number?)
+	if type(final_damage) == "function" then
+		final_damage(detected or 1)
+	end
+end
+
+game_control = function() end
+
+internal.game_control = function(id: string, levels: number, axis: { number })
+	if type(game_control) == "function" then
+		game_control(id, levels, axis)
+	end
+end
+
+http_request = function() end
+
+internal.http_request = function(id: string, method: string, body: string)
+	if type(http_request) == "function" then
+		http_request(id, method, body)
+	end
+end
+
+http_response = function() end
+
+internal.http_response = function(
+	id: string,
+	status: number,
+	metadata: { number },
+	body: string
+)
+	if type(http_response) == "function" then
+		http_response(id, status, metadata, body)
+	end
+end
+
+land_collision_start = function() end
+land_collision = function() end
+land_collision_end = function() end
+
+internal.land_collision = function(position: { number })
+	local position = vector.create(position[1], position[2], position[3])
+
+	if type(land_collision_start) == "function" then
+		land_collision_start(position)
+	end
+
+	if type(land_collision) == "function" then
+		land_collision(position)
+	end
+
+	if type(land_collision_end) == "function" then
+		land_collision_end(position)
+	end
+end
+
+linkset_data = function() end
+
+internal.linkset_data = function(action: number, key: string, value: string)
+	if type(linkset_data) == "function" then
+		linkset_data(action, key, value)
+	end
+end
+
+link_message = function() end
+
+internal.link_message = function(
+	sender: number,
+	integer: number,
+	data: string,
+	key: string
+)
+	if type(link_message) == "function" then
+		link_message(sender, integer, data, key)
+	end
+end
+
+listen = function() end
+
+internal.listen = function(
+	channel: number,
+	name: string,
+	key: string,
+	message: string
+)
+	if type(listen) == "function" then
+		listen(channel, name, key, message)
+	end
+end
+
+money = function() end
+
+internal.money = function(key: string, amount: number?)
+	if type(money) == "function" then
+		money(key, amount or 0)
+	end
+end
+
+moving_start = function() end
+
+internal.moving_start = function()
+	if type(moving_start) == "function" then
+		moving_start()
+	end
+end
+
+moving_end = function() end
+
+internal.moving_end = function()
+	if type(moving_end) == "function" then
+		moving_end()
+	end
+end
+
+not_at_rot_target = function() end
+
+internal.not_at_rot_target = function()
+	if type(not_at_rot_target) == "function" then
+		not_at_rot_target()
+	end
+end
+
+not_at_target = function() end
+
+internal.not_at_target = function()
+	if type(not_at_target) == "function" then
+		not_at_target()
+	end
+end
+
+no_sensor = function() end
+
+internal.no_sensor = function()
+	if type(no_sensor) == "function" then
+		no_sensor()
+	end
+end
+
+object_rez = function() end
+
+internal.object_rez = function(key: string?)
+	if type(object_rez) == "function" then
+		object_rez(key or "")
+	end
+end
+
+on_damage = function() end
+
+internal.on_damage = function(damage: number?)
+	if type(on_damage) == "function" then
+		on_damage(damage or 1)
+	end
+end
+
+on_death = function() end
+
+internal.on_death = function()
+	if type(on_death) == "function" then
+		on_death()
+	end
+end
+
+on_rez = function() end
+
+internal.on_rez = function(param: number?)
+	if type(on_rez) == "function" then
+		on_rez(param or 0)
+	end
+end
+
+path_update = function() end
+
+internal.path_update = function(type: number, reserved: {}?)
+	if type(path_update) == "function" then
+		path_update(type, reserved or {})
+	end
+end
+
+run_time_permissions = function() end
+
+internal.run_time_permissions = function(permissions: number?)
+	if type(run_time_permissions) == "function" then
+		run_time_permissions(permissions or 0)
+	end
+end
+
+sensor = function() end
+
+internal.sensor = function(detected: number?)
+	if type(sensor) == "function" then
+		sensor(detected or 1)
+	end
+end
+
 touch_start = function() end
 touch = function() end
 touch_end = function() end
@@ -1035,16 +1353,16 @@ internal.touch = function(detected: number?)
 	end
 end
 
-toquaternion = function(str: string)
-	error("not implemented")
-end
+transaction_result = function() end
 
-tovector = function(str: string)
-	return vector.zero
-end
-
-quaternion = function(x: number, y: number, z: number, s: number)
-	error("not implemented")
+internal.transaction_result = function(
+	id: string,
+	success: number,
+	data: string
+)
+	if type(transaction_result) == "function" then
+		transaction_result(id, success, data)
+	end
 end
 
 lljson = {}
@@ -1955,6 +2273,10 @@ ll.GetStatus = function(status_flag: number)
 end
 
 ll.GetSubString = function(string: string, start: number, finish: number)
+	if not start or not finish then
+		return string
+	end
+
 	local length = #string
 
 	if start == 0 then

@@ -20,11 +20,18 @@ gitChangelog: false
 -- and the ones that are implemented are not tested
 -- https://github.com/gwigz/slua/blob/main/packages/slua-web/src/sandbox.luau
 
-function touch_start(total_number)
-   ll.Say(0, "Touched.")
+function touch_end(num_detected)
+	ll.Say(0, `Wait, you're not {ll.DetectedName(0)}! {os.clock()}`)
 end
 
-ll.Say(0, "Hello, Avatar!")
+function collision_start(num_detected)
+	ll.Whisper(0, 'That hurt.')
+end
+
+local message = "Hello, Avatar!"
+
+ll.Say(0, message:sub(1, 5))
+ll.Say(0, ll.GetSubString(message, -7, -1))
 ```
 
 </SLuaRepl>

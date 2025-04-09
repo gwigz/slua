@@ -25,7 +25,7 @@
 					</button>
 				</template>
 
-				<button @click="runCode()" class="d-btn d-btn-secondary">
+				<button @click="runCode()" :class="['d-btn', script ? 'd-btn-secondary' : 'd-btn-primary']">
 					<template v-if="script">
 						<Icon icon="solar:restart-bold" class="text-2xl" />
 					</template>
@@ -209,6 +209,7 @@ async function runCode() {
 
 	output.splice(0, output.length);
 
+	// TODO: restore lastError handling
 	const result = await slua.runCode(code.value, {
 		onPrint: (message) => {
 			const parsed = slua.parsePrint(message);
@@ -219,9 +220,21 @@ async function runCode() {
 				console.log(message);
 			}
 		},
+		onError: (error) => {
+			console.error(error);
+
+			lastError.value = error.line;
+		},
 	});
 
 	script.value = result.script;
+
+	if (result.errors.length > 0) {
+		lastError.value = result.errors[0].line;
+
+		output.push(...result.errors);
+		console.error(result.errors);
+	}
 }
 
 const resetModal = ref<HTMLDialogElement | null>(null);

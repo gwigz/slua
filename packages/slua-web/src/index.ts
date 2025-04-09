@@ -3,9 +3,8 @@ import initLuau from './luau/luau.js';
 // @ts-ignore
 import sandboxContent from './sandbox.luau' with { type: 'text' };
 
-const internal = '__INTERNAL_DO_NOT_USE';
-
-const sandbox = sandboxContent.replace(/internal/g, internal);
+const INTERNAL = '__INTERNAL_DO_NOT_USE';
+const SANDBOX = sandboxContent.replace(/internal/g, INTERNAL);
 
 export type SLuaEvent = 'touch';
 
@@ -17,10 +16,22 @@ export type SLuaOutput = {
 	data: string;
 };
 
+export type SLuaError = SLuaOutput & {
+	line?: number;
+};
+
 export type SLuaConfig = {
 	sandbox?: string;
 
+	/**
+	 * Returns runtime print statements (from i.e. using `print()` in your Luau script)
+	 */
 	onPrint?: (message: string) => void;
+
+	/**
+	 * Returns runtime errors (from i.e. using `script.call()`)
+	 */
+	onError?: (error: SLuaError) => void;
 };
 
 export type SLuaScript = {
@@ -54,6 +65,10 @@ export type SLuaScript = {
 	set: (name: string, value: string) => void;
 };
 
+/**
+ * Parses `#SLUA#` prefixed print statements from the SLua runtime,
+ * which are used to track runtime events.
+ */
 export function parsePrint(message: string): SLuaOutput | undefined {
 	if (!message.startsWith('#SLUA#\t')) {
 		return;
@@ -70,8 +85,16 @@ export function parsePrint(message: string): SLuaOutput | undefined {
 	};
 }
 
+/**
+ * Starts a new SLua runtime and executes the given code.
+ *
+ * Any prints or errors that happen during initial execution are returned,
+ * later prints or errors can be returned via the `onPrint` or `onError`
+ * callbacks.
+ */
 export async function runCode(code: string, config: SLuaConfig = {}) {
 	const output: SLuaOutput[] = [];
+	const errors: SLuaError[] = [];
 
 	const luau = await initLuau({ print: config.onPrint ?? console.log });
 
@@ -80,18 +103,16 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 			'executeScript',
 			'string',
 			['string'],
-			[`${config.sandbox ?? sandbox}\n${code}`],
+			[`${config.sandbox ?? SANDBOX}\n${code}`],
 		);
 
 		if (err && typeof err === 'string') {
-			const sandboxLineCount = (config.sandbox ?? sandbox).split('\n').length;
+			const sandboxLineCount = (config.sandbox ?? SANDBOX).split('\n').length;
 			const errText = err.replace('stdin:', '');
 
 			let errLineNo = Number(errText.match(/\d+/)?.[0]);
 
 			if (errLineNo) {
-				errLineNo -= sandboxLineCount;
-
 				// hack to work around our sandbox wrapper
 				// may result in unexpected results if `error()` is used in their code?
 				const adjustedErrText = errText
@@ -112,15 +133,16 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 					.replace(", got '__INTERNAL_DO_NOT_USE'", '')
 					.replace(/__INTERNAL_DO_NOT_USE/g, 'internal');
 
-				output.push({
+				errors.push({
 					timestamp: Date.now(),
 					delta: Number.MAX_SAFE_INTEGER,
 					type: 0,
 					name: 'Script Error',
 					data: adjustedErrText,
+					line: errLineNo,
 				});
 			} else {
-				output.push({
+				errors.push({
 					timestamp: Date.now(),
 					delta: Number.MAX_SAFE_INTEGER,
 					type: 0,
@@ -130,7 +152,7 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 			}
 		}
 	} catch (error) {
-		output.push({
+		errors.push({
 			timestamp: Date.now(),
 			delta: Number.MAX_SAFE_INTEGER,
 			type: 0,
@@ -150,12 +172,12 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 	// these are custom functions, not part of the normal Luau.Web.js API
 	const script: SLuaScript = {
 		call,
-		touch: (detected?: number) => call(`${internal}.touch`, [detected ?? 1]),
+		touch: (detected?: number) => call(`${INTERNAL}.touch`, [detected ?? 1]),
 		get: (name: string) => null,
 		set: (name: string, value: string) => {},
 	};
 
-	return { script, output };
+	return { script, output, errors };
 }
 
 export default { runCode, parsePrint };

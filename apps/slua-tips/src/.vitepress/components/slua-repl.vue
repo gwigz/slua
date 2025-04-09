@@ -206,10 +206,10 @@ onMounted(async () => {
 
 async function runCode() {
 	lastError.value = undefined;
+	script.value = null;
 
 	output.splice(0, output.length);
 
-	// TODO: restore lastError handling
 	const result = await slua.runCode(code.value, {
 		onPrint: (message) => {
 			const parsed = slua.parsePrint(message);
@@ -227,13 +227,13 @@ async function runCode() {
 		},
 	});
 
-	script.value = result.script;
-
 	if (result.errors.length > 0) {
 		lastError.value = result.errors[0].line;
 
 		output.push(...result.errors);
 		console.error(result.errors);
+	} else {
+		script.value = result.script;
 	}
 }
 

@@ -18,7 +18,7 @@ gitChangelog: false
 
 -- at the moment most functions are stubbed
 -- and the ones that are implemented are not tested
--- https://github.com/gwigz/slua-tips/blob/main/src/.vitepress/theme/components/slua-sandbox.luau
+-- https://github.com/gwigz/slua/blob/main/packages/slua-web/src/sandbox.luau
 
 function touch_start(total_number)
    ll.Say(0, "Touched.")

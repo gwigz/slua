@@ -117,7 +117,7 @@ import { Icon } from '@iconify/vue';
 		</h2>
 		<div class="max-w-xl mx-auto grid gap-4">
 			<a
-				href="https://www.luau.org"
+				href="https://luau.org"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="block p-4 border border-border rounded-lg hover:bg-primary/5 hover:border-primary/30 transition-colors"

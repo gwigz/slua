@@ -7,13 +7,25 @@
 
 <script setup lang="ts">
 import { shikiToMonaco } from "@shikijs/monaco";
-import * as monaco from "monaco-editor";
 import { createHighlighter } from "shiki";
 import { useData } from "vitepress";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import documentation from "../../slua/documentation";
-import globals from "../../slua/globals";
+import * as monaco from "monaco-editor";
+import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+
+self.MonacoEnvironment = {
+	getWorker(_: string, label: string) {
+		if (label === "editorWorkerService") {
+			return new editorWorker();
+		}
+
+		throw new Error(`No worker for ${label}`);
+	},
+};
+
+import documentation from "../slua/documentation";
+import globals from "../slua/globals";
 
 const { isDark } = useData();
 const editorContainer = ref<HTMLElement | null>(null);
@@ -57,7 +69,6 @@ onMounted(async () => {
 		return;
 	}
 
-	// Load from localStorage if storageKey is provided
 	const initialValue = props.storageKey
 		? localStorage.getItem(props.storageKey) ?? props.modelValue
 		: props.modelValue;
@@ -221,9 +232,9 @@ onMounted(async () => {
 
 	editor.onDidChangeModelContent(() => {
 		const value = editor?.getValue() ?? "";
+
 		emit("update:modelValue", value);
 
-		// Save to localStorage if storageKey is provided
 		if (props.storageKey) {
 			localStorage.setItem(props.storageKey, value);
 		}

@@ -8,7 +8,6 @@
 					language="luau"
 					:error-lines="lastError !== undefined ? [lastError] : []"
 					:storage-key="props.storageKey"
-					ref="monacoEditor"
 				/>
 			</div>
 
@@ -52,7 +51,7 @@
 			</div>
 			<form method="dialog" class="d-modal-backdrop">
 				<button class="!cursor-default" @click="showResetModal = false">
-					close
+					Close
 				</button>
 			</form>
 		</dialog>
@@ -65,7 +64,7 @@
 				@scroll="handleScroll"
 			>
 				<div v-if="output.length > 0">
-					<template v-for="line in output" :key="line.d">
+					<template v-for="line in output" :key="`${line.d}${Math.random()}`">
 						<div>
 							<span class="text-muted-foreground"
 								>[{{ new Date(line.ts * 1000).toLocaleTimeString() }}]
@@ -103,6 +102,7 @@
 
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
+import initLuau, { type MainModule as Luau } from "../luau/luau-web";
 import Cube from "./cube.vue";
 
 import { inBrowser } from "vitepress";
@@ -113,37 +113,25 @@ import {
 	onMounted,
 	ref,
 	useSlots,
-	watch,
 	watchEffect,
 } from "vue";
 
+// @ts-expect-error idk, adding .d.ts for *.luau/*.luau?raw doesn't help
 import sandboxContent from "./slua-sandbox.luau?raw";
 
 const MonacoEditor = inBrowser
 	? defineAsyncComponent(() => import("./monaco-editor.vue"))
 	: () => null;
 
-const slots = useSlots();
-const code = ref(getCodeFromSlot());
-
 const props = defineProps<{
 	storageKey?: string;
 }>();
 
-declare global {
-	interface Window {
-		Module: {
-			ccall: (
-				func: string,
-				returnType: string,
-				argTypes: string[],
-				args: (string | number | boolean)[]
-			) => string;
+const slots = useSlots();
 
-			print: (msg: string) => void;
-		};
-	}
-}
+const code = ref(getCodeFromSlot());
+
+const luau = ref<Luau | null>(null);
 
 type Output = {
 	type: number;
@@ -165,8 +153,10 @@ function getSlotTextContent(children) {
 	return children
 		.map((node) => {
 			if (typeof node.children === "string") return node.children;
+
 			if (Array.isArray(node.children))
 				return getSlotTextContent(node.children);
+
 			return "";
 		})
 		.join("");
@@ -228,38 +218,42 @@ watchEffect(() => {
 
 const lastError = ref<number | undefined>(undefined);
 
-onMounted(() => {
-	if (inBrowser && typeof window.Module === "undefined") {
-		window.Module = {
-			print: (message: string) => {
-				if (!message.startsWith("#REPL#\t")) {
-					return;
-				}
+onMounted(async () => {
+	if (inBrowser && !luau.value) {
+		if (props.storageKey) {
+			const savedCode = localStorage.getItem(props.storageKey);
 
-				const [_, ts, d, type, name, msg] = message.split("\t");
+			if (savedCode) {
+				code.value = savedCode;
+			}
+		}
 
-				output.value = [
-					...output.value,
-					{
-						ts: Number(ts),
-						d: Number(d),
-						type: Number(type),
-						name,
-						msg,
-					},
-				];
-			},
-			ccall: () => {
-				throw new Error("Luau runtime not loaded yet");
-			},
+		const printHandler = (message: string) => {
+			if (!message.startsWith("#REPL#\t")) {
+				return;
+			}
+
+			const [_, ts, d, type, name, msg] = message.split("\t");
+
+			output.value = [
+				...output.value,
+				{
+					ts: Number(ts),
+					d: Number(d),
+					type: Number(type),
+					name,
+					msg,
+				},
+			];
 		};
 
-		const script = document.createElement("script");
-
-		script.src = "/assets/js/luau-web.js";
-		script.async = true;
-
-		document.head.appendChild(script);
+		try {
+			luau.value = await initLuau({
+				print: printHandler,
+			});
+		} catch (error) {
+			console.error("Failed to load Luau module:", error);
+		}
 	}
 });
 
@@ -267,11 +261,7 @@ const sandboxLineCount = computed(() => sandbox.split("\n").length);
 
 const runCode = async (method?: "touch") => {
 	try {
-		if (
-			!inBrowser ||
-			typeof window.Module === "undefined" ||
-			!window.Module.ccall
-		) {
+		if (!inBrowser || !luau.value) {
 			return;
 		}
 
@@ -284,7 +274,7 @@ const runCode = async (method?: "touch") => {
 			suffix = "__INTERNAL_DO_NOT_USE.touch()\n";
 		}
 
-		const err = window.Module.ccall(
+		const err = luau.value.ccall(
 			"executeScript",
 			"string",
 			["string"],
@@ -307,6 +297,12 @@ const runCode = async (method?: "touch") => {
 					.replace(
 						/at line (\d+)/,
 						(_, line) => `at line ${Number(line) - sandboxLineCount.value}`
+					)
+					// replace "stack backtrace:\n\d+"
+					.replace(
+						/stack backtrace:\n(\d+)/g,
+						(_, line) =>
+							`stack backtrace:\n${Number(line) - sandboxLineCount.value}`
 					)
 					.replace(", got '__INTERNAL_DO_NOT_USE'", "")
 					.replace(/__INTERNAL_DO_NOT_USE/g, "internal");
@@ -348,19 +344,16 @@ const runCode = async (method?: "touch") => {
 	}
 };
 
-const monacoEditor = ref<InstanceType<typeof MonacoEditor> | null>(null);
-
 const resetModal = ref<HTMLDialogElement | null>(null);
 const showResetModal = ref(false);
 
 const confirmReset = () => {
 	const newCode = getCodeFromSlot();
+
 	code.value = newCode;
 	output.value = [];
 	lastError.value = undefined;
 	showResetModal.value = false;
-
-	// force a re-render of the MonacoEditor by temporarily setting code to empty
 	code.value = "";
 
 	nextTick(() => {

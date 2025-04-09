@@ -8,10 +8,9 @@ import "@nolebase/vitepress-plugin-inline-link-preview/client/style.css";
 import { NolebaseGitChangelogPlugin } from "@nolebase/vitepress-plugin-git-changelog/client";
 import "@nolebase/vitepress-plugin-git-changelog/client/style.css";
 
-import Gradient from "./components/gradient.vue";
-import ResourceCard from "./components/resource-card.vue";
-
-import SLuaRepl from "./components/slua-repl.vue";
+import Gradient from "../components/gradient.vue";
+import ResourceCard from "../components/resource-card.vue";
+import SLuaRepl from "../components/slua-repl.vue";
 
 import "../../tailwind.css";
 

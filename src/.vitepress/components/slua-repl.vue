@@ -128,7 +128,9 @@ const props = defineProps<{
 }>();
 
 const slots = useSlots();
-const code = ref(localStorage.getItem(props.storageKey) || getCodeFromSlot());
+
+const code = ref(getCodeFromSlot());
+
 const luau = ref<Luau | null>(null);
 
 type Output = {
@@ -218,6 +220,14 @@ const lastError = ref<number | undefined>(undefined);
 
 onMounted(async () => {
 	if (inBrowser && !luau.value) {
+		if (props.storageKey) {
+			const savedCode = localStorage.getItem(props.storageKey);
+
+			if (savedCode) {
+				code.value = savedCode;
+			}
+		}
+
 		const printHandler = (message: string) => {
 			if (!message.startsWith("#REPL#\t")) {
 				return;
@@ -339,12 +349,11 @@ const showResetModal = ref(false);
 
 const confirmReset = () => {
 	const newCode = getCodeFromSlot();
+
 	code.value = newCode;
 	output.value = [];
 	lastError.value = undefined;
 	showResetModal.value = false;
-
-	// force a re-render of the MonacoEditor by temporarily setting code to empty
 	code.value = "";
 
 	nextTick(() => {

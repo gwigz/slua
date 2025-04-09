@@ -64,7 +64,7 @@
 				@scroll="handleScroll"
 			>
 				<div v-if="output.length > 0">
-					<template v-for="line in output" :key="line.d">
+					<template v-for="line in output" :key="`${line.d}${Math.random()}`">
 						<div>
 							<span class="text-muted-foreground"
 								>[{{ new Date(line.ts * 1000).toLocaleTimeString() }}]

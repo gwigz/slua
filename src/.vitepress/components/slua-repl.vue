@@ -8,7 +8,6 @@
 					language="luau"
 					:error-lines="lastError !== undefined ? [lastError] : []"
 					:storage-key="props.storageKey"
-					ref="monacoEditor"
 				/>
 			</div>
 
@@ -103,6 +102,7 @@
 
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
+import initLuau, { type MainModule as Luau } from "../luau/luau-web";
 import Cube from "./cube.vue";
 
 import { inBrowser } from "vitepress";
@@ -113,10 +113,10 @@ import {
 	onMounted,
 	ref,
 	useSlots,
-	watch,
 	watchEffect,
 } from "vue";
 
+// @ts-expect-error idk, adding .d.ts for *.luau/*.luau?raw doesn't help
 import sandboxContent from "./slua-sandbox.luau?raw";
 
 const MonacoEditor = inBrowser
@@ -125,25 +125,11 @@ const MonacoEditor = inBrowser
 
 const slots = useSlots();
 const code = ref(getCodeFromSlot());
+const luau = ref<Luau | null>(null);
 
 const props = defineProps<{
 	storageKey?: string;
 }>();
-
-declare global {
-	interface Window {
-		Module: {
-			ccall: (
-				func: string,
-				returnType: string,
-				argTypes: string[],
-				args: (string | number | boolean)[]
-			) => string;
-
-			print: (msg: string) => void;
-		};
-	}
-}
 
 type Output = {
 	type: number;
@@ -165,8 +151,10 @@ function getSlotTextContent(children) {
 	return children
 		.map((node) => {
 			if (typeof node.children === "string") return node.children;
+
 			if (Array.isArray(node.children))
 				return getSlotTextContent(node.children);
+
 			return "";
 		})
 		.join("");
@@ -228,38 +216,34 @@ watchEffect(() => {
 
 const lastError = ref<number | undefined>(undefined);
 
-onMounted(() => {
-	if (inBrowser && typeof window.Module === "undefined") {
-		window.Module = {
-			print: (message: string) => {
-				if (!message.startsWith("#REPL#\t")) {
-					return;
-				}
+onMounted(async () => {
+	if (inBrowser && !luau.value) {
+		const printHandler = (message: string) => {
+			if (!message.startsWith("#REPL#\t")) {
+				return;
+			}
 
-				const [_, ts, d, type, name, msg] = message.split("\t");
+			const [_, ts, d, type, name, msg] = message.split("\t");
 
-				output.value = [
-					...output.value,
-					{
-						ts: Number(ts),
-						d: Number(d),
-						type: Number(type),
-						name,
-						msg,
-					},
-				];
-			},
-			ccall: () => {
-				throw new Error("Luau runtime not loaded yet");
-			},
+			output.value = [
+				...output.value,
+				{
+					ts: Number(ts),
+					d: Number(d),
+					type: Number(type),
+					name,
+					msg,
+				},
+			];
 		};
 
-		const script = document.createElement("script");
-
-		script.src = "/assets/js/luau-web.js";
-		script.async = true;
-
-		document.head.appendChild(script);
+		try {
+			luau.value = await initLuau({
+				print: printHandler,
+			});
+		} catch (error) {
+			console.error("Failed to load Luau module:", error);
+		}
 	}
 });
 
@@ -267,11 +251,7 @@ const sandboxLineCount = computed(() => sandbox.split("\n").length);
 
 const runCode = async (method?: "touch") => {
 	try {
-		if (
-			!inBrowser ||
-			typeof window.Module === "undefined" ||
-			!window.Module.ccall
-		) {
+		if (!inBrowser || !luau.value) {
 			return;
 		}
 
@@ -284,7 +264,7 @@ const runCode = async (method?: "touch") => {
 			suffix = "__INTERNAL_DO_NOT_USE.touch()\n";
 		}
 
-		const err = window.Module.ccall(
+		const err = luau.value.ccall(
 			"executeScript",
 			"string",
 			["string"],
@@ -307,6 +287,12 @@ const runCode = async (method?: "touch") => {
 					.replace(
 						/at line (\d+)/,
 						(_, line) => `at line ${Number(line) - sandboxLineCount.value}`
+					)
+					// replace "stack backtrace:\n\d+"
+					.replace(
+						/stack backtrace:\n(\d+)/g,
+						(_, line) =>
+							`stack backtrace:\n${Number(line) - sandboxLineCount.value}`
 					)
 					.replace(", got '__INTERNAL_DO_NOT_USE'", "")
 					.replace(/__INTERNAL_DO_NOT_USE/g, "internal");
@@ -347,8 +333,6 @@ const runCode = async (method?: "touch") => {
 		];
 	}
 };
-
-const monacoEditor = ref<InstanceType<typeof MonacoEditor> | null>(null);
 
 const resetModal = ref<HTMLDialogElement | null>(null);
 const showResetModal = ref(false);

@@ -12,8 +12,8 @@ import { createHighlighter } from "shiki";
 import { useData } from "vitepress";
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 
-import documentation from "../../slua/documentation";
-import globals from "../../slua/globals";
+import documentation from "../slua/documentation";
+import globals from "../slua/globals";
 
 const { isDark } = useData();
 const editorContainer = ref<HTMLElement | null>(null);
@@ -57,7 +57,6 @@ onMounted(async () => {
 		return;
 	}
 
-	// Load from localStorage if storageKey is provided
 	const initialValue = props.storageKey
 		? localStorage.getItem(props.storageKey) ?? props.modelValue
 		: props.modelValue;
@@ -221,9 +220,9 @@ onMounted(async () => {
 
 	editor.onDidChangeModelContent(() => {
 		const value = editor?.getValue() ?? "";
+
 		emit("update:modelValue", value);
 
-		// Save to localStorage if storageKey is provided
 		if (props.storageKey) {
 			localStorage.setItem(props.storageKey, value);
 		}

@@ -4,7 +4,7 @@ sidebar: false
 ---
 
 <script setup>
-import Home from './components/home.vue'
+import Home from './.vitepress/components/home.vue'
 </script>
 
 <Home>

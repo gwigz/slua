@@ -42,6 +42,6 @@ const { isDark } = useData();
 const texture = ref<Texture | null>(null);
 
 onMounted(async () => {
-	texture.value = await useTexture(["/assets/img/plywood.jpg"]);
+	texture.value = await useTexture(["/assets/plywood.jpg"]);
 });
 </script>

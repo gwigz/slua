@@ -1,3 +1,3 @@
-# slua.tips
+# SLua Web
 
 Work in progress.

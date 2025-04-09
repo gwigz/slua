@@ -1,0 +1,10 @@
+{
+  "name": "@gwigz/slua-monaco-editor",
+  "description": "Monaco editor helpers for SLua",
+  "version": "0.0.1",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
+}

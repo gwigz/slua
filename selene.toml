@@ -1,4 +1,5 @@
 std = "selene_defs"
+exclude = ["*.d.luau"]
 
 [rules]
 global_usage = "allow"
@@ -7,4 +8,4 @@ must_use = "warn"
 
 [config]
 empty_if = { comments_count = true }
-unused_variable = { ignore_pattern = "^_|^changed$|^attached$|^on_rez$|^touch_start$|^touch_end$|^touch$|^listen$|^timer$|^http_request$|^http_response$|^link_message$" }
+unused_variable = { ignore_pattern = "^at_rot_target$|^at_target$|^attach$|^changed$|^collision$|^collision_end$|^collision_start$|^control$|^dataserver$|^email$|^experience_permissions$|^experience_permissions_denied$|^final_damage$|^game_control$|^http_request$|^http_response$|^land_collision$|^land_collision_end$|^land_collision_start$|^link_message$|^linkset_data$|^listen$|^money$|^moving_end$|^moving_start$|^no_sensor$|^not_at_rot_target$|^not_at_target$|^object_rez$|^on_damage$|^on_death$|^on_rez$|^path_update$|^remote_data$|^run_time_permissions$|^sensor$|^timer$|^touch$|^touch_end$|^touch_start$|^transaction_result$" }

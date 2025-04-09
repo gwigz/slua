@@ -26,8 +26,6 @@ quaternion = function(x: number, y: number, z: number, s: number)
 	error("not implemented")
 end
 
-at_rot_target = function() end
-
 ACTIVE = 2
 AGENT = 1
 AGENT_ALWAYS_RUN = 4096
@@ -1027,12 +1025,104 @@ internal = {
 	description = "",
 	position = vector.zero,
 	-- rotation = quaternion.identity,
+	scale = vector.create(0.5, 0.5, 0.5),
+	color = {
+		vector.create(1, 1, 1),
+		vector.create(1, 1, 1),
+		vector.create(1, 1, 1),
+		vector.create(1, 1, 1),
+		vector.create(1, 1, 1),
+	},
+	alpha = {
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+	},
 }
 
-internal.log = function(type: number, msg: string)
+internal.chat = function(type: number, msg: string)
 	-- TODO: error if message is not string
-	print("#SLUA#", os.time(), os.clock(), type, internal.name, msg)
+	print("#!SLUA:CHAT", os.time(), os.clock(), type, internal.name, msg)
 end
+
+internal.set_position = function(link: number, position: vector)
+	if type(link) ~= "number" or type(position) ~= "vector" then
+		return
+	end
+
+	internal.position = position
+
+	print(
+		"#!SLUA:SET_POSITION",
+		link,
+		internal.position.x,
+		internal.position.y,
+		internal.position.z
+	)
+end
+
+internal.set_scale = function(link: number, scale: vector)
+	if type(link) ~= "number" or type(scale) ~= "vector" then
+		return
+	end
+
+	internal.scale = scale
+
+	print(
+		"#!SLUA:SET_SCALE",
+		link,
+		internal.scale.x,
+		internal.scale.y,
+		internal.scale.z
+	)
+end
+
+internal.set_rotation = function(link: number, rotation: quaternion)
+	error("not implemented")
+end
+
+internal.set_color = function(link: number, color: vector, face: number)
+	if
+		type(link) ~= "number"
+		or type(color) ~= "vector"
+		or type(face) ~= "number"
+	then
+		return
+	end
+
+	-- TODO: validate this
+	if link ~= LINK_ROOT and link ~= LINK_THIS then
+		return
+	end
+
+	internal.color[face] = color
+
+	print("#!SLUA:SET_COLOR", link, color.x, color.y, color.z, face)
+end
+
+internal.set_alpha = function(link: number, alpha: number, face: number)
+	if
+		type(link) ~= "number"
+		or type(alpha) ~= "vector"
+		or type(face) ~= "number"
+	then
+		return
+	end
+
+	-- TODO: validate this
+	if link ~= LINK_ROOT and link ~= LINK_THIS then
+		return
+	end
+
+	internal.alpha[face] = alpha
+
+	print("#!SLUA:SET_ALPHA", link, alpha, face)
+end
+
+at_rot_target = function() end
 
 internal.at_rot_target = function(
 	handle: number,
@@ -1828,7 +1918,17 @@ ll.GetClosestNavPoint = function(point: vector, options: list)
 end
 
 ll.GetColor = function(face: number)
-	return vector.zero
+	-- TODO: move to internal utility
+	if face == -1 then
+		-- TODO: calculate average color of all faces
+		return vector.zero
+	end
+
+	if face < 0 or face > ll.GetNumberOfSides() then
+		face = 1
+	end
+
+	return internal.color[face]
 end
 
 ll.GetCreator = function()
@@ -2048,7 +2148,7 @@ ll.GetNumberOfPrims = function()
 end
 
 ll.GetNumberOfSides = function()
-	return 0
+	return 6
 end
 
 ll.GetObjectAnimationNames = function()
@@ -2480,7 +2580,7 @@ end
 
 ll.InstantMessage = function(id: uuid, text: string)
 	if id == internal.owner.id then
-		internal.log(7, text)
+		internal.chat(7, text)
 	end
 end
 
@@ -2905,7 +3005,7 @@ ll.OverMyLand = function(id: uuid)
 end
 
 ll.OwnerSay = function(text: string)
-	internal.log(2, text)
+	internal.chat(2, text)
 end
 
 ll.ParcelMediaCommandList = function(command_list: list)
@@ -2983,13 +3083,13 @@ end
 
 ll.RegionSay = function(channel: number, text: string)
 	if channel == DEBUG_CHANNEL then
-		internal.log(1, text)
+		internal.chat(1, text)
 	end
 end
 
 ll.RegionSayTo = function(id: uuid, channel: number, text: string)
 	if tostring(id) == tostring(internal.owner.id) then
-		internal.log(6, text)
+		internal.chat(6, text)
 	end
 end
 
@@ -3229,9 +3329,9 @@ end
 
 ll.Say = function(channel: number, text: string)
 	if channel == 0 then
-		internal.log(4, text)
+		internal.chat(4, text)
 	elseif channel == DEBUG_CHANNEL then
-		internal.log(1, text)
+		internal.chat(1, text)
 	end
 end
 
@@ -3329,7 +3429,7 @@ ll.SetClickAction = function(action: number)
 end
 
 ll.SetColor = function(color: vector, face: number)
-	return nil
+	internal.set_color(0, color, face)
 end
 
 ll.SetContentType = function(id: uuid, content_type: number)
@@ -3373,7 +3473,7 @@ ll.SetKeyframedMotion = function(keyframes: list, options: list)
 end
 
 ll.SetLinkAlpha = function(link_number: number, opacity: number, face: number)
-	return nil
+	internal.set_alpha(link_number, opacity, face)
 end
 
 ll.SetLinkCamera = function(
@@ -3385,7 +3485,7 @@ ll.SetLinkCamera = function(
 end
 
 ll.SetLinkColor = function(link_number: number, color: vector, face: number)
-	return nil
+	internal.set_color(link_number, color, face)
 end
 
 ll.SetLinkMedia = function(link: number, face: number, parameters: list)
@@ -3480,7 +3580,7 @@ ll.SetPos = function(position: vector)
 		direction = vector.normalize(direction) * 10
 	end
 
-	internal.position = internal.position + direction
+	internal.set_position(0, internal.position + direction)
 end
 
 ll.SetPrimMediaParams = function(face: number, media_parameters: list)
@@ -3496,7 +3596,7 @@ ll.SetPrimitiveParams = function(parameters: list)
 end
 
 ll.SetRegionPos = function(position: vector)
-	internal.position = position
+	internal.set_position(0, position)
 end
 
 ll.SetRemoteScriptAccessPin = function(pin: number)
@@ -3508,15 +3608,15 @@ ll.SetRenderMaterial = function(material: string, face: number)
 end
 
 ll.SetRot = function(rotation: quaternion)
-	return nil
+	internal.set_rotation(1, rotation)
 end
 
 ll.SetScale = function(scale: vector)
-	return nil
+	internal.set_scale(1, scale)
 end
 
 ll.SetScriptState = function(script_name: string, running: number)
-	return nil
+	error("not implemented")
 end
 
 ll.SetSitText = function(text: string)
@@ -3602,9 +3702,9 @@ end
 
 ll.Shout = function(channel: number, text: string)
 	if channel == 0 then
-		internal.log(5, text)
+		internal.chat(5, text)
 	elseif channel == DEBUG_CHANNEL then
-		internal.log(1, text)
+		internal.chat(1, text)
 	end
 end
 
@@ -3637,7 +3737,7 @@ ll.SoundPreload = function(sound: string)
 end
 
 ll.Sqrt = function(value: number)
-	return 0
+	return math.sqrt(value)
 end
 
 ll.StartAnimation = function(animation: string)
@@ -3677,15 +3777,21 @@ ll.StringLength = function(text: string)
 end
 
 ll.StringToBase64 = function(text: string)
-	return ""
+	return llbase64.encode(text)
 end
 
 ll.StringTrim = function(text: string, trim_type: number)
-	return ""
+	if trim_type == STRING_TRIM_HEAD then
+		return text:gsub("^%s*", "")
+	elseif trim_type == STRING_TRIM_TAIL then
+		return text:gsub("%s*$", "")
+	end
+
+	return text:gsub("^%s*", ""):gsub("%s*$", "")
 end
 
 ll.SubStringIndex = function(text: string, sequence: string)
-	return 0
+	error("not implemented, use `string.find` instead")
 end
 
 ll.TakeCamera = function(id: uuid)
@@ -3743,11 +3849,11 @@ ll.TextBox = function(id: uuid, text: string, channel: number)
 end
 
 ll.ToLower = function(text: string)
-	return ""
+	return text:lower()
 end
 
 ll.ToUpper = function(text: string)
-	return ""
+	return text:upper()
 end
 
 ll.TransferLindenDollars = function(id: uuid, amount: number)
@@ -3801,7 +3907,7 @@ ll.VecMag = function(vec: vector)
 end
 
 ll.VecNorm = function(vec: vector)
-	return vector.zero
+	return vector.normalize(vec)
 end
 
 ll.VerifyRSA = function(
@@ -3827,9 +3933,9 @@ end
 
 ll.Whisper = function(channel: number, text: string)
 	if channel == 0 then
-		internal.log(3, text)
+		internal.chat(3, text)
 	elseif channel == DEBUG_CHANNEL then
-		internal.log(1, text)
+		internal.chat(1, text)
 	end
 end
 

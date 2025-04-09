@@ -221,11 +221,11 @@ async function runCode() {
 			if (parsed) {
 				output.push(parsed);
 			} else {
-				console.log(message);
+				console.log('SLua print:', message);
 			}
 		},
 		onError: (error) => {
-			console.error(error);
+			console.error('SLua error:', error);
 
 			lastError.value = error.line;
 		},

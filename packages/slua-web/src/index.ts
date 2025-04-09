@@ -28,7 +28,44 @@ export type SLuaConfig = {
 	/**
 	 * Returns runtime print statements (from i.e. using `print()` in your Luau script)
 	 */
-	onPrint?: (message: string) => void;
+	onPrint?: (message: string[]) => void;
+
+	/**
+	 * Returns runtime chat messages
+	 */
+	onChat?: (message: SLuaOutput) => void;
+
+	/**
+	 * Returns runtime position changes
+	 */
+	onPositionChange?: (link: number, position: [number, number, number]) => void;
+
+	/**
+	 * Returns runtime position changes
+	 */
+	onRotationChange?: (
+		link: number,
+		rotation: [number, number, number, number],
+	) => void;
+
+	/**
+	 * Returns runtime scale changes
+	 */
+	onScaleChange?: (link: number, scale: [number, number, number]) => void;
+
+	/**
+	 * Returns runtime color changes
+	 */
+	onColorChange?: (
+		link: number,
+		color: [number, number, number],
+		face: number,
+	) => void;
+
+	/**
+	 * Returns runtime alpha changes
+	 */
+	onAlphaChange?: (link: number, alpha: number, face: number) => void;
 
 	/**
 	 * Returns runtime errors (from i.e. using `script.call()`)
@@ -256,15 +293,7 @@ export type SLuaScript = {
 	set: (name: string, value: string) => void;
 };
 
-/**
- * Parses `#SLUA#` prefixed print statements from the SLua runtime,
- * which are used to track runtime events.
- */
-export function parsePrint(message: string): SLuaOutput | undefined {
-	if (!message.startsWith('#SLUA#\t')) {
-		return;
-	}
-
+function parseChat(message: string): SLuaOutput {
 	const [_, timestamp, delta, type, name, data] = message.split('\t');
 
 	return {
@@ -274,6 +303,50 @@ export function parsePrint(message: string): SLuaOutput | undefined {
 		name,
 		data,
 	};
+}
+type Config = Required<Omit<SLuaConfig, 'sandbox'>>;
+type CallbackParameters<T extends keyof Config> = Parameters<
+	NonNullable<Config[T]>
+>;
+
+function parsePositionChange(
+	message: string,
+): CallbackParameters<'onPositionChange'> {
+	const [_, link, x, y, z] = message.split('\t');
+
+	return [Number(link), [Number(x), Number(y), Number(z)]];
+}
+
+function parseScaleChange(
+	message: string,
+): CallbackParameters<'onScaleChange'> {
+	const [_, link, x, y, z] = message.split('\t');
+
+	return [Number(link), [Number(x), Number(y), Number(z)]];
+}
+
+function parseRotationChange(
+	message: string,
+): CallbackParameters<'onRotationChange'> {
+	const [_, link, x, y, z, w] = message.split('\t');
+
+	return [Number(link), [Number(x), Number(y), Number(z), Number(w)]];
+}
+
+function parseColorChange(
+	message: string,
+): CallbackParameters<'onColorChange'> {
+	const [_, link, x, y, z, face] = message.split('\t');
+
+	return [Number(link), [Number(x), Number(y), Number(z)], Number(face)];
+}
+
+function parseAlphaChange(
+	message: string,
+): CallbackParameters<'onAlphaChange'> {
+	const [_, link, alpha, face] = message.split('\t');
+
+	return [Number(link), Number(face), Number(alpha)];
 }
 
 /**
@@ -287,7 +360,41 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 	const output: SLuaOutput[] = [];
 	const errors: SLuaError[] = [];
 
-	const luau = await initLuau({ print: config.onPrint ?? console.log });
+	const luau = await initLuau({
+		print: (message: string) => {
+			console.log(message);
+
+			switch (true) {
+				case message.startsWith('#!SLUA:CHAT'):
+					config.onChat?.(parseChat(message));
+					break;
+
+				case message.startsWith('#!SLUA:SET_POSITION'):
+					config.onPositionChange?.(...parsePositionChange(message));
+					break;
+
+				case message.startsWith('#!SLUA:SET_SCALE'):
+					config.onScaleChange?.(...parseScaleChange(message));
+					break;
+
+				case message.startsWith('#!SLUA:SET_ROTATION'):
+					config.onRotationChange?.(...parseRotationChange(message));
+					break;
+
+				case message.startsWith('#!SLUA:SET_COLOR'):
+					config.onColorChange?.(...parseColorChange(message));
+					break;
+
+				case message.startsWith('#!SLUA:SET_ALPHA'):
+					config.onAlphaChange?.(...parseAlphaChange(message));
+					break;
+
+				default:
+					config.onPrint?.(message.split('\t'));
+					break;
+			}
+		},
+	});
 
 	try {
 		const err = luau.ccall(
@@ -477,4 +584,4 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 	return { script, output, errors };
 }
 
-export default { runCode, parsePrint };
+export default { runCode };

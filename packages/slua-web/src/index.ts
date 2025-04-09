@@ -113,6 +113,8 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 			let errLineNo = Number(errText.match(/\d+/)?.[0]);
 
 			if (errLineNo) {
+				errLineNo -= sandboxLineCount;
+
 				// hack to work around our sandbox wrapper
 				// may result in unexpected results if `error()` is used in their code?
 				const adjustedErrText = errText

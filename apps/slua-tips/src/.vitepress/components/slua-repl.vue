@@ -259,6 +259,8 @@ function confirmReset() {
 	lastError.value = undefined;
 	script.value = null;
 	code.value = '';
+	cubeScale.value = [1, 1, 1];
+	cubeColor.value = '#ffffff';
 
 	showResetModal.value = false;
 

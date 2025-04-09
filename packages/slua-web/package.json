@@ -1,0 +1,35 @@
+{
+  "name": "@gwigz/slua-web",
+  "version": "0.0.1",
+  "author": "gwigz <gwigz@icloud.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gwigz/slua.git"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "dependencies": {
+    "@types/bun": "^1.2.9",
+    "bun-plugin-dts": "^0.3.0"
+  },
+  "bugs": "https://github.com/gwigz/slua/issues",
+  "description": "SLua runtime for web browsers",
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/gwigz/slua#readme",
+  "keywords": [
+    "secondlife",
+    "slua",
+    "luau",
+    "wasm"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "bun run build.ts",
+    "prepublishOnly": "bun run build",
+    "dev": "bun run dev.ts"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts"
+}

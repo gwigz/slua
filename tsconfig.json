@@ -1,20 +1,6 @@
 {
-	"compilerOptions": {
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-	},
-	"include": [
-		"src/**/*.ts",
-		"src/**/*.d.ts",
-		"src/**/*.vue",
-		"src/**/*.md"
-	],
-	"exclude": [
-		"node_modules"
-	],
-	"vueCompilerOptions": {
-		"vitePressExtensions": [
-			".md"
-		],
-	},
+	"extends": "./tsconfig.base.json",
+	"compileOnSave": false,
+	"files": [],
+	"references": []
 }

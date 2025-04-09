@@ -1,0 +1,11 @@
+{
+  "name": "@gwigz/slua-tools",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "lodash": "^4.17.21"
+  }
+}

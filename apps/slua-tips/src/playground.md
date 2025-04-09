@@ -26,6 +26,9 @@ end
 
 function collision_start(num_detected)
 	ll.Whisper(0, 'That hurt.')
+
+	ll.SetColor(vector.create(math.random(), math.random(), math.random()), ALL_SIDES)
+	ll.SetScale(vector.create(math.random(), math.random(), math.random()))
 end
 
 local message = "Hello, Avatar!"

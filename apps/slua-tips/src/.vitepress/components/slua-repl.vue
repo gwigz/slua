@@ -8,7 +8,7 @@
 			</div>
 
 			<div class="col-span-3 md:col-span-1">
-				<Cube />
+				<Cube :scale="cubeScale" :color="cubeColor" />
 			</div>
 		</div>
 
@@ -128,6 +128,14 @@ const outputRef = ref<HTMLElement | null>(null);
 const autoScroll = ref(true);
 const showScrollButton = ref(false);
 const lastScrollHeight = ref(0);
+const cubeScale = ref<[number, number, number]>([1, 1, 1]);
+const cubeColor = ref('#ffffff');
+
+function rgbToHex(rgb: [number, number, number]): string {
+	const [r, g, b] = rgb.map((v) => Math.round(v * 255));
+
+	return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
 
 function getSlotTextContent(children) {
 	return children
@@ -215,19 +223,18 @@ async function runCode() {
 	output.splice(0, output.length);
 
 	const result = await slua.runCode(code.value, {
-		onPrint: (message) => {
-			const parsed = slua.parsePrint(message);
-
-			if (parsed) {
-				output.push(parsed);
-			} else {
-				console.log('SLua print:', message);
+		onChat: (message) => {
+			output.push(message);
+		},
+		onScaleChange: (link, scale) => {
+			if (link === 1) {
+				cubeScale.value = [scale[0] * 2, scale[1] * 2, scale[2] * 2];
 			}
 		},
-		onError: (error) => {
-			console.error('SLua error:', error);
-
-			lastError.value = error.line;
+		onColorChange: (link, color) => {
+			if (link === 1) {
+				cubeColor.value = rgbToHex(color);
+			}
 		},
 	});
 

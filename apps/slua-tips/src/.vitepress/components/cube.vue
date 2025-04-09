@@ -23,9 +23,9 @@
 				:enable-damping="true"
 			/>
 
-			<TresMesh :rotation="[0, Math.PI / 4, 0]">
+			<TresMesh :rotation="[0, Math.PI / 4, 0]" :scale="scale">
 				<TresBoxGeometry :args="[1, 1, 1]" />
-				<TresMeshStandardMaterial :map="texture" />
+				<TresMeshStandardMaterial :map="texture" :color="color" />
 			</TresMesh>
 		</TresCanvas>
 	</div>
@@ -36,10 +36,25 @@ import { OrbitControls } from '@tresjs/cientos';
 import { TresCanvas, useTexture } from '@tresjs/core';
 import type { Texture } from 'three';
 import { useData } from 'vitepress';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const { isDark } = useData();
 const texture = ref<Texture | null>(null);
+
+const props = defineProps<{
+	scale?: [number, number, number];
+	color?: string;
+}>();
+
+const scale = computed(
+	() =>
+		(props.scale ?? ([1, 1, 1] as [number, number, number])).map(
+			// scales cannot be less than 0.010 (* 2 till the camera position is better)
+			(v) => Math.max(0.02, v),
+		) as [number, number, number],
+);
+
+const color = computed(() => props.color ?? '#ffffff');
 
 onMounted(async () => {
 	texture.value = await useTexture(['/assets/plywood.jpg']);

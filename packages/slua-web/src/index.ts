@@ -31,6 +31,13 @@ export type SLuaConfig = {
 	onPrint?: (message: string[]) => void;
 
 	/**
+	 * Returns runtime errors (from i.e. using `script.call()` or `error()`)
+	 *
+	 * @note Not implemented yet
+	 */
+	onError?: (error: SLuaError) => void;
+
+	/**
 	 * Returns runtime chat messages
 	 */
 	onChat?: (message: SLuaOutput) => void;
@@ -66,11 +73,6 @@ export type SLuaConfig = {
 	 * Returns runtime alpha changes
 	 */
 	onAlphaChange?: (link: number, alpha: number, face: number) => void;
-
-	/**
-	 * Returns runtime errors (from i.e. using `script.call()`)
-	 */
-	onError?: (error: SLuaError) => void;
 };
 
 export type SLuaScript = {
@@ -362,7 +364,7 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 
 	const luau = await initLuau({
 		print: (message: string) => {
-			console.log(message);
+			// console.log(message);
 
 			switch (true) {
 				case message.startsWith('#!SLUA:CHAT'):
@@ -390,7 +392,7 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 					break;
 
 				default:
-					config.onPrint?.(message.split('\t'));
+					(config.onPrint ?? console.log)(message.split('\t'));
 					break;
 			}
 		},

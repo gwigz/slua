@@ -3394,7 +3394,7 @@ ll.SetAgentRot = function(rot: quaternion, flags: number)
 end
 
 ll.SetAlpha = function(opacity: number, face: number)
-	return nil
+	internal.set_alpha(1, opacity, face)
 end
 
 ll.SetAngularVelocity = function(ang_vel: vector, relative: number)
@@ -3429,7 +3429,7 @@ ll.SetClickAction = function(action: number)
 end
 
 ll.SetColor = function(color: vector, face: number)
-	internal.set_color(0, color, face)
+	internal.set_color(1, color, face)
 end
 
 ll.SetContentType = function(id: uuid, content_type: number)
@@ -3580,7 +3580,7 @@ ll.SetPos = function(position: vector)
 		direction = vector.normalize(direction) * 10
 	end
 
-	internal.set_position(0, internal.position + direction)
+	internal.set_position(1, internal.position + direction)
 end
 
 ll.SetPrimMediaParams = function(face: number, media_parameters: list)
@@ -3596,7 +3596,7 @@ ll.SetPrimitiveParams = function(parameters: list)
 end
 
 ll.SetRegionPos = function(position: vector)
-	internal.set_position(0, position)
+	internal.set_position(1, position)
 end
 
 ll.SetRemoteScriptAccessPin = function(pin: number)

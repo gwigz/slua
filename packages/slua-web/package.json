@@ -1,36 +1,35 @@
 {
   "name": "@gwigz/slua-web",
-  "description": "SLua runtime for web browsers",
-  "license": "MIT",
   "version": "0.0.1",
-  "type": "module",
+  "author": "gwigz <gwigz@icloud.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gwigz/slua.git"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@types/bun": "^1.2.9",
+    "bun-plugin-dts": "^0.3.0"
+  },
+  "bugs": "https://github.com/gwigz/slua/issues",
+  "description": "SLua runtime for web browsers",
   "files": [
     "dist"
   ],
+  "homepage": "https://github.com/gwigz/slua#readme",
   "keywords": [
     "secondlife",
     "slua",
     "luau",
     "wasm"
   ],
-  "homepage": "https://github.com/gwigz/slua#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/gwigz/slua.git"
-  },
-  "author": "gwigz <gwigz@icloud.com>",
-  "bugs": "https://github.com/gwigz/slua/issues",
+  "license": "MIT",
   "scripts": {
     "build": "bun run build.ts",
     "prepublishOnly": "bun run build",
     "dev": "bun run dev.ts"
   },
-  "dependencies": {},
-  "devDependencies": {
-    "@types/bun": "^1.2.9",
-    "bun-plugin-dts": "^0.3.0"
-  }
+  "type": "module",
+  "types": "./dist/index.d.ts"
 }

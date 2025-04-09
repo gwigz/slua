@@ -51,7 +51,7 @@
 			</div>
 			<form method="dialog" class="d-modal-backdrop">
 				<button class="!cursor-default" @click="showResetModal = false">
-					close
+					Close
 				</button>
 			</form>
 		</dialog>
@@ -123,13 +123,13 @@ const MonacoEditor = inBrowser
 	? defineAsyncComponent(() => import("./monaco-editor.vue"))
 	: () => null;
 
-const slots = useSlots();
-const code = ref(getCodeFromSlot());
-const luau = ref<Luau | null>(null);
-
 const props = defineProps<{
 	storageKey?: string;
 }>();
+
+const slots = useSlots();
+const code = ref(localStorage.getItem(props.storageKey) || getCodeFromSlot());
+const luau = ref<Luau | null>(null);
 
 type Output = {
 	type: number;

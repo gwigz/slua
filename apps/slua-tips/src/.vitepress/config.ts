@@ -39,7 +39,7 @@ export default defineConfig({
 				},
 			},
 			GitChangelog({
-				repoURL: () => 'https://github.com/gwigz/slua-tips',
+				repoURL: 'https://github.com/gwigz/slua',
 			}),
 			GitChangelogMarkdownSection(),
 		],

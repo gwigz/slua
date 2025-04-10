@@ -1015,12 +1015,8 @@ ZERO_ROTATION = nil
 ZERO_VECTOR = vector.create(0, 0, 0)
 
 internal = {
+	-- object properties
 	id = uuid("6e2809b3-3563-43b3-896b-e1c46ba5b46a"),
-	owner = {
-		id = uuid("a2e76fcd-9360-4f6d-a924-000000000003"),
-		name = "Philip Linden",
-		username = "philip.linden",
-	},
 	name = "Object",
 	description = "",
 	time_offset = 0,
@@ -1043,6 +1039,22 @@ internal = {
 		1,
 		1,
 	},
+
+	-- owner properties
+	owner = {
+		id = uuid("a2e76fcd-9360-4f6d-a924-000000000003"),
+		name = "Philip Linden",
+		username = "philip.linden",
+	},
+
+	-- chat types
+	CHAT_DEBUG = 1,
+	CHAT_OWNER = 2,
+	CHAT_WHISPER = 3,
+	CHAT_SAY = 4,
+	CHAT_SHOUT = 5,
+	CHAT_REGION = 6,
+	CHAT_INSTANT_MESSAGE = 7,
 }
 
 internal.reset = function()
@@ -2614,7 +2626,7 @@ end
 
 ll.InstantMessage = function(id: uuid, text: string)
 	if id == internal.owner.id then
-		internal.chat(7, text)
+		internal.chat(internal.CHAT_INSTANT_MESSAGE, text)
 	end
 end
 
@@ -3043,7 +3055,7 @@ ll.OverMyLand = function(id: uuid)
 end
 
 ll.OwnerSay = function(text: string)
-	internal.chat(2, text)
+	internal.chat(internal.CHAT_OWNER, text)
 end
 
 ll.ParcelMediaCommandList = function(command_list: list)
@@ -3121,13 +3133,13 @@ end
 
 ll.RegionSay = function(channel: number, text: string)
 	if channel == DEBUG_CHANNEL then
-		internal.chat(1, text)
+		internal.chat(internal.CHAT_DEBUG, text)
 	end
 end
 
 ll.RegionSayTo = function(id: uuid, channel: number, text: string)
 	if tostring(id) == tostring(internal.owner.id) then
-		internal.chat(6, text)
+		internal.chat(internal.CHAT_REGION, text)
 	end
 end
 
@@ -3369,9 +3381,9 @@ end
 
 ll.Say = function(channel: number, text: string)
 	if channel == 0 then
-		internal.chat(4, text)
+		internal.chat(internal.CHAT_SAY, text)
 	elseif channel == DEBUG_CHANNEL then
-		internal.chat(1, text)
+		internal.chat(internal.CHAT_DEBUG, text)
 	end
 end
 
@@ -3742,9 +3754,9 @@ end
 
 ll.Shout = function(channel: number, text: string)
 	if channel == 0 then
-		internal.chat(5, text)
+		internal.chat(internal.CHAT_SHOUT, text)
 	elseif channel == DEBUG_CHANNEL then
-		internal.chat(1, text)
+		internal.chat(internal.CHAT_DEBUG, text)
 	end
 end
 
@@ -3973,9 +3985,9 @@ end
 
 ll.Whisper = function(channel: number, text: string)
 	if channel == 0 then
-		internal.chat(3, text)
+		internal.chat(internal.CHAT_WHISPER, text)
 	elseif channel == DEBUG_CHANNEL then
-		internal.chat(1, text)
+		internal.chat(internal.CHAT_DEBUG, text)
 	end
 end
 

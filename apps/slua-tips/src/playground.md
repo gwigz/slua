@@ -13,30 +13,38 @@ gitChangelog: false
 <SLuaRepl class="min-h-[calc(100vh-13.5rem)]" storage-key="playground">
 
 ```luau
--- this is a work in progress
--- only intended for basic tutorials
+-- this is a work in progress!
 
--- at the moment most functions are stubbed
--- and the ones that are implemented are not tested
--- https://github.com/gwigz/slua/blob/main/packages/slua-web/src/sandbox.luau
+-- * rotations do not currently work at all
+-- * at the moment most functions are stubbed
+-- * implemented functions are not tested yet
+
+local rnd = math.random
 
 function touch_end(num_detected)
-	ll.Say(0, `Wait, you're not {ll.DetectedName(0)}! {os.clock()}`)
+	ll.Say(0, `Wait, you're not {ll.DetectedName(0)}!`)
 end
 
 function collision_start(num_detected)
 	ll.Whisper(0, 'That hurt.')
-
-	ll.SetColor(vector.create(math.random(), math.random(), math.random()), ALL_SIDES)
-	ll.SetScale(vector.create(math.random(), math.random(), math.random()))
 end
 
 function timer()
-	local scale = (math.sin(ll.GetTime()) + 3) * 0.1
+	local scale = (math.sin(os.clock()) + 3) * 0.1
 
 	ll.SetScale(vector.create(scale, scale, scale))
+
+	ll.SetColor(
+		vector.create(
+			(math.cos(os.clock()) + 1) * 0.5,
+			(math.sin(os.clock()) + 1) * 0.5,
+			1
+		),
+		ALL_SIDES
+	)
 end
 
+-- we have json at home!
 local message = lljson.decode('"Hello, Avatar!"')
 
 ll.Say(0, message:sub(1, 5))

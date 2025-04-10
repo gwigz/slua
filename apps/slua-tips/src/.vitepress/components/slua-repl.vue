@@ -80,7 +80,7 @@
 									line.data.startsWith('/me ') || line.data.startsWith("/me'")
 										? ''
 										: ': '
-								}}</span><span>{{ line.data.replace(/^\/me('|\s)/, '$1').trim() }}</span>
+								}}</span><span :class="getChatClass(line.type)">{{ line.data.replace(/^\/me('|\s)/, '$1').trim() }}</span>
 						</div>
 					</template>
 				</div>
@@ -101,7 +101,11 @@
 </template>
 
 <script setup lang="ts">
-import slua, { type SLuaOutput, type SLuaScript } from '@gwigz/slua-web';
+import slua, {
+	ChatType,
+	type SLuaOutput,
+	type SLuaScript,
+} from '@gwigz/slua-web';
 import { Icon } from '@iconify/vue';
 import { inBrowser } from 'vitepress';
 import {
@@ -113,6 +117,7 @@ import {
 	useSlots,
 	watchEffect,
 } from 'vue';
+import { cn } from '../utilities/cn';
 import Cube from './cube.vue';
 
 const MonacoEditor = inBrowser
@@ -141,6 +146,16 @@ function rgbToHex(rgb: [number, number, number]): string {
 	const [r, g, b] = rgb.map((v) => Math.round(v * 255));
 
 	return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
+function getChatClass(type: ChatType) {
+	return cn(
+		type === ChatType.WHISPER && 'italic',
+		type === ChatType.SHOUT && 'font-semibold',
+		type === ChatType.OWNER && 'text-yellow-950 dark:text-yellow-100',
+		type === ChatType.INSTANT_MESSAGE && 'text-blue-900 dark:text-blue-200',
+		type === ChatType.DEBUG && 'text-red-900 dark:text-red-200',
+	);
 }
 
 function getSlotTextContent(children) {
@@ -273,11 +288,13 @@ function confirmReset() {
 
 	output.splice(0, output.length);
 
-	lastError.value = undefined;
+	script.value?.dispose();
 	script.value = null;
+
+	lastError.value = undefined;
 	code.value = '';
 
-	cubeScale.value = [1, 1, 1];
+	cubeScale.value = [0.5, 0.5, 0.5];
 	cubeColor.value = '#ffffff';
 
 	showResetModal.value = false;

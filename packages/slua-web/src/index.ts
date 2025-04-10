@@ -8,10 +8,23 @@ const SANDBOX = sandboxContent.replace(/internal/g, INTERNAL);
 
 type JsonLuaArgs = (string | number | boolean | null) | JsonLuaArgs[];
 
+export const ChatType = {
+	UNKNOWN: 0,
+	DEBUG: 1,
+	OWNER: 2,
+	WHISPER: 3,
+	SAY: 4,
+	SHOUT: 5,
+	REGION: 6,
+	INSTANT_MESSAGE: 7,
+} as const;
+
+export type ChatType = (typeof ChatType)[keyof typeof ChatType];
+
 export type SLuaOutput = {
 	timestamp: number;
 	delta: number;
-	type: number;
+	type: ChatType;
 	name: string;
 	data: string;
 };
@@ -30,8 +43,6 @@ export type SLuaConfig = {
 
 	/**
 	 * Returns runtime errors (from i.e. using `script.call()` or `error()`)
-	 *
-	 * @note Not implemented yet
 	 */
 	onError?: (error: SLuaError) => void;
 
@@ -286,6 +297,7 @@ export type SLuaScript = {
 	 *
 	 * @param name - The name of the global variable to get
 	 * @returns The value of the global variable
+	 * @note Not implemented yet
 	 */
 	get: (name: string) => string | null;
 
@@ -294,6 +306,7 @@ export type SLuaScript = {
 	 *
 	 * @param name - The name of the global variable to set
 	 * @param value - The value to set the global variable to
+	 * @note Not implemented yet
 	 */
 	set: (name: string, value: string) => void;
 
@@ -306,10 +319,16 @@ export type SLuaScript = {
 function parseChat(message: string): SLuaOutput {
 	const [_, timestamp, delta, type, name, data] = message.split('\t');
 
+	let chatType = Number(type) as ChatType;
+
+	if (chatType < 0 || chatType > 7) {
+		chatType = ChatType.UNKNOWN;
+	}
+
 	return {
 		timestamp: Number(timestamp),
 		delta: Number(delta),
-		type: Number(type),
+		type: chatType,
 		name,
 		data,
 	};
@@ -387,6 +406,17 @@ function luaFormat(value: unknown): string {
 	return 'nil';
 }
 
+function pushError(errors: SLuaError[], message: string, line?: number) {
+	errors.push({
+		timestamp: Date.now(),
+		delta: Number.MAX_SAFE_INTEGER,
+		type: ChatType.DEBUG,
+		name: 'Script Error',
+		data: message,
+		line,
+	});
+}
+
 /**
  * Starts a new SLua runtime and executes the given code.
  *
@@ -448,26 +478,21 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 			}
 		},
 		printErr: (message: string) => {
-			console.error(message);
+			(config.onError ?? console.error)(message);
 		},
 		readSync: (method: string, json: string) => {
-			// TODO: we should maybe shortcut this in luau.cpp, lol
-			if (method === 'JSON.stringify') {
-				return `return ${luaFormat(json)}`;
-			}
-
-			const data = JSON.parse(json);
-
 			switch (method) {
+				case 'JSON.stringify':
+					return `return ${luaFormat(JSON.parse(json))}`;
 				case 'JSON.decode':
-					return `return ${luaFormat(JSON.parse(data))}`;
+					return `return ${luaFormat(JSON.parse(JSON.parse(json)))}`;
 				case 'btoa':
-					return `return "${btoa(data)}"`;
+					return `return "${btoa(JSON.parse(json))}"`;
 				case 'atob':
-					return `return "${atob(data)}"`;
+					return `return "${atob(JSON.parse(json))}"`;
+				default:
+					return '';
 			}
-
-			return '';
 		},
 	});
 
@@ -503,32 +528,13 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 					.replace(", got '__INTERNAL_DO_NOT_USE'", '')
 					.replace(/__INTERNAL_DO_NOT_USE/g, 'internal');
 
-				errors.push({
-					timestamp: Date.now(),
-					delta: Number.MAX_SAFE_INTEGER,
-					type: 0,
-					name: 'Script Error',
-					data: adjustedErrText,
-					line: errLineNo,
-				});
+				pushError(errors, adjustedErrText, errLineNo);
 			} else {
-				errors.push({
-					timestamp: Date.now(),
-					delta: Number.MAX_SAFE_INTEGER,
-					type: 0,
-					name: 'Script Error',
-					data: errText,
-				});
+				pushError(errors, errText);
 			}
 		}
 	} catch (error) {
-		errors.push({
-			timestamp: Date.now(),
-			delta: Number.MAX_SAFE_INTEGER,
-			type: 0,
-			name: 'Script Error',
-			data: error instanceof Error ? error.message : String(error),
-		});
+		pushError(errors, error instanceof Error ? error.message : String(error));
 	}
 
 	const call: SLuaScript['call'] = (name, args) =>

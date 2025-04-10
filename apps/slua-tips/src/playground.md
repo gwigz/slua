@@ -37,7 +37,7 @@ function timer()
 	ll.SetScale(vector.create(scale, scale, scale))
 end
 
-local message = "Hello, Avatar!"
+local message = lljson.decode('"Hello, Avatar!"')
 
 ll.Say(0, message:sub(1, 5))
 ll.Say(0, ll.GetSubString(message, -7, -1))

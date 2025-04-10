@@ -454,7 +454,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 
 			switch (method) {
 				case 'JSON.decode':
-					return `return ${luaFormat(data)}`;
+					return `return ${luaFormat(JSON.parse(data))}`;
 				case 'btoa':
 					return `return "${btoa(data)}"`;
 				case 'atob':

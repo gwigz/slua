@@ -388,7 +388,6 @@ function luaFormat(value: unknown): string {
  * callbacks.
  */
 export async function runScript(code: string, config: SLuaConfig = {}) {
-	const output: SLuaOutput[] = [];
 	const errors: SLuaError[] = [];
 
 	let timer: Timer | undefined;
@@ -644,11 +643,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 		},
 	};
 
-	return {
-		script,
-		output,
-		errors,
-	};
+	return { script, errors };
 }
 
 export default { runScript };

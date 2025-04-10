@@ -5,6 +5,14 @@
 		"src/**/*.vue",
 		"src/**/*.md",
 	],
+	"compilerOptions": {
+		"baseUrl": "./src",
+		"paths": {
+			"~/*": [
+				".vitepress/*"
+			]
+		}
+	},
 	"vueCompilerOptions": {
 		"vitePressExtensions": [
 			".md"

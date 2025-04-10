@@ -117,7 +117,7 @@ import {
 	useSlots,
 	watchEffect,
 } from 'vue';
-import { cn } from '../utilities/cn';
+import { cn } from '~/utilities/cn';
 import Cube from './cube.vue';
 
 const MonacoEditor = inBrowser
@@ -242,7 +242,7 @@ async function runScript() {
 		script.value.dispose();
 	}
 
-	cubeScale.value = [1, 1, 1];
+	cubeScale.value = [0.5, 0.5, 0.5];
 	cubeColor.value = '#ffffff';
 	lastError.value = undefined;
 	script.value = null;

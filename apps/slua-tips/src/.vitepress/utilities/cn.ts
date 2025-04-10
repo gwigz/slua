@@ -1,3 +1,5 @@
+import { twMerge } from 'tailwind-merge';
+
 export function cn(...classes: (string | boolean | undefined | null)[]) {
 	let i = 0,
 		tmp: (typeof classes)[number],
@@ -13,5 +15,5 @@ export function cn(...classes: (string | boolean | undefined | null)[]) {
 		}
 	}
 
-	return str;
+	return twMerge(str);
 }

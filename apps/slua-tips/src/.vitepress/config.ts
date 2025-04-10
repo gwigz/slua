@@ -11,6 +11,7 @@ import {
 } from '@shikijs/transformers';
 import tailwindcss from '@tailwindcss/vite';
 import { templateCompilerOptions } from '@tresjs/core';
+import { fileURLToPath } from 'url';
 import { defineConfig } from 'vitepress';
 import { sluaTransformer } from './slua/transformer';
 
@@ -48,6 +49,14 @@ export default defineConfig({
 		},
 		ssr: {
 			noExternal: ['@nolebase/*', 'monaco-editor'],
+		},
+		resolve: {
+			alias: {
+				'~/': fileURLToPath(new URL('./', import.meta.url)),
+			},
+		},
+		build: {
+			chunkSizeWarningLimit: 5000,
 		},
 	},
 	themeConfig: {

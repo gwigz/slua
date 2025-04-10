@@ -8,7 +8,7 @@
 			</div>
 
 			<div class="col-span-3 md:col-span-1">
-				<Cube :scale="cubeScale" :color="cubeColor" />
+				<Cube :scale="cubeScale" :color="cubeColor" :glow="cubeGlow" />
 			</div>
 		</div>
 
@@ -121,15 +121,21 @@ const MonacoEditor = inBrowser
 
 const props = defineProps<{ storageKey?: string }>();
 const slots = useSlots();
+
 const code = ref(getCodeFromSlot());
+
 const script = ref<SLuaScript | null>(null);
+
 const output = reactive<SLuaOutput[]>([]);
 const outputRef = ref<HTMLElement | null>(null);
+
 const autoScroll = ref(true);
 const showScrollButton = ref(false);
 const lastScrollHeight = ref(0);
-const cubeScale = ref<[number, number, number]>([1, 1, 1]);
+
+const cubeScale = ref<[number, number, number]>([0.5, 0.5, 0.5]);
 const cubeColor = ref('#ffffff');
+const cubeGlow = ref(0);
 
 function rgbToHex(rgb: [number, number, number]): string {
 	const [r, g, b] = rgb.map((v) => Math.round(v * 255));
@@ -234,7 +240,7 @@ async function runScript() {
 		},
 		onScaleChange: (link, scale) => {
 			if (link === 1) {
-				cubeScale.value = [scale[0] * 2, scale[1] * 2, scale[2] * 2];
+				cubeScale.value = [scale[0], scale[1], scale[2]];
 			}
 		},
 		onColorChange: (link, color) => {
@@ -242,9 +248,14 @@ async function runScript() {
 				cubeColor.value = rgbToHex(color);
 			}
 		},
+		onGlowChange: (link, glow) => {
+			if (link === 1) {
+				cubeGlow.value = glow;
+			}
+		},
 	});
 
-	if (result.errors.length > 0) {
+	if (result.errors.length) {
 		lastError.value = result.errors[0].line;
 
 		output.push(...result.errors);

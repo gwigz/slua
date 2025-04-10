@@ -68,6 +68,11 @@ export type SLuaConfig = {
 	) => void;
 
 	/**
+	 * Returns runtime glow changes
+	 */
+	onGlowChange?: (link: number, glow: number, face: number) => void;
+
+	/**
 	 * Returns runtime alpha changes
 	 */
 	onAlphaChange?: (link: number, alpha: number, face: number) => void;
@@ -309,7 +314,9 @@ function parseChat(message: string): SLuaOutput {
 		data,
 	};
 }
+
 type Config = Required<Omit<SLuaConfig, 'sandbox'>>;
+
 type CallbackParameters<T extends keyof Config> = Parameters<
 	NonNullable<Config[T]>
 >;

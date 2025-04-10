@@ -1,29 +1,35 @@
 <template>
 	<div class="flex flex-col gap-4">
 		<!-- toolbar -->
-		<div class="flex order-1 md:order-none flex-col md:flex-row gap-3 bg-card border-12 md:border-8 border-card outline-1 outline-muted rounded-lg justify-between md:items-center">
-			<AlertDialog v-model:open="showResetModal">
-				<AlertDialogTrigger as-child>
-					<Button variant="secondary" size="xs"> Reset Script Content </Button>
-				</AlertDialogTrigger>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This action cannot be undone. This will remove any changes you've
-							made to the script and clear the output.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction @click="confirmReset"
-							>Reset Script Content</AlertDialogAction
-						>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+		<div
+			class="flex order-1 md:order-none flex-col md:flex-row gap-3 bg-card border-12 md:border-8 border-card outline-1 outline-muted rounded-lg justify-between md:items-center"
+		>
+			<div class="flex flex-1">
+				<AlertDialog v-model:open="showResetModal">
+					<AlertDialogTrigger as-child>
+						<Button class="flex-1 md:flex-none" variant="secondary" size="xs">Reset Script Content</Button>
+					</AlertDialogTrigger>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+							<AlertDialogDescription>
+								This action cannot be undone. This will remove any changes you've
+								made to the script and clear the output.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel>Cancel</AlertDialogCancel>
+							<AlertDialogAction @click="confirmReset"
+								>Reset Script Content</AlertDialogAction
+							>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+			</div>
 
-			<div class="flex justify-center text-muted-foreground text-xs divide-x -order-1 md:order-none">
+			<div
+				class="flex flex-1 justify-center text-muted-foreground text-xs divide-x -order-1 md:order-none"
+			>
 				<template v-if="script">
 					<div class="pr-3">script running</div>
 				</template>
@@ -39,13 +45,13 @@
 				</template>
 			</div>
 
-			<div class="flex [&_button]:flex-1 md:[&_button]:flex-none gap-2">
+			<div class="flex flex-1 justify-end [&_button]:flex-1 md:[&_button]:flex-none gap-2">
 				<template v-if="script">
-					<Button @click="script?.touch()" variant="default" size="xs">
+					<Button @click="script.touch(1)" variant="default" size="xs">
 						Touch
 					</Button>
 
-					<Button @click="script?.collision()" variant="default" size="xs">
+					<Button @click="script.collision(1)" variant="default" size="xs">
 						Collide
 					</Button>
 				</template>
@@ -101,6 +107,7 @@
 							ref="outputRef"
 							@scroll="handleScroll"
 						>
+							<!-- TODO: infinite scroll component -->
 							<div v-if="output.length > 0">
 								<template
 									v-for="line in output"
@@ -303,10 +310,9 @@ onMounted(async () => {
 	}
 });
 
-async function runScript() {
-	if (script.value) {
-		script.value.dispose();
-	}
+function stopScript(clearOutput = false) {
+	script.value?.dispose();
+	script.value = null;
 
 	cubeScale.value = [0.5, 0.5, 0.5];
 	cubeColor.value = "#ffffff";
@@ -314,10 +320,23 @@ async function runScript() {
 
 	timerInterval.value = 0;
 
-	output.splice(0, output.length);
+	if (clearOutput) {
+		output.splice(0, output.length);
+	}
+}
+
+async function runScript() {
+	stopScript(true);
 
 	const result = await slua.runScript(code.value, {
+		onError: (error) => {
+			output.push(error);
+
+			// script will continue in some scenarios, so we want to stop it here
+			stopScript();
+		},
 		onChat: (message) => {
+			// TODO: limit output to 1000 lines?
 			output.push(message);
 		},
 		onTimerChange: (interval) => {
@@ -355,20 +374,11 @@ const showResetModal = ref(false);
 function confirmReset() {
 	const newCode = getCodeFromSlot();
 
-	output.splice(0, output.length);
-
-	script.value?.dispose();
-	script.value = null;
+	stopScript(true);
 
 	lastError.value = undefined;
+
 	code.value = "";
-
-	cubeScale.value = [0.5, 0.5, 0.5];
-	cubeColor.value = "#ffffff";
-
-	timerInterval.value = 0;
-
-	showResetModal.value = false;
 
 	nextTick(() => {
 		code.value = newCode;

@@ -100,8 +100,9 @@ export type SLuaScript = {
 	 *
 	 * @param name - The name of the global function to call
 	 * @param args - Array of arguments to pass to the function
+	 * @throws Error if the function call fails
 	 */
-	call: (name: string, args?: JsonLuaArgs[]) => string;
+	call: (name: string, args?: JsonLuaArgs[]) => void;
 
 	/**
 	 * Calls `attach` event handler.
@@ -110,6 +111,8 @@ export type SLuaScript = {
 
 	/**
 	 * Calls `at_rot_target` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	atRotTarget: (
 		handle: number,
@@ -119,6 +122,8 @@ export type SLuaScript = {
 
 	/**
 	 * Calls `at_target` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	atTarget: (
 		handle: number,
@@ -128,26 +133,36 @@ export type SLuaScript = {
 
 	/**
 	 * Calls `collision_start`, `collision`, and `collision_end` event handlers in sequence.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	collision: (detected?: number) => void;
 
 	/**
 	 * Calls `changed` event handlers in sequence.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	changed: (change?: number) => void;
 
 	/**
 	 * Calls `control` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	control: (id: string, level: number, edge: number) => void;
 
 	/**
 	 * Calls `dataserver` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	dataserver: (id: string, data: string) => void;
 
 	/**
 	 * Calls `email` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	email: (
 		time: string,
@@ -159,31 +174,43 @@ export type SLuaScript = {
 
 	/**
 	 * Calls `experience_permissions` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	experiencePermissions: (id: string) => void;
 
 	/**
 	 * Calls `experience_permissions_denied` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	experiencePermissionsDenied: (id: string, reason: number) => void;
 
 	/**
 	 * Calls `final_damage` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	finalDamage: (detected?: number) => void;
 
 	/**
 	 * Calls `game_control` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	gameControl: (id: string, levels: number, axis: number[]) => void;
 
 	/**
 	 * Calls `http_request` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	httpRequest: (id: string, method: string, body: string) => void;
 
 	/**
 	 * Calls `http_response` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	httpResponse: (
 		id: string,
@@ -194,16 +221,22 @@ export type SLuaScript = {
 
 	/**
 	 * Calls `land_collision` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	landCollision: (position: [number, number, number]) => void;
 
 	/**
 	 * Calls `linkset_data` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	linksetData: (action: number, key: string, value: string) => void;
 
 	/**
 	 * Calls `link_message` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	linkMessage: (
 		sender: number,
@@ -214,86 +247,120 @@ export type SLuaScript = {
 
 	/**
 	 * Calls `listen` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	listen: (channel: number, name: string, key: string, message: string) => void;
 
 	/**
 	 * Calls `money` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	money: (key: string, amount?: number) => void;
 
 	/**
 	 * Calls `moving_start` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	movingStart: () => void;
 
 	/**
 	 * Calls `moving_end` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	movingEnd: () => void;
 
 	/**
 	 * Calls `not_at_rot_target` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	notAtRotTarget: () => void;
 
 	/**
 	 * Calls `not_at_target` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	notAtTarget: () => void;
 
 	/**
 	 * Calls `no_sensor` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	noSensor: () => void;
 
 	/**
 	 * Calls `object_rez` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	objectRez: (key?: string) => void;
 
 	/**
 	 * Calls `on_damage` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	onDamage: (damage?: number) => void;
 
 	/**
 	 * Calls `on_death` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	onDeath: () => void;
 
 	/**
 	 * Calls `on_rez` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	onRez: (param?: number) => void;
 
 	/**
 	 * Calls `path_update` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	pathUpdate: (type: number, reserved?: (string | number)[]) => void;
 
 	/**
 	 * Calls `run_time_permissions` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	runTimePermissions: (permissions?: number) => void;
 
 	/**
 	 * Calls `sensor` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	sensor: (detected?: number) => void;
 
 	/**
 	 * Calls `timer` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	timer: () => void;
 
 	/**
 	 * Calls `touch_start`, `touch`, and `touch_end` event handlers in sequence.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	touch: (detected?: number) => void;
 
 	/**
 	 * Calls `transaction_result` event handler.
+	 *
+	 * @throws Error if the function call fails
 	 */
 	transactionResult: (id: string, success: number, data: string) => void;
 
@@ -411,17 +478,6 @@ function luaFormat(value: unknown): string {
 	return 'nil';
 }
 
-function pushError(errors: SLuaError[], message: string, line?: number) {
-	errors.push({
-		timestamp: Date.now(),
-		delta: Number.MAX_SAFE_INTEGER,
-		type: ChatType.DEBUG,
-		name: 'Script Error',
-		data: message,
-		line,
-	});
-}
-
 /**
  * Starts a new SLua runtime and executes the given code.
  *
@@ -433,6 +489,44 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 	const errors: SLuaError[] = [];
 
 	let timer: Timer | undefined;
+
+	const sandboxLineCount = (config.sandbox ?? SANDBOX).split('\n').length;
+
+	function parseErrorMessage(message: string) {
+		const errLineNo = message.match(/(^\d+|stdin:\d+):/)?.[0]?.replace(/^(\d+|stdin:)(\d+):/, '$2');
+
+		// hack to work around our sandbox wrapper
+		// may result in unexpected results if `error()` is used in their code?
+		const errorText = message
+			// replace "stdin:X" format
+			.replace(/^stdin:(\d+)/,
+				(_, lineNumber) =>
+					`stdin:${Number(lineNumber) - sandboxLineCount}`,
+			)
+			// replace " at line X)" format
+			.replace(
+				/ at line (\d+)\)/,
+				(_, lineNumber) =>
+					` at line ${Number(lineNumber) - sandboxLineCount})`,
+			)
+			// replace "stack backtrace:\n\d+"
+			.replace(
+				/stack backtrace:\n(\d+)/g,
+				(_, lineNumber) =>
+					`stack backtrace:\n${Number(lineNumber) - sandboxLineCount}`,
+			)
+			.replace(", got '__INTERNAL_DO_NOT_USE'", '')
+			.replace(/__INTERNAL_DO_NOT_USE/g, 'internal');
+
+		return {
+			timestamp: Date.now(),
+			delta: Number.MAX_SAFE_INTEGER,
+			type: ChatType.DEBUG,
+			name: 'Script Error',
+			data: errorText,
+			line: errLineNo ? Number(errLineNo) : undefined,
+		};
+	}
 
 	const luau = await initLuau({
 		print: (message: string) => {
@@ -483,7 +577,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 			}
 		},
 		printErr: (message: string) => {
-			(config.onError ?? console.error)(message);
+			(config.onError ?? console.error)(parseErrorMessage(message));
 		},
 		readSync: (method: string, json: string) => {
 			switch (method) {
@@ -505,45 +599,19 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 		const err = luau.runScript(`${config.sandbox ?? SANDBOX}\n${code}`);
 
 		if (err && typeof err === 'string') {
-			const sandboxLineCount = (config.sandbox ?? SANDBOX).split('\n').length;
-			const errText = err.replace('stdin:', '');
-
-			let errLineNo = Number(errText.match(/\d+/)?.[0]);
-
-			if (errLineNo) {
-				errLineNo -= sandboxLineCount;
-
-				// hack to work around our sandbox wrapper
-				// may result in unexpected results if `error()` is used in their code?
-				const adjustedErrText = errText
-					// replace "X:" format
-					.replace(/(\d+):/, `${errLineNo}:`)
-					// replace "at line X" format
-					.replace(
-						/at line (\d+)/,
-						(_, lineNumber) =>
-							`at line ${Number(lineNumber) - sandboxLineCount}`,
-					)
-					// replace "stack backtrace:\n\d+"
-					.replace(
-						/stack backtrace:\n(\d+)/g,
-						(_, lineNumber) =>
-							`stack backtrace:\n${Number(lineNumber) - sandboxLineCount}`,
-					)
-					.replace(", got '__INTERNAL_DO_NOT_USE'", '')
-					.replace(/__INTERNAL_DO_NOT_USE/g, 'internal');
-
-				pushError(errors, adjustedErrText, errLineNo);
-			} else {
-				pushError(errors, errText);
-			}
+			errors.push(parseErrorMessage(err));
 		}
 	} catch (error) {
-		pushError(errors, error instanceof Error ? error.message : String(error));
+		errors.push(parseErrorMessage(error instanceof Error ? error.message : String(error)));
 	}
 
-	const call: SLuaScript['call'] = (name, args) =>
-		luau.callGlobalFunction(name, args ? JSON.stringify(args) : '[]');
+	const call: SLuaScript['call'] = (name, args) => {
+		const error = luau.callGlobalFunction(name, args ? JSON.stringify(args) : '[]');
+
+		if (error && error !== 'nil') {
+			(config.onError ?? console.error)(parseErrorMessage(error));
+		}
+	}
 
 	// these are custom functions, not part of the normal Luau.Web.js API
 	const script: SLuaScript = {
@@ -655,10 +723,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 		// utilities
 		get: (name: string) => null,
 		set: (name: string, value: string) => {},
-
-		dispose: () => {
-			clearInterval(timer);
-		},
+		dispose: () => clearInterval(timer),
 	};
 
 	return { script, errors };

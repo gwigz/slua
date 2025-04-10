@@ -32,7 +32,7 @@ function collision_start(num_detected)
 end
 
 function timer()
-	local scale = math.sin(ll.GetTime())
+	local scale = (math.sin(ll.GetTime()) + 3) * 0.1
 
 	ll.SetScale(vector.create(scale, scale, scale))
 end

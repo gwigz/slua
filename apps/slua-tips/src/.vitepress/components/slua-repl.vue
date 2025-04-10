@@ -29,7 +29,7 @@
 					</button>
 				</template>
 
-				<button @click="runCode()" :class="['d-btn', script ? 'd-btn-secondary' : 'd-btn-primary']">
+				<button @click="runScript()" :class="['d-btn', script ? 'd-btn-secondary' : 'd-btn-primary']">
 					<template v-if="script">
 						<Icon icon="solar:restart-bold" class="text-2xl" />
 					</template>
@@ -216,13 +216,19 @@ onMounted(async () => {
 	}
 });
 
-async function runCode() {
+async function runScript() {
+	if (script.value) {
+		script.value.dispose();
+	}
+
+	cubeScale.value = [1, 1, 1];
+	cubeColor.value = '#ffffff';
 	lastError.value = undefined;
 	script.value = null;
 
 	output.splice(0, output.length);
 
-	const result = await slua.runCode(code.value, {
+	const result = await slua.runScript(code.value, {
 		onChat: (message) => {
 			output.push(message);
 		},
@@ -259,6 +265,7 @@ function confirmReset() {
 	lastError.value = undefined;
 	script.value = null;
 	code.value = '';
+
 	cubeScale.value = [1, 1, 1];
 	cubeColor.value = '#ffffff';
 

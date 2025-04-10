@@ -31,10 +31,18 @@ function collision_start(num_detected)
 	ll.SetScale(vector.create(math.random(), math.random(), math.random()))
 end
 
-local message = "Hello, Avatar!"
+function timer()
+	local scale = (math.sin(ll.GetTime()) + 3) * 0.1
+
+	ll.SetScale(vector.create(scale, scale, scale))
+end
+
+local message = lljson.decode('"Hello, Avatar!"')
 
 ll.Say(0, message:sub(1, 5))
 ll.Say(0, ll.GetSubString(message, -7, -1))
+
+ll.SetTimerEvent(0.02)
 ```
 
 </SLuaRepl>

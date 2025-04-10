@@ -6,9 +6,7 @@ import sandboxContent from './sandbox.luau' with { type: 'text' };
 const INTERNAL = '__INTERNAL_DO_NOT_USE';
 const SANDBOX = sandboxContent.replace(/internal/g, INTERNAL);
 
-type JsonArrayValue = (string | number | boolean | null) | JsonArrayValue[];
-
-export type SLuaEvent = 'touch';
+type JsonLuaArgs = (string | number | boolean | null) | JsonLuaArgs[];
 
 export type SLuaOutput = {
 	timestamp: number;
@@ -82,7 +80,7 @@ export type SLuaScript = {
 	 * @param name - The name of the global function to call
 	 * @param args - Array of arguments to pass to the function
 	 */
-	call: (name: string, args?: JsonArrayValue[]) => string;
+	call: (name: string, args?: JsonLuaArgs[]) => string;
 
 	/**
 	 * Calls `attach` event handler.
@@ -293,6 +291,11 @@ export type SLuaScript = {
 	 * @param value - The value to set the global variable to
 	 */
 	set: (name: string, value: string) => void;
+
+	/**
+	 * Disposes the SLua runtime
+	 */
+	dispose: () => void;
 };
 
 function parseChat(message: string): SLuaOutput {
@@ -351,6 +354,32 @@ function parseAlphaChange(
 	return [Number(link), Number(face), Number(alpha)];
 }
 
+function luaFormat(value: unknown): string {
+	if (typeof value === 'string') {
+		return JSON.stringify(value);
+	}
+
+	if (typeof value === 'number') {
+		return String(value);
+	}
+
+	if (typeof value === 'boolean') {
+		return value ? 'true' : 'false';
+	}
+
+	if (typeof value === 'object' && value !== null) {
+		if (Array.isArray(value)) {
+			return `{ ${value.map(luaFormat).join(', ')} }`;
+		}
+
+		return `{ ${Object.entries(value)
+			.map(([key, value]) => `"${key}" = ${luaFormat(value)}`)
+			.join(', ')} }`;
+	}
+
+	return 'nil';
+}
+
 /**
  * Starts a new SLua runtime and executes the given code.
  *
@@ -358,18 +387,34 @@ function parseAlphaChange(
  * later prints or errors can be returned via the `onPrint` or `onError`
  * callbacks.
  */
-export async function runCode(code: string, config: SLuaConfig = {}) {
+export async function runScript(code: string, config: SLuaConfig = {}) {
 	const output: SLuaOutput[] = [];
 	const errors: SLuaError[] = [];
 
+	let timer: Timer | undefined;
+
 	const luau = await initLuau({
 		print: (message: string) => {
-			// console.log(message);
-
 			switch (true) {
 				case message.startsWith('#!SLUA:CHAT'):
 					config.onChat?.(parseChat(message));
 					break;
+
+				case message.startsWith('#!SLUA:SET_TIMER'): {
+					const interval = Number(message.split('\t')[1]);
+
+					if (interval === 0 || interval < 0) {
+						clearInterval(timer);
+					} else {
+						timer = setInterval(
+							() => call('timer', []),
+							Math.max(0.02, interval) * 1000,
+						);
+					}
+
+					// config.onTimerChange?.(interval);
+					break;
+				}
 
 				case message.startsWith('#!SLUA:SET_POSITION'):
 					config.onPositionChange?.(...parsePositionChange(message));
@@ -392,19 +437,36 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 					break;
 
 				default:
-					(config.onPrint ?? console.log)(message.split('\t'));
+					(config.onPrint ?? console.log)(...message.split('\t'));
 					break;
 			}
+		},
+		printErr: (message: string) => {
+			console.error(message);
+		},
+		readSync: (method: string, json: string) => {
+			// TODO: we should maybe shortcut this in luau.cpp, lol
+			if (method === 'JSON.stringify') {
+				return `return ${luaFormat(json)}`;
+			}
+
+			const data = JSON.parse(json);
+
+			switch (method) {
+				case 'JSON.decode':
+					return `return ${luaFormat(JSON.parse(data))}`;
+				case 'btoa':
+					return `return "${btoa(data)}"`;
+				case 'atob':
+					return `return "${atob(data)}"`;
+			}
+
+			return '';
 		},
 	});
 
 	try {
-		const err = luau.ccall(
-			'executeScript',
-			'string',
-			['string'],
-			[`${config.sandbox ?? SANDBOX}\n${code}`],
-		);
+		const err = luau.runScript(`${config.sandbox ?? SANDBOX}\n${code}`);
 
 		if (err && typeof err === 'string') {
 			const sandboxLineCount = (config.sandbox ?? SANDBOX).split('\n').length;
@@ -464,12 +526,7 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 	}
 
 	const call: SLuaScript['call'] = (name, args) =>
-		luau.ccall(
-			'executeGlobalFunction',
-			'string',
-			['string', 'string'],
-			[name, ''], // args ?? ''],
-		);
+		luau.callGlobalFunction(name, args ? JSON.stringify(args) : '[]');
 
 	// these are custom functions, not part of the normal Luau.Web.js API
 	const script: SLuaScript = {
@@ -581,9 +638,17 @@ export async function runCode(code: string, config: SLuaConfig = {}) {
 		// utilities
 		get: (name: string) => null,
 		set: (name: string, value: string) => {},
+
+		dispose: () => {
+			clearInterval(timer);
+		},
 	};
 
-	return { script, output, errors };
+	return {
+		script,
+		output,
+		errors,
+	};
 }
 
-export default { runCode };
+export default { runScript };

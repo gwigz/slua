@@ -20,7 +20,8 @@
 	"luau-lsp.sourcemap.autogenerate": false,
 	"luau-lsp.sourcemap.enabled": false,
 	"luau-lsp.types.definitionFiles": [
-		"ll.d.luau"
+		"ll.d.luau",
+		"./packages/slua-web/sandbox.d.luau"
 	],
 	"luau-lsp.types.documentationFiles": [
 		"ll.d.json"

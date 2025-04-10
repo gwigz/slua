@@ -1,282 +1,519 @@
-// This file is part of the Luau programming language and is licensed under MIT License; see LICENSE.txt for details
 #include "lua.h"
 #include "lualib.h"
 #include "luacode.h"
 
 #include "Luau/Common.h"
+#include "Luau/Compiler.h"
 
 #include <string>
+#include <string_view>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <emscripten/bind.h>
+#include <emscripten/em_js.h>
 
-#include <string.h>
+namespace {
 
-// static global state that will be reused
-static std::unique_ptr<lua_State, void (*)(lua_State*)> globalState(nullptr, lua_close);
+// ------------------------------------------------
+// Global state, Luau compile options, etc.
+// ------------------------------------------------
 
-constexpr int MaxTraversalLimit = 50;
+constexpr int kMaxTraversalLimit = 50;
+constexpr int kDefaultOptimizationLevel = 1;
+constexpr int kDefaultDebugLevel = 1;
 
-static void setupState(lua_State* L)
-{
-    luaL_openlibs(L);
-    luaL_sandbox(L);
+struct GlobalState {
+    std::unique_ptr<lua_State, void (*)(lua_State*)> luaState{nullptr, lua_close};
+
+    int optimizationLevel = kDefaultOptimizationLevel;
+    int debugLevel = kDefaultDebugLevel;
+} gState;
+
+Luau::CompileOptions getCompileOptions() {
+    Luau::CompileOptions result = {};
+
+    result.optimizationLevel = gState.optimizationLevel;
+    result.debugLevel = gState.debugLevel;
+    result.typeInfoLevel = 1;
+    result.coverageLevel = 0;
+
+    return result;
 }
 
-static std::string runCode(lua_State* L, const std::string& source)
-{
-    size_t bytecodeSize = 0;
-    char* bytecode = luau_compile(source.data(), source.length(), nullptr, &bytecodeSize);
-    int result = luau_load(L, "=stdin", bytecode, bytecodeSize, 0);
-    free(bytecode);
+// ------------------------------------------------
+// JSON serialization utilities
+// ------------------------------------------------
 
-    if (result != 0)
-    {
-        size_t len;
-        const char* msg = lua_tolstring(L, -1, &len);
+class JsonSerializer {
+public:
+    static std::string escapeString(std::string_view str) {
+        std::string result;
+        result.reserve(str.length() + 2);
+        result += '"';
 
-        std::string error(msg, len);
+        for (char c : str) {
+            switch (c) {
+                case '\"': result += "\\\""; break;
+                case '\\': result += "\\\\"; break;
+                case '\b': result += "\\b"; break;
+                case '\f': result += "\\f"; break;
+                case '\n': result += "\\n"; break;
+                case '\r': result += "\\r"; break;
+                case '\t': result += "\\t"; break;
+                default:
+                    if (c < 32 || c > 126) {
+                        char hex[7];
+                        snprintf(hex, sizeof(hex), "\\u%04x", static_cast<unsigned char>(c));
+                        result += hex;
+                    } else {
+                        result += c;
+                    }
+                    break;
+            }
+        }
+
+        result += '"';
+        return result;
+    }
+
+    static void serializeArray(lua_State* L, int index, std::string& result, int length) {
+        result += '[';
+        for (int i = 1; i <= length; i++) {
+            if (i > 1) {
+                result += ',';
+            }
+
+            lua_rawgeti(L, index, i);
+            result += serializeValue(L, -1);
+            lua_pop(L, 1);
+        }
+        result += ']';
+    }
+
+    static void serializeTable(lua_State* L, int index, std::string& result) {
+        bool hasNonSequentialKeys = false;
+        int maxSequentialKey = 0;
+
+        // first check if the table has any non-sequential numeric keys
+        lua_pushnil(L);
+        while (lua_next(L, index)) {
+            if (lua_type(L, -2) == LUA_TNUMBER) {
+                double key = lua_tonumber(L, -2);
+                if (key != floor(key) || key < 1) {
+                    hasNonSequentialKeys = true;
+                } else {
+                    maxSequentialKey = std::max(maxSequentialKey, static_cast<int>(key));
+                }
+            } else {
+                hasNonSequentialKeys = true;
+            }
+            lua_pop(L, 1);
+        }
+
+        // if we have non-sequential keys or non-numeric keys, treat as object
+        if (hasNonSequentialKeys) {
+            serializeObject(L, index, result);
+        } else {
+            // otherwise treat as array
+            serializeArray(L, index, result, maxSequentialKey);
+        }
+    }
+
+    static std::string serializeValue(lua_State* L, int index) {
+        std::string result;
+        int type = lua_type(L, index);
+
+        switch (type) {
+            case LUA_TNIL:
+                result = "null";
+                break;
+            case LUA_TBOOLEAN:
+                result = lua_toboolean(L, index) ? "true" : "false";
+                break;
+            case LUA_TNUMBER: {
+                std::string numStr = std::to_string(lua_tonumber(L, index));
+                size_t dotPos = numStr.find('.');
+                if (dotPos != std::string::npos) {
+                    size_t lastNonZero = numStr.find_last_not_of('0');
+                    if (lastNonZero == dotPos) {
+                        numStr = numStr.substr(0, dotPos);
+                    } else {
+                        numStr = numStr.substr(0, lastNonZero + 1);
+                    }
+                }
+
+                result = numStr;
+                break;
+            }
+            case LUA_TSTRING:
+                result = escapeString(lua_tostring(L, index));
+                break;
+            case LUA_TTABLE:
+                lua_pushvalue(L, index);
+                serializeTable(L, lua_gettop(L), result);
+                lua_pop(L, 1);
+                break;
+            default:
+                result = "\"[unsupported]\"";
+                break;
+        }
+
+        return result;
+    }
+
+    static void serializeObject(lua_State* L, int index, std::string& result) {
+        result += '{';
+
+        lua_pushnil(L);
+
+        bool first = true;
+        while (lua_next(L, index)) {
+            if (!first) {
+                result += ',';
+            }
+
+            first = false;
+
+            if (lua_type(L, -2) == LUA_TSTRING) {
+                result += escapeString(lua_tostring(L, -2)) + ':';
+            } else if (lua_type(L, -2) == LUA_TNUMBER) {
+                result += '"' + serializeValue(L, -2) + "\":";
+            }
+
+            result += serializeValue(L, lua_gettop(L));
+
+            lua_pop(L, 1);
+        }
+
+        result += '}';
+    }
+};
+
+// ------------------------------------------------
+// JavaScript interop
+// ------------------------------------------------
+
+EM_JS(const char*, readSync, (const char* method, const char* data), {
+    try {
+        const result = Module.readSync(UTF8ToString(method), UTF8ToString(data));
+        const lengthBytes = lengthBytesUTF8(result) + 1;
+        const stringOnWasmHeap = _malloc(lengthBytes);
+        stringToUTF8(result, stringOnWasmHeap, lengthBytes);
+        return stringOnWasmHeap;
+    } catch (error) {
+        console.error('Error in readSync:', error);
+        return "";
+    }
+});
+
+// ------------------------------------------------
+// Luau state management
+// ------------------------------------------------
+
+class LuaStateManager {
+public:
+    static void setupState(lua_State* L) {
+        if (!L) {
+            throw std::runtime_error("Invalid Lua state");
+        }
+
+        luaL_openlibs(L);
+
+        static const luaL_Reg funcs[] = {
+            {"__INTERNAL_DO_NOT_USE_calljs", lua_calljs},
+            {NULL, NULL},
+        };
+
+        lua_pushvalue(L, LUA_GLOBALSINDEX);
+        luaL_register(L, NULL, funcs);
         lua_pop(L, 1);
 
+        luaL_sandbox(L);
+    }
+
+    static void safeGetTable(lua_State* L, int tableIndex) {
+        if (!L) {
+            throw std::runtime_error("Invalid Lua state");
+        }
+
+        lua_pushvalue(L, tableIndex);
+
+        for (int loopCount = 0;; loopCount++) {
+            lua_pushvalue(L, -2);
+            lua_rawget(L, -2);
+            if (!lua_isnil(L, -1) || loopCount >= kMaxTraversalLimit) {
+                break;
+            }
+
+            lua_pop(L, 1);
+            if (!luaL_getmetafield(L, -1, "__index")) {
+                lua_pushnil(L);
+                break;
+            }
+
+            if (lua_istable(L, -1)) {
+                lua_replace(L, -2);
+            } else {
+                lua_pop(L, 1);
+                lua_pushnil(L);
+                break;
+            }
+        }
+
+        lua_remove(L, -2);
+        lua_remove(L, -2);
+    }
+
+private:
+    // static int lua_loadstring(lua_State* L)
+    // {
+    //     size_t l = 0;
+    //     const char* s = luaL_checklstring(L, 1, &l);
+    //     const char* chunkname = luaL_optstring(L, 2, s);
+
+    //     lua_setsafeenv(L, LUA_ENVIRONINDEX, false);
+
+    //     std::string bytecode = Luau::compile(std::string(s, l), copts());
+    //     if (luau_load(L, chunkname, bytecode.data(), bytecode.size(), 0) == 0)
+    //         return 1;
+
+    //     lua_pushnil(L);
+    //     lua_insert(L, -2); // put before error message
+    //     return 2;          // return nil plus error message
+    // }
+
+    static int lua_calljs(lua_State* L) {
+        const char* method = luaL_checkstring(L, 1);
+        std::string json = JsonSerializer::serializeValue(L, 2);
+        const char* result = readSync(method, json.c_str());
+
+        if (!result || !*result) {
+            lua_pushstring(L, "Error in readSync");
+            // lua_pushnil(L);
+            return 1;
+        }
+
+        lua_setsafeenv(L, LUA_ENVIRONINDEX, false);
+
+        std::string bytecode = Luau::compile(result, getCompileOptions());
+        if (luau_load(L, "=stdin", bytecode.data(), bytecode.size(), 0) == 0) {
+            // malloc free, idk if necessary
+            free(const_cast<char*>(result));
+            return 1;
+        }
+
+        // malloc free, idk if necessary
+        free(const_cast<char*>(result));
+
+        lua_pushnil(L);
+        lua_insert(L, -2);
+        return 2;
+    }
+};
+
+class ScriptRunner {
+public:
+    static std::string runCode(lua_State* L, std::string source) {
+        if (!L) {
+            throw std::runtime_error("Invalid Lua state");
+        }
+
+        lua_setsafeenv(L, LUA_ENVIRONINDEX, false);
+
+        std::string bytecode = Luau::compile(source.c_str(), getCompileOptions());
+        if (luau_load(L, "=stdin", bytecode.data(), bytecode.size(), 0) != 0) {
+            size_t len;
+            const char* msg = lua_tolstring(L, -1, &len);
+            std::string error(msg, len);
+            lua_pop(L, 1);
+            return error;
+        }
+
+        lua_State* T = lua_newthread(L);
+        lua_pushvalue(L, -2);
+        lua_remove(L, -3);
+        lua_xmove(L, T, 1);
+
+        int status = lua_resume(T, NULL, 0);
+        if (status == 0) {
+            int n = lua_gettop(T);
+            if (n) {
+                luaL_checkstack(T, LUA_MINSTACK, "too many results to print");
+                lua_getglobal(T, "print");
+                lua_insert(T, 1);
+                lua_pcall(T, n, 0, 0);
+            }
+
+            lua_pop(L, 1);
+            return "";
+        }
+
+        std::string error = handleError(L, T, status);
+        lua_pop(L, 1);
         return error;
     }
 
-    lua_State* T = lua_newthread(L);
-
-    lua_pushvalue(L, -2);
-    lua_remove(L, -3);
-    lua_xmove(L, T, 1);
-
-    int status = lua_resume(T, NULL, 0);
-
-    if (status == 0)
-    {
+private:
+    static void handleSuccess(lua_State* T) {
         int n = lua_gettop(T);
-
-        if (n)
-        {
+        if (n) {
             luaL_checkstack(T, LUA_MINSTACK, "too many results to print");
             lua_getglobal(T, "print");
             lua_insert(T, 1);
             lua_pcall(T, n, 0, 0);
         }
-
-        lua_pop(L, 1); // pop T
-        return std::string();
     }
-    else
-    {
-        std::string error;
 
+    static std::string handleError(lua_State* L, lua_State* T, int status) {
+        std::string error;
         lua_Debug ar;
-        if (lua_getinfo(L, 0, "sln", &ar))
-        {
+
+        if (lua_getinfo(L, 0, "sln", &ar)) {
+            error.reserve(256);
             error += ar.short_src;
             error += ':';
             error += std::to_string(ar.currentline);
             error += ": ";
         }
 
-        if (status == LUA_YIELD)
-        {
+        if (status == LUA_YIELD) {
             error += "thread yielded unexpectedly";
-        }
-        else if (const char* str = lua_tostring(T, -1))
-        {
+        } else if (const char* str = lua_tostring(T, -1)) {
             error += str;
         }
 
         error += "\nstack backtrace:\n";
         error += lua_debugtrace(T);
-
-        lua_pop(L, 1); // pop T
         return error;
     }
-}
+};
 
-static void safeGetTable(lua_State* L, int tableIndex)
-{
-    lua_pushvalue(L, tableIndex); // Duplicate the table
-
-    // The loop invariant is that the table to search is at -1
-    // and the key is at -2.
-    for (int loopCount = 0;; loopCount++)
-    {
-        lua_pushvalue(L, -2); // Duplicate the key
-        lua_rawget(L, -2);    // Try to find the key
-        if (!lua_isnil(L, -1) || loopCount >= MaxTraversalLimit)
-        {
-            // Either the key has been found, and/or we have reached the max traversal limit
-            break;
-        }
-        else
-        {
-            lua_pop(L, 1); // Pop the nil result
-            if (!luaL_getmetafield(L, -1, "__index"))
-            {
-                lua_pushnil(L);
-                break;
-            }
-            else if (lua_istable(L, -1))
-            {
-                // Replace the current table being searched with __index table
-                lua_replace(L, -2);
-            }
-            else
-            {
-                lua_pop(L, 1); // Pop the value
-                lua_pushnil(L);
-                break;
-            }
-        }
+std::string slapFunction(lua_State* L, const std::string& argsJson) {
+    if (!argsJson.empty()) {
+        // TODO: parse JSON arguments, array of simple primitives
+        // these would need to be passed in to the `pcall` below
     }
 
-    lua_remove(L, -2); // Remove the table
-    lua_remove(L, -2); // Remove the original key
-}
-
-extern "C" const char* executeScript(const char* source)
-{
-    // setup flags
-    for (Luau::FValue<bool>* flag = Luau::FValue<bool>::list; flag; flag = flag->next)
-        if (strncmp(flag->name, "Luau", 4) == 0)
-            flag->value = true;
-
-    // create new state
-    globalState.reset(luaL_newstate());
-    lua_State* L = globalState.get();
-
-    // setup state
-    setupState(L);
-
-    // sandbox thread
-    luaL_sandboxthread(L);
-
-    // static string for caching result (prevents dangling ptr on function exit)
-    static std::string result;
-
-    // run code + collect error
-    result = runCode(L, source);
-
-    return result.empty() ? NULL : result.c_str();
-}
-
-extern "C" const char* executeGlobalFunction(const char* functionName, const char* argsJson)
-{
-    if (!globalState)
-    {
-        return NULL;
-    }
-
-    lua_State* L = globalState.get();
-
-    lua_checkstack(L, LUA_MINSTACK);
-
-    // static string for caching result (prevents dangling ptr on function exit)
-    static std::string result;
-
-    // Split function name into table path and function name
-    std::string fullName(functionName);
-    size_t lastDot = fullName.find_last_of('.');
-    
-    if (lastDot != std::string::npos)
-    {
-        // handle table member function
-        std::string tablePath = fullName.substr(0, lastDot);
-        std::string funcName = fullName.substr(lastDot + 1);
-
-        // push the global table onto the stack
-        lua_pushvalue(L, LUA_GLOBALSINDEX);
-
-        // traverse the table path
-        size_t start = 0;
-
-        for (;;)
-        {
-            size_t dot = tablePath.find('.', start);
-            std::string part = tablePath.substr(start, dot - start);
-            
-            // get the next table in the path
-            lua_pushlstring(L, part.data(), part.size());
-            safeGetTable(L, -2);
-            lua_remove(L, -2); // remove parent table
-
-            if (lua_isnil(L, -1))
-            {
-                result = std::string("Table '") + part + "' not found in path '" + tablePath + "'";
-                lua_pop(L, 1); // pop nil
-                return result.c_str();
-            }
-            else if (!lua_istable(L, -1))
-            {
-                result = std::string("Table '") + part + "' exists but is not a table";
-                lua_pop(L, 1); // pop the non-table value
-                return result.c_str();
-            }
-
-            if (dot == std::string::npos)
-                break;
-            start = dot + 1;
-        }
-
-        // get the function from the final table
-        lua_pushlstring(L, funcName.data(), funcName.size());
-        safeGetTable(L, -2);
-        lua_remove(L, -2); // remove the table
-
-        if (!lua_isfunction(L, -1))
-        {
-            result = std::string("Function '") + funcName + "' not found in table '" + tablePath + "'";
-            lua_pop(L, 1); // pop the non-function value
-            return result.c_str();
-        }
-    }
-    else
-    {
-        // handle direct global function
-        lua_getglobal(L, functionName);
-        if (!lua_isfunction(L, -1))
-        {
-            result = std::string("Global function '") + functionName + "' not found";
-            lua_pop(L, 1);
-            return result.c_str();
-        }
-    }
-
-    // parse JSON arguments if provided, this would just be an array of arguments
-    // either string, number, boolean, or null (nil)
-    if (argsJson && argsJson[0] != '\0')
-    {
-        // TODO: finish this
-        result = "JSON argument parsing not yet implemented";
-        lua_pop(L, 1);
-        return result.c_str();
-    }
-
-    // call the function
     int status = lua_pcall(L, 0, 1, 0);
-    if (status != 0)
-    {
+    if (status != 0) {
         size_t len;
         const char* msg = lua_tolstring(L, -1, &len);
-        result = std::string(msg, len);
+        std::string error(msg, len);
         lua_pop(L, 1);
-        return result.c_str();
+        return error;
     }
 
-    // convert result to string
-    if (!lua_isnil(L, -1))
-    {
+    std::string result;
+    if (!lua_isnil(L, -1)) {
         size_t len;
         const char* str = lua_tolstring(L, -1, &len);
-        if (str)
+        if (str) {
             result = std::string(str, len);
-        else
+        } else {
             result = "Function returned non-string value";
-    }
-    else
-    {
+        }
+    } else {
         result = "nil";
     }
 
     lua_pop(L, 1);
+    return result;
+}
 
-    return result.empty() ? NULL : result.c_str();
+std::string slapTableFunction(lua_State* L, const std::string& name, size_t lastDot, const std::string& argsJson) {
+    std::string tablePath = name.substr(0, lastDot);
+    std::string funcName = name.substr(lastDot + 1);
+
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+
+    size_t start = 0;
+    while (true) {
+        size_t dot = tablePath.find('.', start);
+        std::string part = tablePath.substr(start, dot - start);
+
+        lua_pushlstring(L, part.data(), part.size());
+        LuaStateManager::safeGetTable(L, -2);
+        lua_remove(L, -2);
+
+        if (lua_isnil(L, -1)) {
+            lua_pop(L, 1);
+            return "Table '" + part + "' not found in path '" + tablePath + "'";
+        }
+
+        if (!lua_istable(L, -1)) {
+            lua_pop(L, 1);
+            return "Table '" + part + "' exists but is not a table";
+        }
+
+        if (dot == std::string::npos) break;
+        start = dot + 1;
+    }
+
+    lua_pushlstring(L, funcName.data(), funcName.size());
+    LuaStateManager::safeGetTable(L, -2);
+    lua_remove(L, -2);
+
+    if (!lua_isfunction(L, -1)) {
+        lua_pop(L, 1);
+        return "Function '" + funcName + "' not found in table '" + tablePath + "'";
+    }
+
+    return slapFunction(L, argsJson);
+}
+
+std::string slapGlobalFunction(lua_State* L, const std::string& name, const std::string& argsJson) {
+    lua_getglobal(L, name.c_str());
+    if (!lua_isfunction(L, -1)) {
+        lua_pop(L, 1);
+        return "Global function '" + name + "' not found";
+    }
+
+    return slapFunction(L, argsJson);
+}
+
+} // namespace
+
+// ------------------------------------------------
+// Public API
+// ------------------------------------------------
+
+std::string runScript(const std::string& source) {
+    // setup flags
+    for (Luau::FValue<bool>* flag = Luau::FValue<bool>::list; flag; flag = flag->next) {
+        if (strncmp(flag->name, "Luau", 4) == 0) {
+            flag->value = true;
+        }
+    }
+
+    // create new state
+    gState.luaState.reset(luaL_newstate());
+    lua_State* L = gState.luaState.get();
+
+    // setup state
+    LuaStateManager::setupState(L);
+    luaL_sandboxthread(L);
+
+    return ScriptRunner::runCode(L, source);
+}
+
+std::string callGlobalFunction(const std::string& name, const std::string& argsJson) {
+    if (!gState.luaState) {
+        return "Lua state not initialized";
+    }
+
+    lua_State* L = gState.luaState.get();
+    lua_checkstack(L, LUA_MINSTACK);
+
+    size_t lastDot = name.find_last_of('.');
+    if (lastDot != std::string::npos) {
+        return slapTableFunction(L, name, lastDot, argsJson);
+    } else {
+        return slapGlobalFunction(L, name, argsJson);
+    }
+}
+
+EMSCRIPTEN_BINDINGS(Module) {
+    emscripten::function("runScript", &runScript);
+    emscripten::function("callGlobalFunction", &callGlobalFunction);
 }

@@ -4,6 +4,15 @@
 base: luau
 name: selene_defs
 globals:
+  __INTERNAL_DO_NOT_USE_calljs:
+    must_use: true
+    args:
+      - required: true
+        observes: read
+        type: string
+      - required: true
+        observes: read
+        type: any
   integer:
     must_use: true
     args:

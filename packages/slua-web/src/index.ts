@@ -52,6 +52,11 @@ export type SLuaConfig = {
 	onChat?: (message: SLuaOutput) => void;
 
 	/**
+	 * Returns runtime timer interval changes (zero means the timer is stopped)
+	 */
+	onTimerChange?: (interval: number) => void;
+
+	/**
 	 * Returns runtime position changes
 	 */
 	onPositionChange?: (link: number, position: [number, number, number]) => void;
@@ -448,7 +453,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 						);
 					}
 
-					// config.onTimerChange?.(interval);
+					config.onTimerChange?.(interval);
 					break;
 				}
 

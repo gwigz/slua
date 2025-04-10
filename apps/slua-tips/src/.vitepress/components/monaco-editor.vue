@@ -1,8 +1,5 @@
 <template>
-	<div
-		ref="editorContainer"
-		class="bg-muted/20 border-4 rounded-lg border-card outline-1 outline-muted h-full"
-	></div>
+	<div ref="editorContainer" class="h-full"></div>
 </template>
 
 <script setup lang="ts">
@@ -12,6 +9,8 @@ import { useData } from 'vitepress';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import * as monaco from 'monaco-editor';
+
+// @ts-ignore
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 
 self.MonacoEnvironment = {

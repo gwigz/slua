@@ -15,7 +15,7 @@ end
 quaternion = vector
 
 toquaternion = function(str: string)
-	error("not implemented")
+	error("toquaternion: not implemented")
 end
 
 tovector = function(str: string)
@@ -23,7 +23,7 @@ tovector = function(str: string)
 end
 
 quaternion = function(x: number, y: number, z: number, s: number)
-	error("not implemented")
+	error("quaternion: not implemented")
 end
 
 ACTIVE = 2
@@ -1023,6 +1023,8 @@ internal = {
 	},
 	name = "Object",
 	description = "",
+	time_offset = 0,
+	timer = 0,
 	position = vector.zero,
 	-- rotation = quaternion.identity,
 	scale = vector.create(0.5, 0.5, 0.5),
@@ -1043,9 +1045,37 @@ internal = {
 	},
 }
 
+internal.reset = function()
+	error("#!SLUA:RESET_SCRIPT")
+end
+
+internal.read = function(method: string, data: any): (() -> any)?
+	local result, err = __INTERNAL_DO_NOT_USE_calljs(method, data)
+
+	if err then
+		error(err)
+	end
+
+	if type(result) == "function" then
+		return result()
+	end
+
+	return nil
+end
+
 internal.chat = function(type: number, msg: string)
 	-- TODO: error if message is not string
 	print("#!SLUA:CHAT", os.time(), os.clock(), type, internal.name, msg)
+end
+
+internal.set_timer = function(rate: number)
+	if type(rate) ~= "number" then
+		return
+	end
+
+	internal.timer = rate
+
+	print("#!SLUA:SET_TIMER", rate)
 end
 
 internal.set_position = function(link: number, position: vector)
@@ -1081,7 +1111,7 @@ internal.set_scale = function(link: number, scale: vector)
 end
 
 internal.set_rotation = function(link: number, rotation: quaternion)
-	error("not implemented")
+	error("set_rotation: not implemented")
 end
 
 internal.set_color = function(link: number, color: vector, face: number)
@@ -1130,7 +1160,7 @@ internal.at_rot_target = function(
 	ourRotation: { number }
 )
 	if type(at_rot_target) == "function" then
-		error("not implemented")
+		error("at_rot_target: not implemented")
 	end
 end
 
@@ -1457,22 +1487,22 @@ end
 
 lljson = {}
 
-lljson.encode = function(value: string)
-	error("not implemented")
+lljson.encode = function(value: any)
+	return internal.read("JSON.stringify", value)
 end
 
 lljson.decode = function(json: string)
-	error("not implemented")
+	return internal.read("JSON.decode", json)
 end
 
 llbase64 = {}
 
 llbase64.encode = function(value: string)
-	error("not implemented")
+	return internal.read("btoa", value)
 end
 
 llbase64.decode = function(base64: string)
-	error("not implemented")
+	return internal.read("atob", base64)
 end
 
 ll = {}
@@ -1546,11 +1576,11 @@ ll.AvatarOnSitTarget = function()
 end
 
 ll.Axes2Rot = function(forward: vector, left: vector, up: vector)
-	error("not implemented")
+	error("axis2rot: not implemented")
 end
 
 ll.AxisAngle2Rot = function(axis: vector, angle: number)
-	error("not implemented")
+	error("angleaxis2rot: not implemented")
 end
 
 ll.Base64ToInteger = function(text: string)
@@ -1666,7 +1696,7 @@ ll.DerezObject = function(id: uuid, flags: number)
 end
 
 ll.DetachFromAvatar = function()
-	error("not implemented")
+	error("detachfromavatar: not implemented")
 end
 
 ll.DetectedDamage = function(number: number)
@@ -1714,7 +1744,7 @@ ll.DetectedRezzer = function(number: number)
 end
 
 ll.DetectedRot = function(number: number)
-	error("not implemented")
+	error("detectedrot: not implemented")
 end
 
 ll.DetectedTouchBinormal = function(index: number)
@@ -1774,7 +1804,7 @@ ll.EjectFromLand = function(id: uuid)
 end
 
 ll.Email = function(address: string, subject: string, text: string)
-	error("not implemented")
+	error("email: not implemented")
 end
 
 ll.EscapeURL = function(url: string)
@@ -1784,7 +1814,7 @@ ll.EscapeURL = function(url: string)
 end
 
 ll.Euler2Rot = function(vec: vector)
-	error("not implemented")
+	error("euler2rot: not implemented")
 end
 
 ll.Evade = function(id: uuid, options: list)
@@ -1906,7 +1936,7 @@ ll.GetCameraPos = function()
 end
 
 ll.GetCameraRot = function()
-	error("not implemented")
+	error("getcamerarot: not implemented")
 end
 
 ll.GetCenterOfMass = function()
@@ -2096,7 +2126,7 @@ ll.GetLocalPos = function()
 end
 
 ll.GetLocalRot = function()
-	error("not implemented")
+	error("getlocalrot: not implemented")
 end
 
 ll.GetMass = function()
@@ -2124,7 +2154,7 @@ ll.GetMoonDirection = function()
 end
 
 ll.GetMoonRotation = function()
-	error("not implemented")
+	error("getmoonrotation: not implemented")
 end
 
 ll.GetNextEmail = function(address: string, subject: string)
@@ -2288,7 +2318,7 @@ ll.GetRegionMoonDirection = function()
 end
 
 ll.GetRegionMoonRotation = function()
-	error("not implemented")
+	error("getregionmoonrotation: not implemented")
 end
 
 ll.GetRegionName = function()
@@ -2300,7 +2330,7 @@ ll.GetRegionSunDirection = function()
 end
 
 ll.GetRegionSunRotation = function()
-	error("not implemented")
+	error("getregionsunrotation: not implemented")
 end
 
 ll.GetRegionTimeDilation = function()
@@ -2320,11 +2350,11 @@ ll.GetRootPosition = function()
 end
 
 ll.GetRootRotation = function()
-	error("not implemented")
+	error("getrootrotation: not implemented")
 end
 
 ll.GetRot = function()
-	error("not implemented")
+	error("getrot: not implemented")
 end
 
 ll.GetSPMaxMemory = function()
@@ -2418,7 +2448,7 @@ ll.GetSunDirection = function()
 end
 
 ll.GetSunRotation = function()
-	error("not implemented")
+	error("getsunrotation: not implemented")
 end
 
 ll.GetTexture = function(face: number)
@@ -2438,7 +2468,7 @@ ll.GetTextureScale = function(face: number)
 end
 
 ll.GetTime = function()
-	return 0
+	return os.clock() - internal.time_offset
 end
 
 ll.GetTimeOfDay = function()
@@ -2446,7 +2476,11 @@ ll.GetTimeOfDay = function()
 end
 
 ll.GetTimestamp = function()
-	return ""
+	local currentTime = os.time()
+	local timestamp = os.date("!%Y-%m-%dT%H:%M:%S", currentTime)
+	local fractionalSeconds = string.format("%.3f", os.clock() % 1):sub(3)
+
+	return timestamp .. "." .. fractionalSeconds .. "Z"
 end
 
 ll.GetTorque = function()
@@ -2765,7 +2799,7 @@ ll.List2ListStrided = function(
 end
 
 ll.List2Rot = function(list_variable: list, index: number)
-	error("not implemented")
+	error("list2rot: not implemented")
 end
 
 ll.List2String = function(list_variable: list, index: number)
@@ -2961,7 +2995,7 @@ ll.MessageLinked = function(
 end
 
 ll.MinEventDelay = function(delay: number)
-	return nil
+	error("mineventdelay: not implemented")
 end
 
 ll.ModPow = function(value: number, power: number, modulus: number)
@@ -2977,6 +3011,10 @@ ll.MoveToTarget = function(target: vector, tau: number)
 end
 
 ll.Name2Key = function(name: string)
+	if name == internal.owner.name then
+		return internal.owner.id
+	end
+
 	return NULL_KEY
 end
 
@@ -3224,15 +3262,17 @@ ll.ResetLandPassList = function()
 end
 
 ll.ResetOtherScript = function(script_name: string)
-	return nil
+	if script_name == ll.GetScriptName() then
+		internal.reset()
+	end
 end
 
 ll.ResetScript = function()
-	return nil
+	internal.reset()
 end
 
 ll.ResetTime = function()
-	return nil
+	internal.time_offset = ll.GetTime()
 end
 
 ll.ReturnObjectsByID = function(objecti_ds: list)
@@ -3292,7 +3332,7 @@ ll.Rot2Up = function(rotation: quaternion)
 end
 
 ll.RotBetween = function(vector1: vector, vector2: vector)
-	error("not implemented")
+	error("rotbetween: not implemented")
 end
 
 ll.RotLookAt = function(rotation: quaternion, strength: number, damping: number)
@@ -3616,7 +3656,7 @@ ll.SetScale = function(scale: vector)
 end
 
 ll.SetScriptState = function(script_name: string, running: number)
-	error("not implemented")
+	error("setscriptstate: not implemented")
 end
 
 ll.SetSitText = function(text: string)
@@ -3656,7 +3696,7 @@ ll.SetTextureAnim = function(
 end
 
 ll.SetTimerEvent = function(rate: number)
-	return nil
+	internal.set_timer(rate)
 end
 
 ll.SetTorque = function(torque: vector, relative: number)
@@ -3791,7 +3831,7 @@ ll.StringTrim = function(text: string, trim_type: number)
 end
 
 ll.SubStringIndex = function(text: string, sequence: string)
-	error("not implemented, use `string.find` instead")
+	error("substringindex: not implemented, use `string.find` instead")
 end
 
 ll.TakeCamera = function(id: uuid)
@@ -3899,7 +3939,7 @@ ll.UpdateKeyValue = function(
 end
 
 ll.VecDist = function(location1: vector, location2: vector)
-	return 0
+	return vector.magnitude(location1 - location2)
 end
 
 ll.VecMag = function(vec: vector)
@@ -3916,7 +3956,7 @@ ll.VerifyRSA = function(
 	signature: string,
 	algorithm: string
 )
-	return false
+	error("verifyrsa: not implemented")
 end
 
 ll.VolumeDetect = function(detect_enabled: number)
@@ -3948,15 +3988,17 @@ ll.WorldPosToHUD = function(world_pos: vector)
 end
 
 ll.XorBase64 = function(text1: string, text2: string)
-	return ""
+	error("xorbase64: not implemented, use `ll.XorBase64StringsCorrect` instead")
 end
 
 ll.XorBase64Strings = function(text1: string, text2: string)
-	return ""
+	error(
+		"xorbase64strings: not implemented, use `ll.XorBase64StringsCorrect` instead"
+	)
 end
 
 ll.XorBase64StringsCorrect = function(text1: string, text2: string)
-	return ""
+	error("xorbase64stringscorrect: not implemented")
 end
 
 ll.sRGB2Linear = function(srgb: vector)

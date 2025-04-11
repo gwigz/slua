@@ -103,15 +103,17 @@ describe("ll.GetSubString", function()
 		}
 
 		--[[
-			local tests = "{"
 
-			for _, test in expected do
-					local start, finish, value = unpack(test)
+		local tests = "{"
 
-					tests = tests .. `\n  \{ {start}, {finish}, "{ll.GetSubString(input, start, finish)}" },`
-			end
+		for _, test in expected do
+				local start, finish, value = unpack(test)
 
-			ll.OwnerSay(tests .. '\n')
+				tests = tests .. `\n  \{ {start}, {finish}, "{ll.GetSubString(input, start, finish)}" },`
+		end
+
+		ll.OwnerSay(tests .. '\n')
+
 		]]
 
 		for _, test in expected do

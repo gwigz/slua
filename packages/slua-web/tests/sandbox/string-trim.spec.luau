@@ -121,79 +121,124 @@ describe("ll.StringTrim", function()
 			{ "  !@#$%^&*()  ", STRING_TRIM_HEAD, "!@#$%^&*()  " },
 			{ "  !@#$%^&*()  ", STRING_TRIM_TAIL, "  !@#$%^&*()" },
 
-			-- unicode characters
-			{ "  🚀 Hello 🌍  ", STRING_TRIM, "🚀 Hello 🌍" },
-			{ "  🚀 Hello 🌍  ", STRING_TRIM_HEAD, "🚀 Hello 🌍  " },
-			{ "  🚀 Hello 🌍  ", STRING_TRIM_TAIL, "  🚀 Hello 🌍" },
+			-- emoji characters
+			{
+				"  \u{1F680} Hello \u{1F30D}  ",
+				STRING_TRIM,
+				"\u{1F680} Hello \u{1F30D}",
+			},
+			{
+				"  \u{1F680} Hello \u{1F30D}  ",
+				STRING_TRIM_HEAD,
+				"\u{1F680} Hello \u{1F30D}  ",
+			},
+			{
+				"  \u{1F680} Hello \u{1F30D}  ",
+				STRING_TRIM_TAIL,
+				"  \u{1F680} Hello \u{1F30D}",
+			},
 
 			-- non-breaking space (U+00A0)
-			{ "\u{00A0}Hello\u{00A0}", STRING_TRIM, "Hello" },
-			{ "\u{00A0}Hello\u{00A0}", STRING_TRIM_HEAD, "Hello\u{00A0}" },
-			{ "\u{00A0}Hello\u{00A0}", STRING_TRIM_TAIL, "\u{00A0}Hello" },
+			{ "\u{00A0}Hello\u{00A0}", STRING_TRIM, "\u{00A0}Hello\u{00A0}" },
+			{ "\u{00A0}Hello\u{00A0}", STRING_TRIM_HEAD, "\u{00A0}Hello\u{00A0}" },
+			{ "\u{00A0}Hello\u{00A0}", STRING_TRIM_TAIL, "\u{00A0}Hello\u{00A0}" },
 
 			-- zero-width space (U+200B)
-			{ "\u{200B}Hello\u{200B}", STRING_TRIM, "Hello" },
-			{ "\u{200B}Hello\u{200B}", STRING_TRIM_HEAD, "Hello\u{200B}" },
-			{ "\u{200B}Hello\u{200B}", STRING_TRIM_TAIL, "\u{200B}Hello" },
+			{ "\u{200B}Hello\u{200B}", STRING_TRIM, "\u{200B}Hello\u{200B}" },
+			{ "\u{200B}Hello\u{200B}", STRING_TRIM_HEAD, "\u{200B}Hello\u{200B}" },
+			{ "\u{200B}Hello\u{200B}", STRING_TRIM_TAIL, "\u{200B}Hello\u{200B}" },
 
 			-- thin space (U+2009)
-			{ "\u{2009}Hello\u{2009}", STRING_TRIM, "Hello" },
-			{ "\u{2009}Hello\u{2009}", STRING_TRIM_HEAD, "Hello\u{2009}" },
-			{ "\u{2009}Hello\u{2009}", STRING_TRIM_TAIL, "\u{2009}Hello" },
+			{ "\u{2009}Hello\u{2009}", STRING_TRIM, "\u{2009}Hello\u{2009}" },
+			{ "\u{2009}Hello\u{2009}", STRING_TRIM_HEAD, "\u{2009}Hello\u{2009}" },
+			{ "\u{2009}Hello\u{2009}", STRING_TRIM_TAIL, "\u{2009}Hello\u{2009}" },
 
 			-- mixed unicode whitespace
 			{
 				"\u{00A0}\u{200B}\u{2009}Hello\u{00A0}\u{200B}\u{2009}",
 				STRING_TRIM,
-				"Hello",
+				"\u{00A0}\u{200B}\u{2009}Hello\u{00A0}\u{200B}\u{2009}",
 			},
 			{
 				"\u{00A0}\u{200B}\u{2009}Hello\u{00A0}\u{200B}\u{2009}",
 				STRING_TRIM_HEAD,
-				"Hello\u{00A0}\u{200B}\u{2009}",
+				"\u{00A0}\u{200B}\u{2009}Hello\u{00A0}\u{200B}\u{2009}",
 			},
 			{
 				"\u{00A0}\u{200B}\u{2009}Hello\u{00A0}\u{200B}\u{2009}",
 				STRING_TRIM_TAIL,
-				"\u{00A0}\u{200B}\u{2009}Hello",
+				"\u{00A0}\u{200B}\u{2009}Hello\u{00A0}\u{200B}\u{2009}",
 			},
 
 			-- Mixed standard and Unicode whitespace
-			{ " \t\u{00A0}\nHello \t\u{00A0}\n", STRING_TRIM, "Hello" },
+			{
+				" \t\u{00A0}\nHello \t\u{00A0}\n",
+				STRING_TRIM,
+				"\u{00A0}\nHello \t\u{00A0}",
+			},
 			{
 				" \t\u{00A0}\nHello \t\u{00A0}\n",
 				STRING_TRIM_HEAD,
-				"Hello \t\u{00A0}\n",
+				"\u{00A0}\nHello \t\u{00A0}\n",
 			},
 			{
 				" \t\u{00A0}\nHello \t\u{00A0}\n",
 				STRING_TRIM_TAIL,
-				" \t\u{00A0}\nHello",
+				" \t\u{00A0}\nHello \t\u{00A0}",
 			},
 		}
 
-		--[[
-			local modes = {
-				"STRING_TRIM_HEAD",
-				"STRING_TRIM_TAIL",
-				"STRING_TRIM",
-			}
-
-			for _, test in expects do
-				local input, mode = unpack(test)
-
-				ll.OwnerSay(`\{ {string.format('%q', input)}, {types[mode]}, {string.format('%q', ll.StringTrim(input, mode))} },`)
+		local function escape(str: any)
+			if type(str) ~= "string" then
+				return str
 			end
+
+			local result = ""
+
+			for _, codepoint in utf8.codes(str) do
+				if codepoint >= 32 and codepoint <= 126 then
+					result = result .. utf8.char(codepoint)
+				elseif codepoint == 9 then
+					result = result .. "\\t"
+				elseif codepoint == 10 then
+					result = result .. "\\n"
+				elseif codepoint == 13 then
+					result = result .. "\\r"
+				else
+					result = result .. string.format("\\u{%04X}", codepoint)
+				end
+			end
+
+			return result
+		end
+
+		--[[
+
+		local modes = {
+			"STRING_TRIM_HEAD",
+			"STRING_TRIM_TAIL",
+			"STRING_TRIM",
+		}
+
+		for _, test in expects do
+			local input, mode = unpack(test)
+
+			ll.OwnerSay(`\{ "{escape(input)}", {modes[mode]}, "{escape(ll.StringTrim(input, mode))}" },`)
+		end
+
 		]]
 
 		for _, test in expects do
 			local input, mode, expected = unpack(test)
 
-			it(`returns ${expected} when called with ${input}, ${mode}`, function()
-				expect(ll.StringTrim(input :: string, mode :: number)).to.equal(
-					expected
-				)
-			end)
+			it(
+				`returns {escape(expected)} when called with {escape(input)}, {mode}`,
+				function()
+					expect(ll.StringTrim(input :: string, mode :: number)).to.equal(
+						expected
+					)
+				end
+			)
 		end
 	end)
 end)

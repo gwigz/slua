@@ -19,7 +19,7 @@ npm install @gwigz/slua-web
 ```js
 import slua from '@gwigz/slua-web'
 
-const script = `
+const example = `
 function touch_start(num_detected)
   ll.OwnerSay("Ow!")
 end
@@ -27,23 +27,26 @@ end
 ll.OwnerSay("Hi!")
 `
 
-const { script, output, errors } = await slua.runScript(script, {
-  onChat: ({ timestamp, name, data: message }) => {
-    output.push(timestamp, name, message)
+const script = await slua.runScript(example, {
+  onError: ({ timestamp, line, data }) => {
+    console.error(timestamp, line, data)
+  },
+  onChat: ({ timestamp, name, data }) => {
+    console.log(timestamp, name, data)
   },
 })
 
-if (result.errors?.length) {
-  // something went wrong during start
-  console.error('SLua Error', result.errors)
-} else {
-  // call events, etc.
+if (script) {
   script.touch(1)
-}
 
-// cleanup (currently just removes timers)
-script.dispose()
+  // cleanup (currently just removes timers)
+  script.dispose()
+}
 ```
+
+## Acknowledgements
+
+- [WolfGangS/sl_lua_types](https://github.com/WolfGangS/sl_lua_types) providing typedefs and docs
 
 ## Links
 

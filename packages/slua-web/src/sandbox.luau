@@ -1812,6 +1812,7 @@ ll.Die = function()
 end
 
 ll.DumpList2String = function(source: list, separator: string)
+	return table.concat(source, separator)
 end
 
 ll.EdgeOfWorld = function(position: vector, direction: vector)
@@ -2775,6 +2776,7 @@ ll.LinksetDataWriteProtected = function(
 end
 
 ll.List2CSV = function(list_variable: list)
+	return table.concat(list_variable, ", ")
 end
 
 ll.List2Float = function(list_variable: list, index: number)

@@ -1812,7 +1812,6 @@ ll.Die = function()
 end
 
 ll.DumpList2String = function(source: list, separator: string)
-	return ""
 end
 
 ll.EdgeOfWorld = function(position: vector, direction: vector)
@@ -2776,7 +2775,6 @@ ll.LinksetDataWriteProtected = function(
 end
 
 ll.List2CSV = function(list_variable: list)
-	return ""
 end
 
 ll.List2Float = function(list_variable: list, index: number)
@@ -4028,5 +4026,9 @@ end
 ll.sRGB2Linear = function(srgb: vector)
 	return vector.zero
 end
+
+table.freeze(ll)
+table.freeze(lljson)
+table.freeze(llbase64)
 
 return { ll = ll }

@@ -1061,6 +1061,14 @@ internal.reset = function()
 	error("#!SLUA:RESET_SCRIPT")
 end
 
+internal.stop = function()
+	error("#!SLUA:STOP_SCRIPT")
+end
+
+internal.die = function()
+	error("#!SLUA:DIED")
+end
+
 internal.read = function(method: string, data: any): (() -> any)?
 	local result, err = __INTERNAL_DO_NOT_USE_calljs(method, data)
 
@@ -1800,7 +1808,7 @@ ll.Dialog = function(id: uuid, text: string, buttons: list, channel: number)
 end
 
 ll.Die = function()
-	error("died")
+	internal.die()
 end
 
 ll.DumpList2String = function(source: list, separator: string)

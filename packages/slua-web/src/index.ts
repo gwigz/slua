@@ -48,6 +48,21 @@ export type SLuaConfig = {
 	onError?: (error: SLuaError) => void;
 
 	/**
+	 * Returns runtime script stop requests
+	 */
+	onStop?: () => void;
+
+	/**
+	 * Returns runtime script reset requests
+	 */
+	onReset?: () => void;
+
+	/**
+	 * Returns runtime script die requests
+	 */
+	onDie?: () => void;
+
+	/**
 	 * Returns runtime chat messages
 	 */
 	onChat?: (message: SLuaOutput) => void;
@@ -487,8 +502,6 @@ function luaFormat(value: unknown): string {
  * callbacks.
  */
 export async function runScript(code: string, config: SLuaConfig = {}) {
-	const errors: SLuaError[] = [];
-
 	let timer: Timer | undefined;
 
 	const sandboxLineCount = (config.sandbox ?? SANDBOX).split('\n').length;
@@ -529,14 +542,34 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 		};
 	}
 
+	function handleError(message: string) {
+		switch (message.match(/#!SLUA:([A-Z_]+)/)?.[1]) {
+			case 'STOP_SCRIPT':
+				config.onStop?.();
+				break;
+
+			case 'RESET_SCRIPT':
+				config.onReset?.();
+				break;
+
+			case 'DIED':
+				config.onDie?.();
+				break;
+
+			default:
+				(config.onError ?? console.error)(parseErrorMessage(message));
+				break;
+		}
+	}
+
 	const luau = await initLuau({
 		print: (message: string) => {
-			switch (true) {
-				case message.startsWith('#!SLUA:CHAT'):
+			switch (message.match(/^#!SLUA:([A-Z_]+)/)?.[1]) {
+				case 'CHAT':
 					config.onChat?.(parseChat(message));
 					break;
 
-				case message.startsWith('#!SLUA:SET_TIMER'): {
+				case 'SET_TIMER': {
 					const interval = Number(message.split('\t')[1]);
 
 					if (interval === 0 || interval < 0) {
@@ -552,23 +585,23 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 					break;
 				}
 
-				case message.startsWith('#!SLUA:SET_POSITION'):
+				case 'SET_POSITION':
 					config.onPositionChange?.(...parsePositionChange(message));
 					break;
 
-				case message.startsWith('#!SLUA:SET_SCALE'):
+				case 'SET_SCALE':
 					config.onScaleChange?.(...parseScaleChange(message));
 					break;
 
-				case message.startsWith('#!SLUA:SET_ROTATION'):
+				case 'SET_ROTATION':
 					config.onRotationChange?.(...parseRotationChange(message));
 					break;
 
-				case message.startsWith('#!SLUA:SET_COLOR'):
+				case 'SET_COLOR':
 					config.onColorChange?.(...parseColorChange(message));
 					break;
 
-				case message.startsWith('#!SLUA:SET_ALPHA'):
+				case 'SET_ALPHA':
 					config.onAlphaChange?.(...parseAlphaChange(message));
 					break;
 
@@ -578,7 +611,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 			}
 		},
 		printErr: (message: string) => {
-			(config.onError ?? console.error)(parseErrorMessage(message));
+			handleError(message);
 		},
 		readSync: (method: string, json: string) => {
 			switch (method) {
@@ -600,17 +633,19 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 		const err = luau.runScript(`${config.sandbox ?? SANDBOX}\n${code}`);
 
 		if (err && typeof err === 'string') {
-			errors.push(parseErrorMessage(err));
+			throw new Error(err);
 		}
 	} catch (error) {
-		errors.push(parseErrorMessage(error instanceof Error ? error.message : String(error)));
+		handleError(error instanceof Error ? error.message : String(error));
+
+		return;
 	}
 
 	const call: SLuaScript['call'] = (name, args) => {
 		const error = luau.callGlobalFunction(name, args ? JSON.stringify(args) : '[]');
 
 		if (error && error !== 'nil') {
-			(config.onError ?? console.error)(parseErrorMessage(error));
+			handleError(error);
 		}
 	}
 
@@ -727,7 +762,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 		dispose: () => clearInterval(timer),
 	};
 
-	return { script, errors };
+	return script;
 }
 
 export default { runScript };

@@ -176,7 +176,7 @@ onMounted(async () => {
 		},
 		minimap: { enabled: false },
 		fontSize: 14,
-		lineNumbers: 'on', // can offset if we include sandbox in the editor somehow
+		lineNumbers: 'on',
 		roundedSelection: false,
 		scrollBeyondLastLine: false,
 		automaticLayout: true,

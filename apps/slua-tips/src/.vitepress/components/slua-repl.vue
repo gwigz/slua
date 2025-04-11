@@ -45,7 +45,9 @@
 				</template>
 			</div>
 
-			<div class="flex flex-1 justify-end [&_button]:flex-1 md:[&_button]:flex-none gap-2">
+			<div
+				class="flex flex-1 justify-end [&_button]:flex-1 md:[&_button]:flex-none gap-2"
+			>
 				<template v-if="script">
 					<Button @click="script.touch(1)" variant="default" size="xs">
 						Touch
@@ -95,7 +97,13 @@
 						class="bg-muted/20 outline outline-muted w-full h-full"
 					>
 						<!-- cube -->
-						<Cube :scale="cubeScale" :color="cubeColor" :glow="cubeGlow" />
+						<Cube
+							:scale="cubeScale"
+							:color="cubeColor"
+							:glow="cubeGlow"
+							:died="cubeDied"
+							@click="() => script?.touch(1)"
+						/>
 					</ResizablePanel>
 
 					<ResizableHandle with-handle />
@@ -210,6 +218,7 @@ const lastScrollHeight = ref(0);
 const cubeScale = ref<[number, number, number]>([0.5, 0.5, 0.5]);
 const cubeColor = ref("#ffffff");
 const cubeGlow = ref(0);
+const cubeDied = ref(false);
 
 const timerInterval = ref(0);
 
@@ -310,23 +319,21 @@ onMounted(async () => {
 	}
 });
 
-function stopScript(clearOutput = false) {
+function stopScript() {
 	script.value?.dispose();
 	script.value = null;
 
 	cubeScale.value = [0.5, 0.5, 0.5];
 	cubeColor.value = "#ffffff";
+	cubeDied.value = false;
+
 	lastError.value = undefined;
 
 	timerInterval.value = 0;
-
-	if (clearOutput) {
-		output.splice(0, output.length);
-	}
 }
 
 async function runScript() {
-	stopScript(true);
+	stopScript();
 
 	const result = await slua.runScript(code.value, {
 		onError: (error) => {
@@ -334,6 +341,18 @@ async function runScript() {
 
 			// script will continue in some scenarios, so we want to stop it here
 			stopScript();
+		},
+		onStop: () => {
+			stopScript();
+		},
+		onDie: () => {
+			stopScript();
+
+			cubeDied.value = true;
+		},
+		onReset: () => {
+			stopScript();
+			runScript();
 		},
 		onChat: (message) => {
 			// TODO: limit output to 1000 lines?
@@ -359,14 +378,7 @@ async function runScript() {
 		},
 	});
 
-	if (result.errors.length) {
-		lastError.value = result.errors[0].line;
-
-		output.push(...result.errors);
-		console.error(result.errors);
-	} else {
-		script.value = result.script;
-	}
+	script.value = result || null;
 }
 
 const showResetModal = ref(false);

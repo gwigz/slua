@@ -22,26 +22,27 @@ gitChangelog: false
 local rnd = math.random
 
 function touch_end(num_detected)
-	ll.Say(0, `Wait, you're not {ll.DetectedName(0)}!`)
+  ll.Say(0, `Wait, you're not {ll.DetectedName(0)}!`)
 end
 
 function collision_start(num_detected)
-	ll.Whisper(0, 'That hurt.')
+  ll.Whisper(0, 'That hurt.')
+  -- ll.Die()
 end
 
 function timer()
-	local scale = (math.sin(os.clock()) + 3) * 0.1
+  local scale = (math.sin(os.clock()) + 3) * 0.1
 
-	ll.SetScale(vector.create(scale, scale, scale))
+  ll.SetScale(vector.create(scale, scale, scale))
 
-	ll.SetColor(
-		vector.create(
-			(math.cos(os.clock()) + 1) * 0.5,
-			(math.sin(os.clock()) + 1) * 0.5,
-			1
-		),
-		ALL_SIDES
-	)
+  ll.SetColor(
+    vector.create(
+      (math.cos(os.clock()) + 1) * 0.5,
+      (math.sin(os.clock()) + 1) * 0.5,
+      1
+    ),
+    ALL_SIDES
+  )
 end
 
 -- we have json at home!

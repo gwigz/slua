@@ -3833,13 +3833,17 @@ ll.StringToBase64 = function(text: string)
 end
 
 ll.StringTrim = function(text: string, trim_type: number)
+	local result = text
+
 	if trim_type == STRING_TRIM_HEAD then
-		return text:gsub("^%s*", "")
+		result = text:gsub("^%s*", "")
 	elseif trim_type == STRING_TRIM_TAIL then
-		return text:gsub("%s*$", "")
+		result = text:gsub("%s*$", "")
+	else
+		result = text:gsub("^%s*", ""):gsub("%s*$", "")
 	end
 
-	return text:gsub("^%s*", ""):gsub("%s*$", "")
+	return result
 end
 
 ll.SubStringIndex = function(text: string, sequence: string)
@@ -4016,3 +4020,5 @@ end
 ll.sRGB2Linear = function(srgb: vector)
 	return vector.zero
 end
+
+return { ll = ll }

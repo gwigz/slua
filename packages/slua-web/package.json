@@ -29,7 +29,8 @@
   "scripts": {
     "build": "bun run build.ts",
     "prepublishOnly": "bun run build",
-    "dev": "bun run dev.ts"
+    "dev": "bun run dev.ts",
+    "test": "bun run test.ts"
   },
   "type": "module",
   "types": "./dist/index.d.ts"

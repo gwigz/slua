@@ -4,7 +4,8 @@ import initLuau from './luau/luau.js';
 import sandboxContent from './sandbox.luau' with { type: 'text' };
 
 const INTERNAL = '__INTERNAL_DO_NOT_USE';
-const SANDBOX = sandboxContent.replace(/internal/g, INTERNAL);
+
+const SANDBOX = sandboxContent.replace(/internal/g, INTERNAL).replace(/return.+\n?$/g, '');
 
 type JsonLuaArgs = (string | number | boolean | null) | JsonLuaArgs[];
 

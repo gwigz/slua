@@ -11,20 +11,27 @@ uuid = function(key)
 	return tostring(key)
 end
 
--- -- TODO: this is not correct, lmao
--- quaternion = vector
+local __INTERNAL_DO_NOT_USE_vector = vector
 
--- toquaternion = function(str: string)
--- 	error("toquaternion: not implemented")
--- end
+vector = setmetatable({}, {
+	__index = __INTERNAL_DO_NOT_USE_vector,
 
--- tovector = function(str: string)
--- 	return vector.zero
--- end
+	__call = function(v, ...)
+		return __INTERNAL_DO_NOT_USE_vector.create(...)
+	end,
+})
 
--- quaternion = function(x: number, y: number, z: number, s: number)
--- 	error("quaternion: not implemented")
--- end
+local __INTERNAL_DO_NOT_USE_quaternion = quaternion
+
+quaternion = setmetatable({}, {
+	__index = __INTERNAL_DO_NOT_USE_quaternion,
+
+	__call = function(v, ...)
+		return __INTERNAL_DO_NOT_USE_quaternion.create(...)
+	end,
+})
+
+rotation = quaternion
 
 ACTIVE = 2
 AGENT = 1
@@ -4278,6 +4285,9 @@ ll.sRGB2Linear = function(srgb: vector)
 	return vector.zero
 end
 
+table.freeze(vector)
+table.freeze(quaternion)
+-- table.freeze(rotation) -- not needed as it just aliases `quaternion`
 table.freeze(ll)
 table.freeze(lljson)
 table.freeze(llbase64)

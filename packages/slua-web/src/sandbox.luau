@@ -1521,7 +1521,11 @@ llbase64.encode = function(value: string)
 	return internal.read("btoa", value)
 end
 
-llbase64.decode = function(base64: string)
+llbase64.decode = function(base64: string, as_buffer: boolean?)
+	if as_buffer then
+		error("llbase64.decode: as buffer not yet supported")
+	end
+
 	return internal.read("atob", base64)
 end
 

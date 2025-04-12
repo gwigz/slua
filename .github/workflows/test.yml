@@ -55,7 +55,7 @@ jobs:
       - name: Publish Test Report
         uses: ctrf-io/github-test-reporter@v1
         with:
-          report-path: 'packages/slua-web/test-results.json'
+          report-path: './packages/slua-web/test-results.json'
           pull-request-report: true
           failed-report: true
           summary-report: true

@@ -3,7 +3,7 @@
 	"include": [
 		"src/**/*.ts",
 		"src/**/*.vue",
-		"src/**/*.md",
+		"src/**/*.md"
 	],
 	"compilerOptions": {
 		"baseUrl": "./src",
@@ -16,6 +16,6 @@
 	"vueCompilerOptions": {
 		"vitePressExtensions": [
 			".md"
-		],
+		]
 	}
 }

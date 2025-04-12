@@ -51,7 +51,7 @@ if (script) {
 - `integer` 🔴
 - `uuid` 🔴
 - `toquaternion` 🔴
-- `tovector` 🟠 _not formatted correctly_
+- `tovector` 🔴
 - `quaternion` 🔴
 - `lljson.encode` 🟡 _does not handle vectors correctly_
 - `lljson.decode` 🟡 _does not handle vectors correctly_
@@ -59,7 +59,7 @@ if (script) {
 - `llbase64.decode` 🟠 _buffer not supported_
 
 <details>
-  <summary>Expand full `ll.*` list</summary><br />
+  <summary>Expand full <code>ll.*</code> list</summary><br />
 
 - `ll.Abs` 🟢 _not tested_
 - `ll.Acos` 🟢 _not tested_

@@ -11,20 +11,20 @@ uuid = function(key)
 	return tostring(key)
 end
 
--- TODO: this is not correct, lmao
-quaternion = vector
+-- -- TODO: this is not correct, lmao
+-- quaternion = vector
 
-toquaternion = function(str: string)
-	error("toquaternion: not implemented")
-end
+-- toquaternion = function(str: string)
+-- 	error("toquaternion: not implemented")
+-- end
 
-tovector = function(str: string)
-	return vector.zero
-end
+-- tovector = function(str: string)
+-- 	return vector.zero
+-- end
 
-quaternion = function(x: number, y: number, z: number, s: number)
-	error("quaternion: not implemented")
-end
+-- quaternion = function(x: number, y: number, z: number, s: number)
+-- 	error("quaternion: not implemented")
+-- end
 
 ACTIVE = 2
 AGENT = 1

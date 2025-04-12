@@ -1831,8 +1831,7 @@ ll.DumpList2String = function(source: list, separator: string)
 	return table.concat(source, separator)
 end
 
-ll.
- = function(position: vector, direction: vector)
+ll.EdgeOfWorld = function(position: vector, direction: vector)
 	return 0
 end
 
@@ -1902,17 +1901,27 @@ end
 
 ll.GenerateKey = function()
 	local function random_hex()
-			return string.format("%x", math.random(0, 15))
+		return string.format("%x", math.random(0, 15))
 	end
 
 	local uuid = string.format(
-			"%s%s-%s-%s-%s-%s%s%s",
-			random_hex(), random_hex(), random_hex(), random_hex(),
-			random_hex(), random_hex(), random_hex(), random_hex(), random_hex(), random_hex()
+		"%s%s-%s-%s-%s-%s%s%s",
+		random_hex(),
+		random_hex(),
+		random_hex(),
+		random_hex(),
+		random_hex(),
+		random_hex(),
+		random_hex(),
+		random_hex(),
+		random_hex(),
+		random_hex()
 	)
 
 	uuid = uuid:sub(1, 14) .. "4" .. uuid:sub(15, 36)
-	uuid = uuid:sub(1, 19) .. string.char(bit32.bor(bit32.band(uuid:byte(20), 0x3f), 0x80)) .. uuid:sub(21)
+	uuid = uuid:sub(1, 19)
+		.. string.char(bit32.bor(bit32.band(uuid:byte(20), 0x3f), 0x80))
+		.. uuid:sub(21)
 
 	return uuid
 end
@@ -3910,7 +3919,7 @@ ll.TakeControls = function(controls: number, accept: boolean, pass_on: boolean)
 end
 
 ll.Tan = function(theta: number)
-	return 0
+	return math.tan(theta)
 end
 
 ll.Target = function(position: vector, range: number)

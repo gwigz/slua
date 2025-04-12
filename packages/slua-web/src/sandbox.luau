@@ -1532,11 +1532,11 @@ end
 ll = {}
 
 ll.Abs = function(value: number)
-	return 0
+	return math.abs(value)
 end
 
 ll.Acos = function(value: number)
-	return 0
+	return math.acos(value)
 end
 
 ll.AddToLandBanList = function(id: uuid, hours: number)
@@ -1576,11 +1576,11 @@ ll.ApplyRotationalImpulse = function(force: vector, relative: number)
 end
 
 ll.Asin = function(value: number)
-	return 0
+	return math.asin(value)
 end
 
 ll.Atan2 = function(y: number, x: number)
-	return 0
+	return math.atan2(y, x)
 end
 
 ll.AttachToAvatar = function(attachment_point: number)
@@ -1608,11 +1608,19 @@ ll.AxisAngle2Rot = function(axis: vector, angle: number)
 end
 
 ll.Base64ToInteger = function(text: string)
-	return 0
+	local bytes = llbase64.decode(text)
+	local value = 0
+
+	for i = 1, #bytes do
+		local byte = bytes:byte(i)
+		value = value * 256 + byte
+	end
+
+	return value
 end
 
 ll.Base64ToString = function(text: string)
-	return ""
+	return llbase64.decode(text)
 end
 
 ll.BreakAllLinks = function()
@@ -1736,6 +1744,10 @@ ll.DetectedGroup = function(number: number)
 end
 
 ll.DetectedKey = function(number: number)
+	if number == 0 then
+		return internal.id
+	end
+
 	return NULL_KEY
 end
 
@@ -1819,7 +1831,8 @@ ll.DumpList2String = function(source: list, separator: string)
 	return table.concat(source, separator)
 end
 
-ll.EdgeOfWorld = function(position: vector, direction: vector)
+ll.
+ = function(position: vector, direction: vector)
 	return 0
 end
 
@@ -1888,7 +1901,20 @@ ll.Frand = function(magnitude: number)
 end
 
 ll.GenerateKey = function()
-	return NULL_KEY
+	local function random_hex()
+			return string.format("%x", math.random(0, 15))
+	end
+
+	local uuid = string.format(
+			"%s%s-%s-%s-%s-%s%s%s",
+			random_hex(), random_hex(), random_hex(), random_hex(),
+			random_hex(), random_hex(), random_hex(), random_hex(), random_hex(), random_hex()
+	)
+
+	uuid = uuid:sub(1, 14) .. "4" .. uuid:sub(15, 36)
+	uuid = uuid:sub(1, 19) .. string.char(bit32.bor(bit32.band(uuid:byte(20), 0x3f), 0x80)) .. uuid:sub(21)
+
+	return uuid
 end
 
 ll.GetAccel = function()
@@ -1900,7 +1926,7 @@ ll.GetAgentInfo = function(id: uuid)
 end
 
 ll.GetAgentLanguage = function(id: uuid)
-	return ""
+	return "en"
 end
 
 ll.GetAgentList = function(scope: number, options: list)
@@ -1916,7 +1942,11 @@ ll.GetAlpha = function(face: number)
 end
 
 ll.GetAndResetTime = function()
-	return 0
+	local time = ll.GetTime()
+
+	ll.ResetTime()
+
+	return time
 end
 
 ll.GetAnimation = function(id: uuid)
@@ -1990,7 +2020,7 @@ ll.GetCreator = function()
 end
 
 ll.GetDate = function()
-	return ""
+	return os.date("!%Y-%m-%d")
 end
 
 ll.GetDayLength = function()
@@ -2010,7 +2040,7 @@ ll.GetDisplayName = function(id: uuid)
 end
 
 ll.GetEnergy = function()
-	return 0
+	return 1
 end
 
 ll.GetEnv = function(data_request: string)
@@ -2042,8 +2072,7 @@ ll.GetFreeURLs = function()
 end
 
 ll.GetGMTclock = function()
-	local currentTime = os.time()
-	local utcTime = os.date("!*t", currentTime)
+	local utcTime = os.date("!*t")
 
 	local midnight = os.time({
 		year = utcTime.year,
@@ -2110,6 +2139,10 @@ ll.GetLandOwnerAt = function(position: vector)
 end
 
 ll.GetLinkKey = function(link_number: number)
+	if link_number == 0 then
+		return internal.id
+	end
+
 	return NULL_KEY
 end
 
@@ -2118,6 +2151,10 @@ ll.GetLinkMedia = function(link_number: number, face: number, parameters: list)
 end
 
 ll.GetLinkName = function(link_number: number)
+	if link_number == 0 then
+		return internal.name
+	end
+
 	return ""
 end
 
@@ -2126,7 +2163,11 @@ ll.GetLinkNumber = function()
 end
 
 ll.GetLinkNumberOfSides = function(link_number: number)
-	return 6
+	if link_number == 0 then
+		return 6
+	end
+
+	return 0
 end
 
 ll.GetLinkPrimitiveParams = function(link_number: number, parameters: list)
@@ -2198,7 +2239,7 @@ ll.GetNumberOfNotecardLines = function(notecard_name: string)
 end
 
 ll.GetNumberOfPrims = function()
-	return 0
+	return 1
 end
 
 ll.GetNumberOfSides = function()
@@ -2234,7 +2275,7 @@ ll.GetObjectName = function()
 end
 
 ll.GetObjectPermMask = function(category: number)
-	return 0
+	return PERM_ALL
 end
 
 ll.GetObjectPrimCount = function(id: uuid)
@@ -2330,7 +2371,7 @@ ll.GetRegionDayOffset = function()
 end
 
 ll.GetRegionFPS = function()
-	return 0
+	return 45
 end
 
 ll.GetRegionFlags = function()
@@ -2346,7 +2387,7 @@ ll.GetRegionMoonRotation = function()
 end
 
 ll.GetRegionName = function()
-	return ""
+	return "slua.tips"
 end
 
 ll.GetRegionSunDirection = function()
@@ -2358,7 +2399,7 @@ ll.GetRegionSunRotation = function()
 end
 
 ll.GetRegionTimeDilation = function()
-	return 0
+	return 1
 end
 
 ll.GetRegionTimeOfDay = function()
@@ -2500,8 +2541,7 @@ ll.GetTimeOfDay = function()
 end
 
 ll.GetTimestamp = function()
-	local currentTime = os.time()
-	local timestamp = os.date("!%Y-%m-%dT%H:%M:%S", currentTime)
+	local timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
 	local fractionalSeconds = string.format("%.3f", os.clock() % 1):sub(3)
 
 	return timestamp .. "." .. fractionalSeconds .. "Z"
@@ -2536,19 +2576,18 @@ ll.GetVisualParams = function(id: uuid, parameters: list)
 end
 
 ll.GetWallclock = function()
-	local currentTime = os.time()
-	local utcTime = os.date("!*t", currentTime)
+	local utc = os.date("!*t")
 
 	-- TODO: pass in the daylight saving time offset
-	local pacificOffset = -7 * 60 * 60
+	local offset = -7 * 60 * 60
 
-	local pacificTime = os.time({
-		year = utcTime.year,
-		month = utcTime.month,
-		day = utcTime.day,
-		hour = utcTime.hour + pacificOffset / 3600,
-		min = utcTime.min,
-		sec = utcTime.sec,
+	local pst = os.time({
+		year = utc.year,
+		month = utc.month,
+		day = utc.day,
+		hour = utc.hour + offset / 3600,
+		min = utc.min,
+		sec = utc.sec,
 	})
 
 	local midnight = os.time({
@@ -2560,7 +2599,7 @@ ll.GetWallclock = function()
 		sec = 0,
 	})
 
-	return pacificTime - midnight
+	return pst - midnight
 end
 
 ll.GiveAgentInventory = function(
@@ -2784,11 +2823,11 @@ ll.List2CSV = function(list_variable: list)
 end
 
 ll.List2Float = function(list_variable: list, index: number)
-	return 0
+	return tonumber(list_variable[index])
 end
 
 ll.List2Integer = function(list_variable: list, index: number)
-	return 0
+	return tonumber(list_variable[index])
 end
 
 ll.List2Json = function(json_type: string, values: list)
@@ -2827,7 +2866,7 @@ ll.List2Rot = function(list_variable: list, index: number)
 end
 
 ll.List2String = function(list_variable: list, index: number)
-	return ""
+	return tostring(list_variable[index])
 end
 
 ll.List2Vector = function(list_variable: list, index: number)
@@ -2916,11 +2955,11 @@ ll.LoadURL = function(id: uuid, text: string, url: string)
 end
 
 ll.Log = function(value: number)
-	return 0
+	return math.log(value)
 end
 
 ll.Log10 = function(value: number)
-	return 0
+	return math.log10(value)
 end
 
 ll.LookAt = function(target: vector, strength: number, damping: number)
@@ -3023,7 +3062,7 @@ ll.MinEventDelay = function(delay: number)
 end
 
 ll.ModPow = function(value: number, power: number, modulus: number)
-	return 0
+	return math.pow(value, power) % modulus
 end
 
 ll.ModifyLand = function(action: number, area: number)
@@ -3059,11 +3098,11 @@ ll.OpenRemoteDataChannel = function()
 end
 
 ll.Ord = function(value: string, index: number)
-	return 0
+	return string.byte(value, index)
 end
 
 ll.OverMyLand = function(id: uuid)
-	return 0
+	return true
 end
 
 ll.OwnerSay = function(text: string)
@@ -3115,7 +3154,7 @@ ll.PlaySoundSlave = function(sound: string, volume: number)
 end
 
 ll.Pow = function(value: number, exponent: number)
-	return 0
+	return math.pow(value, exponent)
 end
 
 ll.PreloadSound = function(sound: string)
@@ -3376,7 +3415,7 @@ ll.RotateTexture = function(radians: number, face: number)
 end
 
 ll.Round = function(value: number)
-	return 0
+	return math.round(value)
 end
 
 ll.SHA1String = function(text: string)
@@ -3408,7 +3447,7 @@ ll.ScaleTexture = function(horizontal: number, vertical: number, face: number)
 end
 
 ll.ScriptDanger = function(position: vector)
-	return 0
+	return false
 end
 
 ll.ScriptProfiler = function(state: number)
@@ -3837,7 +3876,7 @@ ll.StopSound = function()
 end
 
 ll.StringLength = function(text: string)
-	return 0
+	return #text
 end
 
 ll.StringToBase64 = function(text: string)

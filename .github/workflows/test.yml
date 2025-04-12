@@ -1,0 +1,66 @@
+name: Test
+
+on:
+  push:
+    paths:
+      - "packages/slua-web/sandbox.luau"
+      - "packages/slua-web/tests/sandbox/**"
+  pull_request:
+    paths:
+      - "packages/slua-web/sandbox.luau"
+      - "packages/slua-web/tests/sandbox/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Download Luau
+        run: |
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/luau-lang/luau/releases/latest | grep -o '"tag_name": "[^"]*' | cut -d'"' -f4)
+          curl -L -o luau https://github.com/luau-lang/luau/releases/download/$LATEST_RELEASE/luau-linux
+          chmod +x luau
+          sudo mv luau /usr/local/bin/
+
+      - name: Install dependencies
+        run: |
+          cd packages/slua-web
+          bun install
+
+      - name: Run tests
+        id: test
+        continue-on-error: true
+        run: |
+          cd packages/slua-web
+          bun run test.ts
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: packages/slua-web/test-results.json
+        if: always()
+
+      - name: Publish Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: 'packages/slua-web/test-results.json'
+          pull-request-report: true
+          failed-report: true
+          summary-report: true
+          update-comment: true
+          comment-tag: 'sandbox-tests'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: always()

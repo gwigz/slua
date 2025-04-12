@@ -11,8 +11,8 @@ describe("ll.StringTrim", function()
 	describe("sanity", function()
 		describe("STRING_TRIM", function()
 			it("trims the whole string", function()
-				expect(ll.StringTrim("    Hello, world!      ", STRING_TRIM)).to.equal(
-					"Hello, world!"
+				expect(ll.StringTrim("    Heeello, world!      ", STRING_TRIM)).to.equal(
+					"Heeello, world!"
 				)
 			end)
 

@@ -46,6 +46,8 @@ if (script) {
 
 ## Compatibility
 
+<img align="right" src="https://progress-bar.xyz/36/?width=200&color=e1a650" />
+
 - `integer` 🔴
 - `uuid` 🔴
 - `toquaternion` 🔴

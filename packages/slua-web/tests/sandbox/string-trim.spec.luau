@@ -188,6 +188,12 @@ describe("ll.StringTrim", function()
 			},
 		}
 
+		local modes = {
+			"STRING_TRIM_HEAD",
+			"STRING_TRIM_TAIL",
+			"STRING_TRIM",
+		}
+
 		local function escape(str: any)
 			if type(str) ~= "string" then
 				return str
@@ -214,12 +220,6 @@ describe("ll.StringTrim", function()
 
 		--[[
 
-		local modes = {
-			"STRING_TRIM_HEAD",
-			"STRING_TRIM_TAIL",
-			"STRING_TRIM",
-		}
-
 		for _, test in expects do
 			local input, mode = unpack(test)
 
@@ -232,7 +232,7 @@ describe("ll.StringTrim", function()
 			local input, mode, expected = unpack(test)
 
 			it(
-				`returns {escape(expected)} when called with {escape(input)}, {mode}`,
+				`returns "{escape(expected)}" when called with "{escape(input)}", {modes[mode :: number]}`,
 				function()
 					expect(ll.StringTrim(input :: string, mode :: number)).to.equal(
 						expected

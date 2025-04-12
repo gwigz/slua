@@ -40,7 +40,7 @@ export type SLuaConfig = {
 	/**
 	 * Returns runtime print statements (from i.e. using `print()` in your Luau script)
 	 */
-	onPrint?: (message: string[]) => void;
+	onPrint?: (...message: string[]) => void;
 
 	/**
 	 * Returns runtime errors (from i.e. using `script.call()` or `error()`)

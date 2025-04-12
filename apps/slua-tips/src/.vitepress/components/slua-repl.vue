@@ -336,6 +336,17 @@ async function runScript() {
 	stopScript();
 
 	const result = await slua.runScript(code.value, {
+		onPrint: (...message) => {
+			const now = Date.now() / 1000;
+
+			output.push({
+				timestamp: Math.floor(now),
+				delta: now - Math.floor(now),
+				type: ChatType.OWNER,
+				name: "Object",
+				data: message.join("\t"),
+			});
+		},
 		onError: (error) => {
 			output.push(error);
 

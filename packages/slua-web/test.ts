@@ -5,7 +5,7 @@ type TestResult = {
 	name: string;
 	status: "passed" | "failed" | "skipped" | "pending" | "other";
 	duration: number;
-	stderr: string[];
+	message?: string;
 	filepath: string;
 };
 
@@ -114,7 +114,7 @@ for (const test of findTests("tests")) {
 		status: errors.length === 0 ? "passed" : "failed",
 		duration: Date.now() - start,
 		filepath: `./packages/slua-web/${test}`,
-		stderr: errors,
+		message: errors.length > 0 ? errors.join("\n") : undefined,
 	} satisfies TestResult;
 
 	results.results.tests.push(testResult);

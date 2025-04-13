@@ -77,7 +77,7 @@ describe("ll.GetSubString", function()
 			{ -26, -26, "a" }, -- negative indices for first char
 			{ -13, -13, "n" }, -- negative index for middle char
 
-			-- edge cases and special scenarios
+			-- edge cases
 			{ 0, 100, "abcdefghijklmnopqrstuvwxyz" }, -- end index beyond string length
 			{ -100, 25, "abcdefghijklmnopqrstuvwxyz" }, -- start index before string start
 			{ 5, 4, "abcdefghijklmnopqrstuvwxyz" }, -- start > end (should return full string)
@@ -89,7 +89,7 @@ describe("ll.GetSubString", function()
 			{ 0, 12, "abcdefghijklm" }, -- first half
 			{ 13, 25, "nopqrstuvwxyz" }, -- second half
 			{ 8, 17, "ijklmnopqr" }, -- middle section
-			{ -18, -8, "ijklmnopqr" }, -- same middle section with negative indices
+			{ -18, -9, "ijklmnopqr" }, -- same middle section with negative indices
 			{ 0, -14, "abcdefghijklm" }, -- first half with negative end
 			{ -13, 25, "nopqrstuvwxyz" }, -- second half with negative start
 

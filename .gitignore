@@ -72,3 +72,4 @@ Thumbs.db
 keywords.json
 codegen/out/**
 !.gitkeep
+test-results.json

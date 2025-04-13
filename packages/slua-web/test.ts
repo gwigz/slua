@@ -78,7 +78,7 @@ async function runTest(test: string): Promise<void> {
 		for (const line of lines) {
 			const cleanLine = line.replace(/\x1b\[[0-9;]*m/g, "").trim();
 
-			if (line.includes(test)) {
+			if (line.endsWith(test + "]")) {
 				currentSuite = cleanLine.replace(/\s*\[.+?\]$/, "");
 
 				continue;

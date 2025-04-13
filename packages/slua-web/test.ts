@@ -111,6 +111,12 @@ async function runTest(test: string): Promise<void> {
 					? parseFloat(durationMatch[1]) * 1000
 					: 0;
 
+				const errorLine =
+					lines[lines.indexOf(line) + 1]
+						?.replace(/\x1b\[[0-9;]*m/g, "")
+						.replace(/.*:/g, "")
+						.trim() ?? "";
+
 				const testResult: TestResult = {
 					name: testName,
 					suite: currentSuite[0],
@@ -119,7 +125,9 @@ async function runTest(test: string): Promise<void> {
 					filepath: `./packages/slua-web/${test}`,
 					message:
 						status === "failed"
-							? cleanLine.replace(durationMatch?.[0] ?? "", "").trim()
+							? errorLine
+									.replace(/^(.+?):\s*/, (_, lineNum) => `Line ${lineNum}: `)
+									.trim()
 							: undefined,
 				};
 

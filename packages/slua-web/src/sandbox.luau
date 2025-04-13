@@ -1070,11 +1070,7 @@ internal.die = function()
 end
 
 internal.read = function(method: string, data: any): (() -> any)?
-	local result, err = __INTERNAL_DO_NOT_USE_calljs(method, data)
-
-	if err then
-		error(err)
-	end
+	local result = __INTERNAL_DO_NOT_USE_calljs(method, data)
 
 	if type(result) == "function" then
 		return result()
@@ -1184,7 +1180,7 @@ internal.at_rot_target = function(
 	end
 end
 
-at_target = function() end
+at_target = function(handle: number, position: vector, ourPosition: vector) end
 
 internal.at_target = function(
 	handle: number,
@@ -1200,15 +1196,15 @@ internal.at_target = function(
 	end
 end
 
-attach = function() end
+attach = function(key: uuid) end
 
-internal.attach = function(key: string)
+internal.attach = function(key: uuid)
 	if type(attach) == "function" then
 		attach(key)
 	end
 end
 
-changed = function() end
+changed = function(detected: number) end
 
 internal.changed = function(detected: number?)
 	if type(changed) == "function" then
@@ -1216,9 +1212,9 @@ internal.changed = function(detected: number?)
 	end
 end
 
-collision_start = function() end
-collision = function() end
-collision_end = function() end
+collision_start = function(detected: number) end
+collision = function(detected: number) end
+collision_end = function(detected: number) end
 
 internal.collision = function(detected: number?)
 	if type(collision_start) == "function" then
@@ -2081,18 +2077,18 @@ ll.GetFreeURLs = function()
 end
 
 ll.GetGMTclock = function()
-	local utcTime = os.date("!*t")
+	local utc = os.date("!*t")
 
 	local midnight = os.time({
-		year = utcTime.year,
-		month = utcTime.month,
-		day = utcTime.day,
+		year = utc.year,
+		month = utc.month,
+		day = utc.day,
 		hour = 0,
 		min = 0,
 		sec = 0,
 	})
 
-	return currentTime - midnight
+	return utc - midnight
 end
 
 ll.GetGeometricCenter = function()
@@ -2501,18 +2497,12 @@ ll.GetSubString = function(string: string, start: number, finish: number)
 
 	-- handle wrap-around case where start is negative and finish is positive
 	if start > finish then
-		-- if both indices are within bounds
-		-- return the concatenation of the two parts
 		if start <= length and finish >= 1 then
 			return string:sub(1, finish) .. string:sub(start, length)
 		end
 
-		return ""
+		return string:sub(start, length)
 	end
-
-	-- ensure indices are within bounds
-	start = math.max(1, math.min(start, length))
-	finish = math.max(1, math.min(finish, length))
 
 	return string:sub(start, finish)
 end
@@ -2600,9 +2590,9 @@ ll.GetWallclock = function()
 	})
 
 	local midnight = os.time({
-		year = utcTime.year,
-		month = utcTime.month,
-		day = utcTime.day,
+		year = utc.year,
+		month = utc.month,
+		day = utc.day,
 		hour = 0,
 		min = 0,
 		sec = 0,

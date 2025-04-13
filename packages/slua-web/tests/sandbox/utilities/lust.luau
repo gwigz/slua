@@ -13,7 +13,7 @@ local red = string.char(27) .. "[31m"
 local green = string.char(27) .. "[32m"
 local normal = string.char(27) .. "[0m"
 
-local function indent(level: number?)
+local function indent(level: number?): string
 	return string.rep("    ", level or lust.level)
 end
 
@@ -22,7 +22,7 @@ function lust.nocolor()
 	return lust
 end
 
-function lust.describe(name, fn)
+function lust.describe(name: string, fn: () -> ())
 	if lust.level == 0 then
 		local filename = debug.info(2, "s")
 
@@ -100,7 +100,7 @@ function lust.after(fn)
 end
 
 -- Assertions
-local function isa(v, x)
+local function isa(v, x): (boolean, string?, string?)
 	if type(x) == "string" then
 		return type(v) == x,
 			"expected " .. tostring(v) .. " to be a " .. x,
@@ -118,6 +118,7 @@ local function isa(v, x)
 			if meta == x then
 				return true
 			end
+
 			seen[meta] = true
 			meta = getmetatable(meta) and getmetatable(meta).__index
 		end
@@ -130,16 +131,17 @@ local function isa(v, x)
 	error("invalid type " .. tostring(x))
 end
 
-local function has(t, x)
-	for k, v in pairs(t) do
+local function has(t: { [any]: any }, x: any): boolean
+	for _, v in pairs(t) do
 		if v == x then
 			return true
 		end
 	end
+
 	return false
 end
 
-local function eq(t1, t2, eps)
+local function eq(t1: any, t2: any, eps: number?): boolean
 	if type(t1) ~= type(t2) then
 		return false
 	end
@@ -162,22 +164,27 @@ local function eq(t1, t2, eps)
 	return true
 end
 
-local function stringify(t)
+local function stringify(t: any): string
 	if type(t) == "string" then
 		return "'" .. tostring(t) .. "'"
 	end
+
 	if type(t) ~= "table" or getmetatable(t) and getmetatable(t).__tostring then
 		return tostring(t)
 	end
+
 	local strings = {}
-	for i, v in ipairs(t) do
+
+	for _, v in ipairs(t) do
 		strings[#strings + 1] = stringify(v)
 	end
+
 	for k, v in pairs(t) do
 		if type(k) ~= "number" or k > #t or k < 1 then
 			strings[#strings + 1] = ("[%s] = %s"):format(stringify(k), stringify(v))
 		end
 	end
+
 	return "{ " .. table.concat(strings, ", ") .. " }"
 end
 
@@ -240,7 +247,6 @@ local paths = {
 					.. indent(lust.level + 1)
 					.. "LHS: "
 					.. stringify(v)
-				comparison = comparison
 					.. "\n"
 					.. indent(lust.level + 1)
 					.. "RHS: "
@@ -281,8 +287,9 @@ local paths = {
 		end,
 	},
 	with = {
-		test = function(v, pattern)
+		test = function(v: () -> string, pattern: string): string | false
 			local ok, message = pcall(v)
+
 			return not ok and message:match(pattern),
 				"expected "
 					.. tostring(v)
@@ -380,7 +387,7 @@ end
 
 function lust.spy(target, name, run)
 	local spy = {}
-	local subject
+	local subject = (function() end) :: (...any) -> ...any
 
 	local function capture(...)
 		table.insert(spy, { ... })
@@ -390,9 +397,9 @@ function lust.spy(target, name, run)
 	if type(target) == "table" then
 		subject = target[name]
 		target[name] = capture
-	else
+	elseif type(target) == "function" then
 		run = name
-		subject = target or function() end
+		subject = target
 	end
 
 	setmetatable(spy, {

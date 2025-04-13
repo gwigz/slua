@@ -3097,7 +3097,7 @@ ll.OpenRemoteDataChannel = function()
 end
 
 ll.Ord = function(value: string, index: number)
-	return string.byte(value, index)
+	return string.byte(value, if index > 0 then index + 1 else index) or 0
 end
 
 ll.OverMyLand = function(id: uuid)

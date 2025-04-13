@@ -39,15 +39,31 @@ function lust.it(name, fn)
 		end
 	end
 
+	local startTime = os.clock()
 	local success, err = pcall(fn)
+	local duration = os.clock() - startTime
+
 	if success then
 		lust.passes = lust.passes + 1
 	else
 		lust.errors = lust.errors + 1
 	end
+
 	local color = success and green or red
 	local label = success and "PASS" or "FAIL"
-	print(indent() .. color .. label .. normal .. " " .. name)
+
+	print(
+		indent()
+			.. color
+			.. label
+			.. normal
+			.. " "
+			.. name
+			.. " ("
+			.. string.format("%.3f", duration)
+			.. "s)"
+	)
+
 	if err then
 		print(indent(lust.level + 1) .. red .. tostring(err) .. normal)
 	end

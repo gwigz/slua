@@ -3,7 +3,9 @@ import { spawn, randomUUIDv7 } from "bun";
 
 type TestResult = {
 	name: string;
+	suite: string;
 	status: "passed" | "failed" | "skipped" | "pending" | "other";
+	/** total milliseconds */
 	duration: number;
 	message?: string;
 	filepath: string;
@@ -51,85 +53,92 @@ function findTests(directory: string): string[] {
 	return tests;
 }
 
-function parseErrors(test: string, output: string): string[] {
-	const errors: string[] = [];
-	const lines = output.split("\n");
-
-	for (let i = lines.length - 1; i >= 0; i--) {
-		if (lines[i].includes("FAIL")) {
-			let error = lines[i].replace(/\x1b\[[0-9;]*m/g, "").trim();
-
-			if (i + 1 < lines.length && lines[i + 1].includes("expected")) {
-				error +=
-					"\n" +
-					lines[i + 1]
-						.replace(/\x1b\[[0-9;]*m/g, "")
-						.replace(`.${test}`, "")
-						.trim();
-			}
-
-			errors.push(error);
-		}
-	}
-
-	if (errors.length === 0 && !output.includes("PASS")) {
-		errors.push("Something went wrong, no tests passed");
-	}
-
-	return errors;
-}
-
-let hasError = false;
-
-for (const test of findTests("tests")) {
-	let stdout = "";
-	let errors = [];
-	let start = Date.now();
+async function runTest(test: string): Promise<void> {
+	let currentSuite: string[] = [];
 
 	const script = spawn({
 		cmd: ["luau", test],
 		stdio: ["ignore", "pipe", "inherit"],
 	});
 
-	script.stdout.pipeTo(
-		new WritableStream({
-			write(chunk) {
-				const text = new TextDecoder().decode(chunk);
-				process.stdout.write(chunk);
-				stdout += text;
-			},
-		})
-	);
+	const decoder = new TextDecoder();
+	const reader = script.stdout.getReader();
 
-	if ((await script.exited) !== 0) {
-		errors.push("failed unexpectedly");
-	} else {
-		errors.push(...parseErrors(test, stdout));
+	while (true) {
+		const { done, value } = await reader.read();
+
+		if (done) {
+			break;
+		}
+
+		const text = decoder.decode(value);
+		const lines = text.split("\n");
+
+		console.log(text);
+
+		for (const line of lines) {
+			const cleanLine = line.replace(/\x1b\[[0-9;]*m/g, "").trim();
+
+			if (!cleanLine) {
+				continue;
+			}
+
+			// hacky, but it works for now
+			const indentLevel = line.search(/\S/);
+
+			if (!cleanLine.startsWith("PASS") && !cleanLine.startsWith("FAIL")) {
+				if (indentLevel === 0) {
+					currentSuite = [cleanLine];
+				} else if (indentLevel === 4) {
+					if (currentSuite.length > 0) {
+						currentSuite = [currentSuite[0], cleanLine.trim()];
+					}
+				} else if (indentLevel === 8) {
+					if (currentSuite.length > 1) {
+						currentSuite = [currentSuite[0], currentSuite[1], cleanLine.trim()];
+					}
+				}
+			} else if (cleanLine.includes("PASS") || cleanLine.includes("FAIL")) {
+				const testName = cleanLine
+					.replace(/^(PASS|FAIL)\s+/, "") // remove status
+					.replace(/\s+\(\d+\.\d+s\)$/, "") // remove duration
+					.trim();
+
+				const status = cleanLine.includes("PASS") ? "passed" : "failed";
+				const durationMatch = cleanLine.match(/\((\d+\.\d+)s\)$/);
+
+				const testDuration = durationMatch
+					? parseFloat(durationMatch[1]) * 1000
+					: 0;
+
+				const testResult: TestResult = {
+					name: testName,
+					suite: currentSuite[0],
+					status,
+					duration: testDuration,
+					filepath: `./packages/slua-web/${test}`,
+					message:
+						status === "failed"
+							? cleanLine.replace(durationMatch?.[0] ?? "", "").trim()
+							: undefined,
+				};
+
+				results.results.tests.push(testResult);
+				results.results.summary.tests++;
+				results.results.summary[status]++;
+
+				if (status === "failed") {
+					process.exitCode = 1;
+				}
+			}
+		}
 	}
+}
 
-	const testResult = {
-		name: test.replace("tests/sandbox/", ""),
-		status: errors.length === 0 ? "passed" : "failed",
-		duration: Date.now() - start,
-		filepath: `./packages/slua-web/${test}`,
-		message: errors.length > 0 ? errors.join("\n") : undefined,
-	} satisfies TestResult;
-
-	results.results.tests.push(testResult);
-	results.results.summary.tests++;
-
-	if (errors.length === 0) {
-		results.results.summary.passed++;
-	} else {
-		results.results.summary.failed++;
-		hasError = true;
-	}
+for (const test of findTests("tests")) {
+	await runTest(test);
 }
 
 results.results.summary.stop = Date.now();
 
 await Bun.write("test-results.json", JSON.stringify(results, null, 2));
-
-if (hasError) {
-	process.exit(1);
-}

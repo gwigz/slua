@@ -72,6 +72,10 @@ function parseErrors(output: string): string[] {
 		}
 	}
 
+	if (errors.length === 0 && !output.includes("PASS")) {
+		errors.push("Something went wrong, no tests passed");
+	}
+
 	return errors;
 }
 

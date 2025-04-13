@@ -42,12 +42,12 @@ jobs:
           cd packages/slua-web
           bun run test.ts
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: packages/slua-web/test-results.json
-        if: always()
+      # - name: Upload test results
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: test-results
+      #     path: packages/slua-web/test-results.json
+      #   if: always()
 
       - name: Publish Test Report
         uses: ctrf-io/github-test-reporter@v1

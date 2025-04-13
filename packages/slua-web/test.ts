@@ -51,7 +51,7 @@ function findTests(directory: string): string[] {
 	return tests;
 }
 
-function parseErrors(output: string): string[] {
+function parseErrors(test: string, output: string): string[] {
 	const errors: string[] = [];
 	const lines = output.split("\n");
 
@@ -63,8 +63,8 @@ function parseErrors(output: string): string[] {
 				error +=
 					"\n" +
 					lines[i + 1]
-						// .replace(/\x1b\[[0-9;]*m/g, "")
-						.replace("./tests/sandbox/", "")
+						.replace(/\x1b\[[0-9;]*m/g, "")
+						.replace(`.${test}`, "")
 						.trim();
 			}
 
@@ -101,12 +101,10 @@ for (const test of findTests("tests")) {
 		})
 	);
 
-	if (!(await script.exited)) {
-		errors.push(
-			`\`${test.replace("tests/sandbox/", "")}\` failed unexpectedly`
-		);
+	if ((await script.exited) !== 0) {
+		errors.push("failed unexpectedly");
 	} else {
-		errors.push(...parseErrors(stdout));
+		errors.push(...parseErrors(test, stdout));
 	}
 
 	const testResult = {

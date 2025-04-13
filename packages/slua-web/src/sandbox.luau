@@ -3096,8 +3096,22 @@ ll.OpenRemoteDataChannel = function()
 	return nil
 end
 
-ll.Ord = function(value: string, index: number)
-	return string.byte(value, if index > 0 then index + 1 else index) or 0
+ll.Ord = function(str: string, index: number)
+	if type(str) ~= "string" or str == "" then
+		return 0
+	end
+
+	str = ll.GetSubString(str, index, index)
+
+	local ok, value = pcall(utf8.codepoint, str, 1, 1)
+
+	if ok then
+		return value
+	end
+
+	local byte = string.byte(str, 1) or 0
+
+	return byte
 end
 
 ll.OverMyLand = function(id: uuid)

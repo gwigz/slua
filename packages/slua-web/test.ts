@@ -54,7 +54,7 @@ function findTests(directory: string): string[] {
 }
 
 async function runTest(test: string): Promise<void> {
-	let currentSuite: string[] = [];
+	let currentSuite: string = "Unknown";
 
 	const script = spawn({
 		cmd: ["luau", test],
@@ -83,22 +83,11 @@ async function runTest(test: string): Promise<void> {
 				continue;
 			}
 
-			// hacky, but it works for now
-			const indentLevel = line.search(/\S/);
+			if (line.search(/\S/) === 0) {
+				currentSuite = cleanLine;
+			}
 
-			if (!cleanLine.startsWith("PASS") && !cleanLine.startsWith("FAIL")) {
-				if (indentLevel === 0) {
-					currentSuite = [cleanLine];
-				} else if (indentLevel === 4) {
-					if (currentSuite.length > 0) {
-						currentSuite = [currentSuite[0], cleanLine.trim()];
-					}
-				} else if (indentLevel === 8) {
-					if (currentSuite.length > 1) {
-						currentSuite = [currentSuite[0], currentSuite[1], cleanLine.trim()];
-					}
-				}
-			} else if (cleanLine.includes("PASS") || cleanLine.includes("FAIL")) {
+			if (cleanLine.includes("PASS") || cleanLine.includes("FAIL")) {
 				const testName = cleanLine
 					.replace(/^(PASS|FAIL)\s+/, "") // remove status
 					.replace(/\s+\(\d+\.\d+s\)$/, "") // remove duration
@@ -119,7 +108,7 @@ async function runTest(test: string): Promise<void> {
 
 				const testResult: TestResult = {
 					name: testName,
-					suite: currentSuite[0],
+					suite: currentSuite,
 					status,
 					duration: testDuration,
 					filepath: `./packages/slua-web/${test}`,

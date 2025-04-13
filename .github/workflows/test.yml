@@ -54,9 +54,7 @@ jobs:
         with:
           report-path: './packages/slua-web/test-results.json'
           pull-request-report: true
-          failed-report: true
-          summary-report: true
-          update-comment: true
+          suite-folded-report: true
           comment-tag: 'sandbox-tests'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

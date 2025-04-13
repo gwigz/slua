@@ -28,8 +28,9 @@ jobs:
 
       - name: Download Luau
         run: |
-          LATEST_RELEASE=$(curl -s https://api.github.com/repos/luau-lang/luau/releases/latest | grep -o '"tag_name": "[^"]*' | cut -d'"' -f4)
-          curl -L -o luau.zip https://github.com/luau-lang/luau/releases/download/$LATEST_RELEASE/luau-ubuntu.zip
+          # LATEST_RELEASE=$(curl -s https://api.github.com/repos/luau-lang/luau/releases/latest | grep -o '"tag_name": "[^"]*' | cut -d'"' -f4)
+          # curl -L -o luau.zip https://github.com/luau-lang/luau/releases/download/$LATEST_RELEASE/luau-ubuntu.zip
+          curl -L -o luau.zip https://github.com/luau-lang/luau/releases/download/0.668/luau-ubuntu.zip
           unzip luau.zip
           chmod +x luau
           sudo mv luau /usr/local/bin/

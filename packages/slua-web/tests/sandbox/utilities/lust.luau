@@ -12,7 +12,8 @@ lust.afters = {}
 local red = string.char(27) .. "[31m"
 local green = string.char(27) .. "[32m"
 local normal = string.char(27) .. "[0m"
-local function indent(level)
+
+local function indent(level: number?)
 	return string.rep("    ", level or lust.level)
 end
 
@@ -22,9 +23,20 @@ function lust.nocolor()
 end
 
 function lust.describe(name, fn)
+	if lust.level == 0 then
+		local filename = debug.info(2, "s")
+
+		if filename then
+			name = name .. " [" .. filename .. "]"
+		end
+	end
+
 	print(indent() .. name)
+
 	lust.level = lust.level + 1
+
 	fn()
+
 	lust.befores[lust.level] = {}
 	lust.afters[lust.level] = {}
 	lust.level = lust.level - 1

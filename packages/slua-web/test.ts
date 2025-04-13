@@ -5,7 +5,6 @@ type TestResult = {
 	name: string;
 	suite: string;
 	status: "passed" | "failed" | "skipped" | "pending" | "other";
-	/** total milliseconds */
 	duration: number;
 	message?: string;
 	filepath: string;
@@ -79,12 +78,10 @@ async function runTest(test: string): Promise<void> {
 		for (const line of lines) {
 			const cleanLine = line.replace(/\x1b\[[0-9;]*m/g, "").trim();
 
-			if (!cleanLine) {
-				continue;
-			}
+			if (line.includes(test)) {
+				currentSuite = cleanLine.replace(/\s*\[.+?\]$/, "");
 
-			if (line.search(/\S/) === 0) {
-				currentSuite = cleanLine;
+				continue;
 			}
 
 			if (cleanLine.includes("PASS") || cleanLine.includes("FAIL")) {
@@ -100,11 +97,23 @@ async function runTest(test: string): Promise<void> {
 					? parseFloat(durationMatch[1]) * 1000
 					: 0;
 
-				const errorLine =
-					lines[lines.indexOf(line) + 1]
+				// Collect all error lines until next test result or end of output
+				const errorLines: string[] = [];
+				let errorLineIndex = lines.indexOf(line) + 1;
+				while (errorLineIndex < lines.length) {
+					const nextLine = lines[errorLineIndex]
 						?.replace(/\x1b\[[0-9;]*m/g, "")
-						.replace(/.*:/g, "")
-						.trim() ?? "";
+						.trim();
+					if (
+						!nextLine ||
+						nextLine.includes("PASS") ||
+						nextLine.includes("FAIL")
+					) {
+						break;
+					}
+					errorLines.push(nextLine.replace(/.*:/g, "").trim());
+					errorLineIndex++;
+				}
 
 				const testResult: TestResult = {
 					name: testName,
@@ -114,8 +123,11 @@ async function runTest(test: string): Promise<void> {
 					filepath: `./packages/slua-web/${test}`,
 					message:
 						status === "failed"
-							? errorLine
-									.replace(/^(.+?):\s*/, (_, lineNum) => `Line ${lineNum}: `)
+							? errorLines
+									.map((line) =>
+										line.replace(/^(.+?):\s*/, (_, lineNum) => `${lineNum}: `)
+									)
+									.join("")
 									.trim()
 							: undefined,
 				};

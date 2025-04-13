@@ -1040,6 +1040,9 @@ internal = {
 		1,
 	},
 
+	-- linkset data
+	data = {} :: { [string]: { value: string, pass: string? } },
+
 	-- owner properties
 	owner = {
 		id = uuid("a2e76fcd-9360-4f6d-a924-000000000003"),
@@ -1079,9 +1082,22 @@ internal.read = function(method: string, data: any): (() -> any)?
 	return nil
 end
 
-internal.chat = function(type: number, msg: string)
-	-- TODO: error if message is not string
-	print("#!SLUA:CHAT", os.time(), os.clock(), type, internal.name, msg)
+internal.chat = function(chat_type: number, message: string)
+	if message == "" then
+		return
+	end
+
+	if type(message) ~= "string" then
+		error(
+			"#!SLUA:ERROR\t"
+				.. tostring(debug.info(2, "l"))
+				.. "\tinvalid argument to chat function (string expected, got "
+				.. type(message)
+				.. ")"
+		)
+	end
+
+	print("#!SLUA:CHAT", os.time(), os.clock(), chat_type, internal.name, message)
 end
 
 internal.set_timer = function(rate: number)
@@ -1536,19 +1552,19 @@ ll.Acos = function(value: number)
 end
 
 ll.AddToLandBanList = function(id: uuid, hours: number)
-	return nil
+	print("#!SLUA:ADD_TO_LAND_BAN_LIST", id, hours)
 end
 
 ll.AddToLandPassList = function(id: uuid, hours: number)
-	return nil
+	print("#!SLUA:ADD_TO_LAND_PASS_LIST", id, hours)
 end
 
 ll.AdjustDamage = function(number: number, damage: number)
-	return nil
+	print("#!SLUA:ADJUST_DAMAGE", number, damage)
 end
 
 ll.AdjustSoundVolume = function(volume: number)
-	return nil
+	print("#!SLUA:ADJUST_SOUND_VOLUME", volume)
 end
 
 ll.AgentInExperience = function(id: uuid)
@@ -1556,7 +1572,7 @@ ll.AgentInExperience = function(id: uuid)
 end
 
 ll.AllowInventoryDrop = function(flag: number)
-	return nil
+	print("#!SLUA:ALLOW_INVENTORY_DROP", flag)
 end
 
 ll.AngleBetween = function(rot1: quaternion, rot2: quaternion)
@@ -1564,11 +1580,11 @@ ll.AngleBetween = function(rot1: quaternion, rot2: quaternion)
 end
 
 ll.ApplyImpulse = function(force: vector, relative: number)
-	return nil
+	print("#!SLUA:APPLY_IMPULSE", force, relative)
 end
 
 ll.ApplyRotationalImpulse = function(force: vector, relative: number)
-	return nil
+	print("#!SLUA:APPLY_ROTATIONAL_IMPULSE", force, relative)
 end
 
 ll.Asin = function(value: number)
@@ -1580,11 +1596,11 @@ ll.Atan2 = function(y: number, x: number)
 end
 
 ll.AttachToAvatar = function(attachment_point: number)
-	return nil
+	print("#!SLUA:ATTACH_TO_AVATAR", attachment_point)
 end
 
 ll.AttachToAvatarTemp = function(attach_point: number)
-	return nil
+	print("#!SLUA:ATTACH_TO_AVATAR_TEMP", attach_point)
 end
 
 ll.AvatarOnLinkSitTarget = function(link_number: number)
@@ -1620,11 +1636,11 @@ ll.Base64ToString = function(text: string)
 end
 
 ll.BreakAllLinks = function()
-	return nil
+	print("#!SLUA:BREAK_ALL_LINKS")
 end
 
 ll.BreakLink = function(link_number: number)
-	return nil
+	print("#!SLUA:BREAK_LINK", link_number)
 end
 
 ll.CSV2List = function(text: string)
@@ -1644,19 +1660,19 @@ ll.Char = function(value: number)
 end
 
 ll.ClearCameraParams = function()
-	return nil
+	print("#!SLUA:CLEAR_CAMERA_PARAMS")
 end
 
 ll.ClearLinkMedia = function(link: number, face: number)
-	return 0
+	print("#!SLUA:CLEAR_LINK_MEDIA", link, face)
 end
 
 ll.ClearPrimMedia = function(face: number)
-	return 0
+	print("#!SLUA:CLEAR_PRIM_MEDIA", face)
 end
 
 ll.CloseRemoteDataChannel = function(id: uuid)
-	return nil
+	print("#!SLUA:CLOSE_REMOTE_DATA_CHANNEL", id)
 end
 
 ll.Cloud = function(offset: vector)
@@ -1668,11 +1684,11 @@ ll.CollisionFilter = function(object_name: string, id: uuid, accept: number)
 end
 
 ll.CollisionSound = function(impact_sound: string, impact_volume: number)
-	return nil
+	print("#!SLUA:COLLISION_SOUND", impact_sound, impact_volume)
 end
 
 ll.CollisionSprite = function(impact_sprite: string)
-	return nil
+	-- this doesn't do anything ingame
 end
 
 ll.ComputeHash = function(message: string, algorithm: string)
@@ -1684,7 +1700,7 @@ ll.Cos = function(theta: number)
 end
 
 ll.CreateCharacter = function(options: list)
-	return nil
+	error("createcharacter: not implemented")
 end
 
 ll.CreateKeyValue = function(key: string, value: string)
@@ -1692,11 +1708,11 @@ ll.CreateKeyValue = function(key: string, value: string)
 end
 
 ll.CreateLink = function(target_prim: uuid, parent: number)
-	return nil
+	print("#!SLUA:CREATE_LINK", target_prim, parent)
 end
 
 ll.Damage = function(target: uuid, damage: number, type: number)
-	return nil
+	print("#!SLUA:DAMAGE", target, damage, type)
 end
 
 ll.DataSizeKeyValue = function()
@@ -1704,11 +1720,11 @@ ll.DataSizeKeyValue = function()
 end
 
 ll.DeleteCharacter = function()
-	return nil
+	error("deletecharacter: not implemented")
 end
 
 ll.DeleteKeyValue = function(key: string)
-	return NULL_KEY
+	print("#!SLUA:DELETE_KEY_VALUE", key)
 end
 
 ll.DeleteSubList = function(source: list, start: number, finish: number)
@@ -1716,10 +1732,12 @@ ll.DeleteSubList = function(source: list, start: number, finish: number)
 end
 
 ll.DeleteSubString = function(source: string, start: number, finish: number)
-	return ""
+	error("deletesubstring: not implemented")
 end
 
 ll.DerezObject = function(id: uuid, flags: number)
+	print("#!SLUA:DEREZ_OBJECT", id, flags)
+
 	return 0
 end
 
@@ -1816,7 +1834,7 @@ ll.DetectedVel = function(number: number)
 end
 
 ll.Dialog = function(id: uuid, text: string, buttons: list, channel: number)
-	return nil
+	print("#!SLUA:DIALOG", id, text, buttons, channel)
 end
 
 ll.Die = function()
@@ -1832,7 +1850,7 @@ ll.EdgeOfWorld = function(position: vector, direction: vector)
 end
 
 ll.EjectFromLand = function(id: uuid)
-	return nil
+	print("#!SLUA:EJECT_FROM_LAND", id)
 end
 
 ll.Email = function(address: string, subject: string, text: string)
@@ -1850,11 +1868,11 @@ ll.Euler2Rot = function(vec: vector)
 end
 
 ll.Evade = function(id: uuid, options: list)
-	return nil
+	error("evade: not implemented")
 end
 
 ll.ExecCharacterCmd = function(command: number, options: list)
-	return nil
+	error("execcharactercmd: not implemented")
 end
 
 ll.Fabs = function(value: number)
@@ -1880,7 +1898,7 @@ ll.FindNotecardTextSync = function(
 end
 
 ll.FleeFrom = function(source: vector, distance: number, options: list)
-	return nil
+	error("flee: not implemented")
 end
 
 ll.Floor = function(value: number)
@@ -1888,7 +1906,7 @@ ll.Floor = function(value: number)
 end
 
 ll.ForceMouselook = function(enable: number)
-	return nil
+	print("#!SLUA:FORCE_MOUSELOOK", enable)
 end
 
 ll.Frand = function(magnitude: number)
@@ -2228,7 +2246,7 @@ ll.GetMoonRotation = function()
 end
 
 ll.GetNextEmail = function(address: string, subject: string)
-	return nil
+	error("getnexteamil: not implemented")
 end
 
 ll.GetNotecardLine = function(notecard_name: string, line_number: number)
@@ -2611,7 +2629,7 @@ ll.GiveAgentInventory = function(
 end
 
 ll.GiveInventory = function(id: uuid, inventory_item: string)
-	return nil
+	print("#!SLUA:GIVE_INVENTORY", id, inventory_item)
 end
 
 ll.GiveInventoryList = function(
@@ -2619,7 +2637,7 @@ ll.GiveInventoryList = function(
 	folder_name: string,
 	inventory_items: list
 )
-	return nil
+	print("#!SLUA:GIVE_INVENTORY_LIST", id, folder_name, inventory_items)
 end
 
 ll.GiveMoney = function(id: uuid, amount: number)
@@ -2627,7 +2645,7 @@ ll.GiveMoney = function(id: uuid, amount: number)
 end
 
 ll.GodLikeRezObject = function(id: uuid, position: vector)
-	return nil
+	error("godlikerezobject: not implemented")
 end
 
 ll.Ground = function(offset: vector)
@@ -2643,7 +2661,7 @@ ll.GroundNormal = function(offset: vector)
 end
 
 ll.GroundRepel = function(height: number, water: number, tau: number)
-	return nil
+	print("#!SLUA:GROUND_REPEL", height, water, tau)
 end
 
 ll.GroundSlope = function(offset: vector)
@@ -2659,7 +2677,7 @@ ll.HTTPRequest = function(url: string, parameters: list, body: string)
 end
 
 ll.HTTPResponse = function(id: uuid, status: number, body: string)
-	return nil
+	print("#!SLUA:HTTP_RESPONSE", id, status, body)
 end
 
 ll.Hash = function(value: string)
@@ -2725,11 +2743,11 @@ ll.Linear2sRGB = function(color: vector)
 end
 
 ll.LinkAdjustSoundVolume = function(link_number: number, volume: number)
-	return nil
+	print("#!SLUA:LINK_ADJUST_SOUND_VOLUME", link_number, volume)
 end
 
 ll.LinkParticleSystem = function(link_number: number, rules: list)
-	return nil
+	print("#!SLUA:LINK_PARTICLE_SYSTEM", link_number, rules)
 end
 
 ll.LinkPlaySound = function(
@@ -2738,15 +2756,15 @@ ll.LinkPlaySound = function(
 	volume: number,
 	flags: number
 )
-	return nil
+	print("#!SLUA:LINK_PLAY_SOUND", link_number, sound, volume, flags)
 end
 
 ll.LinkSetSoundQueueing = function(link_number: number, queue_enable: number)
-	return nil
+	print("#!SLUA:LINK_SET_SOUND_QUEUEING", link_number, queue_enable)
 end
 
 ll.LinkSetSoundRadius = function(link_number: number, radius: number)
-	return nil
+	print("#!SLUA:LINK_SET_SOUND_RADIUS", link_number, radius)
 end
 
 ll.LinkSitTarget = function(
@@ -2754,59 +2772,134 @@ ll.LinkSitTarget = function(
 	offset: vector,
 	rotation: quaternion
 )
-	return nil
+	print("#!SLUA:LINK_SIT_TARGET", link_number, offset, rotation)
 end
 
 ll.LinkStopSound = function(link_number: number)
-	return nil
+	print("#!SLUA:LINK_STOP_SOUND", link_number)
 end
 
 ll.LinksetDataAvailable = function()
-	return 0
+	local available = 131072
+
+	for _, data in internal.data do
+		available -= 2 + #data.name + #data.value + (data.pass and 32 or 0)
+	end
+
+	return available
 end
 
 ll.LinksetDataCountFound = function(search: string)
-	return 0
+	-- TODO: requires a partial implementation of regex
+	error("linksetdatacountfound: not implemented")
 end
 
 ll.LinksetDataCountKeys = function()
-	return 0
+	local count = 0
+
+	for _ in internal.data do
+		count += 1
+	end
+
+	return count
 end
 
 ll.LinksetDataDelete = function(name: string)
-	return 0
+	local data = internal.data[name]
+
+	if data then
+		if not data.pass then
+			internal.data[name] = nil
+			internal.linkset_data(LINKSETDATA_DELETE, name, "")
+
+			return LINKSETDATA_OK
+		end
+
+		return LINKSETDATA_EPROTECTED
+	end
+
+	return LINKSETDATA_NOTFOUND
 end
 
 ll.LinksetDataDeleteFound = function(search: string, pass: string)
-	return {}
+	-- TODO: requires a partial implementation of regex
+	error("linksetdatadeletefound: not implemented")
 end
 
 ll.LinksetDataDeleteProtected = function(name: string, pass: string)
-	return 0
+	local data = internal.data[name]
+
+	if data then
+		if data.pass == pass then
+			internal.data[name] = nil
+			internal.linkset_data(LINKSETDATA_DELETE, name, "")
+
+			return LINKSETDATA_OK
+		end
+
+		return LINKSETDATA_EPROTECTED
+	end
+
+	return LINKSETDATA_NOTFOUND
 end
 
 ll.LinksetDataFindKeys = function(search: string, start: number, count: number)
-	return {}
+	-- TODO: requires a partial implementation of regex
+	error("linksetdatafindkeys: not implemented")
 end
 
 ll.LinksetDataListKeys = function(start: number, count: number)
-	return {}
+	local keys = {}
+
+	for key in pairs(internal.data) do
+		table.insert(keys, key)
+	end
+
+	return keys
 end
 
 ll.LinksetDataRead = function(name: string)
+	local data = internal.data[name]
+
+	if data and not data.pass then
+		return data.value
+	end
+
 	return ""
 end
 
 ll.LinksetDataReadProtected = function(name: string, pass: string)
+	local data = internal.data[name]
+
+	if data and data.pass == pass then
+		return data.value
+	end
+
 	return ""
 end
 
 ll.LinksetDataReset = function()
-	return nil
+	internal.data = {}
+	internal.linkset_data(LINKSETDATA_RESET, "", "")
 end
 
 ll.LinksetDataWrite = function(name: string, value: string)
-	return 0
+	local data = internal.data[name]
+
+	if data then
+		if data.pass then
+			return LINKSETDATA_EPROTECTED
+		end
+
+		if data.value == value then
+			return LINKSETDATA_NOUPDATE
+		end
+	end
+
+	internal.data[name] = { value = value }
+	internal.linkset_data(LINKSETDATA_UPDATE, name, value)
+
+	return LINKSETDATA_OK
 end
 
 ll.LinksetDataWriteProtected = function(
@@ -2814,7 +2907,21 @@ ll.LinksetDataWriteProtected = function(
 	value: string,
 	pass: string
 )
-	return 0
+	local data = internal.data[name]
+
+	if data then
+		if data.pass and data.pass ~= pass then
+			return LINKSETDATA_EPROTECTED
+		end
+
+		if data.value == value then
+			return LINKSETDATA_NOUPDATE
+		end
+	end
+
+	internal.data[name] = { value = value, pass = pass }
+
+	return LINKSETDATA_OK
 end
 
 ll.List2CSV = function(list_variable: list)

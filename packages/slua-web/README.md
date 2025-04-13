@@ -28,25 +28,25 @@ ll.OwnerSay("Hi!")
 `;
 
 const script = await slua.runScript(example, {
-	onError: ({ timestamp, line, data }) => {
-		console.error(timestamp, line, data);
-	},
-	onChat: ({ timestamp, name, data }) => {
-		console.log(timestamp, name, data);
-	},
+  onError: ({ timestamp, line, data }) => {
+    console.error(timestamp, line, data);
+  },
+  onChat: ({ timestamp, name, data }) => {
+    console.log(timestamp, name, data);
+  },
 });
 
 if (script) {
-	script.touch(1);
+  script.touch(1);
 
-	// cleanup (currently just removes timers)
-	script.dispose();
+  // cleanup (currently just removes timers)
+  script.dispose();
 }
 ```
 
 ## Compatibility
 
-<img align="right" src="https://progress-bar.xyz/36/?width=200&color=e1a650" />
+<img align="right" src="https://progress-bar.xyz/40/?width=200&color=e1a650" />
 
 - `integer` 🔴
 - `uuid` 🟠 _does not have `.istruthy` yet_
@@ -202,19 +202,19 @@ if (script) {
 - `ll.KeyCountKeyValue` 🔴
 - `ll.KeysKeyValue` 🔴
 - `ll.Linear2sRGB` 🔴
-- `ll.LinksetDataAvailable` 🔴
+- `ll.LinksetDataAvailable` 🟢
 - `ll.LinksetDataCountFound` 🔴
-- `ll.LinksetDataCountKeys` 🔴
-- `ll.LinksetDataDelete` 🔴
+- `ll.LinksetDataCountKeys` 🟢
+- `ll.LinksetDataDelete` 🟢
 - `ll.LinksetDataDeleteFound` 🔴
-- `ll.LinksetDataDeleteProtected` 🔴
+- `ll.LinksetDataDeleteProtected` 🟢
 - `ll.LinksetDataFindKeys` 🔴
-- `ll.LinksetDataListKeys` 🔴
-- `ll.LinksetDataRead` 🔴
-- `ll.LinksetDataReadProtected` 🔴
-- `ll.LinksetDataReset` 🔴
-- `ll.LinksetDataWrite` 🔴
-- `ll.LinksetDataWriteProtected` 🔴
+- `ll.LinksetDataListKeys` 🟢
+- `ll.LinksetDataRead` 🟢 _not tested_
+- `ll.LinksetDataReadProtected` 🟢 _not tested_
+- `ll.LinksetDataReset` 🟢
+- `ll.LinksetDataWrite` 🟢 _not tested_
+- `ll.LinksetDataWriteProtected` 🟢 _not tested_
 - `ll.List2CSV` 🟢 _not tested_
 - `ll.List2Float` 🟢 _not tested_
 - `ll.List2Integer` 🟢 _not tested_

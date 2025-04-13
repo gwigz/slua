@@ -137,49 +137,49 @@
 			direction="horizontal"
 			class="flex-1 rounded-lg bg-muted/20 border-8 border-card outline-1 outline-muted"
 		>
+			<div
+				v-if="showWelcome"
+				class="absolute m-2 md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 max-w-xl z-10 backdrop-blur-sm bg-background/50 px-6 py-4 border rounded-lg border-muted shadow"
+			>
+				<div class="flex flex-col gap-4 [&_p]:text-foreground/75">
+					<div class="text-lg font-medium">Welcome to SLua Playground</div>
+
+					<p>
+						This interactive playground lets you experiment with SLua scripts
+						in your browser.
+					</p>
+					<p>
+						This project is still under development. You can check our
+						<a
+							class="underline hover:text-foreground"
+							href="https://github.com/gwigz/slua/tree/main/packages/slua-web#compatibility"
+							target="_blank"
+							>compatibility list and progress on GitHub</a
+						>. For now, you can use this page as a useful alternative to the
+						Luau demo page.
+					</p>
+					<p>
+						We're actively working on adding more features, interactive
+						guides, and examples to help you learn SLua programming.
+					</p>
+
+					<div class="flex justify-center">
+						<Button
+							size="sm"
+							variant="outline"
+							class="mt-2"
+							@click="showWelcome = false"
+						>
+							Close
+						</Button>
+					</div>
+				</div>
+			</div>
+
 			<ResizablePanel
 				:default-size="62.5"
 				class="bg-muted/20 outline-1 outline-muted relative"
 			>
-				<div
-					v-if="showWelcome"
-					class="absolute m-2 md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 max-w-xl z-10 backdrop-blur-sm bg-background/50 px-6 py-4 border rounded-lg border-muted shadow"
-				>
-					<div class="flex flex-col gap-4 [&_p]:text-foreground/75">
-						<div class="text-lg font-medium">Welcome to SLua Playground</div>
-
-						<p>
-							This interactive playground lets you experiment with SLua scripts
-							in your browser.
-						</p>
-						<p>
-							This project is still under development. You can check our
-							<a
-								class="underline hover:text-foreground"
-								href="https://github.com/gwigz/slua/tree/main/packages/slua-web#compatibility"
-								target="_blank"
-								>compatibility list and progress on GitHub</a
-							>. For now, you can use this page as a useful alternative to the
-							Luau demo page.
-						</p>
-						<p>
-							We're actively working on adding more features, interactive
-							guides, and examples to help you learn SLua programming.
-						</p>
-
-						<div class="flex justify-center">
-							<Button
-								size="sm"
-								variant="outline"
-								class="mt-2"
-								@click="showWelcome = false"
-							>
-								Close
-							</Button>
-						</div>
-					</div>
-				</div>
-
 				<MonacoEditor
 					v-model="code"
 					language="luau"

@@ -48,15 +48,15 @@ if (script) {
 
 <img align="right" src="https://progress-bar.xyz/40/?width=200&color=e1a650" />
 
-- 🔴 `integer`
-- 🔴 `quaternion`
-- 🔴 `toquaternion`
-- 🔴 `tovector`
-- 🟠 `llbase64.decode` _buffer not supported_
-- 🟠 `llbase64.encode` _buffer not supported_
 - 🟡 `lljson.decode` _does not handle vectors correctly_
 - 🟡 `lljson.encode` _does not handle vectors correctly_
 - 🟡 `uuid` _does not have `.istruthy` yet_
+- 🟠 `llbase64.decode` _buffer not supported_
+- 🟠 `llbase64.encode` _buffer not supported_
+- 🔴 `integer` _not a huge need for this_
+- 🔴 `quaternion` _work in progress_
+- 🔴 `toquaternion`
+- 🔴 `tovector`
 
 <details>
   <summary>Expand full <code>ll.*</code> list</summary><br />

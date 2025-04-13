@@ -3,11 +3,11 @@ name: Test
 on:
   push:
     paths:
-      - "packages/slua-web/sandbox.luau"
+      - "packages/slua-web/src/sandbox.luau"
       - "packages/slua-web/tests/sandbox/**"
   pull_request:
     paths:
-      - "packages/slua-web/sandbox.luau"
+      - "packages/slua-web/src/sandbox.luau"
       - "packages/slua-web/tests/sandbox/**"
 
 jobs:
@@ -55,6 +55,7 @@ jobs:
           report-path: './packages/slua-web/test-results.json'
           pull-request-report: true
           suite-folded-report: true
+          group-by: 'suite'
           overwrite-comment: true
           comment-tag: 'sandbox-tests'
         env:

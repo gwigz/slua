@@ -49,7 +49,7 @@ if (script) {
 <img align="right" src="https://progress-bar.xyz/36/?width=200&color=e1a650" />
 
 - `integer` 🔴
-- `uuid` 🔴
+- `uuid` 🟠 _does not have `.istruthy` yet_
 - `toquaternion` 🔴
 - `tovector` 🔴
 - `quaternion` 🔴
@@ -250,7 +250,7 @@ if (script) {
 - `ll.MoveToTarget` 🔴
 - `ll.Name2Key` 🟢 _only works for owner_
 - `ll.OffsetTexture` 🔴
-- `ll.Ord` 🟡 _just uses `string.byte`, probably wrong_
+- `ll.Ord` 🟡 _needs testing, probably wrong_
 - `ll.OverMyLand` 🟢 _always return `true`_
 - `ll.OwnerSay` 🟢
 - `ll.ParseString2List` 🔴

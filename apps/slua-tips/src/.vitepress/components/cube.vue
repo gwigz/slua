@@ -1,60 +1,40 @@
 <template>
-	<div ref="container" class="relative w-full h-full cursor-grab select-none">
-		<TresCanvas ref="canvas">
-			<!-- <TresOrthographicCamera :position="[0, 20, 15]" :zoom="12" make-default> -->
-			<!-- <TresPointLight color="#fff" :intensity="200" /> -->
-			<!-- </TresOrthographicCamera> -->
+	<div ref="container" class="relative w-full h-full select-none">
+		<TresCanvas :tone-mapping-exposure="0.25">
+			<Sky :azimuth="45" :elevation="2" />
 
-			<TresAmbientLight :color="'#fff'" :intensity="isDark ? 0.1 : 1" />
-
-			<TresPerspectiveCamera
-				:position="[3, 3, 3]"
-				:look-at="[0, 0, 0]"
-				:fov="25"
-			>
-				<TresPointLight color="#fff" :intensity="isDark ? 15 : 40" />
-			</TresPerspectiveCamera>
-
-			<Sky :elevation="isDark ? -2 : 4" />
-
-			<template v-if="isDark">
-				<!-- <Stars /> -->
-			</template>
-
-			<OrbitControls
-				make-default
-				:rotate-speed="0.5"
-				:auto-rotate-speed="2"
-				:damping-factor="0.02"
-				:enable-zoom="false"
-				:enable-pan="false"
-				:enable-damping="true"
+			<Environment
+				files="/assets/sunset.hdr"
+				:blur=".5"
+				:environment-intensity="0.6"
 			/>
 
 			<Suspense>
-				<ScreenSizer>
-					<TresMesh
-						:rotation="[0, Math.PI / 4, 0]"
-						:scale="scale"
-						:visible="!died"
-						@pointer-enter="() => container && (container.style.cursor = 'pointer')"
-						@pointer-leave="() =>	container && (container.style.cursor = 'default')"
-						@click="onClick"
-					>
-						<TresBoxGeometry :args="[1, 1, 1]" />
-						<TresMeshStandardMaterial
-							:map="texture"
-							:color="color"
-							:emissive="emissive"
-							:emissiveIntensity="glow * 2"
-						/>
-					</TresMesh>
-				</ScreenSizer>
+				<TresMesh
+					:rotation="[0, Math.PI / 4, 0]"
+					:scale="scale"
+					:visible="!died"
+					@pointer-enter="
+						() => container && (container.style.cursor = 'pointer')
+					"
+					@pointer-leave="
+						() => container && (container.style.cursor = 'default')
+					"
+					@click="onClick"
+				>
+					<TresBoxGeometry :args="[1, 1, 1]" />
+					<TresMeshStandardMaterial
+						:map="texture"
+						:color="color"
+						:emissive="emissive"
+						:emissiveIntensity="glow * 2"
+					/>
+				</TresMesh>
 			</Suspense>
 
 			<Grid
 				:args="[10, 10]"
-				:position="[0, -0.425, 0]"
+				:position="[0, -0.25, 0]"
 				:cell-size="1"
 				section-color="#7f7f7f"
 				:section-size="2"
@@ -70,13 +50,6 @@
 
 			<EffectComposerPmndrs>
 				<VignettePmndrs :darkness="0.2" />
-
-				<BloomPmndrs
-					:radius="0.85"
-					:intensity="4.0"
-					:luminance-threshold="0.9"
-					:luminance-smoothing="0.3"
-				/>
 			</EffectComposerPmndrs>
 		</TresCanvas>
 
@@ -101,22 +74,20 @@
 </template>
 
 <script setup lang="ts">
-import { OrbitControls, ScreenSizer, Sky, Grid } from "@tresjs/cientos";
+import { Environment, Sky, Grid, OrbitControls } from "@tresjs/cientos";
 import { TresCanvas, useTexture } from "@tresjs/core";
+import type { Texture } from "three";
 import {
-	BloomPmndrs,
 	EffectComposerPmndrs,
 	VignettePmndrs,
 } from "@tresjs/post-processing";
-import type { Texture } from "three";
-import { useData } from "vitepress";
 import { computed, onMounted, ref } from "vue";
+import { useData } from "vitepress";
 import { cn } from "~/utilities/cn";
 
 const { isDark } = useData();
 
 const container = ref<HTMLDivElement | null>(null);
-const canvas = ref<InstanceType<typeof TresCanvas> | null>(null);
 const texture = ref<Texture | null>(null);
 
 const props = defineProps<{
@@ -129,8 +100,8 @@ const props = defineProps<{
 
 const scale = computed(
 	() =>
-		(props.scale ?? ([0.5, 0.5, 0.5] as [number, number, number])).map(
-			(v) => Math.max(0.01, v) * 256
+		(props.scale ?? ([0.5, 0.5, 0.5] as [number, number, number])).map((v) =>
+			Math.max(0.01, v)
 		) as [number, number, number]
 );
 

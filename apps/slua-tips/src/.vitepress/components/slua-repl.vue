@@ -2,33 +2,28 @@
 	<div class="flex flex-col gap-4">
 		<!-- toolbar -->
 		<div
-			class="flex order-1 md:order-none flex-col md:flex-row gap-3 bg-card border-12 md:border-8 border-card outline-1 outline-muted rounded-lg justify-between md:items-center"
+			class="flex order-1 md:order-none flex-col justify-between md:flex-row gap-3 bg-card border-12 md:border-8 border-card outline-1 outline-muted rounded-lg md:items-center"
 		>
-			<div class="flex flex-1">
-				<AlertDialog v-model:open="showResetModal">
-					<AlertDialogTrigger as-child>
-						<Button class="flex-1 md:flex-none" variant="secondary" size="xs">Reset Script Content</Button>
-					</AlertDialogTrigger>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-							<AlertDialogDescription>
-								This action cannot be undone. This will remove any changes you've
-								made to the script and clear the output.
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel>Cancel</AlertDialogCancel>
-							<AlertDialogAction @click="confirmReset"
-								>Reset Script Content</AlertDialogAction
-							>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
-			</div>
+			<AlertDialog v-model:open="showResetModal">
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This action cannot be undone. This will remove any changes you've
+							made to the script and clear the output.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction @click="confirmReset"
+							>Reset Script Content</AlertDialogAction
+						>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			<div
-				class="flex flex-1 justify-center text-muted-foreground text-xs divide-x -order-1 md:order-none"
+				class="flex flex-1 text-muted-foreground text-xs justify-center divide-x -order-1 md:order-none"
 			>
 				<template v-if="script">
 					<div class="pr-3">script running</div>
@@ -46,29 +41,95 @@
 			</div>
 
 			<div
-				class="flex flex-1 justify-end [&_button]:flex-1 md:[&_button]:flex-none gap-2"
+				class="flex justify-end flex-wrap [&_button]:flex-1 md:[&_button]:flex-none gap-2"
 			>
+				<Button
+					size="xs"
+					:variant="script ? 'secondary' : 'default'"
+					@click="script ? stopScript() : runScript()"
+				>
+					<template v-if="script">
+						<Icon icon="solar:stop-bold" />
+						Stop
+					</template>
+					<template v-else>
+						<Icon icon="solar:play-bold" />
+						Start
+					</template>
+				</Button>
+
 				<template v-if="script">
-					<Button @click="script.touch(1)" variant="default" size="xs">
-						Touch
+					<Button
+						class="relative"
+						size="xs"
+						variant="secondary"
+						@click="
+							stopScript();
+							runScript();
+						"
+					>
+						<div
+							v-if="hasCodeChanged"
+							class="absolute -top-0.5 -right-0.5 bg-primary text-xs size-2 rounded-full"
+						/>
+						<Icon icon="solar:refresh-bold" />
+						Recompile
 					</Button>
 
-					<Button @click="script.collision(1)" variant="default" size="xs">
-						Collide
+					<Button
+						size="xs"
+						variant="secondary"
+						@click="
+							stopScript();
+							runScript();
+						"
+					>
+						<Icon icon="solar:restart-bold" />
+						Reset
 					</Button>
 				</template>
 
 				<Button
-					@click="runScript()"
-					:variant="script ? 'secondary' : 'default'"
 					size="xs"
+					variant="secondary"
+					@click="output.splice(0, output.length)"
 				>
-					<template v-if="script">
-						<Icon icon="solar:restart-bold" class="text-2xl" />
-						Reset
-					</template>
-					<template v-else>Run</template>
+					<Icon icon="solar:trash-bin-trash-bold" />
+					Clear Log
 				</Button>
+
+				<DropdownMenu>
+					<DropdownMenuTrigger as-child>
+						<Button size="xs" variant="secondary">
+							More
+							<Icon icon="solar:alt-arrow-down-outline" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" :alignOffset="0">
+						<DropdownMenuItem disabled>
+							<Icon icon="solar:download-minimalistic-outline" />
+							Save
+						</DropdownMenuItem>
+						<DropdownMenuItem disabled>
+							<Icon icon="solar:upload-minimalistic-outline" />
+							Load
+						</DropdownMenuItem>
+						<DropdownMenuItem disabled>
+							<Icon icon="solar:link-outline" />
+							Share
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem @click="showResetModal = true">
+							<Icon icon="solar:trash-bin-trash-bold" />
+							Reset Content
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem disabled>
+							<Icon icon="solar:settings-linear" />
+							Settings
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 
@@ -78,8 +139,47 @@
 		>
 			<ResizablePanel
 				:default-size="62.5"
-				class="bg-muted/20 outline-1 outline-muted"
+				class="bg-muted/20 outline-1 outline-muted relative"
 			>
+				<div
+					v-if="showWelcome"
+					class="absolute m-2 md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 max-w-xl z-10 backdrop-blur-sm bg-background/50 px-6 py-4 border rounded-lg border-muted shadow"
+				>
+					<div class="flex flex-col gap-4 [&_p]:text-foreground/75">
+						<div class="text-lg font-medium">Welcome to SLua Playground</div>
+
+						<p>
+							This interactive playground lets you experiment with SLua scripts
+							in your browser.
+						</p>
+						<p>
+							This project is still under development. You can check our
+							<a
+								class="underline hover:text-foreground"
+								href="https://github.com/gwigz/slua/tree/main/packages/slua-web#compatibility"
+								target="_blank"
+								>compatibility list and progress on GitHub</a
+							>. For now, you can use this page as a useful alternative to the
+							Luau demo page.
+						</p>
+						<p>
+							We're actively working on adding more features, interactive
+							guides, and examples to help you learn SLua programming.
+						</p>
+
+						<div class="flex justify-center">
+							<Button
+								size="sm"
+								variant="outline"
+								class="mt-2"
+								@click="showWelcome = false"
+							>
+								Close
+							</Button>
+						</div>
+					</div>
+				</div>
+
 				<MonacoEditor
 					v-model="code"
 					language="luau"
@@ -97,21 +197,29 @@
 						class="bg-muted/20 outline outline-muted w-full h-full"
 					>
 						<!-- cube -->
-						<Cube
-							:scale="cubeScale"
-							:color="cubeColor"
-							:glow="cubeGlow"
-							:died="cubeDied"
-							@click="() => script?.touch(1)"
-						/>
+						<ContextMenu>
+							<ContextMenuTrigger as-child>
+								<Cube
+									:scale="cubeScale"
+									:color="cubeColor"
+									:glow="cubeGlow"
+									:died="cubeDied"
+									@click="() => script?.touch(1)"
+								/>
+							</ContextMenuTrigger>
+							<ContextMenuContent>
+								<ContextMenuItem @click="() => script?.touch(1)">Touch</ContextMenuItem>
+								<ContextMenuItem @click="() => script?.collision(1)">Collide</ContextMenuItem>
+							</ContextMenuContent>
+						</ContextMenu>
 					</ResizablePanel>
 
 					<ResizableHandle with-handle />
 
-					<ResizablePanel class="bg-card/40 relative">
+					<ResizablePanel class="flex flex-col bg-card/40 relative">
 						<!-- output -->
 						<div
-							class="p-4 overflow-y-auto h-full font-mono text-sm leading-relaxed whitespace-pre-wrap"
+							class="p-4 flex-1 overflow-y-auto font-mono text-sm leading-relaxed whitespace-pre-wrap"
 							ref="outputRef"
 							@scroll="handleScroll"
 						>
@@ -161,10 +269,23 @@
 						<button
 							v-if="showScrollButton"
 							@click="scrollToBottom"
-							class="absolute bottom-2 right-2 px-1 py-1 bg-primary/80 text-white rounded hover:bg-primary transition-colors text-sm flex items-center gap-1"
+							class="absolute bottom-12 right-2.5 px-1 py-1 bg-primary/80 text-white rounded hover:bg-primary transition-colors text-sm flex items-center gap-1"
 						>
 							<Icon icon="solar:arrow-down-bold" class="text-lg" />
 						</button>
+
+						<!-- chat input -->
+						<div class="px-2 pb-2 border-muted">
+							<form @submit.prevent="handleChatSubmit" class="flex gap-2">
+								<input
+									v-model="chatInput"
+									type="text"
+									placeholder="To nearby chat"
+									class="flex-1 px-3 py-1.5 text-sm bg-background/30 border border-muted rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+									disabled
+								/>
+							</form>
+						</div>
 					</ResizablePanel>
 				</ResizablePanelGroup>
 			</ResizablePanel>
@@ -188,6 +309,7 @@ import {
 	ref,
 	useSlots,
 	watchEffect,
+	computed,
 } from "vue";
 import {
 	ResizableHandle,
@@ -203,8 +325,20 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuTrigger,
+} from "~/components/ui/context-menu";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/utilities/cn";
 import Cube from "./cube.vue";
@@ -217,6 +351,9 @@ const props = defineProps<{ storageKey?: string }>();
 const slots = useSlots();
 
 const code = ref(getCodeFromSlot());
+const originalCode = ref(code.value);
+
+const hasCodeChanged = computed(() => code.value !== originalCode.value);
 
 const script = ref<SLuaScript | null>(null);
 
@@ -233,6 +370,10 @@ const cubeGlow = ref(0);
 const cubeDied = ref(false);
 
 const timerInterval = ref(0);
+
+const showWelcome = ref(true);
+
+const chatInput = ref("");
 
 function rgbToHex(rgb: [number, number, number]): string {
 	const [r, g, b] = rgb.map((v) => Math.round(v * 255));
@@ -347,6 +488,8 @@ function stopScript() {
 async function runScript() {
 	stopScript();
 
+	originalCode.value = code.value;
+
 	const result = await slua.runScript(code.value, {
 		onPrint: (...message) => {
 			const now = Date.now() / 1000;
@@ -409,7 +552,7 @@ const showResetModal = ref(false);
 function confirmReset() {
 	const newCode = getCodeFromSlot();
 
-	stopScript(true);
+	stopScript();
 
 	lastError.value = undefined;
 
@@ -417,6 +560,7 @@ function confirmReset() {
 
 	nextTick(() => {
 		code.value = newCode;
+		originalCode.value = newCode;
 	});
 }
 
@@ -425,5 +569,31 @@ function scrollToBottom() {
 	showScrollButton.value = false;
 
 	nextTick(() => outputRef.value?.scrollTo(0, outputRef.value.scrollHeight));
+}
+
+function handleChatSubmit() {
+	const now = Date.now() / 1000;
+	const message = chatInput.value.trim();
+
+	if (!message.trim()) {
+		return;
+	}
+
+	script.value?.listen(
+		0,
+		"Philip Linden",
+		"a2e76fcd-9360-4f6d-a924-000000000003",
+		message
+	);
+
+	output.push({
+		timestamp: Math.floor(now),
+		delta: now - Math.floor(now),
+		type: ChatType.SAY,
+		name: "Philip Linden",
+		data: message,
+	});
+
+	chatInput.value = "";
 }
 </script>

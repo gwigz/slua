@@ -8,17 +8,9 @@ gitChangelog: false
 
 <div class="relative m-5 md:mx-8 md:my-7 flex flex-col gap-3 [&>h1]:text-xl">
 
-# Playground <Badge class="absolute right-0" type="info" text="work in progress" />
-
-<SLuaRepl class="flex flex-col min-h-[calc(100vh-12.75rem)]" storage-key="playground">
+<SLuaRepl class="flex flex-col min-h-[calc(100vh-10.25rem)]" storage-key="playground">
 
 ```luau
--- this is a work in progress!
-
--- * rotations do not currently work at all
--- * at the moment most functions are stubbed
--- * implemented functions are not tested yet
-
 local rnd = math.random
 
 function touch_end(num_detected)
@@ -43,6 +35,12 @@ function timer()
     ),
     ALL_SIDES
   )
+end
+
+function listen(channel, name, key, message)
+	if string.find(message:lower(), "hello") or message:lower() == "hi" then
+		ll.Say("Hi there!")
+	end
 end
 
 -- we have json at home!

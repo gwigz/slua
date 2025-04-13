@@ -130,14 +130,26 @@
 										<span class="text-primary"
 											>{{ line.name.trim()
 											}}{{
+												line.type === ChatType.WHISPER ||
+												line.type === ChatType.SHOUT ||
 												line.data.startsWith("/me ") ||
 												line.data.startsWith("/me'")
 													? ""
 													: ": "
 											}}</span
-										><span :class="getChatClass(line.type)">{{
-											line.data.replace(/^\/me('|\s)/, "$1").trim()
-										}}</span>
+										><span :class="getChatClass(line.type)"
+											>{{
+												!line.data.startsWith("/me ") &&
+												!line.data.startsWith("/me'") &&
+												(line.type === ChatType.WHISPER
+													? " whispers: "
+													: line.type === ChatType.SHOUT
+													? " shouts: "
+													: "")
+											}}{{
+												line.data.replace(/^\/me('|\s)/, "$1").trim()
+											}}</span
+										>
 									</div>
 								</template>
 							</div>

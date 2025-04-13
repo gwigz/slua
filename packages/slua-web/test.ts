@@ -19,6 +19,9 @@ const results = {
 			passed: 0,
 			failed: 0,
 			skipped: 0,
+			pending: 0,
+			other: 0,
+			duration: 0,
 		},
 		tests: [] as TestResult[],
 	},
@@ -65,9 +68,12 @@ function parseErrors(output: string): string[] {
 }
 
 let hasError = false;
+const startTime = Date.now();
 
 for (const test of findTests("tests")) {
 	let stdout = "";
+	let errors = [];
+
 	const script = spawn({
 		cmd: ["luau", test],
 		stdio: ["ignore", "pipe", "inherit"],
@@ -83,8 +89,11 @@ for (const test of findTests("tests")) {
 		})
 	);
 
-	await script.exited;
-	const errors = parseErrors(stdout);
+	if (!(await script.exited)) {
+		errors.push(`\`${test.replace("tests/sandbox/", "")}\` failed unexpectedly`);
+	} else {
+		errors.push(...parseErrors(stdout));
+	}
 
 	const testResult = {
 		name: test,
@@ -103,6 +112,8 @@ for (const test of findTests("tests")) {
 		hasError = true;
 	}
 }
+
+results.results.summary.duration = Date.now() - startTime;
 
 await Bun.write("test-results.json", JSON.stringify(results, null, 2));
 

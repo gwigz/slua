@@ -12,6 +12,8 @@
 #include <stdexcept>
 #include <emscripten/bind.h>
 #include <emscripten/em_js.h>
+#include <vector>
+#include <variant>
 
 namespace {
 
@@ -187,6 +189,97 @@ public:
         }
 
         result += '}';
+    }
+};
+
+class JsonValue {
+public:
+    using Value = std::variant<std::string, bool, double, std::nullptr_t>;
+
+    JsonValue() : value(nullptr) {}
+    JsonValue(const std::string& v) : value(v) {}
+    JsonValue(bool v) : value(v) {}
+    JsonValue(double v) : value(v) {}
+    JsonValue(std::nullptr_t v) : value(v) {}
+
+    Value value;
+};
+
+class JsonParser {
+public:
+    static std::vector<JsonValue> parseArray(const std::string& json) {
+        std::vector<JsonValue> result;
+        size_t pos = 0;
+
+        // Skip whitespace
+        while (pos < json.length() && isspace(json[pos])) pos++;
+        if (pos >= json.length() || json[pos] != '[') return result;
+        pos++;
+
+        while (pos < json.length()) {
+            // Skip whitespace
+            while (pos < json.length() && isspace(json[pos])) pos++;
+            if (pos >= json.length()) break;
+
+            if (json[pos] == ']') break;
+            if (json[pos] == ',') {
+                pos++;
+                continue;
+            }
+
+            // Parse value
+            if (json[pos] == '"') {
+                // Parse string
+                pos++;
+                std::string value;
+                while (pos < json.length() && json[pos] != '"') {
+                    if (json[pos] == '\\') {
+                        pos++;
+                        if (pos >= json.length()) break;
+                        switch (json[pos]) {
+                            case '"': value += '"'; break;
+                            case '\\': value += '\\'; break;
+                            case '/': value += '/'; break;
+                            case 'b': value += '\b'; break;
+                            case 'f': value += '\f'; break;
+                            case 'n': value += '\n'; break;
+                            case 'r': value += '\r'; break;
+                            case 't': value += '\t'; break;
+                            case 'u': {
+                                // Skip unicode escape for now
+                                pos += 4;
+                                break;
+                            }
+                            default: value += json[pos]; break;
+                        }
+                    } else {
+                        value += json[pos];
+                    }
+                    pos++;
+                }
+                if (pos < json.length() && json[pos] == '"') pos++;
+                result.emplace_back(value);
+            } else if (json[pos] == 't' && json.substr(pos, 4) == "true") {
+                result.emplace_back(true);
+                pos += 4;
+            } else if (json[pos] == 'f' && json.substr(pos, 5) == "false") {
+                result.emplace_back(false);
+                pos += 5;
+            } else if (json[pos] == 'n' && json.substr(pos, 4) == "null") {
+                result.emplace_back(nullptr);
+                pos += 4;
+            } else if (isdigit(json[pos]) || json[pos] == '-') {
+                // Parse number
+                std::string numStr;
+                while (pos < json.length() && (isdigit(json[pos]) || json[pos] == '-' || json[pos] == '.' || json[pos] == 'e' || json[pos] == 'E')) {
+                    numStr += json[pos];
+                    pos++;
+                }
+                result.emplace_back(std::stod(numStr));
+            }
+        }
+
+        return result;
     }
 };
 
@@ -390,12 +483,29 @@ private:
 };
 
 std::string slapFunction(lua_State* L, const std::string& argsJson) {
+    int nargs = 0;
+
     if (!argsJson.empty()) {
-        // TODO: parse JSON arguments, array of simple primitives
-        // these would need to be passed in to the `pcall` below
+        std::vector<JsonValue> args = JsonParser::parseArray(argsJson);
+        nargs = args.size();
+
+        for (const auto& arg : args) {
+            std::visit([L](auto&& value) {
+                using T = std::decay_t<decltype(value)>;
+                if constexpr (std::is_same_v<T, std::string>) {
+                    lua_pushstring(L, value.c_str());
+                } else if constexpr (std::is_same_v<T, bool>) {
+                    lua_pushboolean(L, value);
+                } else if constexpr (std::is_same_v<T, double>) {
+                    lua_pushnumber(L, value);
+                } else if constexpr (std::is_same_v<T, std::nullptr_t>) {
+                    lua_pushnil(L);
+                }
+            }, arg.value);
+        }
     }
 
-    int status = lua_pcall(L, 0, 1, 0);
+    int status = lua_pcall(L, nargs, 1, 0);
     if (status != 0) {
         size_t len;
         const char* msg = lua_tolstring(L, -1, &len);

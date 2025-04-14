@@ -34,15 +34,21 @@ vector = setmetatable({}, {
 })
 
 function tovector(str: string)
-	error("tovector: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\ttovector: not implemented`
+	)
 end
 
 function quaternion(x: number, y: number, z: number, s: number)
-	error("quaternion: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tquaternion: not implemented`
+	)
 end
 
 function toquaternion(str: string)
-	error("toquaternion: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\ttoquaternion: not implemented`
+	)
 end
 
 ACTIVE = 2
@@ -1163,7 +1169,7 @@ internal.add_listener = function(
 		channel = channel,
 		handle = internal.listen_handle_index,
 		name = if name == "" then nil else name,
-		id = if id == "" or id == NULL_KEY then nil else id,
+		id = if tostring(id) == "" or id == NULL_KEY then nil else id,
 		text = if text == "" then nil else text,
 	})
 
@@ -1235,7 +1241,9 @@ internal.set_scale = function(link: number, scale: vector)
 end
 
 internal.set_rotation = function(link: number, rotation: quaternion)
-	error("set_rotation: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(3, "l"))}\tset_rotation: not implemented`
+	)
 end
 
 internal.set_color = function(link: number, color: vector, face: number)
@@ -1467,7 +1475,7 @@ listen = function() end
 internal.listen = function(
 	channel: number,
 	name: string,
-	key: string,
+	key: string | uuid,
 	message: string
 )
 	if type(listen) ~= "function" then
@@ -1478,9 +1486,9 @@ internal.listen = function(
 		if
 			listener.channel == channel
 			and listener.active
-			and (listener.name == nil or listener.name == name)
-			and (listener.id == nil or listener.id == key)
-			and (listener.text == nil or listener.text == message)
+			and (not listener.name or listener.name == name)
+			and (not listener.id or tostring(listener.id) == tostring(key))
+			and (not listener.text or listener.text == message)
 		then
 			listen(channel, name, key, message)
 			break
@@ -1640,7 +1648,9 @@ end
 
 llbase64.decode = function(base64: string, as_buffer: boolean?)
 	if as_buffer then
-		error("llbase64.decode: as buffer not yet supported")
+		error(
+			`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tllbase64.decode: as buffer not yet supported`
+		)
 	end
 
 	return internal.read("atob", base64)
@@ -1717,11 +1727,15 @@ ll.AvatarOnSitTarget = function()
 end
 
 ll.Axes2Rot = function(forward: vector, left: vector, up: vector)
-	error("axis2rot: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\taxis2rot: not implemented`
+	)
 end
 
 ll.AxisAngle2Rot = function(axis: vector, angle: number)
-	error("angleaxis2rot: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tangleaxis2rot: not implemented`
+	)
 end
 
 ll.Base64ToInteger = function(text: string)
@@ -1805,7 +1819,9 @@ ll.Cos = function(theta: number)
 end
 
 ll.CreateCharacter = function(options: list)
-	error("createcharacter: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tcreatecharacter: not implemented`
+	)
 end
 
 ll.CreateKeyValue = function(key: string, value: string)
@@ -1825,7 +1841,9 @@ ll.DataSizeKeyValue = function()
 end
 
 ll.DeleteCharacter = function()
-	error("deletecharacter: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tdeletecharacter: not implemented`
+	)
 end
 
 ll.DeleteKeyValue = function(key: string)
@@ -1837,7 +1855,9 @@ ll.DeleteSubList = function(source: list, start: number, finish: number)
 end
 
 ll.DeleteSubString = function(source: string, start: number, finish: number)
-	error("deletesubstring: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tdeletesubstring: not implemented`
+	)
 end
 
 ll.DerezObject = function(id: uuid, flags: number)
@@ -1847,7 +1867,9 @@ ll.DerezObject = function(id: uuid, flags: number)
 end
 
 ll.DetachFromAvatar = function()
-	error("detachfromavatar: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tdetachfromavatar: not implemented`
+	)
 end
 
 ll.DetectedDamage = function(number: number)
@@ -1899,7 +1921,9 @@ ll.DetectedRezzer = function(number: number)
 end
 
 ll.DetectedRot = function(number: number)
-	error("detectedrot: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tdetectedrot: not implemented`
+	)
 end
 
 ll.DetectedTouchBinormal = function(index: number)
@@ -1959,7 +1983,7 @@ ll.EjectFromLand = function(id: uuid)
 end
 
 ll.Email = function(address: string, subject: string, text: string)
-	error("email: not implemented")
+	error(`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\temail: not implemented`)
 end
 
 ll.EscapeURL = function(url: string)
@@ -1969,15 +1993,19 @@ ll.EscapeURL = function(url: string)
 end
 
 ll.Euler2Rot = function(vec: vector)
-	error("euler2rot: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\teuler2rot: not implemented`
+	)
 end
 
 ll.Evade = function(id: uuid, options: list)
-	error("evade: not implemented")
+	error(`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tevade: not implemented`)
 end
 
 ll.ExecCharacterCmd = function(command: number, options: list)
-	error("execcharactercmd: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\texeccharactercmd: not implemented`
+	)
 end
 
 ll.Fabs = function(value: number)
@@ -2003,7 +2031,7 @@ ll.FindNotecardTextSync = function(
 end
 
 ll.FleeFrom = function(source: vector, distance: number, options: list)
-	error("flee: not implemented")
+	error(`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tflee: not implemented`)
 end
 
 ll.Floor = function(value: number)
@@ -2118,7 +2146,9 @@ ll.GetCameraPos = function()
 end
 
 ll.GetCameraRot = function()
-	error("getcamerarot: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetcamerarot: not implemented`
+	)
 end
 
 ll.GetCenterOfMass = function()
@@ -2319,7 +2349,9 @@ ll.GetLocalPos = function()
 end
 
 ll.GetLocalRot = function()
-	error("getlocalrot: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetlocalrot: not implemented`
+	)
 end
 
 ll.GetMass = function()
@@ -2347,11 +2379,15 @@ ll.GetMoonDirection = function()
 end
 
 ll.GetMoonRotation = function()
-	error("getmoonrotation: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetmoonrotation: not implemented`
+	)
 end
 
 ll.GetNextEmail = function(address: string, subject: string)
-	error("getnexteamil: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetnexteamil: not implemented`
+	)
 end
 
 ll.GetNotecardLine = function(notecard_name: string, line_number: number)
@@ -2511,7 +2547,9 @@ ll.GetRegionMoonDirection = function()
 end
 
 ll.GetRegionMoonRotation = function()
-	error("getregionmoonrotation: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetregionmoonrotation: not implemented`
+	)
 end
 
 ll.GetRegionName = function()
@@ -2523,7 +2561,9 @@ ll.GetRegionSunDirection = function()
 end
 
 ll.GetRegionSunRotation = function()
-	error("getregionsunrotation: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetregionsunrotation: not implemented`
+	)
 end
 
 ll.GetRegionTimeDilation = function()
@@ -2543,11 +2583,13 @@ ll.GetRootPosition = function()
 end
 
 ll.GetRootRotation = function()
-	error("getrootrotation: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetrootrotation: not implemented`
+	)
 end
 
 ll.GetRot = function()
-	error("getrot: not implemented")
+	error(`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetrot: not implemented`)
 end
 
 ll.GetSPMaxMemory = function()
@@ -2635,7 +2677,9 @@ ll.GetSunDirection = function()
 end
 
 ll.GetSunRotation = function()
-	error("getsunrotation: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgetsunrotation: not implemented`
+	)
 end
 
 ll.GetTexture = function(face: number)
@@ -2750,7 +2794,9 @@ ll.GiveMoney = function(id: uuid, amount: number)
 end
 
 ll.GodLikeRezObject = function(id: uuid, position: vector)
-	error("godlikerezobject: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tgodlikerezobject: not implemented`
+	)
 end
 
 ll.Ground = function(offset: vector)
@@ -2896,7 +2942,9 @@ end
 
 ll.LinksetDataCountFound = function(search: string)
 	-- TODO: requires a partial implementation of regex
-	error("linksetdatacountfound: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tlinksetdatacountfound: not implemented`
+	)
 end
 
 ll.LinksetDataCountKeys = function()
@@ -2928,7 +2976,9 @@ end
 
 ll.LinksetDataDeleteFound = function(search: string, pass: string)
 	-- TODO: requires a partial implementation of regex
-	error("linksetdatadeletefound: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tlinksetdatadeletefound: not implemented`
+	)
 end
 
 ll.LinksetDataDeleteProtected = function(name: string, pass: string)
@@ -2950,7 +3000,9 @@ end
 
 ll.LinksetDataFindKeys = function(search: string, start: number, count: number)
 	-- TODO: requires a partial implementation of regex
-	error("linksetdatafindkeys: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tlinksetdatafindkeys: not implemented`
+	)
 end
 
 ll.LinksetDataListKeys = function(start: number, count: number)
@@ -3073,7 +3125,9 @@ ll.List2ListStrided = function(
 end
 
 ll.List2Rot = function(list_variable: list, index: number)
-	error("list2rot: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tlist2rot: not implemented`
+	)
 end
 
 ll.List2String = function(list_variable: list, index: number)
@@ -3269,7 +3323,9 @@ ll.MessageLinked = function(
 end
 
 ll.MinEventDelay = function(delay: number)
-	error("mineventdelay: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tmineventdelay: not implemented`
+	)
 end
 
 ll.ModPow = function(value: number, power: number, modulus: number)
@@ -3620,7 +3676,9 @@ ll.Rot2Up = function(rotation: quaternion)
 end
 
 ll.RotBetween = function(vector1: vector, vector2: vector)
-	error("rotbetween: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\trotbetween: not implemented`
+	)
 end
 
 ll.RotLookAt = function(rotation: quaternion, strength: number, damping: number)
@@ -3944,7 +4002,9 @@ ll.SetScale = function(scale: vector)
 end
 
 ll.SetScriptState = function(script_name: string, running: number)
-	error("setscriptstate: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tsetscriptstate: not implemented`
+	)
 end
 
 ll.SetSitText = function(text: string)
@@ -4123,7 +4183,9 @@ ll.StringTrim = function(text: string, trim_type: number)
 end
 
 ll.SubStringIndex = function(text: string, sequence: string)
-	error("substringindex: not implemented, use `string.find` instead")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tsubstringindex: not implemented, use string.find instead`
+	)
 end
 
 ll.TakeCamera = function(id: uuid)
@@ -4248,7 +4310,9 @@ ll.VerifyRSA = function(
 	signature: string,
 	algorithm: string
 )
-	error("verifyrsa: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tverifyrsa: not implemented`
+	)
 end
 
 ll.VolumeDetect = function(detect_enabled: number)
@@ -4280,17 +4344,21 @@ ll.WorldPosToHUD = function(world_pos: vector)
 end
 
 ll.XorBase64 = function(text1: string, text2: string)
-	error("xorbase64: not implemented, use `ll.XorBase64StringsCorrect` instead")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\txorbase64: not implemented, use ll.XorBase64StringsCorrect instead`
+	)
 end
 
 ll.XorBase64Strings = function(text1: string, text2: string)
 	error(
-		"xorbase64strings: not implemented, use `ll.XorBase64StringsCorrect` instead"
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\txorbase64strings: not implemented, use ll.XorBase64StringsCorrect instead`
 	)
 end
 
 ll.XorBase64StringsCorrect = function(text1: string, text2: string)
-	error("xorbase64stringscorrect: not implemented")
+	error(
+		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\txorbase64stringscorrect: not implemented`
+	)
 end
 
 ll.sRGB2Linear = function(srgb: vector)

@@ -11,46 +11,35 @@ gitChangelog: false
 <SLuaRepl class="flex flex-col min-h-[calc(100vh-10.25rem)]" storage-key="playground">
 
 ```luau
-local rnd = math.random
-
 function touch_end(num_detected)
-  ll.Say(0, `Wait, you're not {ll.DetectedName(0)}!`)
+	ll.Say(0, `Wait, you're not {ll.DetectedName(0)}!`)
 end
 
 function collision_start(num_detected)
-  ll.Whisper(0, 'That hurt.')
-  -- ll.Die()
+	ll.Whisper(0, 'That hurt.')
+	-- ll.Die()
 end
 
 function timer()
-  local scale = (math.sin(os.clock()) + 3) * 0.1
-
-  ll.SetScale(vector.create(scale, scale, scale))
-
-  ll.SetColor(
-    vector.create(
-      (math.cos(os.clock()) + 1) * 0.5,
-      (math.sin(os.clock()) + 1) * 0.5,
-      1
-    ),
-    ALL_SIDES
-  )
+	ll.SetColor(
+		vector.create(
+			(math.cos(os.clock()) + 1) * 0.5,
+			(math.sin(os.clock()) + 1) * 0.5,
+			1
+		),
+		ALL_SIDES
+	)
 end
 
 function listen(channel, name, key, message)
-	if string.find(message:lower(), "hello") or message:lower() == "hi" then
+	message = message:lower()
+
+	if string.find(message, "hello") or message == "hi" then
 		ll.Say(0, "Hi there!")
 	end
 end
 
--- we have json at home!
-local message = lljson.decode('"Hello, Avatar!"')
-
-ll.Say(0, message:sub(1, 5))
-ll.Say(0, ll.GetSubString(message, -7, -1))
-
 ll.Listen(0, "", "", "")
-
 ll.SetTimerEvent(0.02)
 ```
 

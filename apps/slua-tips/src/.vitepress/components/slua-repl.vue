@@ -489,6 +489,7 @@ function getSlotTextContent(children) {
 function getCodeFromSlot() {
 	return getSlotTextContent(slots?.default?.()?.[0].children)
 		.replace(/^luau/, "")
+		.replace(/\t/g, "    ")
 		.concat("\n");
 }
 

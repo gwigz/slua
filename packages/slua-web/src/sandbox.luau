@@ -1050,7 +1050,6 @@ internal = {
 		username = "philip.linden",
 	},
 
-	-- chat types
 	CHAT_DEBUG = 1,
 	CHAT_OWNER = 2,
 	CHAT_WHISPER = 3,
@@ -1058,6 +1057,19 @@ internal = {
 	CHAT_SHOUT = 5,
 	CHAT_REGION = 6,
 	CHAT_INSTANT_MESSAGE = 7,
+
+	listener_handles = {} :: {
+		{
+			active: boolean,
+			channel: number,
+			name: string?,
+			id: uuid?,
+			text: string?,
+			handle: number,
+		}
+	},
+
+	listen_handle_index = 0,
 }
 
 internal.reset = function()
@@ -1098,6 +1110,67 @@ internal.chat = function(chat_type: number, message: string)
 	end
 
 	print("#!SLUA:CHAT", os.time(), os.clock(), chat_type, internal.name, message)
+end
+
+internal.protect_max_listeners = function()
+	local max_listeners = 65
+	local count = 0
+
+	for _, listener in internal.listener_handles do
+		if listener.active then
+			count += 1
+		end
+	end
+
+	if count >= max_listeners then
+		error(
+			"#!SLUA:ERROR\t"
+				.. tostring(debug.info(4, "l"))
+				.. "\tmax listeners reached"
+		)
+	end
+end
+
+internal.add_listener = function(
+	channel: number,
+	name: string,
+	id: uuid,
+	text: string
+)
+	internal.listen_handle_index += 1
+
+	table.insert(internal.listener_handles, {
+		active = true,
+		channel = channel,
+		handle = internal.listen_handle_index,
+		name = if name == "" then nil else name,
+		id = if id == "" or id == NULL_KEY then nil else id,
+		text = if text == "" then nil else text,
+	})
+
+	internal.protect_max_listeners()
+
+	return internal.listen_handle_index
+end
+
+internal.toggle_listener = function(
+	channel_handle: number,
+	active: number | boolean
+)
+	if internal.listener_handles[channel_handle] then
+		internal.listener_handles[channel_handle].active = if active == 1
+				or active == true
+			then true
+			else false
+	end
+
+	internal.protect_max_listeners()
+end
+
+internal.remove_listener = function(channel_handle: number)
+	if internal.listener_handles[channel_handle] then
+		internal.listener_handles[channel_handle] = nil
+	end
 end
 
 internal.set_timer = function(rate: number)
@@ -1378,8 +1451,21 @@ internal.listen = function(
 	key: string,
 	message: string
 )
-	if type(listen) == "function" then
-		listen(channel, name, key, message)
+	if type(listen) ~= "function" then
+		return
+	end
+
+	for _, listener in internal.listener_handles do
+		if
+			listener.channel == channel
+			and listener.active
+			and (listener.name == nil or listener.name == name)
+			and (listener.id == nil or listener.id == key)
+			and (listener.text == nil or listener.text == message)
+		then
+			listen(channel, name, key, message)
+			break
+		end
 	end
 end
 
@@ -3045,15 +3131,15 @@ ll.Listen = function(
 	id: uuid,
 	text: string
 )
-	return 0
+	return internal.add_listener(channel, speakers_name, id, text)
 end
 
 ll.ListenControl = function(channel_handle: number, active: number)
-	return nil
+	internal.toggle_listener(channel_handle, active)
 end
 
 ll.ListenRemove = function(channel_handle: number)
-	return nil
+	internal.remove_listener(channel_handle)
 end
 
 ll.LoadURL = function(id: uuid, text: string, url: string)

@@ -46,7 +46,7 @@ if (script) {
 
 ## Compatibility
 
-<img align="right" src="https://progress-bar.xyz/40/?width=200&color=e1a650" />
+<img align="right" src="https://progress-bar.xyz/41/?width=200&color=e1a650" />
 
 - 🟡 `lljson.decode` _does not handle vectors correctly_
 - 🟡 `lljson.encode` _does not handle vectors correctly_
@@ -141,6 +141,9 @@ if (script) {
 - 🟢 `ll.List2Float` _not tested_
 - 🟢 `ll.List2Integer` _not tested_
 - 🟢 `ll.List2String` _not tested_
+- 🟢 `ll.Listen`
+- 🟢 `ll.ListenControl`
+- 🟢 `ll.ListenRemove`
 - 🟢 `ll.Log` _not tested_
 - 🟢 `ll.Log10` _not tested_
 - 🟢 `ll.ModPow` _not tested_
@@ -263,9 +266,6 @@ if (script) {
 - 🔴 `ll.List2ListStrided`
 - 🔴 `ll.List2Rot`
 - 🔴 `ll.List2Vector`
-- 🔴 `ll.Listen`
-- 🔴 `ll.ListenControl`
-- 🔴 `ll.ListenRemove`
 - 🔴 `ll.ListFindList`
 - 🔴 `ll.ListFindListNext`
 - 🔴 `ll.ListFindStrided`

@@ -2,13 +2,25 @@
 
 type list = { string | number | boolean | vector }
 
-uuid = function(key)
-	if type(key) ~= "string" then
-		error("uuid: expected string, got " .. type(key))
-	end
+local __INTERNAL_DO_NOT_USE_uuid = {}
 
-	-- TODO: improve this? needs `istruthy`
-	return tostring(key)
+__INTERNAL_DO_NOT_USE_uuid.__tostring = function(self)
+	return tostring(self.value)
+end
+
+__INTERNAL_DO_NOT_USE_uuid.__eq = function(self, other)
+	return type(other) == "table"
+		and getmetatable(other) == __INTERNAL_DO_NOT_USE_uuid
+		and self.value == other.value
+end
+
+function uuid(key: string | uuid)
+	local self = {
+		value = tostring(key),
+		istruthy = tostring(key) ~= "00000000-0000-0000-0000-000000000000",
+	}
+
+	return setmetatable(self, __INTERNAL_DO_NOT_USE_uuid)
 end
 
 local __INTERNAL_DO_NOT_USE_vector = vector
@@ -21,19 +33,16 @@ vector = setmetatable({}, {
 	end,
 })
 
--- TODO: this is not correct, lmao
-quaternion = vector
-
-toquaternion = function(str: string)
-	error("toquaternion: not implemented")
+function tovector(str: string)
+	error("tovector: not implemented")
 end
 
-tovector = function(str: string)
-	return vector.zero
-end
-
-quaternion = function(x: number, y: number, z: number, s: number)
+function quaternion(x: number, y: number, z: number, s: number)
 	error("quaternion: not implemented")
+end
+
+function toquaternion(str: string)
+	error("toquaternion: not implemented")
 end
 
 ACTIVE = 2

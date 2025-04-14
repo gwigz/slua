@@ -556,6 +556,20 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 				config.onDie?.();
 				break;
 
+			case 'ERROR': {
+				const [_, errLineNo, errorText] = message.split('\t');
+
+				(config.onError ?? console.error)({
+					timestamp: Date.now(),
+					delta: Number.MAX_SAFE_INTEGER,
+					type: ChatType.DEBUG,
+					name: 'Script Error',
+					data: errorText.replace(/\n.*/g, ''),
+					line: errLineNo ? Number(errLineNo) - sandboxLineCount : undefined,
+				});
+				break;
+			}
+
 			default:
 				(config.onError ?? console.error)(parseErrorMessage(message));
 				break;
@@ -642,6 +656,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 	}
 
 	const call: SLuaScript['call'] = (name, args) => {
+		// TODO: format rotations and vectors here as "<x, y, z>" and "<x, y, z, w>"?
 		const error = luau.callGlobalFunction(name, args ? JSON.stringify(args) : '[]');
 
 		if (error && error !== 'nil') {

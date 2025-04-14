@@ -5,7 +5,9 @@ import sandboxContent from './sandbox.luau' with { type: 'text' };
 
 const INTERNAL = '__INTERNAL_DO_NOT_USE';
 
-const SANDBOX = sandboxContent.replace(/internal/g, INTERNAL).replace(/return.+\n?$/g, '');
+const SANDBOX = sandboxContent
+	.substring(0, sandboxContent.lastIndexOf("\nreturn {"))
+	.replace(/internal/g, INTERNAL);
 
 type JsonLuaArgs = (string | number | boolean | null) | JsonLuaArgs[];
 
@@ -538,7 +540,7 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 			type: ChatType.DEBUG,
 			name: 'Script Error',
 			data: errorText,
-			line: errLineNo ? Number(errLineNo) : undefined,
+			line: errLineNo ? Number(errLineNo) - sandboxLineCount : undefined,
 		};
 	}
 

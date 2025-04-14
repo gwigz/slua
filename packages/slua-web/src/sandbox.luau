@@ -11,6 +11,16 @@ uuid = function(key)
 	return tostring(key)
 end
 
+local __INTERNAL_DO_NOT_USE_vector = vector
+
+vector = setmetatable({}, {
+	__index = __INTERNAL_DO_NOT_USE_vector,
+
+	__call = function(v, ...)
+		return __INTERNAL_DO_NOT_USE_vector.create(...)
+	end,
+})
+
 -- TODO: this is not correct, lmao
 quaternion = vector
 

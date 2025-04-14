@@ -6,9 +6,9 @@ Collection of SLua related projects
 
 ### `@gwigz/slua-tips`
 
-VitePress site, found at https://slua.tips
-
-https://github.com/gwigz/slua/tree/main/apps/slua-tips
+> VitePress site, found at https://slua.tips
+>
+> https://github.com/gwigz/slua/tree/main/apps/slua-tips
 
 ## Packages
 

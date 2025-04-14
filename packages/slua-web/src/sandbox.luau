@@ -1198,16 +1198,6 @@ internal.remove_listener = function(channel_handle: number)
 	end
 end
 
-internal.set_timer = function(rate: number)
-	if type(rate) ~= "number" then
-		return
-	end
-
-	internal.timer = rate
-
-	print("#!SLUA:SET_TIMER", rate)
-end
-
 internal.set_position = function(link: number, position: vector)
 	if type(link) ~= "number" or type(position) ~= "vector" then
 		return
@@ -3749,26 +3739,34 @@ end
 ll.Sensor = function(
 	name: string,
 	id: uuid,
-	type: number,
+	sensor_type: number,
 	range: number,
 	arc: number
 )
-	return nil
+	if sensor_type == 0 then
+		return
+	end
+
+	internal.no_sensor()
 end
 
 ll.SensorRemove = function()
-	return nil
+	print("#!SLUA:REMOVE_SENSOR")
 end
 
 ll.SensorRepeat = function(
 	name: string,
 	id: uuid,
-	type: number,
+	sensor_type: number,
 	range: number,
 	arc: number,
 	rate: number
 )
-	return nil
+	if sensor_type == 0 or type(rate) ~= "number" then
+		return
+	end
+
+	print("#!SLUA:SET_SENSOR", name, id, type, range, arc, rate)
 end
 
 ll.SetAgentEnvironment = function(id: uuid, transition: number, settings: list)
@@ -4044,7 +4042,13 @@ ll.SetTextureAnim = function(
 end
 
 ll.SetTimerEvent = function(rate: number)
-	internal.set_timer(rate)
+	if type(rate) ~= "number" then
+		return
+	end
+
+	internal.timer = rate
+
+	print("#!SLUA:SET_TIMER", rate)
 end
 
 ll.SetTorque = function(torque: vector, relative: number)

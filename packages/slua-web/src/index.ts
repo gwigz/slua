@@ -505,6 +505,7 @@ function luaFormat(value: unknown): string {
  */
 export async function runScript(code: string, config: SLuaConfig = {}) {
 	let timer: Timer | undefined;
+	let sensor: Timer | undefined;
 
 	const sandboxLineCount = (config.sandbox ?? SANDBOX).split('\n').length;
 
@@ -620,6 +621,24 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 				case 'SET_ALPHA':
 					config.onAlphaChange?.(...parseAlphaChange(message));
 					break;
+
+				case 'REMOVE_SENSOR':
+					clearInterval(sensor);
+					break;
+
+				case 'SET_SENSOR': {
+					const interval = Number(message.split('\t')[6]);
+
+					if (interval === 0 || interval < 0) {
+						clearInterval(sensor);
+					} else {
+						sensor = setInterval(
+							() => call('no_sensor', []),
+							Math.max(0.02, interval) * 1000,
+						);
+					}
+					break;
+				}
 
 				default:
 					(config.onPrint ?? console.log)(...message.split('\t'));
@@ -776,7 +795,11 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 		// utilities
 		get: (name: string) => null,
 		set: (name: string, value: string) => {},
-		dispose: () => clearInterval(timer),
+
+		dispose: () => {
+			clearInterval(timer);
+			clearInterval(sensor);
+		},
 	};
 
 	return script;

@@ -46,7 +46,7 @@ if (script) {
 
 ## Compatibility
 
-<img align="right" src="https://progress-bar.xyz/41/?width=200&color=e1a650" />
+<img align="right" src="https://progress-bar.xyz/42/?width=200&color=e1a650" />
 
 - 🟢 `uuid` _not tested_
 - 🟡 `lljson.decode` _does not handle vectors correctly_
@@ -157,6 +157,9 @@ if (script) {
 - 🟢 `ll.ResetTime`
 - 🟢 `ll.Round` _not tested_
 - 🟢 `ll.Say`
+- 🟢 `ll.Sensor` _just calls `no_sensor`_
+- 🟢 `ll.SensorRemove`
+- 🟢 `ll.SensorRepeat` _just calls `no_sensor`_
 - 🟢 `ll.SetAlpha`
 - 🟢 `ll.SetColor`
 - 🟢 `ll.SetLinkAlpha`
@@ -306,9 +309,6 @@ if (script) {
 - 🔴 `ll.ScaleByFactor`
 - 🔴 `ll.ScaleTexture`
 - 🔴 `ll.SendRemoteData`
-- 🔴 `ll.Sensor`
-- 🔴 `ll.SensorRemove`
-- 🔴 `ll.SensorRepeat`
 - 🔴 `ll.SetClickAction`
 - 🔴 `ll.SetEnvironment`
 - 🔴 `ll.SetGroundTexture`

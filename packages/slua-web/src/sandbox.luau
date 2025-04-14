@@ -28,7 +28,7 @@ local __INTERNAL_DO_NOT_USE_vector = vector
 vector = setmetatable({}, {
 	__index = __INTERNAL_DO_NOT_USE_vector,
 
-	__call = function(v, ...)
+	__call = function(_, ...)
 		return __INTERNAL_DO_NOT_USE_vector.create(...)
 	end,
 })
@@ -4300,5 +4300,12 @@ end
 table.freeze(ll)
 table.freeze(lljson)
 table.freeze(llbase64)
+table.freeze(vector)
 
-return { ll = ll }
+return {
+	ll = ll,
+	lljson = lljson,
+	llbase64 = llbase64,
+	vector = vector,
+	uuid = uuid,
+}

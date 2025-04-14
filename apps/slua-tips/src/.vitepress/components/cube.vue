@@ -1,6 +1,16 @@
 <template>
 	<div ref="container" class="relative w-full h-full select-none">
 		<TresCanvas :tone-mapping-exposure="0.25">
+			<OrbitControls
+				make-default
+				:rotate-speed="0.5"
+				:auto-rotate-speed="2"
+				:damping-factor="0.02"
+				:enable-zoom="false"
+				:enable-pan="false"
+				:enable-damping="true"
+			/>
+
 			<Sky :azimuth="45" :elevation="2" />
 
 			<Environment
@@ -21,6 +31,7 @@
 						() => container && (container.style.cursor = 'default')
 					"
 					@click="onClick"
+					@context-menu="onRightClick"
 				>
 					<TresBoxGeometry :args="[1, 1, 1]" />
 					<TresMeshStandardMaterial
@@ -96,6 +107,7 @@ const props = defineProps<{
 	color?: string;
 	glow?: number;
 	onClick?: () => void;
+	onRightClick?: (event: MouseEvent) => void;
 }>();
 
 const scale = computed(

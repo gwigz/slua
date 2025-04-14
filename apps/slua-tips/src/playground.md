@@ -39,7 +39,7 @@ end
 
 function listen(channel, name, key, message)
 	if string.find(message:lower(), "hello") or message:lower() == "hi" then
-		ll.Say("Hi there!")
+		ll.Say(0, "Hi there!")
 	end
 end
 
@@ -48,6 +48,8 @@ local message = lljson.decode('"Hello, Avatar!"')
 
 ll.Say(0, message:sub(1, 5))
 ll.Say(0, ll.GetSubString(message, -7, -1))
+
+ll.Listen(0, "", "", "")
 
 ll.SetTimerEvent(0.02)
 ```

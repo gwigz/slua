@@ -72,7 +72,7 @@
 							v-if="hasCodeChanged"
 							class="absolute -top-0.5 -right-0.5 bg-primary text-xs size-2 rounded-full"
 						/>
-						<Icon icon="solar:refresh-bold" />
+						<Icon icon="lucide:refresh-cw" />
 						Recompile
 					</Button>
 
@@ -84,7 +84,7 @@
 							runScript();
 						"
 					>
-						<Icon icon="solar:restart-bold" />
+						<Icon icon="lucide:rotate-cw" />
 						Reset
 					</Button>
 				</template>
@@ -102,20 +102,20 @@
 					<DropdownMenuTrigger as-child>
 						<Button size="xs" variant="secondary">
 							More
-							<Icon icon="solar:alt-arrow-down-outline" />
+							<Icon icon="lucide:chevron-down" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" :alignOffset="0">
 						<DropdownMenuItem disabled>
-							<Icon icon="solar:download-minimalistic-outline" />
+							<Icon icon="lucide:download" />
 							Save
 						</DropdownMenuItem>
 						<DropdownMenuItem disabled>
-							<Icon icon="solar:upload-minimalistic-outline" />
+							<Icon icon="lucide:upload" />
 							Load
 						</DropdownMenuItem>
 						<DropdownMenuItem disabled>
-							<Icon icon="solar:link-outline" />
+							<Icon icon="lucide:link" />
 							Share
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
@@ -125,7 +125,7 @@
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem disabled>
-							<Icon icon="solar:settings-linear" />
+							<Icon icon="lucide:settings" />
 							Settings
 						</DropdownMenuItem>
 					</DropdownMenuContent>
@@ -139,37 +139,43 @@
 		>
 			<div
 				v-if="showWelcome"
-				class="absolute m-2 md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 max-w-xl z-10 backdrop-blur-sm bg-background/50 px-6 py-4 border rounded-lg border-muted shadow"
+				class="absolute m-2 md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 max-w-lg z-10 backdrop-blur-sm bg-background/80 px-6 py-4 border rounded-lg border-muted shadow"
 			>
-				<div class="flex flex-col gap-4 [&_p]:text-foreground/75">
+				<div class="flex flex-col gap-4 [&_p]:text-sm [&_p]:text-foreground/75">
 					<div class="text-lg font-medium">Welcome to SLua Playground</div>
 
 					<p>
-						This interactive playground lets you experiment with SLua scripts
-						in your browser.
+						This interactive tool lets you experiment with SLua scripts in your
+						browser.
 					</p>
 					<p>
-						This project is still under development. You can check our
+						This project is still
+						<span class="font-semibold dark:text-yellow-50"
+							>under development</span
+						>. You can check our
 						<a
 							class="underline hover:text-foreground"
 							href="https://github.com/gwigz/slua/tree/main/packages/slua-web#compatibility"
 							target="_blank"
 							>compatibility list and progress on GitHub</a
-						>. For now, you can use this page as a useful alternative to the
-						Luau demo page.
+						>.
 					</p>
 					<p>
-						We're actively working on adding more features, interactive
-						guides, and examples to help you learn SLua programming.
+						We're actively working on adding more features, interactive guides,
+						and examples to help you learn SLua programming.
 					</p>
 
-					<div class="flex justify-center">
-						<Button
-							size="sm"
-							variant="outline"
-							class="mt-2"
-							@click="showWelcome = false"
-						>
+					<div class="flex justify-between items-center gap-2">
+						<div class="items-center flex space-x-1.5">
+							<Checkbox id="dont-show-welcome" v-model="dontShowWelcome" />
+							<label
+								for="dont-show-welcome"
+								class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							>
+								Don't show again
+							</label>
+						</div>
+						<Button size="sm" variant="outline" @click="showWelcome = false">
 							Close
 						</Button>
 					</div>
@@ -194,24 +200,81 @@
 				<ResizablePanelGroup direction="vertical">
 					<ResizablePanel
 						:default-size="50"
-						class="bg-muted/20 outline outline-muted w-full h-full"
+						class="bg-muted/20 outline outline-muted w-full h-full relative"
 					>
 						<!-- cube -->
-						<ContextMenu>
-							<ContextMenuTrigger as-child>
-								<Cube
-									:scale="cubeScale"
-									:color="cubeColor"
-									:glow="cubeGlow"
-									:died="cubeDied"
-									@click="() => script?.touch(1)"
+						<Cube
+							:scale="cubeScale"
+							:color="cubeColor"
+							:glow="cubeGlow"
+							:died="cubeDied"
+							@click="() => script?.touch(1)"
+							@right-click="
+								(event) => {
+									const rect = (event.target as HTMLElement).getBoundingClientRect();
+
+									contextMenuPosition.x = event.clientX - rect.left;
+									contextMenuPosition.y = event.clientY - rect.top;
+									contextMenuOpen = true;
+								}
+							"
+						/>
+
+						<DropdownMenu
+							:open="contextMenuOpen"
+							@update:open="(value) => (contextMenuOpen = value)"
+						>
+							<DropdownMenuTrigger as-child>
+								<div
+									class="absolute pointer-events-none"
+									:style="{
+										top: `${contextMenuPosition.y}px`,
+										left: `${contextMenuPosition.x}px`,
+									}"
 								/>
-							</ContextMenuTrigger>
-							<ContextMenuContent>
-								<ContextMenuItem @click="() => script?.touch(1)">Touch</ContextMenuItem>
-								<ContextMenuItem @click="() => script?.collision(1)">Collide</ContextMenuItem>
-							</ContextMenuContent>
-						</ContextMenu>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="start" :alignOffset="0">
+								<DropdownMenuItem
+									@click="
+										() => {
+											script?.touch(1);
+											contextMenuOpen = false;
+										}
+									"
+									:disabled="!script"
+								>
+									Touch
+								</DropdownMenuItem>
+								<DropdownMenuItem
+									@click="
+										() => {
+											script?.collision(1);
+											contextMenuOpen = false;
+										}
+									"
+									:disabled="!script"
+								>
+									Collide
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+
+						<div
+							v-if="showTips"
+							class="absolute rounded m-2 top-0 right-0 p-2 bg-background/50 backdrop-blur-xs flex items-center gap-1 justify-between"
+						>
+							<div class="text-xs text-foreground/80 flex items-center gap-1">
+								Right-click objects for more event triggers
+							</div>
+							<Button
+								class="p-0.25 h-auto"
+								size="xs"
+								variant="ghost"
+								@click="showTips = false"
+							>
+								<Icon icon="lucide:x" />
+							</Button>
+						</div>
 					</ResizablePanel>
 
 					<ResizableHandle with-handle />
@@ -249,11 +312,14 @@
 											>{{
 												!line.data.startsWith("/me ") &&
 												!line.data.startsWith("/me'") &&
-												(line.type === ChatType.WHISPER
+												line.type === ChatType.WHISPER
 													? " whispers: "
-													: line.type === ChatType.SHOUT
+													: !line.data.startsWith("/me ") &&
+													  !line.data.startsWith("/me'") &&
+													  line.type === ChatType.SHOUT
 													? " shouts: "
-													: "")
+													: ""
+											}}{{ line.data.startsWith("/me ") ? " " : ""
 											}}{{
 												line.data.replace(/^\/me('|\s)/, "$1").trim()
 											}}</span
@@ -277,13 +343,18 @@
 						<!-- chat input -->
 						<div class="px-2 pb-2 border-muted">
 							<form @submit.prevent="handleChatSubmit" class="flex gap-2">
-								<input
-									v-model="chatInput"
-									type="text"
-									placeholder="To nearby chat"
-									class="flex-1 px-3 py-1.5 text-sm bg-background/30 border border-muted rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-									disabled
-								/>
+								<Input name="chat" placeholder="To nearby chat" />
+
+								<NumberField class="w-56" :min="0" :max="2147483647" :defaultValue="0">
+									<NumberFieldContent>
+										<NumberFieldDecrement />
+										<NumberFieldInput name="channel" />
+										<NumberFieldIncrement />
+									</NumberFieldContent>
+								</NumberField>
+
+								<!-- cannot submit without button -->
+								<button class="hidden" type="submit">Send</button>
 							</form>
 						</div>
 					</ResizablePanel>
@@ -311,6 +382,7 @@ import {
 	watchEffect,
 	computed,
 } from "vue";
+import { useStorage } from "@vueuse/core";
 import {
 	ResizableHandle,
 	ResizablePanel,
@@ -334,11 +406,14 @@ import {
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import {
-	ContextMenu,
-	ContextMenuContent,
-	ContextMenuItem,
-	ContextMenuTrigger,
-} from "~/components/ui/context-menu";
+	NumberField,
+	NumberFieldContent,
+	NumberFieldDecrement,
+	NumberFieldIncrement,
+	NumberFieldInput,
+} from "~/components/ui/number-field";
+import { Input } from "~/components/ui/input";
+import { Checkbox } from "~/components/ui/checkbox";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/utilities/cn";
 import Cube from "./cube.vue";
@@ -360,6 +435,13 @@ const script = ref<SLuaScript | null>(null);
 const output = reactive<SLuaOutput[]>([]);
 const outputRef = ref<HTMLElement | null>(null);
 
+const dontShowWelcome = useStorage("playground.dont-show-welcome", false);
+const showWelcome = ref(dontShowWelcome.value ? false : true);
+const showTips = useStorage("playground.show-tips", true);
+
+const contextMenuOpen = ref(false);
+const contextMenuPosition = { x: 0, y: 0 };
+
 const autoScroll = ref(true);
 const showScrollButton = ref(false);
 const lastScrollHeight = ref(0);
@@ -370,8 +452,6 @@ const cubeGlow = ref(0);
 const cubeDied = ref(false);
 
 const timerInterval = ref(0);
-
-const showWelcome = ref(true);
 
 const chatInput = ref("");
 
@@ -480,14 +560,13 @@ function stopScript() {
 	cubeColor.value = "#ffffff";
 	cubeDied.value = false;
 
-	lastError.value = undefined;
-
 	timerInterval.value = 0;
 }
 
 async function runScript() {
 	stopScript();
 
+	lastError.value = undefined;
 	originalCode.value = code.value;
 
 	const result = await slua.runScript(code.value, {
@@ -504,6 +583,10 @@ async function runScript() {
 		},
 		onError: (error) => {
 			output.push(error);
+
+			if (error.line) {
+				lastError.value = error.line;
+			}
 
 			// script will continue in some scenarios, so we want to stop it here
 			stopScript();
@@ -555,7 +638,6 @@ function confirmReset() {
 	stopScript();
 
 	lastError.value = undefined;
-
 	code.value = "";
 
 	nextTick(() => {
@@ -571,29 +653,52 @@ function scrollToBottom() {
 	nextTick(() => outputRef.value?.scrollTo(0, outputRef.value.scrollHeight));
 }
 
-function handleChatSubmit() {
+function handleChatSubmit(event: SubmitEvent) {
 	const now = Date.now() / 1000;
-	const message = chatInput.value.trim();
+	const target = event.target as HTMLFormElement;
 
-	if (!message.trim()) {
+	const formData = new FormData(target);
+
+	console.log({ ...formData });
+
+	let channel = Number(formData.get("channel")?.toString().trim()) || 0;
+	let message = formData.get("chat")?.toString().trim();
+
+	if (!message) {
 		return;
 	}
 
+	(target.querySelector("input[name='chat']") as HTMLInputElement).value = "";
+	(target.querySelector("input[name='channel']") as HTMLInputElement).value = channel.toString();
+
+	// need to check to see if message is prefixed with /123 (channel number)
+	if (message.startsWith("/")) {
+		const match = message.match(/^\/([0-9]+)/);
+		const number = Number(match?.[1]);
+
+		if (match && !isNaN(number) && number <= 2147483647) {
+			channel = number;
+		}
+
+		message = message.replace(/^\/([0-9]+)/, "");
+	}
+
+	if (channel === 0) {
+		output.push({
+			// id: "a2e76fcd-9360-4f6d-a924-000000000003",
+			timestamp: Math.floor(now),
+			delta: now - Math.floor(now),
+			type: ChatType.SAY,
+			name: "Philip Linden",
+			data: message,
+		});
+	}
+
 	script.value?.listen(
-		0,
+		channel,
 		"Philip Linden",
 		"a2e76fcd-9360-4f6d-a924-000000000003",
 		message
 	);
-
-	output.push({
-		timestamp: Math.floor(now),
-		delta: now - Math.floor(now),
-		type: ChatType.SAY,
-		name: "Philip Linden",
-		data: message,
-	});
-
-	chatInput.value = "";
 }
 </script>

@@ -6,8 +6,5 @@
 		"*": true,
 		"FunctionUnused": false,
 		"BuiltinGlobalWrite": false
-	},
-	"aliases": {
-		"line": "~/.lune/.typedefs/0.8.9/"
 	}
 }

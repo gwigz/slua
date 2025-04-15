@@ -20,9 +20,6 @@
 	"luau-lsp.sourcemap.autogenerate": false,
 	"luau-lsp.sourcemap.enabled": false,
 	"luau-lsp.require.mode": "relativeToFile",
-	"luau-lsp.require.directoryAliases": {
-		"@lune/": "~/.lune/.typedefs/0.8.9/"
-	},
 	"luau-lsp.types.definitionFiles": [
 		"ll.d.luau",
 		"./packages/slua-web/sandbox.d.luau"

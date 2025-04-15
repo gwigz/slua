@@ -1,23 +1,21 @@
 <template>
-	<div ref="container" class="relative w-full h-full select-none">
+	<div
+		ref="container"
+		class="relative w-full h-full select-none"
+		style="cursor: default"
+	>
 		<TresCanvas :tone-mapping-exposure="0.25">
-			<OrbitControls
-				make-default
-				:rotate-speed="0.5"
-				:auto-rotate-speed="2"
-				:damping-factor="0.02"
-				:enable-zoom="false"
-				:enable-pan="false"
-				:enable-damping="true"
-			/>
+			<CameraControls />
 
 			<Sky :azimuth="45" :elevation="2" />
 
-			<Environment
-				files="/assets/sunset.hdr"
-				:blur=".5"
-				:environment-intensity="0.6"
-			/>
+			<Suspense>
+				<Environment
+					files="/assets/sunset.hdr"
+					:blur="0.5"
+					:environment-intensity="0.6"
+				/>
+			</Suspense>
 
 			<Suspense>
 				<TresMesh
@@ -25,10 +23,16 @@
 					:scale="scale"
 					:visible="!died"
 					@pointer-enter="
-						() => container && (container.style.cursor = 'pointer')
+						() =>
+							container &&
+							container.style.cursor === 'default' &&
+							(container.style.cursor = 'pointer')
 					"
 					@pointer-leave="
-						() => container && (container.style.cursor = 'default')
+						() =>
+							container &&
+							container.style.cursor === 'pointer' &&
+							(container.style.cursor = 'default')
 					"
 					@click="onClick"
 					@context-menu="onRightClick"
@@ -85,15 +89,17 @@
 </template>
 
 <script setup lang="ts">
-import { Environment, Sky, Grid, OrbitControls } from "@tresjs/cientos";
+import {
+	Environment,
+	Sky,
+	Grid,
+} from "@tresjs/cientos";
 import { TresCanvas, useTexture } from "@tresjs/core";
 import type { Texture } from "three";
-import {
-	EffectComposerPmndrs,
-	VignettePmndrs,
-} from "@tresjs/post-processing";
+import { EffectComposerPmndrs, VignettePmndrs } from "@tresjs/post-processing";
 import { computed, onMounted, ref } from "vue";
 import { useData } from "vitepress";
+import CameraControls from "./camera-controls.vue";
 import { cn } from "~/utilities/cn";
 
 const { isDark } = useData();

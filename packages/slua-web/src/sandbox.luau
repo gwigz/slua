@@ -23,6 +23,8 @@ function uuid(key: string | uuid)
 	return setmetatable(self, __INTERNAL_DO_NOT_USE_uuid)
 end
 
+type uuid = typeof(setmetatable({ istruthy = true }, __INTERNAL_DO_NOT_USE_uuid))
+
 local __INTERNAL_DO_NOT_USE_vector = vector
 
 vector = setmetatable({}, {
@@ -1044,11 +1046,11 @@ internal = {
 	id = uuid("6e2809b3-3563-43b3-896b-e1c46ba5b46a"),
 	name = "Object",
 	description = "",
-	time_offset = 0,
-	timer = 0,
+
 	position = vector.zero,
 	-- rotation = quaternion.identity,
 	scale = vector.create(0.5, 0.5, 0.5),
+
 	color = {
 		vector.create(1, 1, 1),
 		vector.create(1, 1, 1),
@@ -1056,14 +1058,12 @@ internal = {
 		vector.create(1, 1, 1),
 		vector.create(1, 1, 1),
 	},
-	alpha = {
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-	},
+
+	alpha = table.create(6, 1),
+	diffuse_textures = table.create(6, TEXTURE_PLYWOOD),
+
+	-- get time offset
+	time_offset = 0,
 
 	-- linkset data
 	data = {} :: { [string]: { value: string, pass: string? } },
@@ -1167,10 +1167,14 @@ internal.add_listener = function(
 	table.insert(internal.listener_handles, {
 		active = true,
 		channel = channel,
+		name = if not name or name == "" then nil else name,
+		id = if not id
+				or tostring(id) == ""
+				or tostring(id) == tostring(NULL_KEY)
+			then nil
+			else uuid(id),
+		text = if not text or text == "" then nil else text,
 		handle = internal.listen_handle_index,
-		name = if name == "" then nil else name,
-		id = if tostring(id) == "" or id == NULL_KEY then nil else id,
-		text = if text == "" then nil else text,
 	})
 
 	internal.protect_max_listeners()
@@ -1250,9 +1254,39 @@ internal.set_color = function(link: number, color: vector, face: number)
 		return
 	end
 
+	if face >= 0 then
+		face += 1
+	end
+
+	if face > ll.GetNumberOfSides() then
+		return
+	end
+
 	internal.color[face] = color
 
 	print("#!SLUA:SET_COLOR", link, color.x, color.y, color.z, face)
+end
+
+internal.get_color = function(face: number)
+	if face == ALL_SIDES then
+		local average = vector.zero
+
+		for i = 1, ll.GetNumberOfSides() do
+			average += internal.color[i]
+		end
+
+		return average / ll.GetNumberOfSides()
+	end
+
+	if face >= 0 then
+		face += 1
+	end
+
+	if face > ll.GetNumberOfSides() then
+		return vector.zero
+	end
+
+	return internal.color[face]
 end
 
 internal.set_alpha = function(link: number, alpha: number, face: number)
@@ -1272,6 +1306,63 @@ internal.set_alpha = function(link: number, alpha: number, face: number)
 	internal.alpha[face] = alpha
 
 	print("#!SLUA:SET_ALPHA", link, alpha, face)
+end
+
+internal.get_alpha = function(face: number)
+	if face == ALL_SIDES then
+		local sum = 0
+
+		for i = 1, ll.GetNumberOfSides() do
+			sum += internal.alpha[i]
+		end
+
+		return sum
+	end
+
+	if face >= 0 then
+		face += 1
+	end
+
+	if face > ll.GetNumberOfSides() then
+		return 0
+	end
+
+	return internal.alpha[face]
+end
+
+internal.set_diffuse_texture = function(
+	link_number: number,
+	face: number,
+	texture: string
+)
+	face += 1
+
+	if
+		type(link_number) ~= "number"
+		or type(face) ~= "number"
+		or (type(texture) ~= "string" and getmetatable(texture) ~= __INTERNAL_DO_NOT_USE_uuid)
+		or face < 1
+		or face > ll.GetNumberOfSides()
+	then
+		return
+	end
+
+	internal.diffuse_textures[face] = tostring(texture or NULL_KEY)
+end
+
+internal.get_diffuse_texture = function(link_number: number, face: number)
+	face += 1
+
+	if
+		type(link_number) ~= "number"
+		or type(face) ~= "number"
+		or face < 1
+		or face > ll.GetNumberOfSides()
+	then
+		return tostring(NULL_KEY)
+	end
+
+	return tostring(internal.diffuse_textures[face] or NULL_KEY)
 end
 
 at_rot_target = function() end
@@ -1336,23 +1427,31 @@ internal.collision = function(detected: number?)
 	end
 end
 
-control = function() end
+control = function(id: uuid, level: number, edge: number) end
 
-internal.control = function(id: string, level: number, edge: number)
+internal.control = function(id: uuid, level: number, edge: number)
 	if type(control) == "function" then
 		control(id, level, edge)
 	end
 end
 
-dataserver = function() end
+dataserver = function(id: uuid, data: string) end
 
-internal.dataserver = function(id: string, data: string)
+internal.dataserver = function(id: uuid, data: string)
 	if type(dataserver) == "function" then
 		dataserver(id, data)
 	end
 end
 
-email = function() end
+email = function(
+	time: string,
+	address: string,
+	subject: string,
+	message: string,
+	numLeft: number
+)
+	-- user implemented
+end
 
 internal.email = function(
 	time: string,
@@ -1366,50 +1465,56 @@ internal.email = function(
 	end
 end
 
-experience_permissions = function() end
+experience_permissions = function(id: uuid) end
 
-internal.experience_permissions = function(id: string)
+internal.experience_permissions = function(id: uuid)
 	if type(experience_permissions) == "function" then
 		experience_permissions(id)
 	end
 end
 
-experience_permissions_denied = function() end
+experience_permissions_denied = function(id: uuid, reason: number) end
 
-internal.experience_permissions_denied = function(id: string, reason: number)
+internal.experience_permissions_denied = function(id: uuid, reason: number)
 	if type(experience_permissions_denied) == "function" then
 		experience_permissions_denied(id, reason)
 	end
 end
 
-final_damage = function() end
+final_damage = function(damage: number) end
 
-internal.final_damage = function(detected: number?)
-	if type(final_damage) == "function" then
-		final_damage(detected or 1)
+internal.final_damage = function(damage: number?)
+	if type(damage) == "function" then
+		final_damage(damage or 1)
 	end
 end
 
-game_control = function() end
+game_control = function(id: uuid, levels: number, axis: { number }) end
 
-internal.game_control = function(id: string, levels: number, axis: { number })
+internal.game_control = function(id: uuid, levels: number, axis: { number })
 	if type(game_control) == "function" then
 		game_control(id, levels, axis)
 	end
 end
 
-http_request = function() end
+http_request = function(id: uuid, method: string, body: string) end
 
-internal.http_request = function(id: string, method: string, body: string)
+internal.http_request = function(id: uuid, method: string, body: string)
 	if type(http_request) == "function" then
 		http_request(id, method, body)
 	end
 end
 
-http_response = function() end
+http_response = function(
+	id: uuid,
+	status: number,
+	metadata: { number },
+	body: string
+)
+end
 
 internal.http_response = function(
-	id: string,
+	id: uuid,
 	status: number,
 	metadata: { number },
 	body: string
@@ -1419,9 +1524,9 @@ internal.http_response = function(
 	end
 end
 
-land_collision_start = function() end
-land_collision = function() end
-land_collision_end = function() end
+land_collision_start = function(position: vector) end
+land_collision = function(position: vector) end
+land_collision_end = function(position: vector) end
 
 internal.land_collision = function(position: { number })
 	local position = vector.create(position[1], position[2], position[3])
@@ -1439,7 +1544,7 @@ internal.land_collision = function(position: { number })
 	end
 end
 
-linkset_data = function() end
+linkset_data = function(action: number, key: string, value: string) end
 
 internal.linkset_data = function(action: number, key: string, value: string)
 	if type(linkset_data) == "function" then
@@ -1447,25 +1552,31 @@ internal.linkset_data = function(action: number, key: string, value: string)
 	end
 end
 
-link_message = function() end
+link_message = function(
+	sender: number,
+	integer: number,
+	data: string,
+	key: uuid
+)
+end
 
 internal.link_message = function(
 	sender: number,
 	integer: number,
 	data: string,
-	key: string
+	key: uuid
 )
 	if type(link_message) == "function" then
 		link_message(sender, integer, data, key)
 	end
 end
 
-listen = function() end
+listen = function(channel: number, name: string, key: uuid, message: string) end
 
 internal.listen = function(
 	channel: number,
 	name: string,
-	key: string | uuid,
+	key: uuid,
 	message: string
 )
 	if type(listen) ~= "function" then
@@ -1486,9 +1597,9 @@ internal.listen = function(
 	end
 end
 
-money = function() end
+money = function(key: uuid, amount: number) end
 
-internal.money = function(key: string, amount: number?)
+internal.money = function(key: uuid, amount: number?)
 	if type(money) == "function" then
 		money(key, amount or 0)
 	end
@@ -1534,15 +1645,15 @@ internal.no_sensor = function()
 	end
 end
 
-object_rez = function() end
+object_rez = function(key: uuid) end
 
-internal.object_rez = function(key: string?)
+internal.object_rez = function(key: uuid?)
 	if type(object_rez) == "function" then
 		object_rez(key or "")
 	end
 end
 
-on_damage = function() end
+on_damage = function(damage: number) end
 
 internal.on_damage = function(damage: number?)
 	if type(on_damage) == "function" then
@@ -1558,7 +1669,7 @@ internal.on_death = function()
 	end
 end
 
-on_rez = function() end
+on_rez = function(param: number) end
 
 internal.on_rez = function(param: number?)
 	if type(on_rez) == "function" then
@@ -1574,7 +1685,7 @@ internal.path_update = function(type: number, reserved: {}?)
 	end
 end
 
-run_time_permissions = function() end
+run_time_permissions = function(permissions: number) end
 
 internal.run_time_permissions = function(permissions: number?)
 	if type(run_time_permissions) == "function" then
@@ -1582,7 +1693,7 @@ internal.run_time_permissions = function(permissions: number?)
 	end
 end
 
-sensor = function() end
+sensor = function(detected: number) end
 
 internal.sensor = function(detected: number?)
 	if type(sensor) == "function" then
@@ -1590,9 +1701,9 @@ internal.sensor = function(detected: number?)
 	end
 end
 
-touch_start = function() end
-touch = function() end
-touch_end = function() end
+touch_start = function(detected: number) end
+touch = function(detected: number) end
+touch_end = function(detected: number) end
 
 internal.touch = function(detected: number?)
 	if type(touch_start) == "function" then
@@ -1608,13 +1719,9 @@ internal.touch = function(detected: number?)
 	end
 end
 
-transaction_result = function() end
+transaction_result = function(id: uuid, success: number, data: string) end
 
-internal.transaction_result = function(
-	id: string,
-	success: number,
-	data: string
-)
+internal.transaction_result = function(id: uuid, success: number, data: string)
 	if type(transaction_result) == "function" then
 		transaction_result(id, success, data)
 	end
@@ -2084,7 +2191,7 @@ ll.GetAgentSize = function(id: uuid)
 end
 
 ll.GetAlpha = function(face: number)
-	return 0
+	return internal.get_alpha(face)
 end
 
 ll.GetAndResetTime = function()
@@ -2150,17 +2257,7 @@ ll.GetClosestNavPoint = function(point: vector, options: list)
 end
 
 ll.GetColor = function(face: number)
-	-- TODO: move to internal utility
-	if face == -1 then
-		-- TODO: calculate average color of all faces
-		return vector.zero
-	end
-
-	if face < 0 or face > ll.GetNumberOfSides() then
-		face = 1
-	end
-
-	return internal.color[face]
+	return internal.get_color(face)
 end
 
 ll.GetCreator = function()
@@ -2673,11 +2770,11 @@ ll.GetSunRotation = function()
 end
 
 ll.GetTexture = function(face: number)
-	return ""
+	return internal.get_diffuse_texture(1, face)
 end
 
 ll.GetTextureOffset = function(face: number)
-	return vector.zero
+	return vector.create(0, 0, 0)
 end
 
 ll.GetTextureRot = function(face: number)
@@ -2685,7 +2782,7 @@ ll.GetTextureRot = function(face: number)
 end
 
 ll.GetTextureScale = function(face: number)
-	return vector.zero
+	return vector.create(1, 1, 0)
 end
 
 ll.GetTime = function()
@@ -3158,8 +3255,60 @@ ll.ListInsertList = function(
 	return {}
 end
 
-ll.ListRandomize = function(list_variable: list, stride: number)
-	return {}
+ll.ListRandomize = function(list_variable: { any }, stride: number): { any }
+	if #list_variable == 0 then
+		return {}
+	end
+
+	stride = math.max(1, stride or 1)
+
+	-- shortcut for stride == 1
+	if stride == 1 then
+		local result = table.clone(list_variable)
+
+		for i = #result, 2, -1 do
+			local j = math.random(i)
+			result[i], result[j] = result[j], result[i]
+		end
+
+		return result
+	end
+
+	-- ignore if the stride is not a factor of the list length
+	if #list_variable % stride ~= 0 then
+		return list_variable
+	end
+
+	local result = table.create(#list_variable)
+	local chunk_count = math.ceil(#list_variable / stride)
+	local chunks = table.create(chunk_count)
+
+	-- create chunks positions
+	for i = 1, chunk_count do
+		chunks[i] = {
+			index = i,
+			start = (i - 1) * stride + 1,
+			finish = math.min(i * stride, #list_variable),
+		}
+	end
+
+	-- shuffle chunk positions
+	for i = #chunks, 2, -1 do
+		local j = math.random(i)
+		chunks[i], chunks[j] = chunks[j], chunks[i]
+	end
+
+	local dest_index = 1
+
+	-- copy chunks in shuffled order
+	for _, chunk in ipairs(chunks) do
+		for i = chunk.start, chunk.finish do
+			result[dest_index] = list_variable[i]
+			dest_index += 1
+		end
+	end
+
+	return result
 end
 
 ll.ListReplaceList = function(
@@ -3897,7 +4046,7 @@ ll.SetLinkSitFlags = function(link_number: number, flags: number)
 end
 
 ll.SetLinkTexture = function(link_number: number, texture: string, face: number)
-	return nil
+	internal.set_diffuse_texture(link_number, face, texture)
 end
 
 ll.SetLinkTextureAnim = function(
@@ -4026,7 +4175,7 @@ ll.SetText = function(text: string, color: vector, opacity: number)
 end
 
 ll.SetTexture = function(texture: string, face: number)
-	return nil
+	internal.set_diffuse_texture(1, face, texture)
 end
 
 ll.SetTextureAnim = function(
@@ -4045,8 +4194,6 @@ ll.SetTimerEvent = function(rate: number)
 	if type(rate) ~= "number" then
 		return
 	end
-
-	internal.timer = rate
 
 	print("#!SLUA:SET_TIMER", rate)
 end
@@ -4187,9 +4334,13 @@ ll.StringTrim = function(text: string, trim_type: number)
 end
 
 ll.SubStringIndex = function(text: string, sequence: string)
-	error(
-		`#!SLUA:ERROR\t{tostring(debug.info(2, "l"))}\tsubstringindex: not implemented, use string.find instead`
-	)
+	local index = text:find(sequence, 1, true)
+
+	if index then
+		return index - 1
+	end
+
+	return -1
 end
 
 ll.TakeCamera = function(id: uuid)

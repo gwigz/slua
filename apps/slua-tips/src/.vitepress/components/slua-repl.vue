@@ -327,15 +327,13 @@
 									</div>
 								</template>
 							</div>
-
-							<div v-else class="text-gray-500 italic">No output yet</div>
 						</div>
 
 						<!-- scroll to bottom button -->
 						<button
 							v-if="showScrollButton"
 							@click="scrollToBottom"
-							class="absolute bottom-12 right-2.5 px-1 py-1 bg-primary/80 text-white rounded hover:bg-primary transition-colors text-sm flex items-center gap-1"
+							class="absolute bottom-13 right-2.5 px-1 py-1 bg-primary/80 text-white rounded hover:bg-primary transition-colors text-sm flex items-center gap-1"
 						>
 							<Icon icon="solar:arrow-down-bold" class="text-lg" />
 						</button>
@@ -345,7 +343,7 @@
 							<form @submit.prevent="handleChatSubmit" class="flex gap-2">
 								<Input name="chat" placeholder="To nearby chat" />
 
-								<NumberField class="w-56" :min="0" :max="2147483647" :defaultValue="0">
+								<NumberField class="min-w-40" :min="0" :max="2147483647" :defaultValue="0">
 									<NumberFieldContent>
 										<NumberFieldDecrement />
 										<NumberFieldInput name="channel" />
@@ -455,7 +453,7 @@ const timerInterval = ref(0);
 
 const chatInput = ref("");
 
-function rgbToHex(rgb: [number, number, number]): string {
+function rgbToHex(rgb: [number, number, number]) {
 	const [r, g, b] = rgb.map((v) => Math.round(v * 255));
 
 	return `#${r.toString(16).padStart(2, "0")}${g
@@ -518,13 +516,15 @@ watchEffect(() => {
 });
 
 // scroll detection
-const handleScroll = () => {
-	if (!outputRef.value) return;
+function handleScroll() {
+	if (!outputRef.value) {
+		return;
+	}
 
 	const element = outputRef.value;
 
 	const isAtBottom =
-		element.scrollHeight - element.scrollTop <= element.clientHeight + 10;
+		element.scrollHeight - element.scrollTop <= element.clientHeight + 24;
 
 	if (isAtBottom) {
 		autoScroll.value = true;

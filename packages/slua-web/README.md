@@ -46,7 +46,7 @@ if (script) {
 
 ## Compatibility
 
-<img align="right" src="https://progress-bar.xyz/42/?width=200&color=e1a650" />
+<img align="right" src="https://progress-bar.xyz/45/?width=200&color=e1a650" />
 
 - 🟢 `uuid` _not tested_
 - 🟡 `lljson.decode` _does not handle vectors correctly_
@@ -85,6 +85,7 @@ if (script) {
 - 🟢 `ll.Floor` _not tested_
 - 🟢 `ll.Frand` _not tested_
 - 🟢 `ll.GenerateKey` _not tested_
+- 🟢 `ll.GetAlpha` _not tested_
 - 🟢 `ll.GetAndResetTime` _not tested_
 - 🟢 `ll.GetColor` _not tested_
 - 🟢 `ll.GetCreator`
@@ -120,6 +121,7 @@ if (script) {
 - 🟢 `ll.GetStartParameter`
 - 🟢 `ll.GetStartString`
 - 🟢 `ll.GetSubString` _not passing all tests_
+- 🟢 `ll.GetTexture`
 - 🟢 `ll.GetTime`
 - 🟢 `ll.GetTimestamp` _not tested_
 - 🟢 `ll.GetUnixTime`
@@ -176,6 +178,7 @@ if (script) {
 - 🟢 `ll.StringLength` _not tested_
 - 🟢 `ll.StringToBase64` _not tested_
 - 🟢 `ll.StringTrim`
+- 🟢 `ll.SubStringIndex` _not tested_
 - 🟢 `ll.Tan` _not tested_
 - 🟢 `ll.ToLower` _not tested_
 - 🟢 `ll.ToUpper` _not tested_
@@ -183,6 +186,7 @@ if (script) {
 - 🟢 `ll.VecMag` _not tested_
 - 🟢 `ll.VecNorm` _not tested_
 - 🟢 `ll.Whisper`
+- 🟡 `ll.SetTexture` _does not render in playground yet_
 - 🟡 `ll.Ord` _needs testing, probably wrong_
 - 🔴 `ll.AngleBetween`
 - 🔴 `ll.Axes2Rot`
@@ -207,7 +211,6 @@ if (script) {
 - 🔴 `ll.Euler2Rot`
 - 🔴 `ll.FindNotecardTextCount`
 - 🔴 `ll.FindNotecardTextSync`
-- 🔴 `ll.GetAlpha`
 - 🔴 `ll.GetBoundingBox`
 - 🔴 `ll.GetCameraAspect`
 - 🔴 `ll.GetCameraFOV`
@@ -242,7 +245,6 @@ if (script) {
 - 🔴 `ll.GetRot`
 - 🔴 `ll.GetSimStats`
 - 🔴 `ll.GetStatus`
-- 🔴 `ll.GetTexture`
 - 🔴 `ll.GetTextureOffset`
 - 🔴 `ll.GetTextureRot`
 - 🔴 `ll.GetTextureScale`
@@ -284,7 +286,6 @@ if (script) {
 - 🔴 `ll.MapDestination`
 - 🔴 `ll.MD5String`
 - 🔴 `ll.MessageLinked`
-- 🔴 `ll.MoveToTarget`
 - 🔴 `ll.OffsetTexture`
 - 🔴 `ll.ParseString2List`
 - 🔴 `ll.ParseStringKeepNulls`
@@ -304,13 +305,9 @@ if (script) {
 - 🔴 `ll.RotateTexture`
 - 🔴 `ll.RotBetween`
 - 🔴 `ll.RotLookAt`
-- 🔴 `ll.RotTarget`
-- 🔴 `ll.RotTargetRemove`
 - 🔴 `ll.ScaleByFactor`
 - 🔴 `ll.ScaleTexture`
 - 🔴 `ll.SendRemoteData`
-- 🔴 `ll.SetClickAction`
-- 🔴 `ll.SetEnvironment`
 - 🔴 `ll.SetGroundTexture`
 - 🔴 `ll.SetLinkPrimitiveParams`
 - 🔴 `ll.SetLinkPrimitiveParamsFast`
@@ -324,7 +321,6 @@ if (script) {
 - 🔴 `ll.SetScriptState`
 - 🔴 `ll.SetStatus`
 - 🔴 `ll.SetText`
-- 🔴 `ll.SetTexture`
 - 🔴 `ll.SetTextureAnim`
 - 🔴 `ll.SetTouchText`
 - 🔴 `ll.SHA1String`
@@ -332,9 +328,7 @@ if (script) {
 - 🔴 `ll.Sleep`
 - 🔴 `ll.sRGB2Linear`
 - 🔴 `ll.StopLookAt`
-- 🔴 `ll.StopMoveToTarget`
 - 🔴 `ll.StopSound`
-- 🔴 `ll.SubStringIndex`
 - 🔴 `ll.TargetOmega`
 - 🔴 `ll.TextBox`
 - 🔴 `ll.UnescapeURL`
@@ -345,9 +339,9 @@ if (script) {
 
 </details>
 
-Anything not listed is either new, or there is no current intention to add functionality to those functions.
+Anything not listed is either new, or there is no current intention to add functionality to those functions. Physics, rezzing, inventory, and sounds may come later.
 
-Physics, rezzing, inventory, and sounds may come later.
+Any functions that are meant to delay, currently do not delay.
 
 ## Acknowledgements
 

@@ -204,6 +204,7 @@
 					>
 						<!-- cube -->
 						<Cube
+							:position="cubePosition"
 							:scale="cubeScale"
 							:color="cubeColor"
 							:glow="cubeGlow"
@@ -444,6 +445,7 @@ const autoScroll = ref(true);
 const showScrollButton = ref(false);
 const lastScrollHeight = ref(0);
 
+const cubePosition = ref<[number, number, number]>([0, 25.25, 0]);
 const cubeScale = ref<[number, number, number]>([0.5, 0.5, 0.5]);
 const cubeColor = ref("#ffffff");
 const cubeGlow = ref(0);
@@ -557,6 +559,7 @@ function stopScript() {
 	script.value?.dispose();
 	script.value = null;
 
+	cubePosition.value = [0, 25.25, 0];
 	cubeScale.value = [0.5, 0.5, 0.5];
 	cubeColor.value = "#ffffff";
 	cubeDied.value = false;
@@ -610,6 +613,9 @@ async function runScript() {
 		},
 		onTimerChange: (interval) => {
 			timerInterval.value = interval;
+		},
+		onPositionChange: (link, position) => {
+			cubePosition.value = [position[0] - 128, position[2], position[1] - 128];
 		},
 		onScaleChange: (link, scale) => {
 			if (link === 1) {

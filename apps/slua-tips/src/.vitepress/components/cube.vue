@@ -26,7 +26,7 @@
 				<TresMesh
 					name="Object"
 					:rotation="[0, Math.PI / 4, 0]"
-					:position-y="25.25"
+					:position="position"
 					:scale="scale"
 					:visible="!died"
 					@pointer-enter="
@@ -111,6 +111,7 @@ import { cn } from "~/utilities/cn";
 
 const props = defineProps<{
 	died?: boolean;
+	position?: [number, number, number];
 	scale?: [number, number, number];
 	color?: string;
 	glow?: number;

@@ -1047,7 +1047,7 @@ internal = {
 	name = "Object",
 	description = "",
 
-	position = vector.zero,
+	position = vector.create(128, 128, 25.25),
 	-- rotation = quaternion.identity,
 	scale = vector.create(0.5, 0.5, 0.5),
 

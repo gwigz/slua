@@ -47,8 +47,6 @@ function handleMouseMove(event: MouseEvent) {
 	}
 }
 
-const handleClick = (event: MouseEvent) => {};
-
 function resetCamera(animate = false) {
 	// @ts-ignore types seem wrong
 	cameraControls.value.instance.setTarget(-0.4, 25.5, -0.25, animate);
@@ -190,6 +188,7 @@ watch([ctrl, alt, shift, mouseDown], ([ctrl, alt, shift, isLeftMouseDown]) => {
 		}
 	}
 
+	// @ts-ignore types seem wrong
 	console.log(cameraControls.value?.instance);
 });
 </script>

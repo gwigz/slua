@@ -202,9 +202,6 @@ watch([ctrl, alt, shift, mouseDown], ([ctrl, alt, shift, isLeftMouseDown]) => {
 			cameraControls.value.instance.maxPolarAngle = Infinity;
 		}
 	}
-
-	// @ts-ignore types seem wrong
-	console.log(cameraControls.value?.instance);
 });
 </script>
 

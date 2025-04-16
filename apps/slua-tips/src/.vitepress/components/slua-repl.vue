@@ -666,8 +666,6 @@ function handleChatSubmit(event: SubmitEvent) {
 
 	const formData = new FormData(target);
 
-	console.log({ ...formData });
-
 	let channel = Number(formData.get("channel")?.toString().trim()) || 0;
 	let message = formData.get("chat")?.toString().trim();
 

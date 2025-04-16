@@ -10,20 +10,21 @@
 		"
 	>
 		<TresCanvas ref="canvasRef" :tone-mapping-exposure="0.25" antialias>
-			<CameraControls />
+			<Css2dRenderer>
+				<CameraControls />
 
-			<Sky :azimuth="45" :elevation="2" />
+				<Sky :azimuth="45" :elevation="2" />
 
-			<Suspense>
-				<Environment
-					files="/assets/sunset.hdr"
-					:blur="0.5"
-					:environment-intensity="0.6"
-				/>
-			</Suspense>
+				<Suspense>
+					<Environment
+						files="/assets/sunset.hdr"
+						:blur="0.5"
+						:environment-intensity="0.6"
+					/>
+				</Suspense>
 
-			<Suspense>
 				<TresMesh
+					ref="objectRef"
 					name="Object"
 					:rotation="[0, Math.PI / 4, 0]"
 					:position="position"
@@ -59,25 +60,27 @@
 						:emissiveIntensity="glow * 2"
 					/>
 				</TresMesh>
-			</Suspense>
 
-			<TresMesh
-				name="Ground"
-				:position-y="25"
-				:rotation-x="-Math.PI / 2"
-				receive-shadow
-			>
-				<TresPlaneGeometry :args="[256, 256]" />
-				<TresMeshStandardMaterial :map="grass" />
-			</TresMesh>
+				<!-- <FloatText :mesh="objectRef" content="Test" /> -->
 
-			<Suspense>
-				<Ocean :position-y="20" />
-			</Suspense>
+				<TresMesh
+					name="Ground"
+					:position-y="25"
+					:rotation-x="-Math.PI / 2"
+					receive-shadow
+				>
+					<TresPlaneGeometry :args="[256, 256]" />
+					<TresMeshStandardMaterial :map="grass" />
+				</TresMesh>
 
-			<EffectComposerPmndrs>
-				<VignettePmndrs :darkness="0.2" />
-			</EffectComposerPmndrs>
+				<Suspense>
+					<Ocean :position-y="20" />
+				</Suspense>
+
+				<EffectComposerPmndrs>
+					<VignettePmndrs :darkness="0.2" />
+				</EffectComposerPmndrs>
+			</Css2dRenderer>
 		</TresCanvas>
 
 		<div
@@ -103,10 +106,12 @@
 <script setup lang="ts">
 import { Environment, Sky, Ocean } from "@tresjs/cientos";
 import { TresCanvas, useTexture } from "@tresjs/core";
-import { RepeatWrapping, type Texture } from "three";
+import { RepeatWrapping, type Texture, type Mesh } from "three";
 import { EffectComposerPmndrs, VignettePmndrs } from "@tresjs/post-processing";
 import { computed, onMounted, ref } from "vue";
 import CameraControls from "./camera-controls.vue";
+import Css2dRenderer from "./css-2d-renderer.vue";
+import FloatText from "./float-text.vue";
 import { cn } from "~/utilities/cn";
 
 const props = defineProps<{
@@ -120,6 +125,7 @@ const props = defineProps<{
 }>();
 
 const canvasRef = ref<InstanceType<typeof TresCanvas> | null>(null);
+const objectRef = ref<Mesh | null>(null);
 
 const texture = ref<Texture | null>(null);
 const grass = ref<Texture | null>(null);

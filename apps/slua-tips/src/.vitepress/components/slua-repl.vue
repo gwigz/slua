@@ -135,8 +135,12 @@
 
 		<ResizablePanelGroup
 			direction="horizontal"
-			class="flex-1 rounded-lg bg-muted/20 border-8 border-card outline-1 outline-muted"
+			class="flex-1 rounded-lg bg-muted/20 border-8 border-card outline-1 outline-muted relative"
 		>
+			<LlDialog class="absolute top-1 right-1 z-10" :buttons="dialogButtons" @close="dialogClose">
+				Test
+			</LlDialog>
+
 			<div
 				v-if="showWelcome"
 				class="absolute m-2 md:top-1/2 md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 max-w-lg z-10 backdrop-blur-sm bg-background/80 px-6 py-4 border rounded-lg border-muted shadow"
@@ -347,7 +351,12 @@
 							<form @submit.prevent="handleChatSubmit" class="flex gap-2">
 								<Input name="chat" placeholder="To nearby chat" />
 
-								<NumberField class="min-w-40" :min="0" :max="2147483647" :defaultValue="0">
+								<NumberField
+									class="min-w-40"
+									:min="0"
+									:max="2147483647"
+									:defaultValue="0"
+								>
 									<NumberFieldContent>
 										<NumberFieldDecrement />
 										<NumberFieldInput name="channel" />
@@ -419,6 +428,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/utilities/cn";
 import Cube from "./cube.vue";
+import LlDialog from "./ll-dialog.vue";
 
 const MonacoEditor = inBrowser
 	? defineAsyncComponent(() => import("./monaco-editor.vue"))
@@ -456,7 +466,17 @@ const cubeDied = ref(false);
 const cubeText = ref("");
 const cubeTextColor = ref("#ffffff");
 const cubeTextOpacity = ref(1);
+
 const timerInterval = ref(0);
+
+const dialogButtons = ref([
+	"Test",
+	"Test 2",
+	"Test 3",
+	"Test 4",
+	"Test 5",
+	"Test 6",
+]);
 
 const chatInput = ref("");
 
@@ -539,7 +559,7 @@ function handleScroll() {
 	} else if (autoScroll.value) {
 		autoScroll.value = false;
 	}
-};
+}
 
 // scroll button
 watchEffect(() => {
@@ -687,7 +707,8 @@ function handleChatSubmit(event: SubmitEvent) {
 	}
 
 	(target.querySelector("input[name='chat']") as HTMLInputElement).value = "";
-	(target.querySelector("input[name='channel']") as HTMLInputElement).value = channel.toString();
+	(target.querySelector("input[name='channel']") as HTMLInputElement).value =
+		channel.toString();
 
 	// need to check to see if message is prefixed with /123 (channel number)
 	if (message.startsWith("/")) {
@@ -718,5 +739,9 @@ function handleChatSubmit(event: SubmitEvent) {
 		"a2e76fcd-9360-4f6d-a924-000000000003",
 		message
 	);
+}
+
+function dialogClose() {
+	console.log("dialog closed");
 }
 </script>

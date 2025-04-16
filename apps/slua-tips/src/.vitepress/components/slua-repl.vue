@@ -209,6 +209,9 @@
 							:color="cubeColor"
 							:glow="cubeGlow"
 							:died="cubeDied"
+							:text="cubeText"
+							:text-color="cubeTextColor"
+							:text-opacity="cubeTextOpacity"
 							@click="() => script?.touch(1)"
 							@right-click="
 								(event) => {
@@ -450,7 +453,9 @@ const cubeScale = ref<[number, number, number]>([0.5, 0.5, 0.5]);
 const cubeColor = ref("#ffffff");
 const cubeGlow = ref(0);
 const cubeDied = ref(false);
-
+const cubeText = ref("");
+const cubeTextColor = ref("#ffffff");
+const cubeTextOpacity = ref(1);
 const timerInterval = ref(0);
 
 const chatInput = ref("");
@@ -562,6 +567,9 @@ function stopScript() {
 	cubePosition.value = [0, 25.25, 0];
 	cubeScale.value = [0.5, 0.5, 0.5];
 	cubeColor.value = "#ffffff";
+	cubeText.value = "";
+	cubeTextColor.value = "#ffffff";
+	cubeTextOpacity.value = 1;
 	cubeDied.value = false;
 
 	timerInterval.value = 0;
@@ -631,6 +639,11 @@ async function runScript() {
 			if (link === 1) {
 				cubeGlow.value = glow;
 			}
+		},
+		onTextChange: (link, text, color, opacity) => {
+			cubeText.value = text;
+			cubeTextColor.value = rgbToHex(color);
+			cubeTextOpacity.value = opacity;
 		},
 	});
 

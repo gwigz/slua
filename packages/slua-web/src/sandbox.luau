@@ -1365,6 +1365,32 @@ internal.get_diffuse_texture = function(link_number: number, face: number)
 	return tostring(internal.diffuse_textures[face] or NULL_KEY)
 end
 
+internal.set_text = function(
+	link: number,
+	text: string,
+	color: vector,
+	opacity: number
+)
+	if
+		type(link) ~= "number"
+		or type(text) ~= "string"
+		or type(color) ~= "vector"
+		or type(opacity) ~= "number"
+	then
+		return
+	end
+
+	print(
+		"#!SLUA:SET_TEXT",
+		link,
+		text:gsub("[\t]", "\\t"),
+		color.x,
+		color.y,
+		color.z,
+		opacity
+	)
+end
+
 at_rot_target = function() end
 
 internal.at_rot_target = function(
@@ -4171,7 +4197,7 @@ ll.SetStatus = function(status: number, value: number)
 end
 
 ll.SetText = function(text: string, color: vector, opacity: number)
-	return nil
+	internal.set_text(1, text, color, opacity)
 end
 
 ll.SetTexture = function(texture: string, face: number)

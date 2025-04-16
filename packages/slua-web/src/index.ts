@@ -110,6 +110,11 @@ export type SLuaConfig = {
 	 * Returns runtime alpha changes
 	 */
 	onAlphaChange?: (link: number, alpha: number, face: number) => void;
+
+	/**
+	 * Returns runtime text changes
+	 */
+	onTextChange?: (link: number, text: string, color: [number, number, number], opacity: number) => void;
 };
 
 export type SLuaScript = {
@@ -470,6 +475,14 @@ function parseAlphaChange(
 	return [Number(link), Number(face), Number(alpha)];
 }
 
+function parseTextChange(
+	message: string,
+): CallbackParameters<'onTextChange'> {
+	const [_, link, text, x, y, z, opacity] = message.split('\t');
+
+	return [Number(link), text.replace(/\\t/g, '\t'), [Number(x), Number(y), Number(z)], Number(opacity)];
+}
+
 function luaFormat(value: unknown): string {
 	if (typeof value === 'string') {
 		return JSON.stringify(value);
@@ -620,6 +633,10 @@ export async function runScript(code: string, config: SLuaConfig = {}) {
 
 				case 'SET_ALPHA':
 					config.onAlphaChange?.(...parseAlphaChange(message));
+					break;
+
+				case 'SET_TEXT':
+					config.onTextChange?.(...parseTextChange(message));
 					break;
 
 				case 'REMOVE_SENSOR':

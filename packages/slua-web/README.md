@@ -171,6 +171,7 @@ if (script) {
 - 🟢 `ll.SetPos`
 - 🟢 `ll.SetRegionPos`
 - 🟢 `ll.SetScale`
+- 🟢 `ll.SetText` _not tested_
 - 🟢 `ll.SetTimerEvent`
 - 🟢 `ll.Shout`
 - 🟢 `ll.Sin` _not tested_
@@ -320,7 +321,6 @@ if (script) {
 - 🔴 `ll.SetRot`
 - 🔴 `ll.SetScriptState`
 - 🔴 `ll.SetStatus`
-- 🔴 `ll.SetText`
 - 🔴 `ll.SetTextureAnim`
 - 🔴 `ll.SetTouchText`
 - 🔴 `ll.SHA1String`

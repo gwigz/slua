@@ -61,7 +61,7 @@
 					/>
 				</TresMesh>
 
-				<!-- <FloatText :mesh="objectRef" content="Test" /> -->
+				<FloatText :mesh="objectRef" :text="text" :color="textColor" :opacity="textOpacity" />
 
 				<TresMesh
 					name="Ground"
@@ -120,6 +120,9 @@ const props = defineProps<{
 	scale?: [number, number, number];
 	color?: string;
 	glow?: number;
+	text?: string;
+	textColor?: string;
+	textOpacity?: number;
 	onClick?: () => void;
 	onRightClick?: (event: MouseEvent) => void;
 }>();

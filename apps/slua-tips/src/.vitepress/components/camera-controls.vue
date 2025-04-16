@@ -48,8 +48,23 @@ function handleMouseMove(event: MouseEvent) {
 }
 
 function resetCamera(animate = false) {
-	// @ts-ignore types seem wrong
-	cameraControls.value.instance.setTarget(-0.4, 25.5, -0.25, animate);
+	if (!scene.value || !cameraControls.value) {
+		return;
+	}
+
+	const object = scene.value.getObjectByName("Object");
+
+	if (object) {
+		const position = object.position;
+
+		// @ts-ignore types seem wrong
+		cameraControls.value.instance.setTarget(position.x, position.y, position.z, animate);
+	} else {
+		// Fallback to default position if object not found
+		// @ts-ignore types seem wrong
+		cameraControls.value.instance.setTarget(-0.4, 25.5, -0.25, animate);
+	}
+
 	// @ts-ignore types seem wrong
 	cameraControls.value.instance.rotatePolarTo(1.4, animate);
 	// @ts-ignore types seem wrong

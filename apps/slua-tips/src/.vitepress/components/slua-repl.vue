@@ -264,7 +264,7 @@
 							class="absolute rounded m-2 top-0 right-0 p-2 bg-background/50 backdrop-blur-xs flex items-center gap-1 justify-between"
 						>
 							<div class="text-xs text-foreground/80 flex items-center gap-1">
-								Right-click objects for more event triggers
+								Right-click objects for more triggers, alt-click to zoom
 							</div>
 							<Button
 								class="p-0.25 h-auto"

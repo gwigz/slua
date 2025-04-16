@@ -1,10 +1,15 @@
 <template>
 	<div
-		ref="container"
 		class="relative w-full h-full select-none"
-		style="cursor: default"
+		@contextmenu.prevent="
+			(event) => {
+				if (canvasRef?.$el && canvasRef.$el.style.cursor === 'pointer') {
+					onRightClick?.(event);
+				}
+			}
+		"
 	>
-		<TresCanvas :tone-mapping-exposure="0.25">
+		<TresCanvas ref="canvasRef" :tone-mapping-exposure="0.25" antialias>
 			<CameraControls />
 
 			<Sky :azimuth="45" :elevation="2" />
@@ -19,25 +24,34 @@
 
 			<Suspense>
 				<TresMesh
+					name="Object"
 					:rotation="[0, Math.PI / 4, 0]"
+					:position-y="25.25"
 					:scale="scale"
 					:visible="!died"
 					@pointer-enter="
-						() =>
-							container &&
-							container.style.cursor === 'default' &&
-							(container.style.cursor = 'pointer')
+						if (canvasRef?.$el && canvasRef.$el.style.cursor === 'default') {
+							canvasRef.$el.style.cursor = 'pointer';
+						}
 					"
 					@pointer-leave="
-						() =>
-							container &&
-							container.style.cursor === 'pointer' &&
-							(container.style.cursor = 'default')
+						if (canvasRef?.$el && canvasRef.$el.style.cursor === 'pointer') {
+							canvasRef.$el.style.cursor = 'default';
+						}
 					"
-					@click="onClick"
-					@context-menu="onRightClick"
+					@click="
+						() => {
+							const cursor = canvasRef?.$el?.style.cursor;
+
+							if (cursor === 'pointer' || cursor === 'default') {
+								onClick?.();
+							}
+						}
+					"
+					cast-shadow
 				>
 					<TresBoxGeometry :args="[1, 1, 1]" />
+
 					<TresMeshStandardMaterial
 						:map="texture"
 						:color="color"
@@ -47,21 +61,19 @@
 				</TresMesh>
 			</Suspense>
 
-			<Grid
-				:args="[10, 10]"
-				:position="[0, -0.25, 0]"
-				:cell-size="1"
-				section-color="#7f7f7f"
-				:section-size="2"
-				:infinite-grid="true"
-				:fade-from="0"
-				:fade-distance="12"
-				:fade-strength="1"
-			/>
+			<TresMesh
+				name="Ground"
+				:position-y="25"
+				:rotation-x="-Math.PI / 2"
+				receive-shadow
+			>
+				<TresPlaneGeometry :args="[256, 256]" />
+				<TresMeshStandardMaterial :map="grass" />
+			</TresMesh>
 
-			<!-- <Suspense>
-				<Ocean :position="[0, -0.425, 0]" />
-			</Suspense> -->
+			<Suspense>
+				<Ocean :position-y="20" />
+			</Suspense>
 
 			<EffectComposerPmndrs>
 				<VignettePmndrs :darkness="0.2" />
@@ -89,23 +101,13 @@
 </template>
 
 <script setup lang="ts">
-import {
-	Environment,
-	Sky,
-	Grid,
-} from "@tresjs/cientos";
+import { Environment, Sky, Ocean } from "@tresjs/cientos";
 import { TresCanvas, useTexture } from "@tresjs/core";
-import type { Texture } from "three";
+import { RepeatWrapping, type Texture } from "three";
 import { EffectComposerPmndrs, VignettePmndrs } from "@tresjs/post-processing";
 import { computed, onMounted, ref } from "vue";
-import { useData } from "vitepress";
 import CameraControls from "./camera-controls.vue";
 import { cn } from "~/utilities/cn";
-
-const { isDark } = useData();
-
-const container = ref<HTMLDivElement | null>(null);
-const texture = ref<Texture | null>(null);
 
 const props = defineProps<{
 	died?: boolean;
@@ -115,6 +117,11 @@ const props = defineProps<{
 	onClick?: () => void;
 	onRightClick?: (event: MouseEvent) => void;
 }>();
+
+const canvasRef = ref<InstanceType<typeof TresCanvas> | null>(null);
+
+const texture = ref<Texture | null>(null);
+const grass = ref<Texture | null>(null);
 
 const scale = computed(
 	() =>
@@ -146,6 +153,11 @@ const emissive = computed(() => {
 
 onMounted(async () => {
 	texture.value = await useTexture(["/assets/plywood.jpg"]);
+	grass.value = await useTexture(["/assets/grass.webp"]);
+
+	grass.value.repeat.set(12, 12);
+	grass.value.wrapS = RepeatWrapping;
+	grass.value.wrapT = RepeatWrapping;
 });
 </script>
 

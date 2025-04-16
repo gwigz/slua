@@ -47,41 +47,11 @@ function handleMouseMove(event: MouseEvent) {
 	}
 }
 
-const handleClick = (event: MouseEvent) => {
-	if (
-		!camera.value ||
-		!renderer.value ||
-		!cameraControls.value ||
-		!scene.value ||
-		!alt.value
-	) {
-		return;
-	}
-
-	const rect = renderer.value.domElement.getBoundingClientRect();
-	const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-	const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-	raycaster.value.setFromCamera(new Vector2(x, y), camera.value);
-
-	const intersects = raycaster.value.intersectObjects(
-		scene.value.children,
-		true
-	);
-
-	if (intersects.length > 1 && intersects[0].object.name) {
-		const point = intersects[0].point;
-
-		// @ts-ignore types seem wrong
-		cameraControls.value.instance.setTarget(point.x, point.y, point.z, true);
-
-		// move cursor to middle of the bounding box
-	}
-};
+const handleClick = (event: MouseEvent) => {};
 
 function resetCamera(animate = false) {
 	// @ts-ignore types seem wrong
-	cameraControls.value.instance.setTarget(0, 25.5, 0, animate);
+	cameraControls.value.instance.setTarget(-0.4, 25.5, -0.25, animate);
 	// @ts-ignore types seem wrong
 	cameraControls.value.instance.rotatePolarTo(1.4, animate);
 	// @ts-ignore types seem wrong
@@ -92,8 +62,33 @@ function resetCamera(animate = false) {
 
 onMounted(() => {
 	const handleMouseDown = (event: MouseEvent) => {
-		if (event.button === 0) {
-			handleClick(event);
+		if (
+			event.button !== 0 ||
+			!camera.value ||
+			!renderer.value ||
+			!cameraControls.value ||
+			!scene.value ||
+			!alt.value
+		) {
+			return;
+		}
+
+		const rect = renderer.value.domElement.getBoundingClientRect();
+		const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+		const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+		raycaster.value.setFromCamera(new Vector2(x, y), camera.value);
+
+		const intersects = raycaster.value.intersectObjects(
+			scene.value.children,
+			true
+		);
+
+		if (intersects.length > 1 && intersects[0].object.name) {
+			const point = intersects[0].point;
+
+			// @ts-ignore types seem wrong
+			cameraControls.value.instance.setTarget(point.x, point.y, point.z, true);
 
 			mouseDown.value = true;
 		}
@@ -200,7 +195,7 @@ watch([ctrl, alt, shift, mouseDown], ([ctrl, alt, shift, isLeftMouseDown]) => {
 </script>
 
 <template>
-	<TresPerspectiveCamera  />
+	<TresPerspectiveCamera />
 
 	<CameraControls
 		ref="cameraControls"

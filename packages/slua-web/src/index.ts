@@ -480,7 +480,7 @@ function parseTextChange(
 ): CallbackParameters<'onTextChange'> {
 	const [_, link, text, x, y, z, opacity] = message.split('\t');
 
-	return [Number(link), text.replace(/\\t/g, '\t'), [Number(x), Number(y), Number(z)], Number(opacity)];
+	return [Number(link), text.replace(/\\t/g, '\t').replace(/\\n/g, '\n'), [Number(x), Number(y), Number(z)], Number(opacity)];
 }
 
 function luaFormat(value: unknown): string {

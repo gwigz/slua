@@ -1383,7 +1383,7 @@ internal.set_text = function(
 	print(
 		"#!SLUA:SET_TEXT",
 		link,
-		text:gsub("[\t]", "\\t"),
+		text:gsub("[\t]", "\\t"):gsub("[\n]", "\\n"),
 		color.x,
 		color.y,
 		color.z,

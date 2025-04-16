@@ -38,6 +38,8 @@ watch(
 		labelRef.value.style.fontWeight = "bold";
 		labelRef.value.style.textAlign = "center";
 		labelRef.value.style.textShadow = "1px 1px 0 rgba(0, 0, 0, 0.5)";
+		labelRef.value.style.whiteSpace = "pre";
+		labelRef.value.style.lineHeight = "1";
 
 		label.value = new CSS2DObject(labelRef.value);
 		const scale = props.mesh.scale;

@@ -13,10 +13,12 @@ gitChangelog: false
 ```luau
 function touch_end(num_detected)
 	ll.Say(0, `Wait, you're not {ll.DetectedName(0)}!`)
+	ll.SetText(">:3", vector.one, 1)
 end
 
 function collision_start(num_detected)
 	ll.Whisper(0, 'That hurt.')
+	ll.SetText(":O", vector.one, 1)
 end
 
 function timer()
@@ -40,6 +42,7 @@ end
 
 ll.Listen(0, "", "", "")
 ll.SetTimerEvent(0.02)
+ll.SetText(":3", vector.one, 1)
 
 print("Ready!")
 ```

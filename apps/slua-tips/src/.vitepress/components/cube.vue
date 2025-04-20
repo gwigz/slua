@@ -168,6 +168,10 @@ onMounted(async () => {
 	grass.value.repeat.set(12, 12);
 	grass.value.wrapS = RepeatWrapping;
 	grass.value.wrapT = RepeatWrapping;
+
+	if (canvasRef.value?.$el) {
+		canvasRef.value.$el.style.cursor = "default";
+	}
 });
 </script>
 

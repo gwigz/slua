@@ -80,7 +80,7 @@ LLEvents.on("listen", (_channel, _name, id, message) => {
   //   return
   // }
 
-  if (message === "ping") {
+  if (message.toLowerCase() === "ping") {
     ll.RegionSayTo(id, 0, "pong!")
   }
 })
@@ -292,7 +292,9 @@ export function App() {
 
           {/* Lua output */}
           <div className="flex flex-col flex-1 min-w-0">
-            <div className="px-3 py-1 text-xs text-muted-foreground border-b border-border">SLua</div>
+            <div className="px-3 py-1 text-xs text-muted-foreground border-b border-border">
+              SLua
+            </div>
             <div className="flex-1 min-h-0">
               <Editor
                 language="lua"
@@ -332,7 +334,9 @@ export function App() {
 
           {/* Mobile: both editors always mounted, visibility-toggled to avoid Monaco remount issues */}
           <div className="flex-1 min-h-0 relative">
-            <div className={`absolute inset-0 ${activeTab !== "typescript" ? "invisible pointer-events-none" : ""}`}>
+            <div
+              className={`absolute inset-0 ${activeTab !== "typescript" ? "invisible pointer-events-none" : ""}`}
+            >
               <Editor
                 defaultLanguage="typescript"
                 defaultValue={localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE}
@@ -350,7 +354,9 @@ export function App() {
                 }}
               />
             </div>
-            <div className={`absolute inset-0 ${activeTab !== "lua" ? "invisible pointer-events-none" : ""}`}>
+            <div
+              className={`absolute inset-0 ${activeTab !== "lua" ? "invisible pointer-events-none" : ""}`}
+            >
               <Editor
                 language="lua"
                 value={lua}

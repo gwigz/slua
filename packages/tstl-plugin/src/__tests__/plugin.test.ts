@@ -274,3 +274,150 @@ describe("bitwise operators", () => {
     expect(lua).not.toContain("bit32")
   })
 })
+
+describe("JSON transforms", () => {
+  it("translates JSON.stringify to lljson.encode", () => {
+    const lua = transpileSimple("declare const obj: any;\nconst s = JSON.stringify(obj)")
+
+    expect(lua).toContain("lljson.encode(obj)")
+    expect(lua).not.toContain("JSON")
+  })
+
+  it("translates JSON.parse to lljson.decode", () => {
+    const lua = transpileSimple('declare const s: string;\nconst obj = JSON.parse(s)')
+
+    expect(lua).toContain("lljson.decode(s)")
+    expect(lua).not.toContain("JSON")
+  })
+})
+
+describe("base64 transforms", () => {
+  it("translates btoa to llbase64.encode", () => {
+    const lua = transpileSimple("declare const s: string;\nconst b = btoa(s)")
+
+    expect(lua).toContain("llbase64.encode(s)")
+    expect(lua).not.toContain("btoa")
+  })
+
+  it("translates atob to llbase64.decode", () => {
+    const lua = transpileSimple("declare const b: string;\nconst s = atob(b)")
+
+    expect(lua).toContain("llbase64.decode(b)")
+    expect(lua).not.toContain("atob")
+  })
+})
+
+describe("string ll.* transforms", () => {
+  it("translates toUpperCase to ll.ToUpper", () => {
+    const lua = transpileSimple('const s = "hello".toUpperCase()')
+
+    expect(lua).toContain("ll.ToUpper")
+  })
+
+  it("translates toLowerCase to ll.ToLower", () => {
+    const lua = transpileSimple('const s = "HELLO".toLowerCase()')
+
+    expect(lua).toContain("ll.ToLower")
+  })
+
+  it("translates trim to ll.StringTrim with STRING_TRIM", () => {
+    const lua = transpileSimple('declare const s: string;\nconst x = s.trim()')
+
+    expect(lua).toContain("ll.StringTrim")
+    expect(lua).toContain("STRING_TRIM")
+  })
+
+  it("translates trimStart to ll.StringTrim with STRING_TRIM_HEAD", () => {
+    const lua = transpileSimple(
+      'interface String { trimStart(): string; }\ndeclare const s: string;\nconst x = s.trimStart()',
+    )
+
+    expect(lua).toContain("ll.StringTrim")
+    expect(lua).toContain("STRING_TRIM_HEAD")
+  })
+
+  it("translates trimEnd to ll.StringTrim with STRING_TRIM_TAIL", () => {
+    const lua = transpileSimple(
+      'interface String { trimEnd(): string; }\ndeclare const s: string;\nconst x = s.trimEnd()',
+    )
+
+    expect(lua).toContain("ll.StringTrim")
+    expect(lua).toContain("STRING_TRIM_TAIL")
+  })
+
+  it("translates indexOf (1-arg) to ll.SubStringIndex", () => {
+    const lua = transpileSimple('declare const s: string;\nconst i = s.indexOf("x")')
+
+    expect(lua).toContain("ll.SubStringIndex")
+  })
+
+  it("does not transform indexOf with fromIndex argument", () => {
+    const lua = transpileSimple('declare const s: string;\nconst i = s.indexOf("x", 5)')
+
+    expect(lua).not.toContain("ll.SubStringIndex")
+  })
+})
+
+describe("string Luau stdlib transforms", () => {
+  it("translates includes to string.find", () => {
+    const lua = transpileSimple(
+      'interface String { includes(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.includes("x")',
+    )
+
+    expect(lua).toContain("string.find(s,")
+    expect(lua).toContain("true")
+    expect(lua).toContain("~= nil")
+  })
+
+  it("translates split(sep) to string.split", () => {
+    const lua = transpileSimple(
+      'interface String { split(separator: string): string[] }\ndeclare const s: string;\nconst a = s.split(",")',
+    )
+
+    expect(lua).toContain("string.split(s,")
+  })
+
+  it("does not transform split() with no separator", () => {
+    const lua = transpileSimple(
+      "interface String { split(separator?: string): string[] }\ndeclare const s: string;\nconst a = s.split()",
+    )
+
+    expect(lua).not.toContain("string.split")
+  })
+
+  it("translates repeat to string.rep", () => {
+    const lua = transpileSimple(
+      "interface String { repeat(count: number): string }\ndeclare const s: string;\nconst r = s.repeat(3)",
+    )
+
+    expect(lua).toContain("string.rep(s, 3)")
+  })
+})
+
+describe("array transforms", () => {
+  it("translates includes to table.find ~= nil", () => {
+    const lua = transpileSimple(
+      "interface Array<T> { includes(searchElement: T): boolean; }\ndeclare const arr: number[];\nconst b = arr.includes(3)",
+    )
+
+    expect(lua).toContain("table.find(arr, 3)")
+    expect(lua).toContain("~= nil")
+  })
+
+  it("translates indexOf (1-arg) to (table.find or 0) - 1", () => {
+    const lua = transpileSimple(
+      "interface Array<T> { indexOf(searchElement: T, fromIndex?: number): number; }\ndeclare const arr: number[];\nconst i = arr.indexOf(3)",
+    )
+
+    expect(lua).toContain("table.find(arr, 3)")
+    expect(lua).toContain("- 1")
+  })
+
+  it("does not transform indexOf with fromIndex argument", () => {
+    const lua = transpileSimple(
+      "interface Array<T> { indexOf(searchElement: T, fromIndex?: number): number; }\ndeclare const arr: number[];\nconst i = arr.indexOf(3, 1)",
+    )
+
+    expect(lua).not.toContain("table.find")
+  })
+})

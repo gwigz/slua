@@ -4,17 +4,63 @@
 
 ## What it does
 
+- Translates TypeScript patterns to native Luau/LSL equivalents (see below)
 - Handles adjusting `Vector`, `Quaternion`, and `UUID` casing
-- Translates bitwise operators to `bit32` library calls (see below)
-- Translates `Math.floor(a / b)` to the native `//` floor division operator (see below)
 - Validates `luaTarget` is set to `Luau`
 - Warns if `luaLibImport` is not `none` or `inline` (for now)
 
-## Bitwise operators
+## Transforms
+
+The plugin replaces TSTL lualib helpers with native Luau stdlib and LSL function calls for better performance and smaller output.
+
+### JSON
+
+| TypeScript            | Lua output           |
+| --------------------- | -------------------- |
+| `JSON.stringify(val)` | `lljson.encode(val)` |
+| `JSON.parse(str)`     | `lljson.decode(str)` |
+
+For SL-typed JSON (preserving vector/quaternion/uuid), use `lljson.slencode`/`lljson.sldecode` directly.
+
+### Base64
+
+| TypeScript  | Lua output             |
+| ----------- | ---------------------- |
+| `btoa(str)` | `llbase64.encode(str)` |
+| `atob(str)` | `llbase64.decode(str)` |
+
+### String methods
+
+String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib calls:
+
+| TypeScript          | Lua output                             |
+| ------------------- | -------------------------------------- |
+| `str.toUpperCase()` | `ll.ToUpper(str)`                      |
+| `str.toLowerCase()` | `ll.ToLower(str)`                      |
+| `str.trim()`        | `ll.StringTrim(str, STRING_TRIM)`      |
+| `str.trimStart()`   | `ll.StringTrim(str, STRING_TRIM_HEAD)` |
+| `str.trimEnd()`     | `ll.StringTrim(str, STRING_TRIM_TAIL)` |
+| `str.indexOf(x)`    | `ll.SubStringIndex(str, x)`            |
+| `str.includes(x)`   | `string.find(str, x, 1, true) ~= nil`  |
+| `str.split(sep)`    | `string.split(str, sep)`               |
+| `str.repeat(n)`     | `string.rep(str, n)`                   |
+
+> [!NOTE]
+> `str.indexOf(x, fromIndex)` with a second argument falls through to TSTL's default handling since `ll.SubStringIndex` has no `fromIndex` parameter. Similarly, `str.split()` with no separator is not transformed.
+
+### Array methods
+
+| TypeScript          | Lua output                        |
+| ------------------- | --------------------------------- |
+| `arr.includes(val)` | `table.find(arr, val) ~= nil`     |
+| `arr.indexOf(val)`  | `(table.find(arr, val) or 0) - 1` |
+
+> [!NOTE]
+> `arr.indexOf(val, fromIndex)` with a second argument falls through to TSTL's default handling.
+
+### Bitwise operators
 
 TypeScript bitwise operators are automatically translated to `bit32` library calls, since SLua does not support native Lua bitwise operators.
-
-### Binary operators
 
 | TypeScript | Lua output            |
 | ---------- | --------------------- |
@@ -28,7 +74,7 @@ TypeScript bitwise operators are automatically translated to `bit32` library cal
 
 Compound assignments (`&=`, `|=`, `^=`, `<<=`, `>>=`, `>>>=`) are also supported and desugar to the same `bit32` calls.
 
-### `btest` optimization
+#### `btest` optimization
 
 Comparisons of a bitwise AND against zero are automatically optimized to `bit32.btest`:
 
@@ -39,7 +85,7 @@ Comparisons of a bitwise AND against zero are automatically optimized to `bit32.
 
 This works with `!=`, `==`, and with the zero on either side (`0 !== (a & b)`).
 
-## Floor division
+### Floor division
 
 `Math.floor(a / b)` is translated to the native Luau floor division operator `//`:
 

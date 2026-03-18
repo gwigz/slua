@@ -82,48 +82,9 @@ LLEvents:on("touch_start", function(events)
 end)
 ```
 
-### Bitwise Operators
+### Plugin Transforms
 
-TypeScript bitwise operators are automatically translated to `bit32` library calls by the plugin:
-
-| TypeScript | Lua output            |
-| ---------- | --------------------- |
-| `a & b`    | `bit32.band(a, b)`    |
-| `a \| b`   | `bit32.bor(a, b)`     |
-| `a ^ b`    | `bit32.bxor(a, b)`    |
-| `a << b`   | `bit32.lshift(a, b)`  |
-| `a >> b`   | `bit32.arshift(a, b)` |
-| `a >>> b`  | `bit32.rshift(a, b)`  |
-| `~a`       | `bit32.bnot(a)`       |
-
-Compound assignments (`&=`, `|=`, etc.) work too. Comparisons against zero are optimized to `bit32.btest`:
-
-```typescript
-if ((flags & CHANGED_OWNER) !== 0) {
-  // ...
-}
-```
-
-```lua
-if bit32.btest(flags, CHANGED_OWNER) then
-  -- ...
-end
-```
-
-### Floor Division
-
-`Math.floor(a / b)` is translated to the native Luau `//` floor division operator:
-
-```typescript
-const index = Math.floor(offset / stride)
-```
-
-```lua
-local index = offset // stride
-```
-
-> [!WARNING]
-> JavaScript integer truncation idioms `~~x` and `x | 0` do **not** map cleanly to Luau. `~~x` emits `bit32.bnot(bit32.bnot(x))` and `x | 0` emits `bit32.bor(x, 0)`, neither of which preserves correct semantics for negative numbers (the `bit32` library operates on unsigned 32-bit integers). Use `math.floor(x)` for floor truncation instead.
+The TSTL plugin automatically translates TypeScript patterns to native Luau/LSL equivalents for JSON, base64, string methods, array methods, bitwise operators, and floor division. See the [full transform reference](packages/tstl-plugin#transforms) for details.
 
 ### Comments
 

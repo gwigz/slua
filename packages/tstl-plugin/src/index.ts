@@ -65,7 +65,9 @@ const COMPOUND_BITWISE_OPS: Record<number, string> = {
 /**
  * Returns true when `node` is `Math.floor(<single-arg>)`.
  */
-function isMathFloor(node: ts.CallExpression): node is ts.CallExpression & { arguments: [ts.Expression] } {
+function isMathFloor(
+  node: ts.CallExpression,
+): node is ts.CallExpression & { arguments: [ts.Expression] } {
   return (
     node.arguments.length === 1 &&
     ts.isPropertyAccessExpression(node.expression) &&
@@ -122,16 +124,285 @@ function extractBtestPattern(
   // `== 0` / `=== 0` mean "no bits in common", so we negate btest (negate = true).
   // `!= 0` / `!== 0` mean "some bits in common", which is what btest returns
   // directly, so no negation is needed.  The `!isNegatedEquality` double-negative
-  // captures this: negated equality (!=) → false → don't negate btest.
+  // captures this: negated equality (!=) -> false -> don't negate btest.
   return { band: bandExpr, negate: !isNegatedEquality(op) }
 }
+
+/**
+ * Type-checking helpers for catalog transforms.
+ */
+function isStringType(expr: ts.Expression, checker: ts.TypeChecker): boolean {
+  const type = checker.getTypeAtLocation(expr)
+  return !!(type.flags & ts.TypeFlags.StringLike)
+}
+
+function isArrayType(expr: ts.Expression, checker: ts.TypeChecker): boolean {
+  const type = checker.getTypeAtLocation(expr)
+  return checker.isArrayLikeType(type)
+}
+
+/**
+ * Checks whether `node` is `obj.method(args)` where `obj` matches the
+ * given type predicate and the method name matches.
+ */
+function isMethodCall(
+  node: ts.CallExpression,
+  checker: ts.TypeChecker,
+  typeGuard: (expr: ts.Expression, checker: ts.TypeChecker) => boolean,
+  method: string,
+  argCount?: number,
+): node is ts.CallExpression & { expression: ts.PropertyAccessExpression } {
+  if (!ts.isPropertyAccessExpression(node.expression)) return false
+  if (node.expression.name.text !== method) return false
+  if (argCount !== undefined && node.arguments.length !== argCount) return false
+  return typeGuard(node.expression.expression, checker)
+}
+
+/**
+ * Checks whether `node` is `Namespace.method(args)` using syntactic
+ * identifier matching (no TypeChecker needed).
+ */
+function isNamespaceCall(
+  node: ts.CallExpression,
+  namespace: string,
+  method: string,
+): node is ts.CallExpression & { expression: ts.PropertyAccessExpression } {
+  if (!ts.isPropertyAccessExpression(node.expression)) return false
+  if (node.expression.name.text !== method) return false
+  return (
+    ts.isIdentifier(node.expression.expression) && node.expression.expression.text === namespace
+  )
+}
+
+/**
+ * Checks whether `node` is a call to a global function by name.
+ */
+function isGlobalCall(node: ts.CallExpression, name: string): boolean {
+  return ts.isIdentifier(node.expression) && node.expression.text === name
+}
+
+/**
+ * Creates a `ns.fn(...args)` Lua call expression.
+ */
+function createNamespacedCall(
+  ns: string,
+  fn: string,
+  args: tstl.Expression[],
+  node?: ts.Node,
+): tstl.CallExpression {
+  return tstl.createCallExpression(
+    tstl.createTableIndexExpression(tstl.createIdentifier(ns), tstl.createStringLiteral(fn)),
+    args,
+    node,
+  )
+}
+
+type CallTransform = {
+  match: (node: ts.CallExpression, checker: ts.TypeChecker) => boolean
+  emit: (node: ts.CallExpression, context: tstl.TransformationContext) => tstl.Expression
+}
+
+const CALL_TRANSFORMS: CallTransform[] = [
+  // JSON.stringify(val) -> lljson.encode(val)
+  {
+    match: (node) => isNamespaceCall(node, "JSON", "stringify"),
+    emit: (node, context) => {
+      const args = node.arguments.map((a) => context.transformExpression(a))
+      return createNamespacedCall("lljson", "encode", args, node)
+    },
+  },
+  // JSON.parse(str) -> lljson.decode(str)
+  {
+    match: (node) => isNamespaceCall(node, "JSON", "parse"),
+    emit: (node, context) => {
+      const args = node.arguments.map((a) => context.transformExpression(a))
+      return createNamespacedCall("lljson", "decode", args, node)
+    },
+  },
+  // btoa(str) -> llbase64.encode(str)
+  {
+    match: (node) => isGlobalCall(node, "btoa") && node.arguments.length === 1,
+    emit: (node, context) => {
+      const args = node.arguments.map((a) => context.transformExpression(a))
+      return createNamespacedCall("llbase64", "encode", args, node)
+    },
+  },
+  // atob(str) -> llbase64.decode(str)
+  {
+    match: (node) => isGlobalCall(node, "atob") && node.arguments.length === 1,
+    emit: (node, context) => {
+      const args = node.arguments.map((a) => context.transformExpression(a))
+      return createNamespacedCall("llbase64", "decode", args, node)
+    },
+  },
+  // str.toUpperCase() -> ll.ToUpper(str)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "toUpperCase", 0),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      return createNamespacedCall("ll", "ToUpper", [str], node)
+    },
+  },
+  // str.toLowerCase() -> ll.ToLower(str)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "toLowerCase", 0),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      return createNamespacedCall("ll", "ToLower", [str], node)
+    },
+  },
+  // str.trim() -> ll.StringTrim(str, STRING_TRIM)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "trim", 0),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      return createNamespacedCall(
+        "ll",
+        "StringTrim",
+        [str, tstl.createIdentifier("STRING_TRIM")],
+        node,
+      )
+    },
+  },
+  // str.trimStart() -> ll.StringTrim(str, STRING_TRIM_HEAD)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "trimStart", 0),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      return createNamespacedCall(
+        "ll",
+        "StringTrim",
+        [str, tstl.createIdentifier("STRING_TRIM_HEAD")],
+        node,
+      )
+    },
+  },
+  // str.trimEnd() -> ll.StringTrim(str, STRING_TRIM_TAIL)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "trimEnd", 0),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      return createNamespacedCall(
+        "ll",
+        "StringTrim",
+        [str, tstl.createIdentifier("STRING_TRIM_TAIL")],
+        node,
+      )
+    },
+  },
+  // str.indexOf(x) -> ll.SubStringIndex(str, x)  (1-arg only)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "indexOf", 1),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      const search = context.transformExpression(node.arguments[0])
+      return createNamespacedCall("ll", "SubStringIndex", [str, search], node)
+    },
+  },
+  // str.includes(x) -> string.find(str, x, 1, true) ~= nil
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "includes", 1),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      const search = context.transformExpression(node.arguments[0])
+      const findCall = createNamespacedCall(
+        "string",
+        "find",
+        [str, search, tstl.createNumericLiteral(1), tstl.createBooleanLiteral(true)],
+        node,
+      )
+      return tstl.createBinaryExpression(
+        findCall,
+        tstl.createNilLiteral(),
+        tstl.SyntaxKind.InequalityOperator,
+        node,
+      )
+    },
+  },
+  // str.split(sep) -> string.split(str, sep)  (1-arg only)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "split", 1),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      const sep = context.transformExpression(node.arguments[0])
+      return createNamespacedCall("string", "split", [str, sep], node)
+    },
+  },
+  // str.repeat(n) -> string.rep(str, n)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "repeat", 1),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      const n = context.transformExpression(node.arguments[0])
+      return createNamespacedCall("string", "rep", [str, n], node)
+    },
+  },
+  // arr.includes(val) -> table.find(arr, val) ~= nil
+  {
+    match: (node, checker) => isMethodCall(node, checker, isArrayType, "includes", 1),
+    emit: (node, context) => {
+      const arr = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      const val = context.transformExpression(node.arguments[0])
+      const findCall = createNamespacedCall("table", "find", [arr, val], node)
+      return tstl.createBinaryExpression(
+        findCall,
+        tstl.createNilLiteral(),
+        tstl.SyntaxKind.InequalityOperator,
+        node,
+      )
+    },
+  },
+  // arr.indexOf(val) -> (table.find(arr, val) or 0) - 1  (1-arg only)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isArrayType, "indexOf", 1),
+    emit: (node, context) => {
+      const arr = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+      const val = context.transformExpression(node.arguments[0])
+      const findCall = createNamespacedCall("table", "find", [arr, val], node)
+      const findOrZero = tstl.createBinaryExpression(
+        findCall,
+        tstl.createNumericLiteral(0),
+        tstl.SyntaxKind.OrOperator,
+        node,
+      )
+      return tstl.createBinaryExpression(
+        tstl.createParenthesizedExpression(findOrZero),
+        tstl.createNumericLiteral(1),
+        tstl.SyntaxKind.SubtractionOperator,
+        node,
+      )
+    },
+  },
+]
 
 const plugin: tstl.Plugin = {
   visitors: {
     [ts.SyntaxKind.PropertyAccessExpression]: (node: ts.PropertyAccessExpression, context) => {
       const result = context.superTransformExpression(node)
 
-      // Rewrite identifiers in the Lua AST (PascalCase → lowercase, TSTL keyword fixups).
+      // Rewrite identifiers in the Lua AST (PascalCase -> lowercase, TSTL keyword fixups).
       if (tstl.isTableIndexExpression(result) && tstl.isIdentifier(result.table)) {
         const replacement =
           PASCAL_TO_LOWER[result.table.text] ?? TSTL_KEYWORD_FIXUPS[result.table.text]
@@ -183,7 +454,7 @@ const plugin: tstl.Plugin = {
     },
 
     // Compound bitwise assignments used as statements (`a &= 3;`) are handled
-    // by TSTL's ExpressionStatement → transformBinaryExpressionStatement path,
+    // by TSTL's ExpressionStatement -> transformBinaryExpressionStatement path,
     // which never calls the BinaryExpression visitor.  We intercept here and
     // manually desugar to `lhs = bit32.<fn>(lhs, rhs)` to preserve the correct
     // function name (especially arshift vs rshift which TSTL conflates).
@@ -204,13 +475,25 @@ const plugin: tstl.Plugin = {
     },
 
     [ts.SyntaxKind.CallExpression]: (node: ts.CallExpression, context) => {
-      // `Math.floor(a / b)` → `a // b` (native Luau floor division operator)
+      // Catalog-driven transforms
+      for (const transform of CALL_TRANSFORMS) {
+        if (transform.match(node, context.checker)) {
+          return transform.emit(node, context)
+        }
+      }
+
+      // `Math.floor(a / b)` -> `a // b` (native Luau floor division operator)
       if (isMathFloor(node)) {
         const arg = node.arguments[0]
         if (ts.isBinaryExpression(arg) && arg.operatorToken.kind === ts.SyntaxKind.SlashToken) {
           const left = context.transformExpression(arg.left)
           const right = context.transformExpression(arg.right)
-          return tstl.createBinaryExpression(left, right, tstl.SyntaxKind.FloorDivisionOperator, node)
+          return tstl.createBinaryExpression(
+            left,
+            right,
+            tstl.SyntaxKind.FloorDivisionOperator,
+            node,
+          )
         }
       }
 

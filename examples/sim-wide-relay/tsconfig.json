@@ -11,6 +11,7 @@
     "rootDir": ".",
     "outDir": "out"
   },
+  "include": ["*.ts"],
   "tstl": {
     "luaTarget": "Luau",
     "luaLibImport": "inline",
@@ -19,6 +20,5 @@
     // NOTE: you should use "@gwigz/slua-tstl-plugin" instead of the local path
     // check the README for more details
     "luaPlugins": [{ "name": "../../packages/tstl-plugin/dist/index.js" }]
-  },
-  "include": ["main.ts"]
+  }
 }

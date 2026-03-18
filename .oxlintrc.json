@@ -18,7 +18,8 @@
       "files": ["examples/**/*.ts"],
       "rules": {
         "no-unused-vars": "off",
-        "typescript/triple-slash-reference": "off"
+        "typescript/triple-slash-reference": "off",
+        "unicorn/require-module-specifiers": "off"
       }
     }
   ]

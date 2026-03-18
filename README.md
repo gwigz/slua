@@ -32,6 +32,7 @@ Create a `tsconfig.json` in your project:
     "target": "ESNext",
     "module": "ESNext",
     "strict": true,
+    "moduleDetection": "force",
     "types": ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"]
   },
   "tstl": {
@@ -132,7 +133,10 @@ bun test           # run all tests
 ├── tools/
 │   └── gen-types/      # type generation tool (YAML -> .d.ts)
 ├── examples/
-│   └── hello-world/    # example SLua project
+│   ├── getting-started/   # minimal example
+│   ├── kitchen-sink/      # feature showcase
+│   ├── sim-wide-relay/    # multi-script relay system
+│   └── weather-fetcher/   # HTTP request example
 └── refs/
     └── lsl-definitions/  # upstream YAML definitions (submodule)
 ```

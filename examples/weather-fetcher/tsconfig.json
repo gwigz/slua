@@ -4,6 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "moduleDetection": "force",
     "skipLibCheck": true,
     "lib": ["ESNext"],
     "types": ["@typescript-to-lua/language-extensions"],

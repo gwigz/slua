@@ -1,9 +1,16 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
-local config = {apiUrl = "https://wttr.in", refreshInterval = 300, chatChannel = 42, location = "San+Francisco"}
+local config = {
+    apiUrl = "https://wttr.in",
+    refreshInterval = 300,
+    chatChannel = 42,
+    location = "San+Francisco",
+    format = "%l|%C|%t|%h|%w"
+}
 local apiUrl = config.apiUrl
 local refreshInterval = config.refreshInterval
 local chatChannel = config.chatChannel
 local location = config.location
+local format = config.format
 --- Enum for request lifecycle
 local RequestState = RequestState or ({})
 RequestState.Idle = 0
@@ -15,8 +22,8 @@ RequestState[RequestState.Error] = "Error"
 local state = RequestState.Idle
 local pendingRequest
 local lastWeather
-local function formatWeather(weather, loc)
-    return (((((((((((loc .. ": ") .. weather.condition.text) .. "\n") .. tostring(weather.temp_f)) .. "°F (") .. tostring(weather.temp_c)) .. "°C)\nHumidity ") .. tostring(weather.humidity)) .. "% | Wind ") .. tostring(weather.wind_mph)) .. "mph ") .. weather.wind_dir
+local function formatWeather(weather)
+    return (((((((weather.location .. ": ") .. weather.condition) .. "\n") .. weather.temperature) .. " | Humidity ") .. weather.humidity) .. "\nWind ") .. weather.wind
 end
 local function setFloatText(text, color, alpha)
     ll.SetLinkPrimitiveParamsFast(LINK_THIS, {PRIM_TEXT, text, color, alpha})
@@ -45,7 +52,7 @@ local function updateHoverText()
         do
             if lastWeather then
                 setFloatText(
-                    formatWeather(lastWeather, location),
+                    formatWeather(lastWeather),
                     vector.create(0.5, 1, 0.5),
                     1
                 )
@@ -60,13 +67,13 @@ local function updateHoverText()
     until true
 end
 local function makeGetRequest(url)
-    return ll.HTTPRequest(url, {HTTP_METHOD, "GET", HTTP_MIMETYPE, "application/json"}, "")
+    return ll.HTTPRequest(url, {HTTP_METHOD, "GET", HTTP_MIMETYPE, "text/plain"}, "")
 end
 local function fetchWeather()
     if state == RequestState.Pending then
         return
     end
-    local url = ((apiUrl .. "/") .. location) .. "?format=j1"
+    local url = ((((apiUrl .. "/") .. location) .. "?format=") .. format) .. "&u"
     state = RequestState.Pending
     pendingRequest = makeGetRequest(url)
     updateHoverText()
@@ -78,11 +85,16 @@ local function handleResponse(status, body)
         updateHoverText()
         return
     end
-    --- lljson.decode parses JSON into a Lua table
-    local data = lljson.decode(body)
-    local current = data and data.current
-    if current then
-        lastWeather = current
+    --- Split pipe-delimited response: location|condition|temp|humidity|wind
+    local parts = string.split(body, "|")
+    if #parts >= 5 then
+        lastWeather = {
+            location = parts[1],
+            condition = parts[2],
+            temperature = parts[3],
+            humidity = parts[4],
+            wind = parts[5]
+        }
         state = RequestState.Idle
     else
         state = RequestState.Error
@@ -111,11 +123,8 @@ LLEvents:on(
             ____cond18 = ____cond18 or ____switch18 == "status"
             if ____cond18 then
                 do
-                    local temp = lastWeather and lastWeather.temp_f or "N/A"
-                    ll.Say(
-                        chatChannel,
-                        (("State: " .. RequestState[state]) .. ", last temp: ") .. tostring(temp)
-                    )
+                    local temp = lastWeather and lastWeather.temperature or "N/A"
+                    ll.Say(chatChannel, (("State: " .. RequestState[state]) .. ", last temp: ") .. temp)
                     break
                 end
             end

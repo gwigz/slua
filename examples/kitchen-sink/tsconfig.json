@@ -4,6 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "moduleDetection": "force",
     "skipLibCheck": true,
     "lib": ["ESNext"],
     "types": ["@typescript-to-lua/language-extensions"],
@@ -19,5 +20,5 @@
     // check the README for more details
     "luaPlugins": [{ "name": "../../packages/tstl-plugin/dist/index.js" }]
   },
-  "include": ["main.ts", "arrays.ts", "objects.ts", "control-flow.ts", "classes.ts", "functions.ts"]
+  "include": ["*.ts"]
 }

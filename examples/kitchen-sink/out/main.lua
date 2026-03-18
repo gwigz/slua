@@ -6,7 +6,6 @@ local function __TS__New(target, ...)
     return instance
 end
 -- End of Lua Library inline imports
-local ____exports = {}
 local ____arrays = require("arrays")
 local nearby = ____arrays.nearby
 local totalMagnitude = ____arrays.totalMagnitude
@@ -98,4 +97,3 @@ LLTimers:every(
         )
     end
 )
-return ____exports

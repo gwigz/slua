@@ -675,6 +675,32 @@ const plugin: tstl.Plugin = {
 
     return diagnostics
   },
+
+  beforeEmit(program, _options, _emitHost, result) {
+    // Strip empty module boilerplate from files without explicit exports.
+    // `moduleDetection: "force"` causes TSTL to wrap every file as a module;
+    // standalone SLua scripts don't need the ____exports wrapper.
+    for (const file of result) {
+      if (!file.code.includes("local ____exports = {}\n")) continue
+      if (!file.code.trimEnd().endsWith("return ____exports")) continue
+
+      const hasExplicitExports = file.sourceFiles?.some((sf) =>
+        sf.statements.some(
+          (s) =>
+            ts.isExportDeclaration(s) ||
+            ts.isExportAssignment(s) ||
+            (ts.canHaveModifiers(s) &&
+              ts.getModifiers(s)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)),
+        ),
+      )
+
+      if (!hasExplicitExports) {
+        file.code = file.code
+          .replace(/local ____exports = \{\}\n/, "")
+          .replace(/\nreturn ____exports\n?$/, "\n")
+      }
+    }
+  },
 }
 
 export default plugin

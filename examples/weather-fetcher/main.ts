@@ -7,25 +7,19 @@ const config = {
   refreshInterval: 300,
   chatChannel: 42,
   location: "San+Francisco",
+  format: "%l|%C|%t|%h|%w",
 }
 
-const { apiUrl, refreshInterval, chatChannel, location } = config
+const { apiUrl, refreshInterval, chatChannel, location, format } = config
 
 // Response types
 
-/** Interfaces describe the shape of parsed JSON */
-interface CurrentWeather {
-  temp_f: number
-  temp_c: number
-  humidity: number
-  wind_mph: number
-  wind_dir: string
-  condition: { text: string; icon: string }
-}
-
-interface WeatherResponse {
-  location: { name: string; region: string; country: string }
-  current: CurrentWeather
+interface Weather {
+  location: string
+  condition: string
+  temperature: string
+  humidity: string
+  wind: string
 }
 
 // State
@@ -39,14 +33,14 @@ enum RequestState {
 
 let state = RequestState.Idle
 let pendingRequest: uuid | undefined
-let lastWeather: CurrentWeather | undefined
+let lastWeather: Weather | undefined
 
 // Formatting
 
-function formatWeather(weather: CurrentWeather, loc: string) {
-  return `${loc}: ${weather.condition.text}
-${weather.temp_f}°F (${weather.temp_c}°C)
-Humidity ${weather.humidity}% | Wind ${weather.wind_mph}mph ${weather.wind_dir}`
+function formatWeather(weather: Weather) {
+  return `${weather.location}: ${weather.condition}
+${weather.temperature} | Humidity ${weather.humidity}
+Wind ${weather.wind}`
 }
 
 function setFloatText(text: string, color: vector, alpha: number) {
@@ -64,7 +58,7 @@ function updateHoverText() {
       break
     default:
       if (lastWeather) {
-        setFloatText(formatWeather(lastWeather, location), new Vector(0.5, 1.0, 0.5), 1.0)
+        setFloatText(formatWeather(lastWeather), new Vector(0.5, 1.0, 0.5), 1.0)
       } else {
         setFloatText("Touch for weather", new Vector(1, 1, 1), 0.8)
       }
@@ -74,7 +68,7 @@ function updateHoverText() {
 // HTTP request
 
 function makeGetRequest(url: string) {
-  return ll.HTTPRequest(url, [HTTP_METHOD, "GET", HTTP_MIMETYPE, "application/json"], "")
+  return ll.HTTPRequest(url, [HTTP_METHOD, "GET", HTTP_MIMETYPE, "text/plain"], "")
 }
 
 function fetchWeather() {
@@ -82,7 +76,7 @@ function fetchWeather() {
     return
   }
 
-  const url = `${apiUrl}/${location}?format=j1`
+  const url = `${apiUrl}/${location}?format=${format}&u`
 
   state = RequestState.Pending
   pendingRequest = makeGetRequest(url)
@@ -101,12 +95,17 @@ function handleResponse(status: number, body: string) {
     return
   }
 
-  /** lljson.decode parses JSON into a Lua table */
-  const data = lljson.decode(body) as WeatherResponse | undefined
-  const current = data?.current
+  /** Split pipe-delimited response: location|condition|temp|humidity|wind */
+  const parts = body.split("|")
 
-  if (current) {
-    lastWeather = current
+  if (parts.length >= 5) {
+    lastWeather = {
+      location: parts[0],
+      condition: parts[1],
+      temperature: parts[2],
+      humidity: parts[3],
+      wind: parts[4],
+    }
     state = RequestState.Idle
   } else {
     state = RequestState.Error
@@ -132,7 +131,7 @@ LLEvents.on("listen", (_channel, _name, _id, message) => {
       fetchWeather()
       break
     case "status": {
-      const temp = lastWeather?.temp_f ?? "N/A"
+      const temp = lastWeather?.temperature ?? "N/A"
       ll.Say(chatChannel, `State: ${RequestState[state]}, last temp: ${temp}`)
       break
     }

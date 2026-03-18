@@ -32,14 +32,14 @@ export function App() {
       type: "module",
     })
 
-    worker.onmessage = (e: MessageEvent<WorkerResponse>) => {
-      setLua(e.data.lua)
-      setDiagnostics(e.data.diagnostics)
-    }
+    worker.addEventListener("message", (event: MessageEvent<WorkerResponse>) => {
+      setLua(event.data.lua)
+      setDiagnostics(event.data.diagnostics)
+    })
 
-    worker.onerror = (e: ErrorEvent) => {
-      setDiagnostics([{ message: e.message, start: undefined, length: undefined }])
-    }
+    worker.addEventListener("error", (event: ErrorEvent) => {
+      setDiagnostics([{ message: event.message, start: undefined, length: undefined }])
+    })
 
     workerRef.current = worker
 
@@ -47,7 +47,10 @@ export function App() {
     worker.postMessage(DEFAULT_CODE)
 
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+
       worker.terminate()
     }
   }, [])
@@ -55,7 +58,10 @@ export function App() {
   function handleChange(value: string | undefined) {
     const code = value ?? ""
 
-    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
     debounceRef.current = setTimeout(() => {
       workerRef.current?.postMessage(code)
     }, 300)

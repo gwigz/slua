@@ -16,12 +16,19 @@ const shim = (name: string) => resolve(`src/shims/${name}.ts`)
 function stubTstlResolve(): Plugin {
   const target = path.normalize("typescript-to-lua/dist/transpilation/resolve")
   const stub = shim("resolve-stub")
+
   return {
     name: "stub-tstl-resolve",
     resolveId(id, importer) {
-      if (!importer) return
+      if (!importer) {
+        return
+      }
+
       const resolved = path.resolve(path.dirname(importer), id)
-      if (resolved.includes(target)) return stub
+
+      if (resolved.includes(target)) {
+        return stub
+      }
     },
   }
 }
@@ -31,6 +38,7 @@ function stubTstlResolve(): Plugin {
  * dep optimization pass. Equivalent of webpack's ProvidePlugin.
  */
 const processShim = shim("process")
+
 const nodeGlobalsBanner = [
   `import __process_shim from '${processShim}';`,
   `if (!globalThis.process) globalThis.process = __process_shim;`,

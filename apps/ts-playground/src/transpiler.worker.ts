@@ -27,13 +27,17 @@ const TSTL_OPTIONS: tstl.CompilerOptions = {
 }
 
 function flattenMessage(msg: string | import("typescript").DiagnosticMessageChain): string {
-  if (typeof msg === "string") return msg
+  if (typeof msg === "string") {
+    return msg
+  }
+
   const rest = msg.next ? msg.next.map(flattenMessage).join("\n") : ""
+
   return rest ? `${msg.messageText}\n${rest}` : msg.messageText
 }
 
-self.onmessage = (e: MessageEvent<string>) => {
-  const code: string = e.data
+self.addEventListener("message", (event: MessageEvent<string>) => {
+  const code: string = event.data
 
   try {
     const result = tstl.transpileVirtualProject(
@@ -49,22 +53,18 @@ self.onmessage = (e: MessageEvent<string>) => {
     const lua = result.transpiledFiles.find((f) => f.outPath === "main.lua")?.lua ?? ""
 
     const diagnostics: WorkerDiagnostic[] = result.diagnostics
-      .filter((d) => d.file?.fileName === "main.ts")
-      .map((d) => ({
-        message: flattenMessage(d.messageText),
-        start: d.start,
-        length: d.length,
+      .filter((data) => data.file?.fileName === "main.ts")
+      .map((data) => ({
+        message: flattenMessage(data.messageText),
+        start: data.start,
+        length: data.length,
       }))
 
-    const response: WorkerResponse = { lua, diagnostics }
-
-    self.postMessage(response)
+    self.postMessage({ lua, diagnostics })
   } catch (err) {
-    const response: WorkerResponse = {
+    self.postMessage({
       lua: "",
       diagnostics: [{ message: String(err), start: undefined, length: undefined }],
-    }
-
-    self.postMessage(response)
+    })
   }
-}
+})

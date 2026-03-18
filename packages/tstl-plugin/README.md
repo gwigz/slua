@@ -1,6 +1,8 @@
 # `@gwigz/slua-tstl-plugin`
 
-[TypeScriptToLua](https://typescripttolua.github.io) plugin that enforces SLua constraints at compile time.
+[TypeScriptToLua](https://typescripttolua.github.io) plugin to provide better DX with SLua types.
+
+Currently this provides minimal features, and may be extended later.
 
 ## What it does
 

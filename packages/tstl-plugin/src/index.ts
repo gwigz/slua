@@ -62,6 +62,19 @@ const COMPOUND_BITWISE_OPS: Record<number, string> = {
   [ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken]: "rshift",
 }
 
+/**
+ * Returns true when `node` is `Math.floor(<single-arg>)`.
+ */
+function isMathFloor(node: ts.CallExpression): node is ts.CallExpression & { arguments: [ts.Expression] } {
+  return (
+    node.arguments.length === 1 &&
+    ts.isPropertyAccessExpression(node.expression) &&
+    ts.isIdentifier(node.expression.expression) &&
+    node.expression.expression.text === "Math" &&
+    node.expression.name.text === "floor"
+  )
+}
+
 const EQUALITY_OPS = new Set([
   ts.SyntaxKind.EqualsEqualsToken,
   ts.SyntaxKind.EqualsEqualsEqualsToken,
@@ -188,6 +201,20 @@ const plugin: tstl.Plugin = {
       }
 
       return context.superTransformStatements(node)
+    },
+
+    [ts.SyntaxKind.CallExpression]: (node: ts.CallExpression, context) => {
+      // `Math.floor(a / b)` → `a // b` (native Luau floor division operator)
+      if (isMathFloor(node)) {
+        const arg = node.arguments[0]
+        if (ts.isBinaryExpression(arg) && arg.operatorToken.kind === ts.SyntaxKind.SlashToken) {
+          const left = context.transformExpression(arg.left)
+          const right = context.transformExpression(arg.right)
+          return tstl.createBinaryExpression(left, right, tstl.SyntaxKind.FloorDivisionOperator, node)
+        }
+      }
+
+      return context.superTransformExpression(node)
     },
 
     [ts.SyntaxKind.PrefixUnaryExpression]: (node: ts.PrefixUnaryExpression, context) => {

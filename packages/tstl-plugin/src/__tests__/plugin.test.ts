@@ -102,6 +102,35 @@ describe("transpilation output", () => {
   })
 })
 
+describe("floor division", () => {
+  it("translates Math.floor(a / b) to floor division operator", () => {
+    const lua = transpileSimple("declare const a: number, b: number;\nconst x = Math.floor(a / b)")
+
+    expect(lua).toContain("a // b")
+    expect(lua).not.toContain("math.floor")
+  })
+
+  it("handles literal operands", () => {
+    const lua = transpileSimple("const x = Math.floor(10 / 3)")
+
+    expect(lua).toContain("10 // 3")
+  })
+
+  it("does not transform Math.floor with non-division argument", () => {
+    const lua = transpileSimple("declare const a: number;\nconst x = Math.floor(a)")
+
+    expect(lua).not.toContain("//")
+    expect(lua).toContain("math.floor(a)")
+  })
+
+  it("does not transform Math.floor with complex non-division expression", () => {
+    const lua = transpileSimple("declare const a: number, b: number;\nconst x = Math.floor(a + b)")
+
+    expect(lua).not.toContain("//")
+    expect(lua).toContain("math.floor")
+  })
+})
+
 describe("bitwise operators", () => {
   it("translates & to bit32.band", () => {
     const lua = transpileSimple("const x = (1 as number) & (2 as number)")

@@ -110,6 +110,21 @@ if bit32.btest(flags, CHANGED_OWNER) then
 end
 ```
 
+### Floor Division
+
+`Math.floor(a / b)` is translated to the native Luau `//` floor division operator:
+
+```typescript
+const index = Math.floor(offset / stride)
+```
+
+```lua
+local index = offset // stride
+```
+
+> [!WARNING]
+> JavaScript integer truncation idioms `~~x` and `x | 0` do **not** map cleanly to Luau. `~~x` emits `bit32.bnot(bit32.bnot(x))` and `x | 0` emits `bit32.bor(x, 0)`, neither of which preserves correct semantics for negative numbers (the `bit32` library operates on unsigned 32-bit integers). Use `math.floor(x)` for floor truncation instead.
+
 ### Comments
 
 Due to a [TSTL limitation](https://github.com/TypeScriptToLua/TypeScriptToLua/issues/815), only valid JSDoc-style comments (`/** */`) are preserved in the output. Regular comments (`//`, `/* */`) are stripped:

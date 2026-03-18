@@ -1,13 +1,66 @@
 import { useEffect, useRef, useState } from "react"
 import Editor from "@monaco-editor/react"
-import { IconBrandGithub } from "@tabler/icons-react"
+import { IconBrandGithub, IconExternalLink, IconInfoCircle } from "@tabler/icons-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog"
 import type { WorkerDiagnostic, WorkerResponse } from "./transpiler.worker"
 
-const DEFAULT_CODE = `\
-/** Only JSDoc comments are preserved in the Lua output */
-const owner = ll.GetOwner()
+const CREDITS = [
+  {
+    name: "TypeScript-to-Lua",
+    url: "https://github.com/TypeScriptToLua/TypeScriptToLua",
+    description: "Core transpiler powering TypeScript to Lua conversion",
+    color: "var(--chart-1)", // keyword blue
+  },
+  {
+    name: "ts-morph",
+    url: "https://github.com/dsherret/ts-morph",
+    description: "TypeScript AST manipulation for type generation",
+    color: "var(--chart-2)", // type teal
+  },
+  {
+    name: "TypeScript",
+    url: "https://github.com/microsoft/TypeScript",
+    description: "The source language and type system",
+    color: "var(--chart-5)", // function yellow
+  },
+  {
+    name: "lsl-definitions",
+    url: "https://github.com/secondlife/lsl-definitions",
+    description: "Official LSL and SLua API definitions",
+    color: "var(--chart-3)", // string orange
+  },
+  {
+    name: "SLua",
+    url: "https://github.com/secondlife/slua",
+    description: "The Second Life Luau runtime",
+    color: "var(--chart-1)", // keyword blue
+  },
+  {
+    name: "Luau",
+    url: "https://github.com/luau-lang/luau",
+    description: "The target Lua runtime that powers SLua in Second Life",
+    color: "var(--chart-1)", // keyword blue
+  },
+]
 
-// This comment will be stripped from the output
+const DEFAULT_CODE = `\
+let owner = ll.GetOwner()
+
+LLEvents.on("changed", (changed) => {
+  // bit32.btest performs a bitwise AND and returns true if non-zero
+  // may be able to support \`&\` operator in the future?
+  if (bit32.btest(changed, CHANGED_OWNER)) {
+    owner = ll.GetOwner()
+  }
+})
+
 LLEvents.on("touch_start", (events) => {
   for (const event of events) {
     const key = event.getKey()
@@ -19,6 +72,18 @@ LLEvents.on("touch_start", (events) => {
     ll.Say(0, \`Hello secondlife:///app/agent/\${key}/about!\`)
   }
 })
+
+LLEvents.on("listen", (_channel, _name, id, message) => {
+  if (ll.GetAgentSize(id) === ZERO_VECTOR) {
+    return
+  }
+
+  if (message === "ping") {
+    ll.RegionSayTo(id, 0, "pong!")
+  }
+})
+
+ll.Listen(67, "", owner, "")
 `
 
 export function App() {
@@ -71,14 +136,59 @@ export function App() {
     <div className="flex flex-col h-screen bg-background text-foreground">
       <header className="flex items-center justify-between px-4 py-2 border-b border-border shrink-0">
         <span className="font-semibold text-sm">TypeScript to SLua Playground</span>
-        <a
-          href="https://github.com/gwigz/slua"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <IconBrandGithub size={18} />
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href="https://github.com/gwigz/slua"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <IconBrandGithub size={18} />
+          </a>
+          <Dialog>
+            <DialogTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+              <IconInfoCircle size={18} />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md gap-5">
+              <DialogHeader>
+                <DialogTitle>Credits</DialogTitle>
+                <DialogDescription>
+                  Open-source projects that make this playground possible.
+                </DialogDescription>
+              </DialogHeader>
+              <ul className="grid gap-1">
+                {CREDITS.map((credit) => (
+                  <li key={credit.name}>
+                    <a
+                      href={credit.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-start gap-3 border border-border/50 px-3 py-2 rounded-sm transition-colors hover:bg-muted/60"
+                    >
+                      <span className="flex flex-col gap-0.5 min-w-0">
+                        <span className="flex items-center gap-1.5">
+                          <span
+                            className="font-mono text-xs font-medium truncate"
+                            style={{ color: credit.color }}
+                          >
+                            {credit.name}
+                          </span>
+                          <IconExternalLink
+                            size={11}
+                            className="shrink-0 opacity-0 -translate-y-px transition-all group-hover:opacity-40"
+                          />
+                        </span>
+                        <span className="text-[11px] leading-snug text-muted-foreground">
+                          {credit.description}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </DialogContent>
+          </Dialog>
+        </div>
       </header>
 
       <div className="flex flex-1 min-h-0">

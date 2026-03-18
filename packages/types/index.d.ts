@@ -679,7 +679,10 @@ declare namespace os {
     /** Returns a table or string representation of the time based on the provided format. */
     export function date(s?: string, t?: number): string | OsDateTime | undefined;
 
-    /** Returns the difference in seconds between two timestamps. Same as a - b. */
+    /**
+     * Returns the difference in seconds between two timestamps. Same as a - b.
+     * @deprecated Same as a - b
+     */
     export function difftime(a: number, b?: number): number;
 
     /** Returns the current Unix timestamp or the timestamp of the given date. */
@@ -781,13 +784,22 @@ declare namespace table {
     /** Joins an array of strings into one string, with an optional separator. */
     export function concat(a: (string | number)[], sep?: string, i?: number, j?: number): string;
 
-    /** Iterates over all key-value pairs in the table (deprecated). */
+    /**
+     * Iterates over all key-value pairs in the table (deprecated).
+     * @deprecated Use a for loop instead
+     */
     export function foreach<K, V, R>(t: Record<K, V>, f?: (key: K, value: V) => R): R | undefined;
 
-    /** Iterates over all index-value pairs in the array (deprecated). */
+    /**
+     * Iterates over all index-value pairs in the array (deprecated).
+     * @deprecated Use a for loop instead
+     */
     export function foreachi<V, R>(a: V[], f?: (index: number, value: V) => R): R | undefined;
 
-    /** Returns the length of an array (deprecated; use # instead). */
+    /**
+     * Returns the length of an array (deprecated; use # instead).
+     * @deprecated Use '#' instead.
+     */
     export function getn(a: any[]): number;
 
     /** Returns the highest numeric key in the table. */
@@ -2153,20 +2165,28 @@ declare namespace ll {
     /** Checks the face for a PBR render material. */
     export function IsLinkGLTFMaterial(link: number, face: number): number;
 
-    /** Converts the top level of the JSON string to a list. */
-    /** @deprecated */
+    /**
+     * Converts the top level of the JSON string to a list.
+     * @deprecated Use 'lljson.decode' instead.
+     */
     export function Json2List(JSON: string): list;
 
-    /** Gets the value indicated by Specifiers from the JSON string. */
-    /** @deprecated Also, the indices are zero-based. */
+    /**
+     * Gets the value indicated by Specifiers from the JSON string.
+     * @deprecated Use 'lljson.decode' instead. Also, the indices are zero-based.
+     */
     export function JsonGetValue(JSON: string, Specifiers: list): string;
 
-    /** Returns a new JSON string that is the JSON given with the Value indicated by Specifiers set to Value. */
-    /** @deprecated Also, the indices are zero-based. */
+    /**
+     * Returns a new JSON string that is the JSON given with the Value indicated by Specifiers set to Value.
+     * @deprecated Use 'lljson.encode' instead. Also, the indices are zero-based.
+     */
     export function JsonSetValue(JSON: string, Specifiers: list, Value: string): string;
 
-    /** Returns the type constant (JSON_*) for the value in JSON indicated by Specifiers. */
-    /** @deprecated Use 'lljson.decode' and 'typeof' instead. Also, the indices are zero-based. */
+    /**
+     * Returns the type constant (JSON_*) for the value in JSON indicated by Specifiers.
+     * @deprecated Use 'lljson.decode' and 'typeof' instead. Also, the indices are zero-based.
+     */
     export function JsonValueType(JSON: string, Specifiers: list): string;
 
     /**
@@ -2275,8 +2295,10 @@ declare namespace ll {
      */
     export function List2Integer(ListVariable: list, Index: number): number;
 
-    /** Converts either a strided list of key:value pairs to a JSON_OBJECT, or a list of values to a JSON_ARRAY. */
-    /** @deprecated */
+    /**
+     * Converts either a strided list of key:value pairs to a JSON_OBJECT, or a list of values to a JSON_ARRAY.
+     * @deprecated Use 'lljson.encode' instead.
+     */
     export function List2Json(JsonType: string, Values: list): string;
 
     /**
@@ -4006,15 +4028,25 @@ declare const INVENTORY_SCRIPT: number;
 declare const INVENTORY_SETTING: number;
 declare const INVENTORY_SOUND: number;
 declare const INVENTORY_TEXTURE: number;
+/** @deprecated Use 'lljson.decode' and 'table.insert' instead. */
 declare const JSON_APPEND: number;
+/** @deprecated Use 'lljson.array_mt' instead. */
 declare const JSON_ARRAY: string;
+/** @deprecated Use 'nil' instead. */
 declare const JSON_DELETE: string;
+/** @deprecated Use 'false' instead. */
 declare const JSON_FALSE: string;
+/** @deprecated Use 'pcall' instead. */
 declare const JSON_INVALID: string;
+/** @deprecated Use 'lljson.null' instead. */
 declare const JSON_NULL: string;
+/** @deprecated Use 'typeof' instead. */
 declare const JSON_NUMBER: string;
+/** @deprecated Use 'lljson.object_mt' instead. */
 declare const JSON_OBJECT: string;
+/** @deprecated Use 'typeof' instead. */
 declare const JSON_STRING: string;
+/** @deprecated Use 'true' instead. */
 declare const JSON_TRUE: string;
 /** For use with KFM_COMMAND. */
 declare const KFM_CMD_PAUSE: number;

@@ -98,6 +98,7 @@ export interface LSLConstant {
   value: string
   tooltip?: string
   "slua-removed"?: boolean
+  "slua-deprecated"?: boolean | { reason?: string; use?: string }
 }
 
 export interface LSLFunction {

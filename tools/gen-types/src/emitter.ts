@@ -214,6 +214,47 @@ function sanitizeComment(text: string) {
     .trim()
 }
 
+/**
+ * Build a single JSDoc structure, optionally combining a description with
+ * a `@deprecated` tag so ts-morph emits one `/** ... *​/` block instead of
+ * separate blocks for each piece.
+ */
+function buildDocs(
+  comment: string | undefined,
+  deprecated: boolean | { reason?: string; use?: string } | undefined,
+): OptionalKind<JSDocStructure>[] {
+  const doc: OptionalKind<JSDocStructure> = {}
+  let hasContent = false
+
+  if (comment) {
+    doc.description = sanitizeComment(comment)
+    hasContent = true
+  }
+
+  if (deprecated) {
+    let text: string | undefined
+
+    if (typeof deprecated === "object") {
+      const parts: string[] = []
+
+      if (deprecated.use) {
+        parts.push(`Use '${deprecated.use}' instead.`)
+      }
+
+      if (deprecated.reason) {
+        parts.push(deprecated.reason)
+      }
+
+      text = parts.length > 0 ? parts.join(" ") : undefined
+    }
+
+    doc.tags = [{ tagName: "deprecated", ...(text ? { text } : {}) }]
+    hasContent = true
+  }
+
+  return hasContent ? [doc] : []
+}
+
 function buildParams(params: ParameterDef[] | undefined, skipSelf: boolean) {
   if (!params || params.length === 0) {
     return []
@@ -461,13 +502,15 @@ function addGlobalFunction(sf: SourceFile, fn: FunctionDef) {
     return
   }
 
+  const docs = buildDocs(fn.comment, fn.deprecated)
+
   sf.addFunction({
     name: fn.name,
     hasDeclareKeyword: true,
     parameters: buildParams(fn.parameters, false),
     returnType: mapReturnType(fn.returnType ?? "void"),
     typeParameters: cleanTypeParams(fn.typeParameters),
-    ...(fn.comment ? { docs: [{ description: sanitizeComment(fn.comment) }] } : {}),
+    ...(docs.length > 0 ? { docs } : {}),
   })
 }
 
@@ -513,13 +556,15 @@ function addModule(sf: SourceFile, mod: ModuleDef, className?: string) {
 function addModuleMembers(ns: ModuleDeclaration, mod: ModuleDef) {
   if (mod.functions) {
     for (const fn of mod.functions) {
+      const docs = buildDocs(fn.comment, fn.deprecated)
+
       ns.addFunction({
         name: fn.name,
         isExported: true,
         parameters: buildParams(fn.parameters, false),
         returnType: mapReturnType(fn.returnType ?? "void"),
         typeParameters: cleanTypeParams(fn.typeParameters),
-        ...(fn.comment ? { docs: [{ description: sanitizeComment(fn.comment) }] } : {}),
+        ...(docs.length > 0 ? { docs } : {}),
       })
     }
   }
@@ -789,21 +834,7 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
 
     for (const [lslName, fn] of llFunctions) {
       const name = lslName.startsWith("ll") ? lslName.slice(2) : lslName
-      const docs: OptionalKind<JSDocStructure>[] = []
-
-      if (fn.tooltip) {
-        docs.push({ description: sanitizeComment(fn.tooltip) })
-      }
-
-      if (fn["slua-deprecated"]) {
-        const dep = fn["slua-deprecated"]
-
-        if (typeof dep === "object" && dep.reason) {
-          docs.push({ tags: [{ tagName: "deprecated", text: dep.reason }] })
-        } else {
-          docs.push({ tags: [{ tagName: "deprecated" }] })
-        }
-      }
+      const docs = buildDocs(fn.tooltip, fn["slua-deprecated"])
 
       const params = (fn.arguments ?? []).map((argObj) => {
         const argName = Object.keys(argObj)[0]
@@ -831,11 +862,13 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
   const lslConstants = Object.entries(lsl.constants).filter(([, c]) => !c["slua-removed"])
 
   for (const [name, c] of lslConstants) {
+    const docs = buildDocs(c.tooltip, c["slua-deprecated"])
+
     sf.addVariableStatement({
       declarationKind: VariableDeclarationKind.Const,
       hasDeclareKeyword: true,
       declarations: [{ name, type: mapLslType(c.type) }],
-      ...(c.tooltip ? { docs: [{ description: sanitizeComment(c.tooltip) }] } : {}),
+      ...(docs.length > 0 ? { docs } : {}),
     })
   }
 

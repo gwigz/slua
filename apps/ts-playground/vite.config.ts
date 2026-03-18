@@ -1,9 +1,13 @@
+import fs from "node:fs"
+import { createRequire } from "node:module"
 import path from "path"
 import type { Plugin } from "vite"
 import { defineConfig } from "vite"
 import react, { reactCompilerPreset } from "@vitejs/plugin-react"
 import babel from "@rolldown/plugin-babel"
 import tailwindcss from "@tailwindcss/vite"
+
+const _require = createRequire(import.meta.url)
 
 const resolve = (p: string) => path.resolve(__dirname, p)
 const shim = (name: string) => resolve(`src/shims/${name}.ts`)
@@ -34,6 +38,34 @@ function stubTstlResolve(): Plugin {
 }
 
 /**
+ * Bundle TSTL's lualib files into a virtual module so the browser worker can
+ * serve them to the transpiler. Without this, resolveLuaLibDir() resolves to
+ * a bogus /dist/lualib/... path because __dirname is shimmed to '/'.
+ */
+function tstlLualib(): Plugin {
+  return {
+    name: "tstl-lualib",
+    resolveId(id) {
+      if (id === "virtual:tstl-lualib") return "\0virtual:tstl-lualib"
+    },
+    load(id) {
+      if (id !== "\0virtual:tstl-lualib") return
+
+      const tstlDist = path.dirname(_require.resolve("typescript-to-lua"))
+      const lualibDir = path.join(tstlDist, "lualib", "universal")
+
+      const entries: string[] = []
+      for (const file of fs.readdirSync(lualibDir)) {
+        const content = fs.readFileSync(path.join(lualibDir, file), "utf-8")
+        entries.push(`  ${JSON.stringify(file)}: ${JSON.stringify(content)}`)
+      }
+
+      return `export default {\n${entries.join(",\n")}\n}`
+    },
+  }
+}
+
+/**
  * Inject Node.js globals into pre-bundled dependencies during Rolldown's
  * dep optimization pass. Equivalent of webpack's ProvidePlugin.
  */
@@ -48,7 +80,7 @@ const nodeGlobalsBanner = [
 ].join("\n")
 
 export default defineConfig({
-  plugins: [stubTstlResolve(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
+  plugins: [stubTstlResolve(), tstlLualib(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
   resolve: {
     alias: {
       "~": resolve("src"),
@@ -73,5 +105,6 @@ export default defineConfig({
   },
   worker: {
     format: "es",
+    plugins: () => [tstlLualib()],
   },
 })

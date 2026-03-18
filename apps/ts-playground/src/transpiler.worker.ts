@@ -1,8 +1,19 @@
+import ts from "typescript"
 import * as tstl from "typescript-to-lua"
 import sluaPlugin from "@gwigz/slua-tstl-plugin"
 import sluaTypes from "@gwigz/slua-types/index.d.ts?raw"
 import langExt from "@typescript-to-lua/language-extensions/index.d.ts?raw"
+import lualibFiles from "virtual:tstl-lualib"
 import { tsLibs } from "./ts-libs"
+
+// Patch ts.sys.readFile so TSTL can resolve lualib .lua / .json files that
+// live inside node_modules at build time but aren't on a real filesystem here.
+const _readFile = ts.sys.readFile.bind(ts.sys)
+ts.sys.readFile = (filePath: string, encoding?: string) => {
+  const name = filePath.split("/").pop()
+  if (name && name in lualibFiles) return lualibFiles[name]
+  return _readFile(filePath, encoding)
+}
 
 export interface WorkerDiagnostic {
   message: string
@@ -19,7 +30,7 @@ const TSTL_OPTIONS: tstl.CompilerOptions = {
   luaTarget: tstl.LuaTarget.Luau,
   noImplicitSelf: true,
   noHeader: true,
-  luaLibImport: tstl.LuaLibImportKind.None,
+  luaLibImport: tstl.LuaLibImportKind.Inline,
   noImplicitGlobalVariables: true,
   noLib: true,
   strict: true,
@@ -37,7 +48,7 @@ function flattenMessage(msg: string | import("typescript").DiagnosticMessageChai
 }
 
 self.addEventListener("message", (event: MessageEvent<string>) => {
-  const code: string = event.data
+  const code = event.data
 
   try {
     const result = tstl.transpileVirtualProject(
@@ -50,7 +61,7 @@ self.addEventListener("message", (event: MessageEvent<string>) => {
       TSTL_OPTIONS,
     )
 
-    const lua = result.transpiledFiles.find((f) => f.outPath === "main.lua")?.lua ?? ""
+    const lua = result.transpiledFiles.find((file) => file.outPath === "main.lua")?.lua ?? ""
 
     const diagnostics: WorkerDiagnostic[] = result.diagnostics
       .filter((data) => data.file?.fileName === "main.ts")

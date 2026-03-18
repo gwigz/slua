@@ -10,31 +10,31 @@
 /* VSCode Dark+ palette -- dark only */
 :root,
 .dark {
-  --background: oklch(0.15 0 0); /* #1e1e1e  editor bg          */
-  --foreground: oklch(0.855 0 0); /* #d4d4d4  editor text         */
-  --card: oklch(0.178 0 0); /* #252526  sidebar bg          */
+  --background: oklch(0.15 0 0); /* #1e1e1e  editor bg */
+  --foreground: oklch(0.855 0 0); /* #d4d4d4  editor text */
+  --card: oklch(0.178 0 0); /* #252526  sidebar bg */
   --card-foreground: oklch(0.855 0 0);
-  --popover: oklch(0.208 0 0); /* #2d2d2d  dropdown bg         */
+  --popover: oklch(0.208 0 0); /* #2d2d2d  dropdown bg */
   --popover-foreground: oklch(0.855 0 0);
-  --primary: oklch(0.515 0.165 240); /* #007acc  VSCode blue         */
+  --primary: oklch(0.515 0.165 240); /* #007acc  VSCode blue */
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.208 0 0); /* #2d2d2d  inactive tab bg     */
+  --secondary: oklch(0.208 0 0); /* #2d2d2d  inactive tab bg */
   --secondary-foreground: oklch(0.855 0 0);
   --muted: oklch(0.208 0 0);
-  --muted-foreground: oklch(0.565 0 0); /* #858585  dimmed text         */
+  --muted-foreground: oklch(0.565 0 0); /* #858585  dimmed text */
   --accent: oklch(0.338 0.075 246); /* #264f78  selection highlight */
   --accent-foreground: oklch(0.855 0 0);
-  --destructive: oklch(0.645 0.215 25); /* #f44747  error red           */
-  --border: oklch(0.315 0 0); /* #474747  panel borders       */
-  --input: oklch(0.268 0 0); /* #3c3c3c  input bg            */
+  --destructive: oklch(0.645 0.215 25); /* #f44747  error red  */
+  --border: oklch(0.315 0 0); /* #474747  panel borders */
+  --input: oklch(0.268 0 0); /* #3c3c3c  input bg   */
   --ring: oklch(0.515 0.165 240);
   /* syntax-highlight-inspired chart palette */
-  --chart-1: oklch(0.645 0.11 240); /* #569cd6  keyword blue        */
-  --chart-2: oklch(0.725 0.09 185); /* #4ec9b0  type teal           */
-  --chart-3: oklch(0.705 0.09 48); /* #ce9178  string orange       */
-  --chart-4: oklch(0.59 0.09 145); /* #6a9955  comment green       */
-  --chart-5: oklch(0.875 0.07 100); /* #dcdcaa  function yellow     */
-  --radius: 0.25rem; /* sharp corners like VSCode    */
+  --chart-1: oklch(0.645 0.11 240); /* #569cd6  keyword blue */
+  --chart-2: oklch(0.725 0.09 185); /* #4ec9b0  type teal  */
+  --chart-3: oklch(0.705 0.09 48); /* #ce9178  string orange */
+  --chart-4: oklch(0.59 0.09 145); /* #6a9955  comment green */
+  --chart-5: oklch(0.875 0.07 100); /* #dcdcaa  function yellow */
+  --radius: 0.25rem; /* sharp corners like VSCode */
   --sidebar: oklch(0.178 0 0);
   --sidebar-foreground: oklch(0.855 0 0);
   --sidebar-primary: oklch(0.515 0.165 240);

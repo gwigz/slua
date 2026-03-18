@@ -1,17 +1,9 @@
+import "./env"
 import { loader } from "@monaco-editor/react"
 import * as monaco from "monaco-editor"
-import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker"
-import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker"
 import sluaTypes from "@gwigz/slua-types/index.d.ts?raw"
 import langExt from "@typescript-to-lua/language-extensions/index.d.ts?raw"
 import { tsLibs } from "./ts-libs"
-
-self.MonacoEnvironment = {
-  getWorker(_: string, label: string) {
-    if (label === "typescript" || label === "javascript") return new tsWorker()
-    return new editorWorker()
-  },
-}
 
 loader.config({ monaco })
 

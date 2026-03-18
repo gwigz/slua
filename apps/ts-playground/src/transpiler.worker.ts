@@ -4,11 +4,12 @@ import sluaPlugin from "@gwigz/slua-tstl-plugin"
 import sluaTypes from "@gwigz/slua-types/index.d.ts?raw"
 import langExt from "@typescript-to-lua/language-extensions/index.d.ts?raw"
 import lualibFiles from "virtual:tstl-lualib"
-import { tsLibs } from "./ts-libs"
+import { tsLibs } from "./monaco/ts-libs"
 
 // Patch ts.sys.readFile so TSTL can resolve lualib .lua / .json files that
 // live inside node_modules at build time but aren't on a real filesystem here.
 const _readFile = ts.sys.readFile.bind(ts.sys)
+
 ts.sys.readFile = (filePath: string, encoding?: string) => {
   const name = filePath.split("/").pop()
   if (name && name in lualibFiles) return lualibFiles[name]
@@ -47,6 +48,14 @@ function flattenMessage(msg: string | import("typescript").DiagnosticMessageChai
   return rest ? `${msg.messageText}\n${rest}` : msg.messageText
 }
 
+// TSTL treats "bit32" as a Lua keyword even when targeting Luau.
+// The plugin fixes the output; filter the spurious diagnostic here.
+function isTstlKeywordDiagnostic(msg: string | ts.DiagnosticMessageChain) {
+  const text = typeof msg === "string" ? msg : msg.messageText
+
+  return text.includes("Invalid ambient identifier name 'bit32'")
+}
+
 self.addEventListener("message", (event: MessageEvent<string>) => {
   const code = event.data
 
@@ -63,15 +72,10 @@ self.addEventListener("message", (event: MessageEvent<string>) => {
 
     const lua = result.transpiledFiles.find((file) => file.outPath === "main.lua")?.lua ?? ""
 
-    // TSTL treats "bit32" as a Lua keyword even when targeting Luau.
-    // The plugin fixes the output; filter the spurious diagnostic here.
-    const isTstlKeywordDiagnostic = (msg: string | ts.DiagnosticMessageChain) => {
-      const text = typeof msg === "string" ? msg : msg.messageText
-      return text.includes("Invalid ambient identifier name 'bit32'")
-    }
-
     const diagnostics: WorkerDiagnostic[] = result.diagnostics
-      .filter((data) => data.file?.fileName === "main.ts" && !isTstlKeywordDiagnostic(data.messageText))
+      .filter(
+        (data) => data.file?.fileName === "main.ts" && !isTstlKeywordDiagnostic(data.messageText),
+      )
       .map((data) => ({
         message: flattenMessage(data.messageText),
         start: data.start,

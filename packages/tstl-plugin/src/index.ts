@@ -319,6 +319,48 @@ const CALL_TRANSFORMS: CallTransform[] = [
       return createNamespacedCall("ll", "SubStringIndex", [str, search], node)
     },
   },
+  // str.indexOf(x, fromIndex) -> (string.find(str, x, fromIndex + 1, true) or 0) - 1
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "indexOf", 2),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+
+      const search = context.transformExpression(node.arguments[0])
+      const fromArg = node.arguments[1]
+
+      const init = ts.isNumericLiteral(fromArg)
+        ? tstl.createNumericLiteral(Number(fromArg.text) + 1)
+        : tstl.createBinaryExpression(
+            context.transformExpression(fromArg),
+            tstl.createNumericLiteral(1),
+            tstl.SyntaxKind.AdditionOperator,
+            node,
+          )
+
+      const findCall = createNamespacedCall(
+        "string",
+        "find",
+        [str, search, init, tstl.createBooleanLiteral(true)],
+        node,
+      )
+
+      const findOrZero = tstl.createBinaryExpression(
+        findCall,
+        tstl.createNumericLiteral(0),
+        tstl.SyntaxKind.OrOperator,
+        node,
+      )
+
+      return tstl.createBinaryExpression(
+        tstl.createParenthesizedExpression(findOrZero),
+        tstl.createNumericLiteral(1),
+        tstl.SyntaxKind.SubtractionOperator,
+        node,
+      )
+    },
+  },
   // str.includes(x) -> string.find(str, x, 1, true) ~= nil
   {
     match: (node, checker) => isMethodCall(node, checker, isStringType, "includes", 1),

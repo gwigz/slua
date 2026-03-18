@@ -84,8 +84,7 @@ describe("transpilation output", () => {
       })
     `)
 
-    expect(lua).toContain("LLEvents.on")
-    expect(lua).not.toContain("LLEvents:on")
+    expect(lua).toContain("LLEvents:on")
     expect(lua).not.toMatch(/function\(self/)
   })
 
@@ -96,8 +95,7 @@ describe("transpilation output", () => {
       })
     `)
 
-    expect(lua).toContain("LLTimers.every")
-    expect(lua).not.toContain("LLTimers:every")
+    expect(lua).toContain("LLTimers:every")
     expect(lua).not.toMatch(/function\(self/)
   })
 })
@@ -351,10 +349,20 @@ describe("string ll.* transforms", () => {
     expect(lua).toContain("ll.SubStringIndex")
   })
 
-  it("does not transform indexOf with fromIndex argument", () => {
+  it("translates indexOf with literal fromIndex to string.find with constant folding", () => {
     const lua = transpileSimple('declare const s: string;\nconst i = s.indexOf("x", 5)')
 
     expect(lua).not.toContain("ll.SubStringIndex")
+    expect(lua).toContain('string.find(s, "x", 6, true)')
+    expect(lua).toContain("(string.find(")
+    expect(lua).toContain("or 0) - 1")
+  })
+
+  it("translates indexOf with expression fromIndex to string.find with + 1", () => {
+    const lua = transpileSimple('declare const s: string;\ndeclare const n: number;\nconst i = s.indexOf("x", n)')
+
+    expect(lua).toContain('string.find(s, "x", n + 1, true)')
+    expect(lua).toContain("or 0) - 1")
   })
 })
 

@@ -302,7 +302,7 @@ function addBaseClassMembers(decl: InterfaceDeclaration | ClassDeclaration, bc: 
 
       decl.addMethod({
         name: method.name,
-        parameters: [{ name: "this", type: bc.name }, ...params],
+        parameters: params,
         returnType: mapReturnType(method.returnType ?? "void"),
         ...(method.comment ? { docs: [{ description: sanitizeComment(method.comment) }] } : {}),
       })
@@ -330,10 +330,11 @@ function addBaseClass(sf: SourceFile, bc: BaseClass, ctor?: ConstructorInfo) {
 
     sf.addTypeAlias({ name: bc.name, type: ctor.className, hasDeclareKeyword: true })
   } else {
+    const comment = bc.comment ? `${sanitizeComment(bc.comment)}\n@noSelf` : "@noSelf"
     const iface = sf.addInterface({
       name: bc.name,
       hasDeclareKeyword: true,
-      ...(bc.comment ? { docs: [{ description: sanitizeComment(bc.comment) }] } : {}),
+      docs: [{ description: comment }],
     })
     addBaseClassMembers(iface, bc)
   }
@@ -345,6 +346,7 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
   const iface = sf.addInterface({
     name: "LLEventMap",
     hasDeclareKeyword: true,
+    docs: [{ description: "@noSelf" }],
   })
 
   for (const [name, ev] of lslEvents) {
@@ -372,10 +374,11 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
 }
 
 function addClassDef(sf: SourceFile, cls: ClassDef) {
+  const comment = cls.comment ? `${sanitizeComment(cls.comment)}\n@noSelf` : "@noSelf"
   const iface = sf.addInterface({
     name: cls.name,
     hasDeclareKeyword: true,
-    ...(cls.comment ? { docs: [{ description: sanitizeComment(cls.comment) }] } : {}),
+    docs: [{ description: comment }],
   })
   for (const prop of cls.properties ?? []) {
     iface.addProperty({
@@ -413,7 +416,7 @@ function addClassDef(sf: SourceFile, cls: ClassDef) {
       iface.addMethod({
         name: method.name,
         typeParameters: ["E extends keyof LLEventMap"],
-        parameters: [{ name: "this", type: cls.name }, ...buildParams(remapped, true)],
+        parameters: buildParams(remapped, true),
         returnType: mapReturnType(retType),
         ...(method.comment ? { docs: [{ description: sanitizeComment(method.comment) }] } : {}),
       })
@@ -428,7 +431,7 @@ function addClassDef(sf: SourceFile, cls: ClassDef) {
 
       iface.addMethod({
         name: method.name,
-        parameters: [{ name: "this", type: cls.name }, ...params],
+        parameters: params,
         returnType,
         ...(method.comment ? { docs: [{ description: sanitizeComment(method.comment) }] } : {}),
       })

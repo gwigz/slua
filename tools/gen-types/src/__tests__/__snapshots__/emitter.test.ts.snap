@@ -1,7 +1,10 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`emitBaseClass produces declare interface with readonly properties 1`] = `
-"/** A 3D vector. */
+"/**
+ * A 3D vector.
+ * @noSelf
+ */
 declare interface vector {
     readonly x: number;
     readonly y: number;
@@ -11,7 +14,10 @@ declare interface vector {
 `;
 
 exports[`emitBaseClass produces method-style operator overloads on the interface 1`] = `
-"/** A 3D vector. */
+"/**
+ * A 3D vector.
+ * @noSelf
+ */
 declare interface vector {
     readonly x: number;
     add: LuaAdditionMethod<vector, vector>;
@@ -21,20 +27,23 @@ declare interface vector {
 `;
 
 exports[`emitBaseClass emits intersected overloads for union operator types 1`] = `
-"declare interface vector {
+"/** @noSelf */
+declare interface vector {
     mul: LuaMultiplicationMethod<number, vector> & LuaMultiplicationMethod<vector, vector> & LuaMultiplicationMethod<quaternion, vector>;
 }
 "
 `;
 
 exports[`emitBaseClass does not emit __tostring as an operator 1`] = `
-"declare interface uuid {
+"/** @noSelf */
+declare interface uuid {
 }
 "
 `;
 
 exports[`emitBaseClass does not emit __eq as an operator (not in TSTL) 1`] = `
-"declare interface quaternion {
+"/** @noSelf */
+declare interface quaternion {
 }
 "
 `;
@@ -68,10 +77,13 @@ exports[`emitTypeAlias maps complex definitions through mapType 1`] = `
 `;
 
 exports[`emitClassDef produces declare interface with methods (self skipped) 1`] = `
-"/** Event registration class. */
+"/**
+ * Event registration class.
+ * @noSelf
+ */
 declare interface LLEvents {
     /** Registers a callback. */
-    on<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E];
+    on<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E];
 }
 "
 `;

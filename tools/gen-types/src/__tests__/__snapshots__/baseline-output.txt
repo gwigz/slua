@@ -68,7 +68,10 @@ declare class Vector {
 declare type vector = Vector;
 
 
-/** Event detection class providing access to detected object/avatar information */
+/**
+ * Event detection class providing access to detected object/avatar information
+ * @noSelf
+ */
 declare interface DetectedEvent {
   readonly index: number;
   readonly valid: boolean;
@@ -114,29 +117,35 @@ declare type LLTimerCallback = LLTimerEveryCallback | LLTimerOnceCallback;
 declare type OsDateTime = { year: number; month: number; day: number; hour?: number; min?: number; sec?: number; wday?: number; yday?: number; isdst?: boolean };
 
 
-/** Event registration and management class for Second Life events */
+/**
+ * Event registration and management class for Second Life events
+ * @noSelf
+ */
 declare interface LLEvents {
   /** Registers a callback for an event. Returns the callback. */
-  on(this: LLEvents, event: LLEventName, callback: LLEventHandler): LLEventHandler;
+  on(event: LLEventName, callback: LLEventHandler): LLEventHandler;
   /** Unregisters a callback. Returns true if found and removed. */
-  off(this: LLEvents, event: LLEventName, callback: LLEventHandler): boolean;
+  off(event: LLEventName, callback: LLEventHandler): boolean;
   /** Registers a one-time callback. Returns the wrapper function. */
-  once(this: LLEvents, event: LLEventName, callback: LLEventHandler): LLEventHandler;
+  once(event: LLEventName, callback: LLEventHandler): LLEventHandler;
   /** Returns a list of all listeners for a specific event. */
-  listeners(this: LLEvents, event: LLEventName): LLEventHandler[];
+  listeners(event: LLEventName): LLEventHandler[];
   /** Returns a list of all event names that have listeners. */
-  eventNames(this: LLEvents): string[];
+  eventNames(): string[];
 }
 
 
-/** Timer management class for scheduling periodic and one-time callbacks */
+/**
+ * Timer management class for scheduling periodic and one-time callbacks
+ * @noSelf
+ */
 declare interface LLTimers {
   /** Registers a callback to be called every N seconds. Returns the callback. */
-  every(this: LLTimers, seconds: number, callback: LLTimerEveryCallback): LLTimerCallback;
+  every(seconds: number, callback: LLTimerEveryCallback): LLTimerCallback;
   /** Registers a callback to be called once after N seconds. Returns the callback. */
-  once(this: LLTimers, seconds: number, callback: LLTimerOnceCallback): LLTimerCallback;
+  once(seconds: number, callback: LLTimerOnceCallback): LLTimerCallback;
   /** Unregisters a timer callback. Returns true if found and removed. */
-  off(this: LLTimers, callback: LLTimerCallback): boolean;
+  off(callback: LLTimerCallback): boolean;
 }
 
 

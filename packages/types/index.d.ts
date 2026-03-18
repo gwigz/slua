@@ -59,88 +59,91 @@ declare class Vector {
 
 declare type vector = Vector;
 
-/** Event detection class providing access to detected object/avatar information */
+/**
+ * Event detection class providing access to detected object/avatar information
+ * @noSelf
+ */
 declare interface DetectedEvent {
     readonly index: number;
     readonly valid: boolean;
     readonly canAdjustDamage: boolean;
     /** Changes the amount of damage to be delivered by this damage event. */
-    adjustDamage(this: DetectedEvent, Damage: number): void;
+    adjustDamage(Damage: number): void;
     /** Returns a list containing the current damage for the event, the damage type and the original damage delivered. */
-    getDamage(this: DetectedEvent): list;
+    getDamage(): list;
     /**
      * Returns the grab offset of a user touching the object.
      * Returns <0.0, 0.0, 0.0> if Number is not a valid object.
      */
-    getGrab(this: DetectedEvent): vector;
+    getGrab(): vector;
     /**
      * Returns TRUE if detected object or agent Number has the same user group active as this object.
      * It will return FALSE if the object or agent is in the group, but the group is not active.
      */
-    getGroup(this: DetectedEvent): number;
+    getGroup(): number;
     /**
      * Returns the key of detected object or avatar number.
      * Returns NULL_KEY if Number is not a valid index.
      */
-    getKey(this: DetectedEvent): uuid;
+    getKey(): uuid;
     /**
      * Returns the link position of the triggered event for touches and collisions only.
      * 0 for a non-linked object, 1 for the root of a linked object, 2 for the first child, etc.
      */
-    getLinkNumber(this: DetectedEvent): number;
+    getLinkNumber(): number;
     /**
      * Returns the name of detected object or avatar number.
      * Returns the name of detected object number.
      * Returns empty string if Number is not a valid index.
      */
-    getName(this: DetectedEvent): string;
+    getName(): string;
     /**
      * Returns the key of detected object's owner.
      * Returns invalid key if Number is not a valid index.
      */
-    getOwner(this: DetectedEvent): uuid;
+    getOwner(): uuid;
     /**
      * Returns the position of detected object or avatar number.
      * Returns <0.0, 0.0, 0.0> if Number is not a valid index.
      */
-    getPos(this: DetectedEvent): vector;
+    getPos(): vector;
     /** Returns the key for the rezzer of the detected object. */
-    getRezzer(this: DetectedEvent): uuid;
+    getRezzer(): uuid;
     /**
      * Returns the rotation of detected object or avatar number.
      * Returns <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
      */
-    getRot(this: DetectedEvent): quaternion;
+    getRot(): quaternion;
     /**
      * Returns the surface bi-normal for a triggered touch event.
      * Returns a vector that is the surface bi-normal (tangent to the surface) where the touch event was triggered.
      */
-    getTouchBinormal(this: DetectedEvent): vector;
+    getTouchBinormal(): vector;
     /** Returns the index of the face where the avatar clicked in a triggered touch event. */
-    getTouchFace(this: DetectedEvent): number;
+    getTouchFace(): number;
     /**
      * Returns the surface normal for a triggered touch event.
      * Returns a vector that is the surface normal (perpendicular to the surface) where the touch event was triggered.
      */
-    getTouchNormal(this: DetectedEvent): vector;
+    getTouchNormal(): vector;
     /**
      * Returns the position, in region coordinates, where the object was touched in a triggered touch event.
      * Unless it is a HUD, in which case it returns the position relative to the attach point.
      */
-    getTouchPos(this: DetectedEvent): vector;
+    getTouchPos(): vector;
     /**
      * Returns a vector that is the surface coordinates where the prim was touched.
      * The X and Y vector positions contain the horizontal (S) and vertical (T) face coordinates respectively.
      * Each component is in the interval [0.0, 1.0].
      * TOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).
      */
-    getTouchST(this: DetectedEvent): vector;
+    getTouchST(): vector;
     /**
      * Returns a vector that is the texture coordinates for where the prim was touched.
      * The X and Y vector positions contain the U and V face coordinates respectively.
      * TOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).
      */
-    getTouchUV(this: DetectedEvent): vector;
+    getTouchUV(): vector;
     /**
      * Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object.
      * Returns 0 if number is not a valid index.
@@ -150,14 +153,15 @@ declare interface DetectedEvent {
      * 	// ...do stuff with the agent
      * }
      */
-    getType(this: DetectedEvent): number;
+    getType(): number;
     /**
      * Returns the velocity of the detected object Number.
      * Returns<0.0, 0.0, 0.0> if Number is not a valid offset.
      */
-    getVel(this: DetectedEvent): vector;
+    getVel(): vector;
 }
 
+/** @noSelf */
 declare interface LLEventMap {
     at_rot_target: (TargetNumber: number, TargetRotation: quaternion, CurrentRotation: quaternion) => void;
     at_target: (TargetNumber: number, TargetPosition: vector, CurrentPosition: vector) => void;
@@ -219,28 +223,34 @@ declare type LLTimerCallback = LLTimerEveryCallback | LLTimerOnceCallback;
 /** Date/time table structure used by os.date and os.time */
 declare type OsDateTime = { year: number; month: number; day: number; hour?: number; min?: number; sec?: number; wday?: number; yday?: number; isdst?: boolean };
 
-/** Event registration and management class for Second Life events */
+/**
+ * Event registration and management class for Second Life events
+ * @noSelf
+ */
 declare interface LLEvents {
     /** Registers a callback for an event. Returns the callback. */
-    on<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E];
+    on<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E];
     /** Unregisters a callback. Returns true if found and removed. */
-    off<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): boolean;
+    off<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): boolean;
     /** Registers a one-time callback. Returns the wrapper function. */
-    once<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E];
+    once<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E];
     /** Returns a list of all listeners for a specific event. */
-    listeners<E extends keyof LLEventMap>(this: LLEvents, event: E): LLEventMap[E][];
+    listeners<E extends keyof LLEventMap>(event: E): LLEventMap[E][];
     /** Returns a list of all event names that have listeners. */
-    eventNames(this: LLEvents): (keyof LLEventMap)[];
+    eventNames(): (keyof LLEventMap)[];
 }
 
-/** Timer management class for scheduling periodic and one-time callbacks */
+/**
+ * Timer management class for scheduling periodic and one-time callbacks
+ * @noSelf
+ */
 declare interface LLTimers {
     /** Registers a callback to be called every N seconds. Returns the callback. */
-    every(this: LLTimers, seconds: number, callback: LLTimerEveryCallback): LLTimerCallback;
+    every(seconds: number, callback: LLTimerEveryCallback): LLTimerCallback;
     /** Registers a callback to be called once after N seconds. Returns the callback. */
-    once(this: LLTimers, seconds: number, callback: LLTimerOnceCallback): LLTimerCallback;
+    once(seconds: number, callback: LLTimerOnceCallback): LLTimerCallback;
     /** Unregisters a timer callback. Returns true if found and removed. */
-    off(this: LLTimers, callback: LLTimerCallback): boolean;
+    off(callback: LLTimerCallback): boolean;
 }
 
 /** rotation is an alias for quaternion. */

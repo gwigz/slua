@@ -9,7 +9,7 @@
   "scripts": {
     "build": "bun run --filter '@gwigz/slua-tstl-plugin' build",
     "test": "bun test packages/ tools/",
-    "generate": "bun tools/gen-types/src/index.ts refs/lsl-definitions/slua_definitions.yaml refs/lsl-definitions/lsl_definitions.yaml packages/types/index.d.ts",
+    "generate": "bun tools/gen-types/src/index.ts refs/lsl-definitions/slua_definitions.yaml refs/lsl-definitions/lsl_definitions.yaml -o packages/types/index.d.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt --write .",

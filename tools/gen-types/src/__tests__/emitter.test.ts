@@ -223,7 +223,7 @@ describe("emitClassDef", () => {
 
     const result = emitClassDef(cls)
 
-    // "self" from YAML should not appear -- replaced by TypeScript "this" param
+    // "self" from YAML should not appear in output
     expect(result).not.toMatch(/on\(self,/)
 
     expect(result).toMatchSnapshot()
@@ -468,10 +468,10 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("declare interface LLEvents {")
     expect(output).toContain("declare interface LLTimers {")
     // LLEvents methods use generics instead of overloads
-    expect(output).toContain("on<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E]")
-    expect(output).toContain("off<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): boolean")
-    expect(output).toContain("listeners<E extends keyof LLEventMap>(this: LLEvents, event: E): LLEventMap[E][]")
-    expect(output).toContain("eventNames(this: LLEvents): (keyof LLEventMap)[]")
+    expect(output).toContain("on<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E]")
+    expect(output).toContain("off<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): boolean")
+    expect(output).toContain("listeners<E extends keyof LLEventMap>(event: E): LLEventMap[E][]")
+    expect(output).toContain("eventNames(): (keyof LLEventMap)[]")
   })
 
   it("contains global variables (non-removed)", () => {

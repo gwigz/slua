@@ -1,0 +1,12 @@
+{
+  "name": "@gwigz/slua-types",
+  "version": "0.1.0",
+  "files": [
+    "index.d.ts",
+    "modules"
+  ],
+  "types": "index.d.ts",
+  "peerDependencies": {
+    "@typescript-to-lua/language-extensions": "^1.0.0"
+  }
+}

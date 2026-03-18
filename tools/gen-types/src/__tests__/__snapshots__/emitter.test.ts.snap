@@ -1,0 +1,140 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`emitBaseClass produces declare interface with readonly properties 1`] = `
+"/** A 3D vector. */
+declare interface vector {
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+}
+"
+`;
+
+exports[`emitBaseClass produces method-style operator overloads on the interface 1`] = `
+"/** A 3D vector. */
+declare interface vector {
+    readonly x: number;
+    add: LuaAdditionMethod<vector, vector>;
+    neg: LuaNegationMethod<vector>;
+}
+"
+`;
+
+exports[`emitBaseClass emits intersected overloads for union operator types 1`] = `
+"declare interface vector {
+    mul: LuaMultiplicationMethod<number, vector> & LuaMultiplicationMethod<vector, vector> & LuaMultiplicationMethod<quaternion, vector>;
+}
+"
+`;
+
+exports[`emitBaseClass does not emit __tostring as an operator 1`] = `
+"declare interface uuid {
+}
+"
+`;
+
+exports[`emitBaseClass does not emit __eq as an operator (not in TSTL) 1`] = `
+"declare interface quaternion {
+}
+"
+`;
+
+exports[`emitBaseClass emits declare class with @customConstructor when ctor is provided 1`] = `
+"/**
+ * A 3D vector.
+ * @customConstructor vector.create
+ */
+declare class Vector {
+    constructor(x: number, y: number, z?: number);
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+    add: LuaAdditionMethod<vector, vector>;
+}
+
+declare type vector = Vector;
+"
+`;
+
+exports[`emitTypeAlias produces declare type alias 1`] = `
+"/** 'rotation' is an alias for 'quaternion' */
+declare type rotation = quaternion;
+"
+`;
+
+exports[`emitTypeAlias maps complex definitions through mapType 1`] = `
+"declare type list = (string | number | vector | uuid | quaternion | boolean)[];
+"
+`;
+
+exports[`emitClassDef produces declare interface with methods (self skipped) 1`] = `
+"/** Event registration class. */
+declare interface LLEvents {
+    /** Registers a callback. */
+    on(this: LLEvents, event: LLDetectedEventName, callback: LLDetectedEventHandler): LLDetectedEventHandler;
+    /** Registers a callback. */
+    on(this: LLEvents, event: LLNonDetectedEventName, callback: LLEventHandler): LLEventHandler;
+}
+"
+`;
+
+exports[`emitGlobalVariable produces declare const for a normal variable 1`] = `
+"/** Event singleton. */
+declare const LLEvents: LLEvents;
+"
+`;
+
+exports[`emitGlobalFunction produces declare function with parameters and return type 1`] = `
+"/** Creates a new uuid from a string. */
+declare function touuid(val: string | undefined | buffer | uuid): uuid | undefined;
+"
+`;
+
+exports[`emitGlobalFunction emits type parameters 1`] = `
+"declare function assert<T>(value?: T, message?: string): T;
+"
+`;
+
+exports[`emitModule produces declare namespace with functions and constants 1`] = `
+"/** Vector manipulation library. */
+/** @noSelf */
+declare namespace vector {
+    /** Creates a new vector. */
+    export function create(x: number, y: number, z?: number): vector;
+
+    export function magnitude(v: vector): number;
+
+    /** Zero vector. */
+    export const zero: vector;
+}
+"
+`;
+
+exports[`emitModule emits callable interface for callable modules 1`] = `
+"declare interface vector {
+    (x: number, y: number, z?: number): vector;
+}
+
+/** @noSelf */
+declare namespace vector {
+    export function create(x: number, y: number, z?: number): vector;
+}
+"
+`;
+
+exports[`emitModule uses PascalCase namespace name when className is provided 1`] = `
+"/** @noSelf */
+declare namespace Vector {
+    export function create(x: number, y: number): vector;
+
+    export const zero: vector;
+}
+"
+`;
+
+exports[`emitModule skips callable interface when className is provided 1`] = `
+"/** @noSelf */
+declare namespace Vector {
+}
+"
+`;

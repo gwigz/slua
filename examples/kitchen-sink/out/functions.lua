@@ -1,0 +1,79 @@
+--[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+local ____exports = {}
+--- Default parameters
+local function sayOnChannel(message, channel)
+    if channel == nil then
+        channel = 0
+    end
+    ll.Say(channel, message)
+end
+--- Rest parameters -- variable argument count
+local function sayAll(channel, ...)
+    local messages = {...}
+    for ____, msg in ipairs(messages) do
+        ll.Say(channel, msg)
+    end
+end
+--- Higher-order functions -- functions as arguments (uuid is the SLua type for agent/object keys)
+local function withOwnerCheck(action)
+    local owner = ll.GetOwner()
+    action(owner)
+end
+withOwnerCheck(function(owner)
+    ll.Say(
+        0,
+        "Owner: " .. tostring(owner)
+    )
+end)
+--- Functions returning functions (closures)
+local function createRepeater(channel, message)
+    local count = 0
+    return function()
+        count = count + 1
+        ll.Say(
+            channel,
+            (("[" .. tostring(count)) .. "] ") .. message
+        )
+    end
+end
+--- Arrow functions vs function declarations -- both compile to Lua functions
+local function double(n)
+    return n * 2
+end
+local function triple(n)
+    return n * 3
+end
+ll.Say(
+    0,
+    "double(21) = " .. tostring(double(21))
+)
+ll.Say(
+    0,
+    "triple(14) = " .. tostring(triple(14))
+)
+--- Closures capture variables
+local function makeCounter(start)
+    if start == nil then
+        start = 0
+    end
+    local current = start
+    return {
+        next = function()
+            current = current + 1
+            return current
+        end,
+        value = function() return current end
+    }
+end
+local counter = makeCounter(10)
+counter:next()
+counter:next()
+ll.Say(
+    0,
+    tostring(counter:value())
+)
+____exports.sayOnChannel = sayOnChannel
+____exports.sayAll = sayAll
+____exports.createRepeater = createRepeater
+____exports.makeCounter = makeCounter
+return ____exports

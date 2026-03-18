@@ -1,0 +1,7 @@
+/refs
+node_modules/
+dist/
+out/
+*.js.map
+bun.lock
+!examples/**/out/

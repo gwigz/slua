@@ -1,0 +1,19 @@
+{
+  "name": "@gwigz/slua-gen-types",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "generate": "bun src/index.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "js-yaml": "^4.1.0",
+    "ts-morph": "^27.0.2"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.0"
+  }
+}

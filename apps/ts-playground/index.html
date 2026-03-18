@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ts-playground</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Node.js globals shim -- must run before any module script.
+      // platform is detected from navigator so Monaco binds Cmd correctly on Mac.
+      var g = globalThis
+      g.global = g.global || g
+      g.process = g.process || {
+        env: {},
+        argv: [],
+        version: "v22.0.0",
+        versions: { node: "22.0.0" },
+        platform: /Mac/.test(navigator.platform) ? "darwin" : "linux",
+        cwd: function () {
+          return "/"
+        },
+        nextTick: function (f) {
+          setTimeout(f, 0)
+        },
+      }
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

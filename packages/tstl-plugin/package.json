@@ -1,0 +1,19 @@
+{
+  "name": "@gwigz/slua-tstl-plugin",
+  "version": "0.1.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "typescript-to-lua": "^1.33.0"
+  },
+  "peerDependencies": {
+    "typescript": "~5.7.0"
+  }
+}

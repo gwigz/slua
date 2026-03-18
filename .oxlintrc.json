@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "rules": {},
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "ignorePatterns": ["dist/", "out/", "node_modules/", "refs/"],
+  "overrides": [
+    {
+      "files": ["**/*.d.ts"],
+      "rules": {
+        "no-redeclare": "off"
+      }
+    },
+    {
+      "files": ["examples/**/*.ts"],
+      "rules": {
+        "no-unused-vars": "off",
+        "typescript/triple-slash-reference": "off"
+      }
+    }
+  ]
+}

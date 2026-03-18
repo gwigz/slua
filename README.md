@@ -112,7 +112,7 @@ end
 
 ### Comments
 
-Due to a [TypeScript limitation](https://github.com/TypeScriptToLua/TypeScriptToLua/issues/713), only JSDoc-style comments (`/** */`) are preserved in the output -- regular comments (`//`, `/* */`) are stripped before TSTL ever sees them:
+Due to a [TSTL limitation](https://github.com/TypeScriptToLua/TypeScriptToLua/issues/815), only valid JSDoc-style comments (`/** */`) are preserved in the output. Regular comments (`//`, `/* */`) are stripped:
 
 ```typescript
 /** This comment will appear in the Lua output */

@@ -13,19 +13,27 @@ const PASCAL_TO_LOWER: Record<string, string> = {
   UUID: "uuid",
 }
 
+/**
+ * TSTL treats "bit32" as a Lua keyword and renames it to "____bit32" in output.
+ * This is incorrect for Luau where bit32 is a valid global library.
+ * The visitor rewrites the mangled name back; the diagnostic is suppressed
+ * separately in consumers (e.g. the playground transpiler worker).
+ */
+const TSTL_KEYWORD_FIXUPS: Record<string, string> = {
+  ____bit32: "bit32",
+}
+
 const plugin: tstl.Plugin = {
   visitors: {
     [ts.SyntaxKind.PropertyAccessExpression]: (node: ts.PropertyAccessExpression, context) => {
       const result = context.superTransformExpression(node)
 
-      // Rewrite PascalCase namespace identifiers to lowercase in the Lua AST.
-      // e.g. Vector.zero → TableIndexExpression(Identifier("Vector"), ...)
-      //   becomes → TableIndexExpression(Identifier("vector"), ...)
+      // Rewrite identifiers in the Lua AST (PascalCase → lowercase, TSTL keyword fixups).
       if (tstl.isTableIndexExpression(result) && tstl.isIdentifier(result.table)) {
-        const lower = PASCAL_TO_LOWER[result.table.text]
+        const replacement = PASCAL_TO_LOWER[result.table.text] ?? TSTL_KEYWORD_FIXUPS[result.table.text]
 
-        if (lower) {
-          result.table.text = lower
+        if (replacement) {
+          result.table.text = replacement
         }
       }
 

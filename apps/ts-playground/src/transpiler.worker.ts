@@ -63,8 +63,15 @@ self.addEventListener("message", (event: MessageEvent<string>) => {
 
     const lua = result.transpiledFiles.find((file) => file.outPath === "main.lua")?.lua ?? ""
 
+    // TSTL treats "bit32" as a Lua keyword even when targeting Luau.
+    // The plugin fixes the output; filter the spurious diagnostic here.
+    const isTstlKeywordDiagnostic = (msg: string | ts.DiagnosticMessageChain) => {
+      const text = typeof msg === "string" ? msg : msg.messageText
+      return text.includes("Invalid ambient identifier name 'bit32'")
+    }
+
     const diagnostics: WorkerDiagnostic[] = result.diagnostics
-      .filter((data) => data.file?.fileName === "main.ts")
+      .filter((data) => data.file?.fileName === "main.ts" && !isTstlKeywordDiagnostic(data.messageText))
       .map((data) => ({
         message: flattenMessage(data.messageText),
         start: data.start,

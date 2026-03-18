@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from "react"
-import Editor from "@monaco-editor/react"
-import { IconBrandGithub, IconExternalLink, IconInfoCircle } from "@tabler/icons-react"
+import Editor, { type OnMount } from "@monaco-editor/react"
+import { IconBrandGithub, IconExternalLink, IconInfoCircle, IconRotate } from "@tabler/icons-react"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog"
+import { Button } from "~/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
 import type { WorkerDiagnostic, WorkerResponse } from "./transpiler.worker"
 
 const CREDITS = [
@@ -84,11 +88,24 @@ LLEvents.on("listen", (_channel, _name, id, message) => {
 ll.Listen(67, "", owner, "")
 `
 
+const STORAGE_KEY = "slua.playground-code"
+
 export function App() {
   const [lua, setLua] = useState("")
   const [diagnostics, setDiagnostics] = useState<WorkerDiagnostic[]>([])
+  const [resetOpen, setResetOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<"typescript" | "lua">("typescript")
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 640px)").matches)
   const workerRef = useRef<Worker | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)")
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [])
 
   useEffect(() => {
     const worker = new Worker(new URL("./transpiler.worker.ts", import.meta.url), {
@@ -106,8 +123,8 @@ export function App() {
 
     workerRef.current = worker
 
-    // Transpile the default code on mount
-    worker.postMessage(DEFAULT_CODE)
+    // Transpile the initial code on mount
+    worker.postMessage(localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE)
 
     return () => {
       if (debounceRef.current) {
@@ -118,8 +135,13 @@ export function App() {
     }
   }, [])
 
+  const handleMount: OnMount = (editor) => {
+    editorRef.current = editor
+  }
+
   function handleChange(value: string | undefined) {
     const code = value ?? ""
+    localStorage.setItem(STORAGE_KEY, code)
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -130,110 +152,224 @@ export function App() {
     }, 300)
   }
 
+  function handleReset() {
+    localStorage.removeItem(STORAGE_KEY)
+    if (editorRef.current) {
+      editorRef.current.setValue(DEFAULT_CODE)
+    }
+    workerRef.current?.postMessage(DEFAULT_CODE)
+    setActiveTab("typescript")
+    setResetOpen(false)
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <header className="flex items-center justify-between px-4 py-2 border-b border-border shrink-0">
         <span className="font-semibold text-sm">TypeScript to SLua Playground</span>
-        <div className="flex items-center gap-2">
-          <a
-            href="https://github.com/gwigz/slua"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <IconBrandGithub size={18} />
-          </a>
-          <Dialog>
-            <DialogTrigger className="text-muted-foreground hover:text-foreground transition-colors">
-              <IconInfoCircle size={18} />
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md gap-5">
-              <DialogHeader>
-                <DialogTitle>Credits</DialogTitle>
-                <DialogDescription>Open-source projects that make this possible</DialogDescription>
-              </DialogHeader>
-              <ul className="grid gap-1">
-                {CREDITS.map((credit) => (
-                  <li key={credit.name}>
-                    <a
-                      href={credit.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-start gap-3 border border-border/50 px-3 py-2 rounded-sm transition-colors hover:bg-muted/60"
-                    >
-                      <span className="flex flex-col gap-0.5 min-w-0">
-                        <span className="flex items-center gap-1.5">
-                          <span
-                            className="font-mono text-xs font-medium truncate"
-                            style={{ color: credit.color }}
-                          >
-                            {credit.name}
+        <TooltipProvider>
+          <div className="flex items-center gap-2">
+            <Dialog open={resetOpen} onOpenChange={setResetOpen}>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <DialogTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                      <IconRotate size={18} />
+                    </DialogTrigger>
+                  }
+                />
+                <TooltipContent>Reset to default</TooltipContent>
+              </Tooltip>
+              <DialogContent className="sm:max-w-sm gap-5">
+                <DialogHeader>
+                  <DialogTitle>Reset to default</DialogTitle>
+                  <DialogDescription>
+                    This will discard your changes and restore the example code.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+                  <Button variant="destructive" onClick={handleReset}>
+                    Reset
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Dialog>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <DialogTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                      <IconInfoCircle size={18} />
+                    </DialogTrigger>
+                  }
+                />
+                <TooltipContent>Credits</TooltipContent>
+              </Tooltip>
+              <DialogContent className="sm:max-w-md gap-5">
+                <DialogHeader>
+                  <DialogTitle>Credits</DialogTitle>
+                  <DialogDescription>
+                    Open-source projects that make this possible
+                  </DialogDescription>
+                </DialogHeader>
+                <ul className="grid gap-1">
+                  {CREDITS.map((credit) => (
+                    <li key={credit.name}>
+                      <a
+                        href={credit.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-start gap-3 border border-border/50 px-3 py-2 rounded-sm transition-colors hover:bg-muted/60"
+                      >
+                        <span className="flex flex-col gap-0.5 min-w-0">
+                          <span className="flex items-center gap-1.5">
+                            <span
+                              className="font-mono text-xs font-medium truncate"
+                              style={{ color: credit.color }}
+                            >
+                              {credit.name}
+                            </span>
+                            <IconExternalLink
+                              size={11}
+                              className="shrink-0 opacity-0 -translate-y-px transition-all group-hover:opacity-40"
+                            />
                           </span>
-                          <IconExternalLink
-                            size={11}
-                            className="shrink-0 opacity-0 -translate-y-px transition-all group-hover:opacity-40"
-                          />
+                          <span className="text-[11px] leading-snug text-muted-foreground">
+                            {credit.description}
+                          </span>
                         </span>
-                        <span className="text-[11px] leading-snug text-muted-foreground">
-                          {credit.description}
-                        </span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </DialogContent>
-          </Dialog>
-        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </DialogContent>
+            </Dialog>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <a
+                    href="https://github.com/gwigz/slua"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <IconBrandGithub size={18} />
+                  </a>
+                }
+              />
+              <TooltipContent>View on GitHub</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        {/* TypeScript input */}
-        <div className="flex flex-col flex-1 min-w-0 border-r border-border">
-          <div className="px-3 py-1 text-xs text-muted-foreground border-b border-border">
-            TypeScript
+      {isDesktop ? (
+        <div className="flex flex-1 min-h-0">
+          {/* TypeScript input */}
+          <div className="flex flex-col flex-1 min-w-0 border-r border-border">
+            <div className="px-3 py-1 text-xs text-muted-foreground border-b border-border">
+              TypeScript
+            </div>
+            <div className="flex-1 min-h-0">
+              <Editor
+                defaultLanguage="typescript"
+                defaultValue={localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE}
+                theme="vs-dark"
+                onMount={handleMount}
+                onChange={handleChange}
+                options={{
+                  minimap: { enabled: false },
+                  fontFamily: "'Fira Code', monospace",
+                  fontLigatures: true,
+                  fontSize: 13,
+                  lineNumbers: "on",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                }}
+              />
+            </div>
           </div>
-          <div className="flex-1 min-h-0">
-            <Editor
-              defaultLanguage="typescript"
-              defaultValue={DEFAULT_CODE}
-              theme="vs-dark"
-              onChange={handleChange}
-              options={{
-                minimap: { enabled: false },
-                fontFamily: "'Fira Code', monospace",
-                fontLigatures: true,
-                fontSize: 13,
-                lineNumbers: "on",
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-              }}
-            />
-          </div>
-        </div>
 
-        {/* Lua output */}
-        <div className="flex flex-col flex-1 min-w-0">
-          <div className="px-3 py-1 text-xs text-muted-foreground border-b border-border">SLua</div>
-          <div className="flex-1 min-h-0">
-            <Editor
-              language="lua"
-              value={lua}
-              theme="vs-dark"
-              options={{
-                readOnly: true,
-                minimap: { enabled: false },
-                fontFamily: "'Fira Code', monospace",
-                fontLigatures: true,
-                fontSize: 13,
-                lineNumbers: "on",
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-              }}
-            />
+          {/* Lua output */}
+          <div className="flex flex-col flex-1 min-w-0">
+            <div className="px-3 py-1 text-xs text-muted-foreground border-b border-border">SLua</div>
+            <div className="flex-1 min-h-0">
+              <Editor
+                language="lua"
+                value={lua}
+                theme="vs-dark"
+                options={{
+                  readOnly: true,
+                  minimap: { enabled: false },
+                  fontFamily: "'Fira Code', monospace",
+                  fontLigatures: true,
+                  fontSize: 13,
+                  lineNumbers: "on",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                }}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Mobile tab bar */}
+          <div className="flex shrink-0 border-b border-border">
+            <button
+              className={`flex-1 px-3 py-1.5 text-xs transition-colors ${activeTab === "typescript" ? "text-foreground border-b-2 border-foreground -mb-px" : "text-muted-foreground"}`}
+              onClick={() => setActiveTab("typescript")}
+            >
+              TypeScript
+            </button>
+            <button
+              className={`flex-1 px-3 py-1.5 text-xs transition-colors ${activeTab === "lua" ? "text-foreground border-b-2 border-foreground -mb-px" : "text-muted-foreground"}`}
+              onClick={() => setActiveTab("lua")}
+            >
+              SLua
+            </button>
+          </div>
+
+          {/* Mobile: both editors always mounted, visibility-toggled to avoid Monaco remount issues */}
+          <div className="flex-1 min-h-0 relative">
+            <div className={`absolute inset-0 ${activeTab !== "typescript" ? "invisible pointer-events-none" : ""}`}>
+              <Editor
+                defaultLanguage="typescript"
+                defaultValue={localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE}
+                theme="vs-dark"
+                onMount={handleMount}
+                onChange={handleChange}
+                options={{
+                  minimap: { enabled: false },
+                  fontFamily: "'Fira Code', monospace",
+                  fontLigatures: true,
+                  fontSize: 13,
+                  lineNumbers: "on",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                }}
+              />
+            </div>
+            <div className={`absolute inset-0 ${activeTab !== "lua" ? "invisible pointer-events-none" : ""}`}>
+              <Editor
+                language="lua"
+                value={lua}
+                theme="vs-dark"
+                options={{
+                  readOnly: true,
+                  minimap: { enabled: false },
+                  fontFamily: "'Fira Code', monospace",
+                  fontLigatures: true,
+                  fontSize: 13,
+                  lineNumbers: "on",
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                }}
+              />
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Diagnostics */}
       {diagnostics.length > 0 && (

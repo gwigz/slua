@@ -129,6 +129,12 @@ function injectNodeGlobals(): Plugin {
 export default defineConfig({
   plugins: [injectNodeGlobals(), stubTstlResolve(), tstlLualib(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
   resolve: {
+    // Force a single instance of each package so the ts.sys.readFile
+    // patch in transpiler.worker.ts applies to the same TypeScript copy
+    // that TSTL and the slua plugin use.  Without this, Rolldown creates
+    // duplicate CJS-to-ESM instances (one per ESM import chain), causing
+    // the worker to patch the wrong ts.sys and lualib reads to fail.
+    dedupe: ["typescript", "typescript-to-lua"],
     alias: {
       "~": resolve("src"),
       // Node built-in polyfills

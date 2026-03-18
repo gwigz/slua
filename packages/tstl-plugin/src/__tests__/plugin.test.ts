@@ -392,6 +392,48 @@ describe("string Luau stdlib transforms", () => {
 
     expect(lua).toContain("string.rep(s, 3)")
   })
+
+  it("translates startsWith to string.find == 1", () => {
+    const lua = transpileSimple(
+      'interface String { startsWith(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.startsWith("pre")',
+    )
+
+    expect(lua).toContain("string.find(s,")
+    expect(lua).toContain("true")
+    expect(lua).toContain("== 1")
+  })
+
+  it("does not transform startsWith with position argument", () => {
+    const lua = transpileSimple(
+      'interface String { startsWith(searchString: string, position?: number): boolean }\ndeclare const s: string;\nconst b = s.startsWith("pre", 3)',
+    )
+
+    expect(lua).not.toContain("string.find")
+  })
+
+  it("translates substring(start) to string.sub with constant folding", () => {
+    const lua = transpileSimple(
+      "declare const s: string;\nconst x = s.substring(5)",
+    )
+
+    expect(lua).toContain("string.sub(s, 6)")
+  })
+
+  it("translates substring(start, end) to string.sub with constant folding", () => {
+    const lua = transpileSimple(
+      "declare const s: string;\nconst x = s.substring(1, 5)",
+    )
+
+    expect(lua).toContain("string.sub(s, 2, 5)")
+  })
+
+  it("translates substring with expression arg to start + 1", () => {
+    const lua = transpileSimple(
+      "declare const s: string;\ndeclare const i: number;\nconst x = s.substring(i)",
+    )
+
+    expect(lua).toContain("string.sub(s, i + 1)")
+  })
 })
 
 describe("array transforms", () => {

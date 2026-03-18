@@ -33,20 +33,23 @@ For SL-typed JSON (preserving vector/quaternion/uuid), use `lljson.slencode`/`ll
 
 String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib calls:
 
-| TypeScript          | Lua output                             |
-| ------------------- | -------------------------------------- |
-| `str.toUpperCase()` | `ll.ToUpper(str)`                      |
-| `str.toLowerCase()` | `ll.ToLower(str)`                      |
-| `str.trim()`        | `ll.StringTrim(str, STRING_TRIM)`      |
-| `str.trimStart()`   | `ll.StringTrim(str, STRING_TRIM_HEAD)` |
-| `str.trimEnd()`     | `ll.StringTrim(str, STRING_TRIM_TAIL)` |
-| `str.indexOf(x)`    | `ll.SubStringIndex(str, x)`            |
-| `str.includes(x)`   | `string.find(str, x, 1, true) ~= nil`  |
-| `str.split(sep)`    | `string.split(str, sep)`               |
-| `str.repeat(n)`     | `string.rep(str, n)`                   |
+| TypeScript             | Lua output                             |
+| ---------------------- | -------------------------------------- |
+| `str.toUpperCase()`    | `ll.ToUpper(str)`                      |
+| `str.toLowerCase()`    | `ll.ToLower(str)`                      |
+| `str.trim()`           | `ll.StringTrim(str, STRING_TRIM)`      |
+| `str.trimStart()`      | `ll.StringTrim(str, STRING_TRIM_HEAD)` |
+| `str.trimEnd()`        | `ll.StringTrim(str, STRING_TRIM_TAIL)` |
+| `str.indexOf(x)`       | `ll.SubStringIndex(str, x)`            |
+| `str.includes(x)`      | `string.find(str, x, 1, true) ~= nil`  |
+| `str.startsWith(x)`    | `string.find(str, x, 1, true) == 1`    |
+| `str.split(sep)`       | `string.split(str, sep)`               |
+| `str.repeat(n)`        | `string.rep(str, n)`                   |
+| `str.substring(start)` | `string.sub(str, start + 1)`           |
+| `str.substring(s, e)`  | `string.sub(str, s + 1, e)`            |
 
 > [!NOTE]
-> `str.indexOf(x, fromIndex)` with a second argument falls through to TSTL's default handling since `ll.SubStringIndex` has no `fromIndex` parameter. Similarly, `str.split()` with no separator is not transformed.
+> `str.indexOf(x, fromIndex)` and `str.startsWith(x, position)` with a second argument fall through to TSTL's default handling. Similarly, `str.split()` with no separator is not transformed.
 
 ### Array methods
 
@@ -97,6 +100,93 @@ This only applies when the argument is directly a `/` expression. `Math.floor(x)
 
 > [!WARNING]
 > JavaScript integer truncation idioms `~~x` and `x | 0` do **not** map cleanly to Luau. `~~x` emits `bit32.bnot(bit32.bnot(x))` and `x | 0` emits `bit32.bor(x, 0)`, neither of which preserves correct semantics for negative numbers (the `bit32` library operates on unsigned 32-bit integers). Use `math.floor(x)` for floor truncation instead.
+
+## Keeping output small
+
+Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommendations for keeping output lean:
+
+### Avoid `delete` on objects
+
+The `delete` operator pulls in `__TS__Delete`, which depends on the entire Error class hierarchy (`Error`, `TypeError`, `RangeError`, etc.), `__TS__Class`, `__TS__ClassExtends`, `__TS__New`, and `__TS__ObjectGetOwnPropertyDescriptors`, roughly **150 lines** of runtime code.
+
+Instead, type your records to allow `undefined` and assign `undefined` (which compiles to `nil`):
+
+```typescript
+// Bad
+const cache: Record<string, Data> = {}
+delete cache[key]
+
+// Good, compiles to `cache[key] = nil`
+const cache: Record<string, Data | undefined> = {}
+cache[key] = undefined
+```
+
+To clear an entire record, use `let` and reassign instead of iterating with `delete`:
+
+```typescript
+// Bad
+for (const key of Object.keys(cache)) {
+  delete cache[key]
+}
+
+// Good
+let cache: Record<string, Data | undefined> = {}
+// ...
+cache = {}
+```
+
+### Avoid `Array.splice()`
+
+`splice()` pulls in `__TS__ArraySplice` and `__TS__CountVarargs`, roughly **75 lines**. Rebuild the array instead:
+
+```typescript
+// Bad
+for (let i = items.length - 1; i >= 0; i--) {
+  if (shouldRemove(items[i])) {
+    items.splice(i, 1)
+  }
+}
+
+// Good, compiles to simple table operations
+let items: Item[] = []
+const remaining: Item[] = []
+
+for (const item of items) {
+  if (!shouldRemove(item)) {
+    remaining.push(item)
+  }
+}
+
+items = remaining
+```
+
+### Prefer `for...in` over `Object.entries()`
+
+`Object.entries()` pulls in `__TS__ObjectEntries`. Use `Object.keys()` with indexing, or `for...in` which compiles directly to `for key in pairs(obj)`:
+
+```typescript
+// Pulls in __TS__ObjectEntries
+for (const [key, value] of Object.entries(obj)) { ... }
+
+// Compiles to `for key in pairs(obj)`, no helpers
+for (const key in obj) {
+  const value = obj[key]
+}
+```
+
+### Avoid `Map` and `Set`
+
+TSTL's `Map` and `Set` polyfills add **~400 lines** of runtime. Use plain `Record<string, T>` and arrays instead:
+
+```typescript
+// Bad, ~400 lines of runtime
+const lookup = new Map<string, UUID>()
+const seen = new Set<string>()
+
+// Good, plain Lua tables
+const lookup: Record<string, UUID | undefined> = {}
+const seen: Record<string, boolean> = {}
+```
 
 ## Build
 

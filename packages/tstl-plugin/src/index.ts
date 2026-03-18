@@ -169,6 +169,7 @@ function isNamespaceCall(
 ): node is ts.CallExpression & { expression: ts.PropertyAccessExpression } {
   if (!ts.isPropertyAccessExpression(node.expression)) return false
   if (node.expression.name.text !== method) return false
+
   return (
     ts.isIdentifier(node.expression.expression) && node.expression.expression.text === namespace
   )
@@ -242,6 +243,7 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       return createNamespacedCall("ll", "ToUpper", [str], node)
     },
   },
@@ -252,6 +254,7 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       return createNamespacedCall("ll", "ToLower", [str], node)
     },
   },
@@ -262,6 +265,7 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       return createNamespacedCall(
         "ll",
         "StringTrim",
@@ -277,6 +281,7 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       return createNamespacedCall(
         "ll",
         "StringTrim",
@@ -292,6 +297,7 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       return createNamespacedCall(
         "ll",
         "StringTrim",
@@ -307,7 +313,9 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       const search = context.transformExpression(node.arguments[0])
+
       return createNamespacedCall("ll", "SubStringIndex", [str, search], node)
     },
   },
@@ -318,13 +326,16 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       const search = context.transformExpression(node.arguments[0])
+
       const findCall = createNamespacedCall(
         "string",
         "find",
         [str, search, tstl.createNumericLiteral(1), tstl.createBooleanLiteral(true)],
         node,
       )
+
       return tstl.createBinaryExpression(
         findCall,
         tstl.createNilLiteral(),
@@ -340,7 +351,9 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       const sep = context.transformExpression(node.arguments[0])
+
       return createNamespacedCall("string", "split", [str, sep], node)
     },
   },
@@ -351,8 +364,70 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       const n = context.transformExpression(node.arguments[0])
+
       return createNamespacedCall("string", "rep", [str, n], node)
+    },
+  },
+  // str.startsWith(search) -> string.find(str, search, 1, true) == 1  (1-arg only)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "startsWith", 1),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+
+      const search = context.transformExpression(node.arguments[0])
+
+      const findCall = createNamespacedCall(
+        "string",
+        "find",
+        [str, search, tstl.createNumericLiteral(1), tstl.createBooleanLiteral(true)],
+        node,
+      )
+
+      return tstl.createBinaryExpression(
+        findCall,
+        tstl.createNumericLiteral(1),
+        tstl.SyntaxKind.EqualityOperator,
+        node,
+      )
+    },
+  },
+  // str.substring(start) -> string.sub(str, start + 1)
+  // str.substring(start, end) -> string.sub(str, start + 1, end)
+  {
+    match: (node, checker) => {
+      if (!isMethodCall(node, checker, isStringType, "substring")) {
+        return false
+      }
+
+      return node.arguments.length === 1 || node.arguments.length === 2
+    },
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+
+      const startArg = node.arguments[0]
+
+      const start = ts.isNumericLiteral(startArg)
+        ? tstl.createNumericLiteral(Number(startArg.text) + 1)
+        : tstl.createBinaryExpression(
+            context.transformExpression(startArg),
+            tstl.createNumericLiteral(1),
+            tstl.SyntaxKind.AdditionOperator,
+            node,
+          )
+
+      const args: tstl.Expression[] = [str, start]
+
+      if (node.arguments.length === 2) {
+        args.push(context.transformExpression(node.arguments[1]))
+      }
+
+      return createNamespacedCall("string", "sub", args, node)
     },
   },
   // arr.includes(val) -> table.find(arr, val) ~= nil
@@ -362,8 +437,10 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const arr = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       const val = context.transformExpression(node.arguments[0])
       const findCall = createNamespacedCall("table", "find", [arr, val], node)
+
       return tstl.createBinaryExpression(
         findCall,
         tstl.createNilLiteral(),
@@ -379,14 +456,17 @@ const CALL_TRANSFORMS: CallTransform[] = [
       const arr = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
+
       const val = context.transformExpression(node.arguments[0])
       const findCall = createNamespacedCall("table", "find", [arr, val], node)
+
       const findOrZero = tstl.createBinaryExpression(
         findCall,
         tstl.createNumericLiteral(0),
         tstl.SyntaxKind.OrOperator,
         node,
       )
+
       return tstl.createBinaryExpression(
         tstl.createParenthesizedExpression(findOrZero),
         tstl.createNumericLiteral(1),
@@ -418,10 +498,12 @@ const plugin: tstl.Plugin = {
     [ts.SyntaxKind.BinaryExpression]: (node: ts.BinaryExpression, context) => {
       // Check for btest pattern: (a & b) !== 0, 0 === (a & b), etc.
       const btest = extractBtestPattern(node)
+
       if (btest) {
         const left = context.transformExpression(btest.band.left)
         const right = context.transformExpression(btest.band.right)
         const call = createBit32Call("btest", [left, right], node)
+
         return btest.negate
           ? tstl.createUnaryExpression(call, tstl.SyntaxKind.NotOperator, node)
           : call
@@ -433,6 +515,7 @@ const plugin: tstl.Plugin = {
       if (fn) {
         const left = context.transformExpression(node.left)
         const right = context.transformExpression(node.right)
+
         return createBit32Call(fn, [left, right], node)
       }
 
@@ -446,7 +529,9 @@ const plugin: tstl.Plugin = {
         const left = context.transformExpression(node.left) as tstl.AssignmentLeftHandSideExpression
         const right = context.transformExpression(node.right)
         const call = createBit32Call(compoundFn, [left, right], node)
+
         context.addPrecedingStatements(tstl.createAssignmentStatement(left, call, node))
+
         return left
       }
 
@@ -461,12 +546,15 @@ const plugin: tstl.Plugin = {
     [ts.SyntaxKind.ExpressionStatement]: (node: ts.ExpressionStatement, context) => {
       if (ts.isBinaryExpression(node.expression)) {
         const compoundFn = COMPOUND_BITWISE_OPS[node.expression.operatorToken.kind]
+
         if (compoundFn) {
           const left = context.transformExpression(
             node.expression.left,
           ) as tstl.AssignmentLeftHandSideExpression
+
           const right = context.transformExpression(node.expression.right)
           const call = createBit32Call(compoundFn, [left, right], node)
+
           return [tstl.createAssignmentStatement(left, call, node)]
         }
       }
@@ -485,9 +573,11 @@ const plugin: tstl.Plugin = {
       // `Math.floor(a / b)` -> `a // b` (native Luau floor division operator)
       if (isMathFloor(node)) {
         const arg = node.arguments[0]
+
         if (ts.isBinaryExpression(arg) && arg.operatorToken.kind === ts.SyntaxKind.SlashToken) {
           const left = context.transformExpression(arg.left)
           const right = context.transformExpression(arg.right)
+
           return tstl.createBinaryExpression(
             left,
             right,

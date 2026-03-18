@@ -77,10 +77,7 @@ exports[`emitTypeAlias maps complex definitions through mapType 1`] = `
 `;
 
 exports[`emitClassDef produces declare interface with methods (self skipped) 1`] = `
-"/**
- * Event registration class.
- * @noSelf
- */
+"/** Event registration class. */
 declare interface LLEvents {
     /** Registers a callback. */
     on<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E];

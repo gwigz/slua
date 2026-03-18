@@ -130,7 +130,7 @@ bun test           # run all tests
 │   ├── types/          # auto-generated .d.ts declarations
 │   └── tstl-plugin/    # TSTL plugin for SLua constraints
 ├── tools/
-│   └── gen-types/      # type generation tool (YAML → .d.ts)
+│   └── gen-types/      # type generation tool (YAML -> .d.ts)
 ├── examples/
 │   └── hello-world/    # example SLua project
 └── refs/

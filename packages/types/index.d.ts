@@ -223,10 +223,7 @@ declare type LLTimerCallback = LLTimerEveryCallback | LLTimerOnceCallback;
 /** Date/time table structure used by os.date and os.time */
 declare type OsDateTime = { year: number; month: number; day: number; hour?: number; min?: number; sec?: number; wday?: number; yday?: number; isdst?: boolean };
 
-/**
- * Event registration and management class for Second Life events
- * @noSelf
- */
+/** Event registration and management class for Second Life events */
 declare interface LLEvents {
     /** Registers a callback for an event. Returns the callback. */
     on<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E];
@@ -240,10 +237,7 @@ declare interface LLEvents {
     eventNames(): (keyof LLEventMap)[];
 }
 
-/**
- * Timer management class for scheduling periodic and one-time callbacks
- * @noSelf
- */
+/** Timer management class for scheduling periodic and one-time callbacks */
 declare interface LLTimers {
     /** Registers a callback to be called every N seconds. Returns the callback. */
     every(seconds: number, callback: LLTimerEveryCallback): LLTimerCallback;

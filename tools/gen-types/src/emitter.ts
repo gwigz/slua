@@ -414,12 +414,23 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
   }
 }
 
+/** Classes that use colon-style (self) method calls at runtime */
+const SELF_CLASSES = new Set(["LLEvents", "LLTimers"])
+
 function addClassDef(sf: SourceFile, cls: ClassDef) {
-  const comment = cls.comment ? `${sanitizeComment(cls.comment)}\n@noSelf` : "@noSelf"
+  const useSelf = SELF_CLASSES.has(cls.name)
+  const comment =
+    cls.comment && useSelf
+      ? sanitizeComment(cls.comment)
+      : cls.comment
+        ? `${sanitizeComment(cls.comment)}\n@noSelf`
+        : useSelf
+          ? undefined
+          : "@noSelf"
   const iface = sf.addInterface({
     name: cls.name,
     hasDeclareKeyword: true,
-    docs: [{ description: comment }],
+    ...(comment ? { docs: [{ description: comment }] } : {}),
   })
   for (const prop of cls.properties ?? []) {
     iface.addProperty({

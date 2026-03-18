@@ -5,7 +5,7 @@ LLEvents:on(
     "touch_start",
     function(events)
         for ____, event in ipairs(events) do
-            local key = event:getKey()
+            local key = event.getKey()
             if key == owner then
                 ll.Say(
                     0,

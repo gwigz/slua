@@ -15,7 +15,7 @@ const shim = (name: string) => resolve(`src/shims/${name}.ts`)
 /**
  * Stub TSTL's file resolver module. It's a relative require("./resolve") from
  * transpiler.js so resolve.alias can't intercept it -- we need a resolveId hook.
- * This eliminates the entire enhanced-resolve → graceful-fs → constants chain.
+ * This eliminates the entire enhanced-resolve -> graceful-fs -> constants chain.
  */
 function stubTstlResolve(): Plugin {
   const target = path.normalize("typescript-to-lua/dist/transpilation/resolve")
@@ -127,7 +127,14 @@ function injectNodeGlobals(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [injectNodeGlobals(), stubTstlResolve(), tstlLualib(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
+  plugins: [
+    injectNodeGlobals(),
+    stubTstlResolve(),
+    tstlLualib(),
+    tailwindcss(),
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
+  ],
   resolve: {
     // Force a single instance of each package so the ts.sys.readFile
     // patch in transpiler.worker.ts applies to the same TypeScript copy

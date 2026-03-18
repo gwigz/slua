@@ -58,26 +58,6 @@ local function __TS__ArrayReduce(self, callbackFn, ...)
     return accumulator
 end
 
-local function __TS__ArrayIncludes(self, searchElement, fromIndex)
-    if fromIndex == nil then
-        fromIndex = 0
-    end
-    local len = #self
-    local k = fromIndex
-    if fromIndex < 0 then
-        k = len + fromIndex
-    end
-    if k < 0 then
-        k = 0
-    end
-    for i = k + 1, len do
-        if self[i] == searchElement then
-            return true
-        end
-    end
-    return false
-end
-
 local function __TS__SparseArrayNew(...)
     local sparseArray = {...}
     sparseArray.sparseLength = __TS__CountVarargs(...)
@@ -164,7 +144,7 @@ local totalMagnitude = __TS__ArrayReduce(
 )
 --- Array.includes -- check membership
 local channels = {0, 1, 42, 100}
-local hasDebugChannel = __TS__ArrayIncludes(channels, 42)
+local hasDebugChannel = table.find(channels, 42) ~= nil
 --- Array spread -- combine arrays
 local extra = {vector.create(5, 5, 5)}
 local ____array_0 = __TS__SparseArrayNew(table.unpack(positions))

@@ -24,5 +24,8 @@
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
     "typescript": "~5.7.0"
+  },
+  "patchedDependencies": {
+    "monaco-editor@0.52.2": "patches/monaco-editor@0.52.2.patch"
   }
 }

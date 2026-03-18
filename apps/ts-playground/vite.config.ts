@@ -13,40 +13,6 @@ const resolve = (p: string) => path.resolve(__dirname, p)
 const shim = (name: string) => resolve(`src/shims/${name}.ts`)
 
 /**
- * Remove the fallback `globalThis.onmessage` handler from Monaco's
- * editor.worker.js. The original handler calls `initialize(null)` on the
- * first message, which races with the explicit `initialize(factory)` call
- * in custom worker entries when Vite 8's blob-wrapped module workers have
- * an async evaluation gap.
- *
- * Uses a load hook to patch the original source in-place (keeping its
- * relative imports intact) plus a transform fallback for pre-bundled code.
- */
-function patchEditorWorkerInit(): Plugin {
-  const fallbackPattern =
-    /globalThis\.onmessage\s*=\s*\([^)]*\)\s*=>\s*\{[^}]*?if\s*\(\s*!initialized\s*\)[^}]*?initialize\s*\(\s*null\s*\)[^}]*?\}[^}]*?\};?/g
-
-  function stripFallback(source: string): string | undefined {
-    fallbackPattern.lastIndex = 0
-    if (!fallbackPattern.test(source)) return
-    fallbackPattern.lastIndex = 0
-    return source.replace(fallbackPattern, "/* fallback onmessage handler removed */")
-  }
-
-  return {
-    name: "patch-editor-worker-init",
-    enforce: "pre",
-    load(id) {
-      if (!/vs[/\\]editor[/\\]editor\.worker\.js$/.test(id)) return
-      return stripFallback(fs.readFileSync(id, "utf-8"))
-    },
-    transform(code, _id) {
-      return stripFallback(code)
-    },
-  }
-}
-
-/**
  * Stub TSTL's file resolver module. It's a relative require("./resolve") from
  * transpiler.js so resolve.alias can't intercept it -- we need a resolveId hook.
  * This eliminates the entire enhanced-resolve → graceful-fs → constants chain.
@@ -161,7 +127,7 @@ function injectNodeGlobals(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [injectNodeGlobals(), patchEditorWorkerInit(), stubTstlResolve(), tstlLualib(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
+  plugins: [injectNodeGlobals(), stubTstlResolve(), tstlLualib(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
   resolve: {
     alias: {
       "~": resolve("src"),
@@ -186,6 +152,6 @@ export default defineConfig({
   },
   worker: {
     format: "es",
-    plugins: () => [injectNodeGlobals(), patchEditorWorkerInit(), tstlLualib()],
+    plugins: () => [injectNodeGlobals(), tstlLualib()],
   },
 })

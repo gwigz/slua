@@ -1,0 +1,31 @@
+diff --git a/node_modules/monaco-editor/.bun-tag-f4092bf580acaff7 b/.bun-tag-f4092bf580acaff7
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/esm/vs/editor/editor.worker.js b/esm/vs/editor/editor.worker.js
+index 98b748524cc370b8359a2fb431770c596a8ec845..600017bbb6c7c8c02c4269bff62fa65d18691f13 100644
+--- a/esm/vs/editor/editor.worker.js
++++ b/esm/vs/editor/editor.worker.js
+@@ -18,9 +18,4 @@ export function initialize(foreignModule) {
+         simpleWorker.onmessage(e.data);
+     };
+ }
+-globalThis.onmessage = (e) => {
+-    // Ignore first message in this case and initialize if not yet initialized
+-    if (!initialized) {
+-        initialize(null);
+-    }
+-};
++/* fallback onmessage handler removed – see patches/monaco-editor@0.52.2.patch */
+diff --git a/esm/vs/language/typescript/ts.worker.js b/esm/vs/language/typescript/ts.worker.js
+index cd571071d308d9257dba55aeacc974d716d0b68d..b56681206a73ccf9266228d8a112e60a077b198d 100644
+--- a/esm/vs/language/typescript/ts.worker.js
++++ b/esm/vs/language/typescript/ts.worker.js
+@@ -1620,7 +1620,7 @@ var ts = (() => {
+     }
+   }
+   function isNodeLikeSystem() {
+-    return typeof process !== "undefined" && !!process.nextTick && !process.browser && typeof module === "object";
++    return false;
+   }
+   var emptyArray, emptyMap, emptySet, SortKind, elementAt, hasOwnProperty, fileNameLowerCaseRegExp, AssertionLevel, createUIStringComparer, uiComparerCaseSensitive, uiLocale;
+   var init_core = __esm({

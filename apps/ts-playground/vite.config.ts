@@ -67,7 +67,7 @@ function tstlLualib(): Plugin {
 
 /**
  * Inject Node.js globals into pre-bundled dependencies during Rolldown's
- * dep optimization pass. Equivalent of webpack's ProvidePlugin.
+ * dep optimization pass. Uses an import so the shim is shared across chunks.
  */
 const processShim = shim("process")
 
@@ -79,8 +79,55 @@ const nodeGlobalsBanner = [
   `if (typeof __dirname === 'undefined') globalThis.__dirname = '/';`,
 ].join("\n")
 
+/**
+ * Self-contained Node.js globals shim for production bundles.
+ * The optimizeDeps banner above uses an absolute import path that only the dev
+ * server can resolve. Production output needs a self-contained IIFE instead.
+ *
+ * Keep the process object in sync with src/shims/process.ts
+ */
+const nodeGlobalsIIFE = `;(function() {
+  if (globalThis.process) return;
+  var noop = function() {};
+  globalThis.process = {
+    title: "browser",
+    env: {},
+    argv: [],
+    version: "v22.0.0",
+    versions: { node: "22.0.0" },
+    on: noop, addListener: noop, once: noop, off: noop,
+    removeListener: noop, removeAllListeners: noop, emit: noop,
+    prependListener: noop, prependOnceListener: noop,
+    listeners: function() { return []; },
+    binding: function() { throw new Error("process.binding is not supported"); },
+    cwd: function() { return "/"; },
+    chdir: function() { throw new Error("process.chdir is not supported"); },
+    umask: function() { return 0; },
+    nextTick: function(fn) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      setTimeout(function() { fn.apply(null, args); }, 0);
+    },
+    platform: typeof navigator !== "undefined" && /Mac/.test(navigator.platform) ? "darwin" : "linux"
+  };
+  if (!globalThis.global) globalThis.global = globalThis;
+  if (typeof __filename === "undefined") globalThis.__filename = "/index.js";
+  if (typeof __dirname === "undefined") globalThis.__dirname = "/";
+})();`
+
+/**
+ * Vite plugin that injects Node.js globals into production bundles via the
+ * banner output hook. Only active during `vite build`.
+ */
+function injectNodeGlobals(): Plugin {
+  return {
+    name: "inject-node-globals",
+    apply: "build",
+    banner: () => nodeGlobalsIIFE,
+  }
+}
+
 export default defineConfig({
-  plugins: [stubTstlResolve(), tstlLualib(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
+  plugins: [injectNodeGlobals(), stubTstlResolve(), tstlLualib(), tailwindcss(), react(), babel({ presets: [reactCompilerPreset()] })],
   resolve: {
     alias: {
       "~": resolve("src"),
@@ -105,6 +152,6 @@ export default defineConfig({
   },
   worker: {
     format: "es",
-    plugins: () => [tstlLualib()],
+    plugins: () => [injectNodeGlobals(), tstlLualib()],
   },
 })

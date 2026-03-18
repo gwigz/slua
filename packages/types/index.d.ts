@@ -158,12 +158,56 @@ declare interface DetectedEvent {
     getVel(this: DetectedEvent): vector;
 }
 
+declare interface LLEventMap {
+    at_rot_target: (TargetNumber: number, TargetRotation: quaternion, CurrentRotation: quaternion) => void;
+    at_target: (TargetNumber: number, TargetPosition: vector, CurrentPosition: vector) => void;
+    attach: (AvatarID: uuid) => void;
+    changed: (Changed: number) => void;
+    collision: (detected: DetectedEvent[]) => void;
+    collision_end: (detected: DetectedEvent[]) => void;
+    collision_start: (detected: DetectedEvent[]) => void;
+    control: (AvatarID: uuid, Levels: number, Edges: number) => void;
+    dataserver: (RequestID: uuid, Data: string) => void;
+    email: (Time: string, Address: string, Subject: string, Body: string, NumberRemaining: number) => void;
+    experience_permissions: (agent_id: uuid) => void;
+    experience_permissions_denied: (agent_id: uuid, Reason: number) => void;
+    final_damage: (detected: DetectedEvent[]) => void;
+    game_control: (id: uuid, buttons: number, axes: number[]) => void;
+    http_request: (HTTPRequestID: uuid, HTTPMethod: string, Body: string) => void;
+    http_response: (HTTPRequestID: uuid, Status: number, Metadata: list, Body: string) => void;
+    land_collision: (Position: vector) => void;
+    land_collision_end: (Position: vector) => void;
+    land_collision_start: (Position: vector) => void;
+    link_message: (SendersLink: number, Value: number, Text: string, ID: string) => void;
+    linkset_data: (action: number, name: string, value: string) => void;
+    listen: (Channel: number, Name: string, ID: uuid, Text: string) => void;
+    money: (Payer: uuid, Amount: number) => void;
+    moving_end: () => void;
+    moving_start: () => void;
+    no_sensor: () => void;
+    not_at_rot_target: () => void;
+    not_at_target: () => void;
+    object_rez: (RezzedObjectsID: uuid) => void;
+    on_damage: (detected: DetectedEvent[]) => void;
+    on_death: () => void;
+    on_rez: (StartParameter: number) => void;
+    path_update: (Type: number, Reserved: list) => void;
+    remote_data: (EventType: number, ChannelID: uuid, MessageID: uuid, Sender: string, IData: number, SData: string) => void;
+    run_time_permissions: (PermissionFlags: number) => void;
+    sensor: (detected: DetectedEvent[]) => void;
+    timer: () => void;
+    touch: (detected: DetectedEvent[]) => void;
+    touch_end: (detected: DetectedEvent[]) => void;
+    touch_start: (detected: DetectedEvent[]) => void;
+    transaction_result: (RequestID: uuid, Success: number, Message: string) => void;
+}
+
 /** 'rotation' is an alias for 'quaternion' */
 declare type rotation = quaternion;
 declare type list = (string | number | vector | uuid | quaternion | boolean)[];
 declare type LLDetectedEventName = "collision" | "collision_end" | "collision_start" | "final_damage" | "on_damage" | "sensor" | "touch" | "touch_end" | "touch_start";
 declare type LLNonDetectedEventName = "at_rot_target" | "at_target" | "attach" | "changed" | "control" | "dataserver" | "email" | "experience_permissions" | "experience_permissions_denied" | "game_control" | "http_request" | "http_response" | "land_collision" | "land_collision_end" | "land_collision_start" | "link_message" | "linkset_data" | "listen" | "money" | "moving_end" | "moving_start" | "no_sensor" | "not_at_rot_target" | "not_at_target" | "object_rez" | "on_death" | "on_rez" | "path_update" | "remote_data" | "run_time_permissions" | "timer" | "transaction_result";
-declare type LLEventName = LLDetectedEventName | LLNonDetectedEventName;
+declare type LLEventName = keyof LLEventMap;
 declare type LLEventHandler = (...args: any[]) => void;
 declare type LLDetectedEventHandler = (detected: DetectedEvent[]) => void;
 /** Callback type for LLTimers.every() - receives scheduled time and interval */
@@ -178,23 +222,15 @@ declare type OsDateTime = { year: number; month: number; day: number; hour?: num
 /** Event registration and management class for Second Life events */
 declare interface LLEvents {
     /** Registers a callback for an event. Returns the callback. */
-    on(this: LLEvents, event: LLDetectedEventName, callback: LLDetectedEventHandler): LLDetectedEventHandler;
-    /** Registers a callback for an event. Returns the callback. */
-    on(this: LLEvents, event: LLNonDetectedEventName, callback: LLEventHandler): LLEventHandler;
+    on<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E];
     /** Unregisters a callback. Returns true if found and removed. */
-    off(this: LLEvents, event: LLDetectedEventName, callback: LLDetectedEventHandler): boolean;
-    /** Unregisters a callback. Returns true if found and removed. */
-    off(this: LLEvents, event: LLNonDetectedEventName, callback: LLEventHandler): boolean;
+    off<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): boolean;
     /** Registers a one-time callback. Returns the wrapper function. */
-    once(this: LLEvents, event: LLDetectedEventName, callback: LLDetectedEventHandler): LLDetectedEventHandler;
-    /** Registers a one-time callback. Returns the wrapper function. */
-    once(this: LLEvents, event: LLNonDetectedEventName, callback: LLEventHandler): LLEventHandler;
+    once<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E];
     /** Returns a list of all listeners for a specific event. */
-    listeners(this: LLEvents, event: LLDetectedEventName): LLEventHandler[];
-    /** Returns a list of all listeners for a specific event. */
-    listeners(this: LLEvents, event: LLNonDetectedEventName): LLEventHandler[];
+    listeners<E extends keyof LLEventMap>(this: LLEvents, event: E): LLEventMap[E][];
     /** Returns a list of all event names that have listeners. */
-    eventNames(this: LLEvents): string[];
+    eventNames(this: LLEvents): (keyof LLEventMap)[];
 }
 
 /** Timer management class for scheduling periodic and one-time callbacks */

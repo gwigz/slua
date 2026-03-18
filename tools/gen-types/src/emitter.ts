@@ -339,6 +339,38 @@ function addBaseClass(sf: SourceFile, bc: BaseClass, ctor?: ConstructorInfo) {
   }
 }
 
+function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
+  const lslEvents = Object.entries(lsl.events).filter(([, ev]) => !ev["slua-removed"])
+
+  const iface = sf.addInterface({
+    name: "LLEventMap",
+    hasDeclareKeyword: true,
+  })
+
+  for (const [name, ev] of lslEvents) {
+    if (ev["detected-semantics"]) {
+      iface.addProperty({
+        name,
+        type: "(detected: DetectedEvent[]) => void",
+      })
+    } else {
+      const params = (ev.arguments ?? []).map((argObj) => {
+        const argName = Object.keys(argObj)[0]
+        const argDef = argObj[argName]
+        const sluaType = (argDef as any)["slua-type"]
+        const tsType = sluaType ? mapType(sluaType) : mapLslType(argDef.type)
+
+        return `${sanitizeParamName(argName)}: ${tsType}`
+      })
+
+      iface.addProperty({
+        name,
+        type: `(${params.join(", ")}) => void`,
+      })
+    }
+  }
+}
+
 function addClassDef(sf: SourceFile, cls: ClassDef) {
   const iface = sf.addInterface({
     name: cls.name,
@@ -354,44 +386,50 @@ function addClassDef(sf: SourceFile, cls: ClassDef) {
     })
   }
   for (const method of cls.methods ?? []) {
-    // Methods that take LLEventName + LLEventHandler need two overloads:
-    // one for detected events (LLDetectedEventName + LLDetectedEventHandler)
-    // and one for non-detected events (LLNonDetectedEventName + LLEventHandler).
+    // Methods that take LLEventName + LLEventHandler become generic over LLEventMap:
+    // <E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E]
     const hasEventOverload = method.parameters.some((p) => p.type === "LLEventName")
 
     if (hasEventOverload) {
       const retIsHandler = method.returnType === "LLEventHandler"
+      const retIsHandlerArray = method.returnType === "{LLEventHandler}"
 
-      const makeOverload = (eventType: string, handlerType: string) => {
-        const remapped = method.parameters.map((p) => ({
-          ...p,
-          type:
-            p.type === "LLEventName"
-              ? eventType
-              : p.type === "LLEventHandler"
-                ? handlerType
-                : p.type,
-        }))
+      const remapped = method.parameters.map((p) => ({
+        ...p,
+        type:
+          p.type === "LLEventName"
+            ? "E"
+            : p.type === "LLEventHandler"
+              ? "LLEventMap[E]"
+              : p.type,
+      }))
 
-        const retType = retIsHandler ? handlerType : (method.returnType ?? "void")
+      const retType = retIsHandler
+        ? "LLEventMap[E]"
+        : retIsHandlerArray
+          ? "LLEventMap[E][]"
+          : (method.returnType ?? "void")
 
-        iface.addMethod({
-          name: method.name,
-          parameters: [{ name: "this", type: cls.name }, ...buildParams(remapped, true)],
-          returnType: mapReturnType(retType),
-          ...(method.comment ? { docs: [{ description: sanitizeComment(method.comment) }] } : {}),
-        })
-      }
-
-      makeOverload("LLDetectedEventName", "LLDetectedEventHandler")
-      makeOverload("LLNonDetectedEventName", "LLEventHandler")
+      iface.addMethod({
+        name: method.name,
+        typeParameters: ["E extends keyof LLEventMap"],
+        parameters: [{ name: "this", type: cls.name }, ...buildParams(remapped, true)],
+        returnType: mapReturnType(retType),
+        ...(method.comment ? { docs: [{ description: sanitizeComment(method.comment) }] } : {}),
+      })
     } else {
       const params = buildParams(method.parameters, true)
+
+      // eventNames on LLEvents returns (keyof LLEventMap)[] instead of string[]
+      const returnType =
+        cls.name === "LLEvents" && method.name === "eventNames"
+          ? "(keyof LLEventMap)[]"
+          : mapReturnType(method.returnType ?? "void")
 
       iface.addMethod({
         name: method.name,
         parameters: [{ name: "this", type: cls.name }, ...params],
-        returnType: mapReturnType(method.returnType ?? "void"),
+        returnType,
         ...(method.comment ? { docs: [{ description: sanitizeComment(method.comment) }] } : {}),
       })
     }
@@ -671,7 +709,10 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
     addBaseClass(sf, bc, constructorMap[bc.name])
   }
 
-  // 3. Type aliases -- generate event name unions from LSL events
+  // 3. LLEventMap -- typed event callback signatures from LSL events
+  addEventMap(sf, lsl)
+
+  // 4. Type aliases -- generate event name unions from LSL events
   const lslEvents = Object.entries(lsl.events).filter(([, ev]) => !ev["slua-removed"])
 
   const detectedEvents = lslEvents
@@ -696,6 +737,12 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
         type: nonDetectedEvents.join(" | "),
         hasDeclareKeyword: true,
       })
+    } else if (alias.name === "LLEventName") {
+      sf.addTypeAlias({
+        name: "LLEventName",
+        type: "keyof LLEventMap",
+        hasDeclareKeyword: true,
+      })
     } else {
       sf.addTypeAlias({
         name: alias.name,
@@ -706,27 +753,27 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
     }
   }
 
-  // 4. Classes
+  // 5. Classes
   for (const cls of slua.classes) {
     addClassDef(sf, cls)
   }
 
-  // 5. Global variables (skip slua-removed)
+  // 6. Global variables (skip slua-removed)
   for (const gv of slua.globalVariables) {
     addGlobalVariable(sf, gv)
   }
 
-  // 6+7. Global functions and builtin functions
+  // 7+8. Global functions and builtin functions
   for (const fn of [...slua.globalFunctions, ...slua.builtinFunctions]) {
     addGlobalFunction(sf, fn)
   }
 
-  // 8. Modules (skip ll and llcompat -- those come from LSL defs)
+  // 9. Modules (skip ll and llcompat -- those come from LSL defs)
   for (const mod of slua.modules.filter((m) => m.name !== "ll" && m.name !== "llcompat")) {
     addModule(sf, mod, CONSTRUCTOR_CLASS_NAMES[mod.name])
   }
 
-  // 9. ll namespace (from LSL functions)
+  // 10. ll namespace (from LSL functions)
   const llFunctions = Object.entries(lsl.functions).filter(([, fn]) => !fn["slua-removed"])
 
   if (llFunctions.length > 0) {
@@ -777,7 +824,7 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
     }
   }
 
-  // 10. Constants (from LSL constants, skip slua-removed)
+  // 11. Constants (from LSL constants, skip slua-removed)
   const lslConstants = Object.entries(lsl.constants).filter(([, c]) => !c["slua-removed"])
 
   for (const [name, c] of lslConstants) {

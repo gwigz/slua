@@ -42,7 +42,7 @@ const scaled = pos.mul(2)
 const moved = pos.add(new Vector(0, 0, 10))
 
 /** Event handler tying it all together */
-LLEvents.on("touch_start", (detected: DetectedEvent[]) => {
+LLEvents.on("touch_start", (detected) => {
   const name = ll.DetectedName(detected[0].index)
   greet(name)
 

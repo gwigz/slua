@@ -71,9 +71,7 @@ exports[`emitClassDef produces declare interface with methods (self skipped) 1`]
 "/** Event registration class. */
 declare interface LLEvents {
     /** Registers a callback. */
-    on(this: LLEvents, event: LLDetectedEventName, callback: LLDetectedEventHandler): LLDetectedEventHandler;
-    /** Registers a callback. */
-    on(this: LLEvents, event: LLNonDetectedEventName, callback: LLEventHandler): LLEventHandler;
+    on<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E];
 }
 "
 `;

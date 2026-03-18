@@ -443,9 +443,35 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("declare type list = ")
   })
 
-  it("contains class interfaces", () => {
+  it("contains LLEventMap interface with typed event callbacks", () => {
+    expect(output).toContain("declare interface LLEventMap {")
+    // Detected events use DetectedEvent[] callback
+    expect(output).toContain("collision: (detected: DetectedEvent[]) => void")
+    expect(output).toContain("touch_start: (detected: DetectedEvent[]) => void")
+    // Non-detected events have typed params
+    expect(output).toContain("listen: (Channel: number, Name: string, ID: uuid, Text: string) => void")
+    expect(output).toContain("timer: () => void")
+    expect(output).toContain("email: (Time: string, Address: string, Subject: string, Body: string, NumberRemaining: number) => void")
+    // slua-type overrides are respected
+    expect(output).toContain("game_control: (id: uuid, buttons: number, axes: number[]) => void")
+    expect(output).toContain("link_message: (SendersLink: number, Value: number, Text: string, ID: string) => void")
+    // Removed events should NOT appear
+    expect(output).not.toMatch(/state_entry:/)
+    expect(output).not.toMatch(/state_exit:/)
+  })
+
+  it("defines LLEventName as keyof LLEventMap", () => {
+    expect(output).toContain("declare type LLEventName = keyof LLEventMap;")
+  })
+
+  it("contains class interfaces with generic LLEvents methods", () => {
     expect(output).toContain("declare interface LLEvents {")
     expect(output).toContain("declare interface LLTimers {")
+    // LLEvents methods use generics instead of overloads
+    expect(output).toContain("on<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): LLEventMap[E]")
+    expect(output).toContain("off<E extends keyof LLEventMap>(this: LLEvents, event: E, callback: LLEventMap[E]): boolean")
+    expect(output).toContain("listeners<E extends keyof LLEventMap>(this: LLEvents, event: E): LLEventMap[E][]")
+    expect(output).toContain("eventNames(this: LLEvents): (keyof LLEventMap)[]")
   })
 
   it("contains global variables (non-removed)", () => {

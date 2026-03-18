@@ -117,8 +117,7 @@ function handleResponse(status: number, body: string) {
 
 // Events
 
-// TODO: we should be able to infer types from event name
-LLEvents.on("http_response", (requestId: uuid, status: number, _metadata: list, body: string) => {
+LLEvents.on("http_response", (requestId, status, _metadata, body) => {
   if (requestId !== pendingRequest) {
     return
   }
@@ -126,8 +125,7 @@ LLEvents.on("http_response", (requestId: uuid, status: number, _metadata: list, 
   handleResponse(status, body)
 })
 
-// TODO: we should be able to infer types from event name
-LLEvents.on("listen", (_channel: number, _name: string, _id: uuid, message: string) => {
+LLEvents.on("listen", (_channel, _name, _id, message) => {
   /** Switch on chat commands */
   switch (message) {
     case "weather":

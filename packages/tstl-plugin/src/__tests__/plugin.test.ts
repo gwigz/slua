@@ -4,9 +4,13 @@ import { resolve } from "path"
 import * as ts from "typescript"
 import * as tstl from "typescript-to-lua"
 import plugin from "../index"
+import { transpile as transpileSimple } from "./helpers"
 
 const TYPES_PATH = resolve(import.meta.dir, "../../../../packages/types/index.d.ts")
-const LANG_EXT_PATH = resolve(import.meta.dir, "../../../../node_modules/@typescript-to-lua/language-extensions/index.d.ts")
+const LANG_EXT_PATH = resolve(
+  import.meta.dir,
+  "../../../../node_modules/@typescript-to-lua/language-extensions/index.d.ts",
+)
 
 const sluaTypes = readFileSync(TYPES_PATH, "utf-8")
 const langExt = readFileSync(LANG_EXT_PATH, "utf-8")
@@ -95,5 +99,149 @@ describe("transpilation output", () => {
     expect(lua).toContain("LLTimers.every")
     expect(lua).not.toContain("LLTimers:every")
     expect(lua).not.toMatch(/function\(self/)
+  })
+})
+
+describe("bitwise operators", () => {
+  it("translates & to bit32.band", () => {
+    const lua = transpileSimple("const x = (1 as number) & (2 as number)")
+
+    expect(lua).toContain("bit32.band(1, 2)")
+  })
+
+  it("translates | to bit32.bor", () => {
+    const lua = transpileSimple("const x = (1 as number) | (2 as number)")
+
+    expect(lua).toContain("bit32.bor(1, 2)")
+  })
+
+  it("translates ^ to bit32.bxor", () => {
+    const lua = transpileSimple("const x = (1 as number) ^ (2 as number)")
+
+    expect(lua).toContain("bit32.bxor(1, 2)")
+  })
+
+  it("translates << to bit32.lshift", () => {
+    const lua = transpileSimple("const x = (1 as number) << (2 as number)")
+
+    expect(lua).toContain("bit32.lshift(1, 2)")
+  })
+
+  it("translates >> to bit32.arshift", () => {
+    const lua = transpileSimple("const x = (1 as number) >> (2 as number)")
+
+    expect(lua).toContain("bit32.arshift(1, 2)")
+  })
+
+  it("translates >>> to bit32.rshift", () => {
+    const lua = transpileSimple("const x = (1 as number) >>> (2 as number)")
+
+    expect(lua).toContain("bit32.rshift(1, 2)")
+  })
+
+  it("translates ~ to bit32.bnot", () => {
+    const lua = transpileSimple("const x = ~(1 as number)")
+
+    expect(lua).toContain("bit32.bnot(1)")
+  })
+
+  describe("btest optimization", () => {
+    it("translates (a & b) !== 0 to bit32.btest", () => {
+      const lua = transpileSimple("declare const a: number, b: number;\nconst x = (a & b) !== 0")
+
+      expect(lua).toContain("bit32.btest(a, b)")
+      expect(lua).not.toContain("bit32.band")
+    })
+
+    it("translates (a & b) != 0 to bit32.btest", () => {
+      const lua = transpileSimple("declare const a: number, b: number;\nconst x = (a & b) != 0")
+
+      expect(lua).toContain("bit32.btest(a, b)")
+    })
+
+    it("translates (a & b) === 0 to not bit32.btest", () => {
+      const lua = transpileSimple("declare const a: number, b: number;\nconst x = (a & b) === 0")
+
+      expect(lua).toContain("not bit32.btest(a, b)")
+    })
+
+    it("translates (a & b) == 0 to not bit32.btest", () => {
+      const lua = transpileSimple("declare const a: number, b: number;\nconst x = (a & b) == 0")
+
+      expect(lua).toContain("not bit32.btest(a, b)")
+    })
+
+    it("translates 0 !== (a & b) to bit32.btest (flipped)", () => {
+      const lua = transpileSimple("declare const a: number, b: number;\nconst x = 0 !== (a & b)")
+
+      expect(lua).toContain("bit32.btest(a, b)")
+    })
+  })
+
+  it("handles compound expressions: (a & b) | c", () => {
+    const lua = transpileSimple(
+      "declare const a: number, b: number, c: number;\nconst x = (a & b) | c",
+    )
+
+    expect(lua).toContain("bit32.bor(")
+    expect(lua).toContain("bit32.band(a, b)")
+    expect(lua).toMatch(/bit32\.bor\(\s*bit32\.band\(a, b\)/)
+  })
+
+  describe("compound bitwise assignments", () => {
+    it("translates &= to bit32.band", () => {
+      const lua = transpileSimple("declare let a: number; a &= 3")
+
+      expect(lua).toContain("bit32.band(a, 3)")
+    })
+
+    it("translates |= to bit32.bor", () => {
+      const lua = transpileSimple("declare let a: number; a |= 3")
+
+      expect(lua).toContain("bit32.bor(a, 3)")
+    })
+
+    it("translates ^= to bit32.bxor", () => {
+      const lua = transpileSimple("declare let a: number; a ^= 3")
+      expect(lua).toContain("bit32.bxor(a, 3)")
+    })
+
+    it("translates <<= to bit32.lshift", () => {
+      const lua = transpileSimple("declare let a: number; a <<= 3")
+
+      expect(lua).toContain("bit32.lshift(a, 3)")
+    })
+
+    it("translates >>= to bit32.arshift", () => {
+      const lua = transpileSimple("declare let a: number; a >>= 3")
+
+      expect(lua).toContain("bit32.arshift(a, 3)")
+    })
+
+    it("translates >>>= to bit32.rshift", () => {
+      const lua = transpileSimple("declare let a: number; a >>>= 3")
+
+      expect(lua).toContain("bit32.rshift(a, 3)")
+    })
+
+    it("handles property access LHS", () => {
+      const lua = transpileSimple("declare let obj: {prop: number}; obj.prop &= 3")
+      expect(lua).toContain("bit32.band(")
+      expect(lua).not.toMatch(/\s&\s/)
+    })
+  })
+
+  it("does not affect non-bitwise binary operators", () => {
+    const lua = transpileSimple("const x = 1 + 2")
+
+    expect(lua).toContain("1 + 2")
+    expect(lua).not.toContain("bit32")
+  })
+
+  it("does not affect non-bitwise unary operators", () => {
+    const lua = transpileSimple("const x = -(1 as number)")
+
+    expect(lua).toContain("-1")
+    expect(lua).not.toContain("bit32")
   })
 })

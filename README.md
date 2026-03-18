@@ -82,6 +82,34 @@ LLEvents:on("touch_start", function(events)
 end)
 ```
 
+### Bitwise Operators
+
+TypeScript bitwise operators are automatically translated to `bit32` library calls by the plugin:
+
+| TypeScript | Lua output            |
+| ---------- | --------------------- |
+| `a & b`    | `bit32.band(a, b)`    |
+| `a \| b`   | `bit32.bor(a, b)`     |
+| `a ^ b`    | `bit32.bxor(a, b)`    |
+| `a << b`   | `bit32.lshift(a, b)`  |
+| `a >> b`   | `bit32.arshift(a, b)` |
+| `a >>> b`  | `bit32.rshift(a, b)`  |
+| `~a`       | `bit32.bnot(a)`       |
+
+Compound assignments (`&=`, `|=`, etc.) work too. Comparisons against zero are optimized to `bit32.btest`:
+
+```typescript
+if ((flags & CHANGED_OWNER) !== 0) {
+  // ...
+}
+```
+
+```lua
+if bit32.btest(flags, CHANGED_OWNER) then
+  -- ...
+end
+```
+
 ### Comments
 
 Due to a [TypeScript limitation](https://github.com/TypeScriptToLua/TypeScriptToLua/issues/713), only JSDoc-style comments (`/** */`) are preserved in the output -- regular comments (`//`, `/* */`) are stripped before TSTL ever sees them:

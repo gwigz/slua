@@ -54,9 +54,7 @@ const DEFAULT_CODE = `\
 let owner = ll.GetOwner()
 
 LLEvents.on("changed", (changed) => {
-  // bit32.btest performs a bitwise AND and returns true if non-zero
-  // may be able to support \`&\` operator in the future?
-  if (bit32.btest(changed, CHANGED_OWNER)) {
+  if ((changed & CHANGED_OWNER) !== 0) {
     owner = ll.GetOwner()
   }
 })
@@ -74,9 +72,9 @@ LLEvents.on("touch_start", (events) => {
 })
 
 LLEvents.on("listen", (_channel, _name, id, message) => {
-  if (ll.GetAgentSize(id) === ZERO_VECTOR) {
-    return
-  }
+  // if (ll.GetAgentSize(id) === ZERO_VECTOR) {
+  //   return
+  // }
 
   if (message === "ping") {
     ll.RegionSayTo(id, 0, "pong!")
@@ -152,9 +150,7 @@ export function App() {
             <DialogContent className="sm:max-w-md gap-5">
               <DialogHeader>
                 <DialogTitle>Credits</DialogTitle>
-                <DialogDescription>
-                  Open-source projects that make this playground possible.
-                </DialogDescription>
+                <DialogDescription>Open-source projects that make this possible</DialogDescription>
               </DialogHeader>
               <ul className="grid gap-1">
                 {CREDITS.map((credit) => (

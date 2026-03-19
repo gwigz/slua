@@ -7,7 +7,6 @@
 - Translates TypeScript patterns to native Luau/LSL equivalents (see below)
 - Handles adjusting `Vector`, `Quaternion`, and `UUID` casing
 - Validates `luaTarget` is set to `Luau`
-- Warns if `luaLibImport` is not `none` or `inline` (for now)
 
 ## Transforms
 

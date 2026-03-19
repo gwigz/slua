@@ -677,20 +677,6 @@ const plugin: tstl.Plugin = {
       })
     }
 
-    if (
-      options.luaLibImport !== undefined &&
-      ![tstl.LuaLibImportKind.None, tstl.LuaLibImportKind.Inline].includes(options.luaLibImport)
-    ) {
-      diagnostics.push({
-        file: undefined,
-        start: undefined,
-        length: undefined,
-        messageText: '@gwigz/slua-tstl-plugin requires luaLibImport to be "none" or "inline"',
-        category: ts.DiagnosticCategory.Warning,
-        code: 90002,
-        source: "@gwigz/slua-tstl-plugin",
-      })
-    }
 
     return diagnostics
   },

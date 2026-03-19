@@ -13,9 +13,6 @@ Built on [TypeScriptToLua](https://typescripttolua.github.io) with auto-generate
 
 ## Quick Start
 
-> [!NOTE]
-> These packages are not live yet.
-
 Install the packages:
 
 ```bash

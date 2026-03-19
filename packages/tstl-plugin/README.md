@@ -33,20 +33,20 @@ For SL-typed JSON (preserving vector/quaternion/uuid), use `lljson.slencode`/`ll
 
 String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib calls:
 
-| TypeScript             | Lua output                             |
-| ---------------------- | -------------------------------------- |
-| `str.toUpperCase()`    | `ll.ToUpper(str)`                      |
-| `str.toLowerCase()`    | `ll.ToLower(str)`                      |
-| `str.trim()`           | `ll.StringTrim(str, STRING_TRIM)`      |
-| `str.trimStart()`      | `ll.StringTrim(str, STRING_TRIM_HEAD)` |
-| `str.trimEnd()`        | `ll.StringTrim(str, STRING_TRIM_TAIL)` |
-| `str.indexOf(x)`       | `ll.SubStringIndex(str, x)`            |
-| `str.includes(x)`      | `string.find(str, x, 1, true) ~= nil`  |
-| `str.startsWith(x)`    | `string.find(str, x, 1, true) == 1`    |
-| `str.split(sep)`       | `string.split(str, sep)`               |
-| `str.repeat(n)`        | `string.rep(str, n)`                   |
-| `str.substring(start)` | `string.sub(str, start + 1)`           |
-| `str.substring(s, e)`  | `string.sub(str, s + 1, e)`            |
+| TypeScript             | Lua output                                |
+| ---------------------- | ----------------------------------------- |
+| `str.toUpperCase()`    | `ll.ToUpper(str)`                         |
+| `str.toLowerCase()`    | `ll.ToLower(str)`                         |
+| `str.trim()`           | `ll.StringTrim(str, STRING_TRIM)`         |
+| `str.trimStart()`      | `ll.StringTrim(str, STRING_TRIM_HEAD)`    |
+| `str.trimEnd()`        | `ll.StringTrim(str, STRING_TRIM_TAIL)`    |
+| `str.indexOf(x)`       | `(string.find(str, x, 1, true) or 0) - 1` |
+| `str.includes(x)`      | `string.find(str, x, 1, true) ~= nil`     |
+| `str.startsWith(x)`    | `string.find(str, x, 1, true) == 1`       |
+| `str.split(sep)`       | `string.split(str, sep)`                  |
+| `str.repeat(n)`        | `string.rep(str, n)`                      |
+| `str.substring(start)` | `string.sub(str, start + 1)`              |
+| `str.substring(s, e)`  | `string.sub(str, s + 1, e)`               |
 
 > [!NOTE]
 > `str.indexOf(x, fromIndex)` and `str.startsWith(x, position)` with a second argument fall through to TSTL's default handling. Similarly, `str.split()` with no separator is not transformed.

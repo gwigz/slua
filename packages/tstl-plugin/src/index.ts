@@ -306,7 +306,7 @@ const CALL_TRANSFORMS: CallTransform[] = [
       )
     },
   },
-  // str.indexOf(x) -> ll.SubStringIndex(str, x)  (1-arg only)
+  // str.indexOf(x) -> (string.find(str, x, 1, true) or 0) - 1
   {
     match: (node, checker) => isMethodCall(node, checker, isStringType, "indexOf", 1),
     emit: (node, context) => {
@@ -316,7 +316,26 @@ const CALL_TRANSFORMS: CallTransform[] = [
 
       const search = context.transformExpression(node.arguments[0])
 
-      return createNamespacedCall("ll", "SubStringIndex", [str, search], node)
+      const findCall = createNamespacedCall(
+        "string",
+        "find",
+        [str, search, tstl.createNumericLiteral(1), tstl.createBooleanLiteral(true)],
+        node,
+      )
+
+      const findOrZero = tstl.createBinaryExpression(
+        findCall,
+        tstl.createNumericLiteral(0),
+        tstl.SyntaxKind.OrOperator,
+        node,
+      )
+
+      return tstl.createBinaryExpression(
+        tstl.createParenthesizedExpression(findOrZero),
+        tstl.createNumericLiteral(1),
+        tstl.SyntaxKind.SubtractionOperator,
+        node,
+      )
     },
   },
   // str.indexOf(x, fromIndex) -> (string.find(str, x, fromIndex + 1, true) or 0) - 1

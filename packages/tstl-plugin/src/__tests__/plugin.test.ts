@@ -343,10 +343,12 @@ describe("string ll.* transforms", () => {
     expect(lua).toContain("STRING_TRIM_TAIL")
   })
 
-  it("translates indexOf (1-arg) to ll.SubStringIndex", () => {
+  it("translates indexOf (1-arg) to string.find with - 1", () => {
     const lua = transpileSimple('declare const s: string;\nconst i = s.indexOf("x")')
 
-    expect(lua).toContain("ll.SubStringIndex")
+    expect(lua).not.toContain("ll.SubStringIndex")
+    expect(lua).toContain('string.find(s, "x", 1, true)')
+    expect(lua).toContain("or 0) - 1")
   })
 
   it("translates indexOf with literal fromIndex to string.find with constant folding", () => {

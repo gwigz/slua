@@ -32,7 +32,7 @@ enum RequestState {
 }
 
 let state = RequestState.Idle
-let pendingRequest: uuid | undefined
+let pendingRequest: UUID | undefined
 let lastWeather: Weather | undefined
 
 // Formatting

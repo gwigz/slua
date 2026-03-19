@@ -91,7 +91,9 @@ function pollAgents() {
     const listener = assignedListeners[key]!
 
     ll.RegionSayTo(listener, PRIVATE_CHANNEL, "UNASSIGN")
+
     clearAssignment(key, listener)
+
     assignedListeners[key] = undefined
     freeListeners.push(listener)
   }
@@ -114,11 +116,12 @@ function assignListener(avatar: UUID) {
   }
 
   const listener = freeListeners.pop()!
-
   const key = tostring(avatar)
+
   assignedListeners[key] = listener
 
   writeAssignment(avatar, listener)
+
   ll.RegionSayTo(listener, PRIVATE_CHANNEL, "ASSIGN|" + key)
 }
 
@@ -146,6 +149,7 @@ function verifyListeners() {
 
     if (ll.GetObjectDetails(listener, [OBJECT_POS]).length === 0) {
       clearAssignment(key, listener)
+
       assignedListeners[key] = undefined
       rezCount++
     }
@@ -153,6 +157,7 @@ function verifyListeners() {
 
   if (rezCount > 0) {
     ll.Say(DEBUG_CHANNEL, `${rezCount} listener(s) missing, rezzing replacements...`)
+
     rezBatched(rezCount)
   }
 }
@@ -231,6 +236,7 @@ const rezCheck = LLTimers.every(1, () => {
   pollAgents()
 
   LLTimers.every(POLL_INTERVAL, pollAgents)
+
   LLTimers.every(30, () => {
     verifyListeners()
     cullExcess()

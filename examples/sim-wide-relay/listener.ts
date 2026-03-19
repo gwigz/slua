@@ -34,7 +34,10 @@ ll.Listen(PRIVATE_CHANNEL, "", new UUID(""), "")
 
 LLEvents.on("listen", (channel, _name, id, text) => {
   if (channel === PRIVATE_CHANNEL) {
-    if (ll.GetOwnerKey(id) !== owner) return
+    if (ll.GetOwnerKey(id) !== owner) {
+      return
+    }
+
     handlePrivateMessage(text)
     return
   }
@@ -75,8 +78,7 @@ function handlePrivateMessage(text: string) {
 
   // Assignment from coordinator
   if (text.startsWith("ASSIGN|")) {
-    const avatar = new UUID(text.substring(7))
-    assignAvatar(avatar)
+    assignAvatar(new UUID(text.substring(7)))
     return
   }
 

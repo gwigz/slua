@@ -9,6 +9,7 @@ import { createRepeater, makeCounter } from "./functions"
 
 /** Template literals -- compile to string concatenation */
 const owner = ll.GetOwner()
+
 ll.Say(0, `Owner: ${tostring(owner)}`)
 
 /** Using imported values */
@@ -44,13 +45,16 @@ const moved = pos.add(new Vector(0, 0, 10))
 /** Event handler tying it all together */
 LLEvents.on("touch_start", (detected) => {
   const name = ll.DetectedName(detected[0].index)
+
   greet(name)
 
   const repeater = createRepeater(0, `Touched by ${name}`)
+
   repeater()
   repeater()
 
   Counter.increment()
+
   ll.SetText(`Touches: ${tostring(Counter.getCount())}`, new Vector(1, 1, 1), 1.0)
 })
 
@@ -59,5 +63,6 @@ const stats = makeCounter()
 
 LLTimers.every(10, () => {
   stats.next()
+
   ll.SetText(`Ticks: ${tostring(stats.value())}`, Vector.one, 1.0)
 })

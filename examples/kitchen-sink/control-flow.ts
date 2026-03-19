@@ -19,6 +19,7 @@ function describe(value: string | number): string {
   if (typeof value === "string") {
     return `text: ${value}`
   }
+
   return `number: ${tostring(value)}`
 }
 

@@ -10,6 +10,7 @@ import type {
   ModuleDeclaration,
   OptionalKind,
   JSDocStructure,
+  JSDocTagStructure,
 } from "ts-morph"
 import { mapType, mapReturnType, splitTopLevel } from "./type-mapper.js"
 import type {
@@ -579,7 +580,7 @@ function addModule(sf: SourceFile, mod: ModuleDef, className?: string) {
 
 /**
  * Functions where omitting the last optional parameter changes the return
- * from variadic to scalar (e.g. `byte(s)` → `number`, `byte(s,i,j)` → `number[]`).
+ * from variadic to scalar (e.g. `byte(s)` -> `number`, `byte(s,i,j)` -> `number[]`).
  * Most variadic functions (match, unpack, etc.) always return multiple values
  * regardless of optional params, so they must NOT get this treatment.
  */
@@ -598,7 +599,7 @@ function addVariadicOverloads(ns: ModuleDeclaration, fn: FunctionDef) {
   const docs = buildDocs(fn.comment, fn.deprecated)
   const typeParameters = cleanTypeParams(fn.typeParameters)
 
-  // Overload 1: drop the last param (range-end) → returns single value
+  // Overload 1: drop the last param (range-end) -> returns single value
   ns.addFunction({
     name: fn.name,
     isExported: true,
@@ -608,7 +609,7 @@ function addVariadicOverloads(ns: ModuleDeclaration, fn: FunctionDef) {
     ...(docs.length > 0 ? { docs } : {}),
   })
 
-  // Overload 2: all params required → returns array
+  // Overload 2: all params required -> returns array
   const allRequiredParams = params.map((p) =>
     p.type?.endsWith("?") ? { ...p, type: p.type.slice(0, -1) } : p,
   )
@@ -910,17 +911,48 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
       const name = lslName.startsWith("ll") ? lslName.slice(2) : lslName
       const docs = buildDocs(fn.tooltip, fn["slua-deprecated"])
 
+      // Collect @indexArg / @indexReturn JSDoc tags from index-semantics flags
+      const indexTags: OptionalKind<JSDocTagStructure>[] = []
+
       const params = (fn.arguments ?? []).map((argObj) => {
         const argName = Object.keys(argObj)[0]
         const argDef = argObj[argName]
         const sluaType = (argDef as any)["slua-type"]
         const tsType = sluaType ? mapType(sluaType) : mapLslType(argDef.type)
 
+        if (argDef["index-semantics"]) {
+          indexTags.push({ tagName: "indexArg", text: argName })
+        }
+
         return { name: argName, type: tsType }
       })
 
+      const hasIndexReturn = !!fn["index-semantics"]
+
+      if (hasIndexReturn) {
+        indexTags.push({ tagName: "indexReturn" })
+      }
+
+      // For index-return functions returning integer, widen to number | undefined
+      // (nil means not-found in Lua, which maps to undefined in TS)
       const rawReturn = fn["slua-return"] ?? fn.return ?? "void"
-      const returnType = fn["slua-return"] ? mapLslReturnType(rawReturn) : mapLslType(rawReturn)
+      const isIntegerReturn = rawReturn === "integer"
+      const returnType =
+        hasIndexReturn && isIntegerReturn
+          ? "number | undefined"
+          : fn["slua-return"]
+            ? mapLslReturnType(rawReturn)
+            : mapLslType(rawReturn)
+
+      // Merge index tags into docs
+      if (indexTags.length > 0) {
+        if (docs.length > 0) {
+          const last = docs[docs.length - 1]
+          last.tags = [...(last.tags ?? []), ...indexTags]
+        } else {
+          docs.push({ tags: indexTags })
+        }
+      }
 
       llNs.addFunction({
         name,

@@ -198,6 +198,145 @@ function createNamespacedCall(
   )
 }
 
+// ---------------------------------------------------------------------------
+// ll.* index-semantics helpers
+// ---------------------------------------------------------------------------
+
+interface LLIndexSemantics {
+  indexArgs: Set<string>
+  indexReturn: boolean
+}
+
+/**
+ * For an `ll.Foo(...)` call, inspect the resolved signature's JSDoc tags
+ * to determine which arguments have `@indexArg` semantics and whether
+ * the return value has `@indexReturn` semantics.
+ */
+function getLLIndexSemantics(
+  node: ts.CallExpression,
+  checker: ts.TypeChecker,
+): LLIndexSemantics | null {
+  // Must be ll.Something(...)
+  if (!ts.isPropertyAccessExpression(node.expression)) return null
+  if (!ts.isIdentifier(node.expression.expression)) return null
+  if (node.expression.expression.text !== "ll") return null
+
+  const sig = checker.getResolvedSignature(node)
+  const decl = sig?.declaration
+
+  if (!decl || !ts.isFunctionDeclaration(decl)) return null
+
+  const tags = ts.getJSDocTags(decl)
+  const indexArgs = new Set<string>()
+  let indexReturn = false
+
+  for (const tag of tags) {
+    const tagName = tag.tagName.text
+
+    if (tagName === "indexArg") {
+      const text =
+        typeof tag.comment === "string"
+          ? tag.comment
+          : Array.isArray(tag.comment)
+            ? tag.comment.map((c) => c.text).join("")
+            : undefined
+
+      if (text) {
+        indexArgs.add(text.trim())
+      }
+    } else if (tagName === "indexReturn") {
+      indexReturn = true
+    }
+  }
+
+  if (indexArgs.size === 0 && !indexReturn) return null
+
+  return { indexArgs, indexReturn }
+}
+
+/**
+ * Adjusts a 0-based index argument to 1-based for Lua.
+ * Constant-folds numeric literals; otherwise emits `expr + 1`.
+ */
+function adjustIndexArg(arg: ts.Expression, context: tstl.TransformationContext): tstl.Expression {
+  if (ts.isNumericLiteral(arg)) {
+    return tstl.createNumericLiteral(Number(arg.text) + 1)
+  }
+
+  return tstl.createBinaryExpression(
+    context.transformExpression(arg),
+    tstl.createNumericLiteral(1),
+    tstl.SyntaxKind.AdditionOperator,
+    arg,
+  )
+}
+
+/**
+ * Emit an `ll.Foo(...)` call with automatic index adjustments:
+ * - `@indexArg` parameters get `+1`
+ * - `@indexReturn` wraps the result in a nil-safe `__tmp and (__tmp - 1)`
+ */
+function emitLLIndexCall(
+  node: ts.CallExpression,
+  context: tstl.TransformationContext,
+  semantics: LLIndexSemantics,
+): tstl.Expression {
+  const expr = node.expression as ts.PropertyAccessExpression
+  const fnName = expr.name.text
+
+  // Resolve parameter names from the declaration
+  const sig = context.checker.getResolvedSignature(node)
+  const params =
+    sig?.declaration && ts.isFunctionDeclaration(sig.declaration)
+      ? sig.declaration.parameters
+      : undefined
+
+  const args = node.arguments.map((arg, i) => {
+    const paramName = params?.[i]?.name
+    const name = paramName && ts.isIdentifier(paramName) ? paramName.text : undefined
+
+    if (name && semantics.indexArgs.has(name)) {
+      return adjustIndexArg(arg, context)
+    }
+
+    return context.transformExpression(arg)
+  })
+
+  const call = createNamespacedCall("ll", fnName, args, node)
+
+  if (!semantics.indexReturn) {
+    return call
+  }
+
+  // Check if return type is number-like (skip for list/string returns like llFindNotecardTextSync)
+  const retType = context.checker.getTypeAtLocation(node)
+  const isNumberReturn =
+    !!(retType.flags & ts.TypeFlags.NumberLike) ||
+    (retType.isUnion() && retType.types.some((t) => !!(t.flags & ts.TypeFlags.NumberLike)))
+
+  if (!isNumberReturn) {
+    return call
+  }
+
+  // Nil-safe return adjustment: `local __tmp = ll.Fn(...); __tmp and (__tmp - 1)`
+  const tempId = tstl.createIdentifier("____tmp")
+
+  context.addPrecedingStatements(tstl.createVariableDeclarationStatement(tempId, call, node))
+
+  return tstl.createBinaryExpression(
+    tstl.cloneIdentifier(tempId),
+    tstl.createParenthesizedExpression(
+      tstl.createBinaryExpression(
+        tstl.cloneIdentifier(tempId),
+        tstl.createNumericLiteral(1),
+        tstl.SyntaxKind.SubtractionOperator,
+      ),
+    ),
+    tstl.SyntaxKind.AndOperator,
+    node,
+  )
+}
+
 type CallTransform = {
   match: (node: ts.CallExpression, checker: ts.TypeChecker) => boolean
   emit: (node: ts.CallExpression, context: tstl.TransformationContext) => tstl.Expression
@@ -650,6 +789,13 @@ const plugin: tstl.Plugin = {
         }
       }
 
+      // ll.* index-semantics: automatic 0->1 index adjustment
+      const indexSemantics = getLLIndexSemantics(node, context.checker)
+
+      if (indexSemantics) {
+        return emitLLIndexCall(node, context, indexSemantics)
+      }
+
       // `Math.floor(a / b)` -> `a // b` (native Luau floor division operator)
       if (isMathFloor(node)) {
         const arg = node.arguments[0]
@@ -700,6 +846,15 @@ const plugin: tstl.Plugin = {
   },
 
   beforeEmit(program, _options, _emitHost, result) {
+    // Strip internal @indexArg / @indexReturn JSDoc tags from Lua comments.
+    // These are only consumed by the plugin at transpile time; they should
+    // not leak into the output as Lua comments.
+    for (const file of result) {
+      file.code = file.code
+        .replace(/^--\s*@index(?:Arg|Return)\b.*\n/gm, "")
+        .replace(/^(---.*)\n(?:-- *\n)+(?=local |ll\.)/gm, "$1\n")
+    }
+
     // Strip empty module boilerplate from files without explicit exports.
     // `moduleDetection: "force"` causes TSTL to wrap every file as a module;
     // standalone SLua scripts don't need the ____exports wrapper.

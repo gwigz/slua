@@ -1027,7 +1027,10 @@ declare namespace ll {
     /** Add avatar ID to the land pass list, for a duration of Hours. */
     export function AddToLandPassList(ID: uuid, Hours: number): void;
 
-    /** Changes the amount of damage to be delivered by this damage event. */
+    /**
+     * Changes the amount of damage to be delivered by this damage event.
+     * @indexArg Number
+     */
     export function AdjustDamage(Number: number, Damage: number): void;
 
     /**
@@ -1218,6 +1221,8 @@ declare namespace ll {
      * Remove a slice from the list and return the remainder, start and end are inclusive.
      * Using negative numbers for start and/or end causes the index to count backwards from the length of the list, so 0, -1 would delete the entire list.
      * If Start is larger than End the list deleted is the exclusion of the entries; so 6, 4 would delete the entire list except for the 5th list entry.
+     * @indexArg Start
+     * @indexArg End
      */
     export function DeleteSubList(Source: T[], Start: number, End: number): T[];
 
@@ -1226,6 +1231,8 @@ declare namespace ll {
      * Start and End are inclusive.
      * Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would delete the entire string.
      * If Start is larger than End, the sub-string is the exclusion of the entries; so 6, 4 would delete the entire string except for the 5th character.
+     * @indexArg Start
+     * @indexArg End
      */
     export function DeleteSubString(Source: string, Start: number, End: number): string;
 
@@ -1238,30 +1245,37 @@ declare namespace ll {
      */
     export function DetachFromAvatar(): void;
 
-    /** Returns a list containing the current damage for the event, the damage type and the original damage delivered. */
+    /**
+     * Returns a list containing the current damage for the event, the damage type and the original damage delivered.
+     * @indexArg Number
+     */
     export function DetectedDamage(Number: number): list;
 
     /**
      * Returns the grab offset of a user touching the object.
      * Returns <0.0, 0.0, 0.0> if Number is not a valid object.
+     * @indexArg Number
      */
     export function DetectedGrab(Number: number): vector;
 
     /**
      * Returns TRUE if detected object or agent Number has the same user group active as this object.
      * It will return FALSE if the object or agent is in the group, but the group is not active.
+     * @indexArg Number
      */
     export function DetectedGroup(Number: number): number;
 
     /**
      * Returns the key of detected object or avatar number.
      * Returns NULL_KEY if Number is not a valid index.
+     * @indexArg Number
      */
     export function DetectedKey(Number: number): uuid;
 
     /**
      * Returns the link position of the triggered event for touches and collisions only.
      * 0 for a non-linked object, 1 for the root of a linked object, 2 for the first child, etc.
+     * @indexArg Number
      */
     export function DetectedLinkNumber(Number: number): number;
 
@@ -1269,48 +1283,61 @@ declare namespace ll {
      * Returns the name of detected object or avatar number.
      * Returns the name of detected object number.
      * Returns empty string if Number is not a valid index.
+     * @indexArg Number
      */
     export function DetectedName(Number: number): string;
 
     /**
      * Returns the key of detected object's owner.
      * Returns invalid key if Number is not a valid index.
+     * @indexArg Number
      */
     export function DetectedOwner(Number: number): uuid;
 
     /**
      * Returns the position of detected object or avatar number.
      * Returns <0.0, 0.0, 0.0> if Number is not a valid index.
+     * @indexArg Number
      */
     export function DetectedPos(Number: number): vector;
 
-    /** Returns the key for the rezzer of the detected object. */
+    /**
+     * Returns the key for the rezzer of the detected object.
+     * @indexArg Number
+     */
     export function DetectedRezzer(Number: number): uuid;
 
     /**
      * Returns the rotation of detected object or avatar number.
      * Returns <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
+     * @indexArg Number
      */
     export function DetectedRot(Number: number): quaternion;
 
     /**
      * Returns the surface bi-normal for a triggered touch event.
      * Returns a vector that is the surface bi-normal (tangent to the surface) where the touch event was triggered.
+     * @indexArg Index
      */
     export function DetectedTouchBinormal(Index: number): vector;
 
-    /** Returns the index of the face where the avatar clicked in a triggered touch event. */
+    /**
+     * Returns the index of the face where the avatar clicked in a triggered touch event.
+     * @indexArg Index
+     */
     export function DetectedTouchFace(Index: number): number;
 
     /**
      * Returns the surface normal for a triggered touch event.
      * Returns a vector that is the surface normal (perpendicular to the surface) where the touch event was triggered.
+     * @indexArg Index
      */
     export function DetectedTouchNormal(Index: number): vector;
 
     /**
      * Returns the position, in region coordinates, where the object was touched in a triggered touch event.
      * Unless it is a HUD, in which case it returns the position relative to the attach point.
+     * @indexArg Index
      */
     export function DetectedTouchPos(Index: number): vector;
 
@@ -1319,6 +1346,7 @@ declare namespace ll {
      * The X and Y vector positions contain the horizontal (S) and vertical (T) face coordinates respectively.
      * Each component is in the interval [0.0, 1.0].
      * TOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).
+     * @indexArg Index
      */
     export function DetectedTouchST(Index: number): vector;
 
@@ -1326,6 +1354,7 @@ declare namespace ll {
      * Returns a vector that is the texture coordinates for where the prim was touched.
      * The X and Y vector positions contain the U and V face coordinates respectively.
      * TOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).
+     * @indexArg Index
      */
     export function DetectedTouchUV(Index: number): vector;
 
@@ -1337,12 +1366,14 @@ declare namespace ll {
      * {
      * 	// ...do stuff with the agent
      * }
+     * @indexArg Number
      */
     export function DetectedType(Number: number): number;
 
     /**
      * Returns the velocity of the detected object Number.
      * Returns<0.0, 0.0, 0.0> if Number is not a valid offset.
+     * @indexArg Number
      */
     export function DetectedVel(Number: number): vector;
 
@@ -1423,7 +1454,11 @@ declare namespace ll {
     /** Searches the text of a cached notecard for lines containing the given pattern and returns the number of matches found through a dataserver event. */
     export function FindNotecardTextCount(NotecardName: string, Pattern: string, Options: list): uuid;
 
-    /** Searches the text of a cached notecard for lines containing the given pattern. Returns a list of line numbers and column where a match is found. If the notecard is not inthe cache it returns a list containing a single entry of NAK. If no matches are found anempty list is returned. */
+    /**
+     * Searches the text of a cached notecard for lines containing the given pattern. Returns a list of line numbers and column where a match is found. If the notecard is not inthe cache it returns a list containing a single entry of NAK. If no matches are found anempty list is returned.
+     * @indexArg StartMatch
+     * @indexReturn
+     */
     export function FindNotecardTextSync(NotecardName: string, Pattern: string, StartMatch: number, Count: number, Options: list): list;
 
     /**
@@ -1647,6 +1682,7 @@ declare namespace ll {
     /**
      * Returns the name of the inventory item of a given type, specified by index number.
      * Use the inventory constants INVENTORY_* to specify the type.
+     * @indexArg Index
      */
     export function GetInventoryName(InventoryType: number, Index: number): string;
 
@@ -1721,6 +1757,7 @@ declare namespace ll {
     /**
      * Returns the type of the index entry in the list (TYPE_INTEGER, TYPE_FLOAT, TYPE_STRING, TYPE_KEY, TYPE_VECTOR, TYPE_ROTATION, or TYPE_INVALID if index is off list).
      * Returns the type of the variable at Index in ListVariable.
+     * @indexArg Index
      */
     export function GetListEntryType(ListVariable: list, Index: number): number;
 
@@ -1779,6 +1816,7 @@ declare namespace ll {
      * Returns LineNumber from NotecardName via the dataserver event. The line index starts at zero in LSL, one in Lua.
      * If the requested line is passed the end of the note-card the dataserver event will return the constant EOF string.
      * The key returned by this function is a unique identifier which will be supplied to the dataserver event in the requested parameter.
+     * @indexArg LineNumber
      */
     export function GetNotecardLine(NotecardName: string, LineNumber: number): uuid;
 
@@ -1786,6 +1824,7 @@ declare namespace ll {
      * Returns LineNumber from NotecardName. The line index starts at zero in LSL, one in Lua.
      * If the requested line is past the end of the note-card the return value will be set to the constant EOF string.
      * If the note-card is not cached on the simulator the return value is the NAK string.
+     * @indexArg LineNumber
      */
     export function GetNotecardLineSync(NotecardName: string, LineNumber: number): string;
 
@@ -2074,6 +2113,8 @@ declare namespace ll {
      * Returns a sub-string from String, in a range specified by the Start and End indices (inclusive).
      * Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.
      * If Start is greater than End, the sub string is the exclusion of the entries.
+     * @indexArg Start
+     * @indexArg End
      */
     export function GetSubString(String: string, Start: number, End: number): string;
 
@@ -2220,6 +2261,7 @@ declare namespace ll {
     /**
      * Inserts SourceVariable into TargetVariable at Position, and returns the result.
      * Inserts SourceVariable into TargetVariable at Position and returns the result. Note this does not alter TargetVariable.
+     * @indexArg Position
      */
     export function InsertString(TargetVariable: string, Position: number, SourceVariable: string): string;
 
@@ -2274,7 +2316,10 @@ declare namespace ll {
     /** Starts an asychronous transaction the request the number of keys in the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will the the number of keys in the system. */
     export function KeyCountKeyValue(): uuid;
 
-    /** Starts an asychronous transaction the request a number of keys from the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. The error XP_ERROR_KEY_NOT_FOUND is returned if First is greater than or equal to the number of keys in the data store. In the success case the subsequent items will be the keys requested. The number of keys returned may be less than requested if the return value is too large or if there is not enough keys remaining. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed. Because the keys are returned in a comma-delimited list it is not recommended to use commas in key names if this function is used. */
+    /**
+     * Starts an asychronous transaction the request a number of keys from the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. The error XP_ERROR_KEY_NOT_FOUND is returned if First is greater than or equal to the number of keys in the data store. In the success case the subsequent items will be the keys requested. The number of keys returned may be less than requested if the return value is too large or if there is not enough keys remaining. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed. Because the keys are returned in a comma-delimited list it is not recommended to use commas in key names if this function is used.
+     * @indexArg First
+     */
     export function KeysKeyValue(First: number, Count: number): uuid;
 
     /** Converts a color from the linear colorspace to sRGB. */
@@ -2332,10 +2377,16 @@ declare namespace ll {
     /** Deletes a name:value pair from the linkset's datastore. */
     export function LinksetDataDeleteProtected(name: string, pass: string): number;
 
-    /** Returns a list of keys from the linkset's data store matching the search parameter. */
+    /**
+     * Returns a list of keys from the linkset's data store matching the search parameter.
+     * @indexArg start
+     */
     export function LinksetDataFindKeys(search: string, start: number, count: number): string[];
 
-    /** Returns a list of all keys in the linkset datastore. */
+    /**
+     * Returns a list of all keys in the linkset datastore.
+     * @indexArg start
+     */
     export function LinksetDataListKeys(start: number, count: number): string[];
 
     /** Returns the value stored for a key in the linkset. */
@@ -2362,12 +2413,14 @@ declare namespace ll {
     /**
      * Copies the float at Index in the list.
      * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a float, then zero is returned.
+     * @indexArg Index
      */
     export function List2Float(ListVariable: list, Index: number): number;
 
     /**
      * Copies the integer at Index in the list.
      * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to an integer, then zero is returned.
+     * @indexArg Index
      */
     export function List2Integer(ListVariable: list, Index: number): number;
 
@@ -2380,6 +2433,7 @@ declare namespace ll {
     /**
      * Copies the key at Index in the list.
      * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a key, then null string is returned.
+     * @indexArg Index
      */
     export function List2Key(ListVariable: list, Index: number): uuid;
 
@@ -2387,6 +2441,8 @@ declare namespace ll {
      * Returns a subset of entries from ListVariable, in a range specified by the Start and End indicies (inclusive).
      * Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.
      * If Start is greater than End, the sub string is the exclusion of the entries.
+     * @indexArg Start
+     * @indexArg End
      */
     export function List2List(ListVariable: T[], Start: number, End: number): T[];
 
@@ -2395,45 +2451,66 @@ declare namespace ll {
      *  Using negative numbers for Start and/or End causes the index to count backwards from the length of the list. (e.g. 0, -1 captures entire list)
      * If slice_index is less than 0, it is counted backwards from the end of the stride.
      *  Stride must be a positive integer > 0 or an empy list is returned.  If slice_index falls outside range of stride, an empty list is returned. slice_index is zero-based. (e.g. A stride of 2 has valid indices 0,1)
+     * @indexArg Start
+     * @indexArg End
+     * @indexArg slice_index
      */
     export function List2ListSlice(ListVariable: T[], Start: number, End: number, Stride: number, slice_index: number): T[];
 
     /**
      * Copies the strided slice of the list from Start to End.
      * Returns a copy of the strided slice of the specified list from Start to End.
+     * @indexArg Start
+     * @indexArg End
      */
     export function List2ListStrided(ListVariable: T[], Start: number, End: number, Stride: number): T[];
 
     /**
      * Copies the rotation at Index in the list.
      * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to rotation, thenZERO_ROTATION is returned.
+     * @indexArg Index
      */
     export function List2Rot(ListVariable: list, Index: number): quaternion;
 
     /**
      * Copies the string at Index in the list.
      * Returns the value at Index in the specified list as a string. If Index describes a location not in the list then null string is returned.
+     * @indexArg Index
      */
     export function List2String(ListVariable: list, Index: number): string;
 
     /**
      * Copies the vector at Index in the list.
      * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a vector, then ZERO_VECTOR is returned.
+     * @indexArg Index
      */
     export function List2Vector(ListVariable: list, Index: number): vector;
 
-    /** Returns the first index where Find appears in ListVariable. Returns -1 if not found. */
-    export function ListFindList(ListVariable: list, Find: list): number;
+    /**
+     * Returns the first index where Find appears in ListVariable. Returns -1 if not found.
+     * @indexReturn
+     */
+    export function ListFindList(ListVariable: list, Find: list): number | undefined;
 
-    /** Returns the nth index where Find appears in ListVariable. Returns -1 if not found. */
-    export function ListFindListNext(ListVariable: list, Find: list, Instance: number): number;
+    /**
+     * Returns the nth index where Find appears in ListVariable. Returns -1 if not found.
+     * @indexArg Instance
+     * @indexReturn
+     */
+    export function ListFindListNext(ListVariable: list, Find: list, Instance: number): number | undefined;
 
-    /** Returns the first index (where Start <= index <= End) where Find appears in ListVariable. Steps through ListVariable by Stride.  Returns -1 if not found. */
-    export function ListFindStrided(ListVariable: list, Find: list, Start: number, End: number, Stride: number): number;
+    /**
+     * Returns the first index (where Start <= index <= End) where Find appears in ListVariable. Steps through ListVariable by Stride.  Returns -1 if not found.
+     * @indexArg Start
+     * @indexArg End
+     * @indexReturn
+     */
+    export function ListFindStrided(ListVariable: list, Find: list, Start: number, End: number, Stride: number): number | undefined;
 
     /**
      * Returns a list that contains all the elements from Target but with the elements from ListVariable inserted at Position start.
      * Returns a new list, created by inserting ListVariable into the Target list at Position. Note this does not alter the Target.
+     * @indexArg Position
      */
     export function ListInsertList(Target: T[], ListVariable: T[], Position: number): T[];
 
@@ -2446,13 +2523,18 @@ declare namespace ll {
     /**
      * Returns a list that is Target with Start through End removed and ListVariable inserted at Start.
      * Returns a list replacing the slice of the Target list from Start to End with the specified ListVariable. Start and End are inclusive, so 0, 1 would replace the first two entries and 0, 0 would replace only the first list entry.
+     * @indexArg Start
+     * @indexArg End
      */
     export function ListReplaceList(Target: T[], ListVariable: T[], Start: number, End: number): T[];
 
     /** Returns the specified list, sorted into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype. */
     export function ListSort(ListVariable: T[], Stride: number, Ascending: number): T[];
 
-    /** Returns the specified list, sorted by the specified element into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype. */
+    /**
+     * Returns the specified list, sorted by the specified element into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype.
+     * @indexArg Sortkey
+     */
     export function ListSortStrided(ListVariable: T[], Stride: number, Sortkey: number, Ascending: number): T[];
 
     /**
@@ -2620,7 +2702,10 @@ declare namespace ll {
     /** This function is deprecated. */
     export function OpenRemoteDataChannel(): void;
 
-    /** Returns the unicode value of the indicated character in the string. */
+    /**
+     * Returns the unicode value of the indicated character in the string.
+     * @indexArg index
+     */
     export function Ord(value: string, index: number): number;
 
     /**
@@ -3467,8 +3552,11 @@ declare namespace ll {
      */
     export function StringTrim(Text: string, TrimType: number): string;
 
-    /** Returns the first index where Sequence appears in Text. Returns -1 if not found. */
-    export function SubStringIndex(Text: string, Sequence: string): number;
+    /**
+     * Returns the first index where Sequence appears in Text. Returns -1 if not found.
+     * @indexReturn
+     */
+    export function SubStringIndex(Text: string, Sequence: string): number | undefined;
 
     /** Deprecated: Use llSetCameraParams instead. */
     export function TakeCamera(AvatarID: uuid): void;

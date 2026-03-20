@@ -438,6 +438,53 @@ describe("string Luau stdlib transforms", () => {
   })
 })
 
+describe("ll.* index-semantics", () => {
+  it("adjusts literal index args (constant folding)", () => {
+    const lua = transpile('const s = ll.GetSubString("hello", 0, 2)')
+
+    expect(lua).toContain("ll.GetSubString")
+    expect(lua).toContain('"hello", 1, 3')
+  })
+
+  it("adjusts expression index args with + 1", () => {
+    const lua = transpile(
+      'declare const i: number, j: number;\nconst s = ll.GetSubString("hello", i, j)',
+    )
+
+    expect(lua).toContain("i + 1")
+    expect(lua).toContain("j + 1")
+  })
+
+  it("adjusts index return with nil-safe - 1", () => {
+    const lua = transpile("declare const a: list, b: list;\nconst idx = ll.ListFindList(a, b)")
+
+    expect(lua).toContain("ll.ListFindList(a, b)")
+    expect(lua).toContain("____tmp and")
+    expect(lua).toContain("____tmp - 1")
+  })
+
+  it("does not adjust non-index function args", () => {
+    const lua = transpile('ll.Say(0, "hello")')
+
+    expect(lua).toContain('ll.Say(0, "hello")')
+    expect(lua).not.toContain("0 + 1")
+    expect(lua).not.toContain("____tmp")
+  })
+
+  it("adjusts both args and return (mixed)", () => {
+    const lua = transpile(
+      "declare const a: list, b: list;\nconst idx = ll.ListFindStrided(a, b, 0, 10, 2)",
+    )
+
+    // Start (0->1) and End (10->11) are index args; Stride (2) is not
+    expect(lua).toContain("ll.ListFindStrided")
+    expect(lua).toMatch(/1,\s*\n\s*11,\s*\n\s*2/)
+    // Return is index-return
+    expect(lua).toContain("____tmp and")
+    expect(lua).toContain("____tmp - 1")
+  })
+})
+
 describe("array transforms", () => {
   it("translates includes to table.find ~= nil", () => {
     const lua = transpileSimple(

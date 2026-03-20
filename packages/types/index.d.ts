@@ -212,12 +212,12 @@ declare type list = (string | number | vector | uuid | quaternion | boolean)[];
 declare type LLDetectedEventName = "collision" | "collision_end" | "collision_start" | "final_damage" | "on_damage" | "sensor" | "touch" | "touch_end" | "touch_start";
 declare type LLNonDetectedEventName = "at_rot_target" | "at_target" | "attach" | "changed" | "control" | "dataserver" | "email" | "experience_permissions" | "experience_permissions_denied" | "game_control" | "http_request" | "http_response" | "land_collision" | "land_collision_end" | "land_collision_start" | "link_message" | "linkset_data" | "listen" | "money" | "moving_end" | "moving_start" | "no_sensor" | "not_at_rot_target" | "not_at_target" | "object_rez" | "on_death" | "on_rez" | "path_update" | "remote_data" | "run_time_permissions" | "timer" | "transaction_result";
 declare type LLEventName = keyof LLEventMap;
-declare type LLEventHandler = (...args: any[]) => void;
-declare type LLDetectedEventHandler = (detected: DetectedEvent[]) => void;
+declare type LLEventHandler = (this: void, ...args: any[]) => void;
+declare type LLDetectedEventHandler = (this: void, detected: DetectedEvent[]) => void;
 /** Callback type for LLTimers.every() - receives scheduled time and interval */
-declare type LLTimerEveryCallback = (scheduled: number, interval: number) => void;
+declare type LLTimerEveryCallback = (this: void, scheduled: number, interval: number) => void;
 /** Callback type for LLTimers.once() - receives scheduled time */
-declare type LLTimerOnceCallback = (scheduled: number) => void;
+declare type LLTimerOnceCallback = (this: void, scheduled: number) => void;
 /** Union of timer callback types */
 declare type LLTimerCallback = LLTimerEveryCallback | LLTimerOnceCallback;
 /** Date/time table structure used by os.date and os.time */
@@ -254,59 +254,140 @@ declare const LLEvents: LLEvents;
 /** Timer management singleton for scheduling periodic and one-time callbacks. */
 declare const LLTimers: LLTimers;
 
-/** Dangerously executes a required module function */
-declare function dangerouslyexecuterequiredmodule(f: (...args: any[]) => any[]): any[];
-/** Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes. */
+/**
+ * Dangerously executes a required module function
+ * @noSelf
+ */
+declare function dangerouslyexecuterequiredmodule(f: (this: void, ...args: any[]) => any[]): any[];
+/**
+ * Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.
+ * @noSelf
+ */
 declare function touuid(val: string | undefined | buffer | uuid): uuid | undefined;
-/** Converts a string to a vector, returns nil if invalid */
+/**
+ * Converts a string to a vector, returns nil if invalid
+ * @noSelf
+ */
 declare function tovector(val: string | undefined | vector): vector | undefined;
-/** Converts a string to a quaternion, returns nil if invalid */
+/**
+ * Converts a string to a quaternion, returns nil if invalid
+ * @noSelf
+ */
 declare function toquaternion(val: string | undefined | quaternion): quaternion | undefined;
-/** Converts a string to a rotation (quaternion), returns nil if invalid */
+/**
+ * Converts a string to a rotation (quaternion), returns nil if invalid
+ * @noSelf
+ */
 declare function torotation(val: string | undefined | quaternion): quaternion | undefined;
-/** Checks if the value is truthy; if not, raises an error with the optional message. */
+/**
+ * Checks if the value is truthy; if not, raises an error with the optional message.
+ * @noSelf
+ */
 declare function assert<T>(value?: T, message?: string): T;
-/** Raises an error with the specified object and optional call stack level. */
+/**
+ * Raises an error with the specified object and optional call stack level.
+ * @noSelf
+ */
 declare function error(obj: any, level?: number): never;
-/** Returns the total heap size in kilobytes. */
+/**
+ * Returns the total heap size in kilobytes.
+ * @noSelf
+ */
 declare function gcinfo(): number;
-/** Returns the metatable for the specified object. */
+/**
+ * Returns the metatable for the specified object.
+ * @noSelf
+ */
 declare function getmetatable(obj: any): Record<any, any> | undefined;
-/** Returns the next key-value pair in the table traversal order. */
+/**
+ * Returns the next key-value pair in the table traversal order.
+ * @noSelf
+ */
 declare function next<K, V>(t: Record<K, V>, i?: K): LuaMultiReturn<[K, V]> | undefined;
-/** Creates a new untyped userdata object with an optional metatable. */
+/**
+ * Creates a new untyped userdata object with an optional metatable.
+ * @noSelf
+ */
 declare function newproxy(mt?: boolean): any;
-/** Prints all arguments to standard output using Tab as a separator. */
+/**
+ * Prints all arguments to standard output using Tab as a separator.
+ * @noSelf
+ */
 declare function print(...args: any[]): void;
-/** Returns true if a and b have the same type and value. */
+/**
+ * Returns true if a and b have the same type and value.
+ * @noSelf
+ */
 declare function rawequal(a: any, b: any): boolean;
-/** Performs a table lookup bypassing metatables. */
+/**
+ * Performs a table lookup bypassing metatables.
+ * @noSelf
+ */
 declare function rawget<K, V>(t: Record<K, V>, k: K): V | undefined;
-/** Assigns a value to a table field bypassing metatables. */
+/**
+ * Assigns a value to a table field bypassing metatables.
+ * @noSelf
+ */
 declare function rawset<K, V>(t: Record<K, V>, k: K, v: V): Record<K, V>;
-/** Returns the length of a table or string bypassing metatables. */
+/**
+ * Returns the length of a table or string bypassing metatables.
+ * @noSelf
+ */
 declare function rawlen<K, V>(t: Record<any, any> | string): number;
-/** Returns a subset of arguments or the number of arguments. */
+/**
+ * Returns a subset of arguments or the number of arguments.
+ * @noSelf
+ */
 declare function select(i: string | number, ...args: any[]): any;
-/** Changes the metatable for the given table. */
+/**
+ * Changes the metatable for the given table.
+ * @noSelf
+ */
 declare function setmetatable(t: Record<any, any>, mt?: Record<any, any>): void;
-/** Converts the input string to a number in the specified base. */
+/**
+ * Converts the input string to a number in the specified base.
+ * @noSelf
+ */
 declare function tonumber(s: string, base?: number): number | undefined;
-/** Converts the input object to a string. */
+/**
+ * Converts the input object to a string.
+ * @noSelf
+ */
 declare function tostring(obj: any): string;
-/** Returns the type of the object as a string. */
+/**
+ * Returns the type of the object as a string.
+ * @noSelf
+ */
 declare function type(obj: any): string;
-/** Returns an iterator for numeric key-value pairs in the table. */
-declare function ipairs<V>(t: V[]): LuaMultiReturn<[(arg0: V[], arg1: number) => LuaMultiReturn<[number | undefined, V]>, V[], number]>;
-/** Returns an iterator for all key-value pairs in the table. */
-declare function pairs<K, V>(t: Record<K, V>): LuaMultiReturn<[(arg0: Record<K, V>, arg1: K) => LuaMultiReturn<[K | undefined, V]>, Record<K, V>, K]>;
-/** Calls function f with parameters args, returning success and function results or an error. */
+/**
+ * Returns an iterator for numeric key-value pairs in the table.
+ * @noSelf
+ */
+declare function ipairs<V>(t: V[]): LuaMultiReturn<[(this: void, arg0: V[], arg1: number) => LuaMultiReturn<[number | undefined, V]>, V[], number]>;
+/**
+ * Returns an iterator for all key-value pairs in the table.
+ * @noSelf
+ */
+declare function pairs<K, V>(t: Record<K, V>): LuaMultiReturn<[(this: void, arg0: Record<K, V>, arg1: K) => LuaMultiReturn<[K | undefined, V]>, Record<K, V>, K]>;
+/**
+ * Calls function f with parameters args, returning success and function results or an error.
+ * @noSelf
+ */
 declare function pcall(f: (...args: any[]) => any, ...args: any[][]): any;
-/** Calls function f with parameters args, handling errors with e if they occur. */
+/**
+ * Calls function f with parameters args, handling errors with e if they occur.
+ * @noSelf
+ */
 declare function xpcall<E>(f: (...args: any[]) => any, e: (...args: any[]) => any, ...args: any[][]): any;
-/** Execute the named external module. */
+/**
+ * Execute the named external module.
+ * @noSelf
+ */
 declare function require(target: string): any;
-/** Returns values from an array in the specified index range. */
+/**
+ * Returns values from an array in the specified index range.
+ * @noSelf
+ */
 declare function unpack<V>(a: V[], f?: number, t?: number): V[];
 
 /** Bitwise operations library. */
@@ -450,7 +531,7 @@ declare namespace buffer {
 /** @noSelf */
 declare namespace coroutine {
     /** Returns a new coroutine that, when resumed, will run function f. */
-    export function create(f: (...args: any[]) => any[]): LuaThread;
+    export function create(f: (this: void, ...args: any[]) => any[]): LuaThread;
 
     /** Resumes a coroutine, returning true and results if successful, or false and an error. */
     export function resume(co: LuaThread, ...args: any[]): LuaMultiReturn<[boolean, ...args: any[]]>;
@@ -462,7 +543,7 @@ declare namespace coroutine {
     export function status(co: LuaThread): "running" | "suspended" | "normal" | "dead";
 
     /** Creates a coroutine and returns a function that resumes it. */
-    export function wrap(f: (...args: any[]) => any[]): (...args: any[]) => any[];
+    export function wrap(f: (this: void, ...args: any[]) => any[]): (this: void, ...args: any[]) => any[];
 
     /** Yields the current coroutine, passing arguments to the resuming code. */
     export function yield(...args: any[]): any[];
@@ -478,13 +559,13 @@ declare namespace coroutine {
 /** @noSelf */
 declare namespace debug {
     /** Returns information about a stack frame or function based on specified format. */
-    export function info(co: LuaThread | ((...args: any[]) => any[]) | number, level: number, s: string): any[];
+    export function info(co: LuaThread | ((this: void, ...args: any[]) => any[]) | number, level: number, s: string): any[];
 
     /** Returns a human-readable call stack starting from the specified level. */
     export function traceback(co: LuaThread, msg?: string, level?: number): string;
 
     /** Returns a table containing debug information about a function or stack frame. */
-    export function getinfo(thread: LuaThread, function_: ((...args: any[]) => any[]) | number, what: string): Record<any, any>;
+    export function getinfo(thread: LuaThread, function_: ((this: void, ...args: any[]) => any[]) | number, what: string): Record<any, any>;
 
     /** Returns the name and value of a local variable at the specified stack level. */
     export function getlocal(level: number, index: number): string | any;
@@ -493,10 +574,10 @@ declare namespace debug {
     export function setlocal(level: number, index: number, value: any): boolean;
 
     /** Returns the name and value of an upvalue for a given function. */
-    export function getupvalue(function_: (...args: any[]) => any[], index: number): string | any;
+    export function getupvalue(function_: (this: void, ...args: any[]) => any[], index: number): string | any;
 
     /** Sets the value of an upvalue for a given function. */
-    export function setupvalue(function_: (...args: any[]) => any[], index: number, value: any): string;
+    export function setupvalue(function_: (this: void, ...args: any[]) => any[], index: number, value: any): string;
 
     /** Returns the metatable of the given value, if any. */
     export function getmetatable(value: any): Record<any, any> | undefined;
@@ -736,10 +817,10 @@ declare namespace string {
     export function format(formatstring: string, ...args: any[]): string;
 
     /** Returns an iterator function for pattern matches */
-    export function gmatch(s: string, pattern: string): () => string[];
+    export function gmatch(s: string, pattern: string): (this: void) => string[];
 
     /** Performs pattern-based substitution in a string. */
-    export function gsub(s: string, pattern: string, repl: string | Record<string, string> | ((...args: string[]) => string), maxn?: number): LuaMultiReturn<[string, number]>;
+    export function gsub(s: string, pattern: string, repl: string | Record<string, string> | ((this: void, ...args: string[]) => string), maxn?: number): LuaMultiReturn<[string, number]>;
 
     /** Returns the number of bytes in the string. Identical to #s */
     export function len(s: string): number;
@@ -785,13 +866,13 @@ declare namespace table {
      * Iterates over all key-value pairs in the table (deprecated).
      * @deprecated Use a for loop instead
      */
-    export function foreach<K, V, R>(t: Record<K, V>, f?: (key: K, value: V) => R): R | undefined;
+    export function foreach<K, V, R>(t: Record<K, V>, f?: (this: void, key: K, value: V) => R): R | undefined;
 
     /**
      * Iterates over all index-value pairs in the array (deprecated).
      * @deprecated Use a for loop instead
      */
-    export function foreachi<V, R>(a: V[], f?: (index: number, value: V) => R): R | undefined;
+    export function foreachi<V, R>(a: V[], f?: (this: void, index: number, value: V) => R): R | undefined;
 
     /**
      * Returns the length of an array (deprecated; use # instead).
@@ -815,7 +896,7 @@ declare namespace table {
     export function remove<V>(a: V[], i?: number): V | undefined;
 
     /** Sorts an array in place. */
-    export function sort<V>(a: V[], f?: (a: V, b: V) => boolean): void;
+    export function sort<V>(a: V[], f?: (this: void, a: V, b: V) => boolean): void;
 
     /** Packs multiple arguments into a new array with length field n. */
     export function pack<V>(...args: V[]): { n: number; [index: number]: V };
@@ -855,7 +936,7 @@ declare namespace utf8 {
     export function char(...args: number[]): string;
 
     /** Returns an iterator that produces the byte offset and Unicode codepoint for each character in the string. */
-    export function codes(s: string): LuaMultiReturn<[(arg0: string, arg1: number) => LuaMultiReturn<[number, number]>, string, number]>;
+    export function codes(s: string): LuaMultiReturn<[(this: void, arg0: string, arg1: number) => LuaMultiReturn<[number, number]>, string, number]>;
 
     /** Returns the Unicode codepoints in the specified range of the string. */
     export function codepoint(s: string, i?: number, j?: number): number[];

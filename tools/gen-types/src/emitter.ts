@@ -515,13 +515,22 @@ function addGlobalFunction(sf: SourceFile, fn: FunctionDef) {
 
   const docs = buildDocs(fn.comment, fn.deprecated)
 
+  // Always add @noSelf so TSTL never inserts a spurious `self` argument,
+  // regardless of the consumer's `noImplicitSelf` setting.
+  if (docs.length > 0) {
+    const last = docs[docs.length - 1]
+    last.tags = [...(last.tags ?? []), { tagName: "noSelf" }]
+  } else {
+    docs.push({ tags: [{ tagName: "noSelf" }] })
+  }
+
   sf.addFunction({
     name: fn.name,
     hasDeclareKeyword: true,
     parameters: buildParams(fn.parameters, false),
     returnType: mapReturnType(fn.returnType ?? "void"),
     typeParameters: cleanTypeParams(fn.typeParameters),
-    ...(docs.length > 0 ? { docs } : {}),
+    docs,
   })
 }
 

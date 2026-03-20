@@ -393,7 +393,11 @@ export function mapType(luauType: string): string {
     const mappedParams = mapFunctionParams(paramsInner)
     const mappedReturn = mapReturnType(returnSection)
 
-    return `(${mappedParams}) => ${mappedReturn}`
+    // Add `this: void` so TSTL never inserts a spurious `self` argument
+    // when these function types are used as callback parameters.
+    const params = mappedParams ? `this: void, ${mappedParams}` : "this: void"
+
+    return `(${params}) => ${mappedReturn}`
   }
 
   // 10. Brace types: arrays, structs, union arrays, tables

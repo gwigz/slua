@@ -6,8 +6,7 @@ function handlePrivateMessage(text)
         return
     end
     if string.find(text, "ASSIGN|", 1, true) == 1 then
-        local avatar = uuid.create(string.sub(text, 8))
-        assignAvatar(avatar)
+        assignAvatar(uuid.create(string.sub(text, 8)))
         return
     end
     if text == "UNASSIGN" then

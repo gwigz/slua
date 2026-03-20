@@ -25,7 +25,9 @@ describe("mapType", () => {
 
   it("maps complex optional types", () => {
     expect(mapType("{[any]: any}?")).toBe("Record<any, any> | undefined")
-    expect(mapType("((a: V, b: V) -> boolean)?")).toBe("((a: V, b: V) => boolean) | undefined")
+    expect(mapType("((a: V, b: V) -> boolean)?")).toBe(
+      "((this: void, a: V, b: V) => boolean) | undefined",
+    )
   })
 
   it("maps Luau array types {T}", () => {
@@ -67,9 +69,9 @@ describe("mapType", () => {
   })
 
   it("maps function types", () => {
-    expect(mapType("(...any) -> ()")).toBe("(...args: any[]) => void")
+    expect(mapType("(...any) -> ()")).toBe("(this: void, ...args: any[]) => void")
     expect(mapType("(scheduled: number, interval: number) -> ()")).toBe(
-      "(scheduled: number, interval: number) => void",
+      "(this: void, scheduled: number, interval: number) => void",
     )
   })
 

@@ -92,13 +92,17 @@ declare const LLEvents: LLEvents;
 `;
 
 exports[`emitGlobalFunction produces declare function with parameters and return type 1`] = `
-"/** Creates a new uuid from a string. */
+"/**
+ * Creates a new uuid from a string.
+ * @noSelf
+ */
 declare function touuid(val: string | undefined | buffer | uuid): uuid | undefined;
 "
 `;
 
 exports[`emitGlobalFunction emits type parameters 1`] = `
-"declare function assert<T>(value?: T, message?: string): T;
+"/** @noSelf */
+declare function assert<T>(value?: T, message?: string): T;
 "
 `;
 

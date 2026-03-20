@@ -3,4 +3,6 @@ dist/
 out/
 *.js.map
 bun.lock
+!examples/**/dist/
 !examples/**/out/
+TODO.md

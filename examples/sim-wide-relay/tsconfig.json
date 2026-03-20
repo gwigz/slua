@@ -8,10 +8,10 @@
     "skipLibCheck": true,
     "lib": ["ESNext"],
     "types": ["@typescript-to-lua/language-extensions"],
-    "rootDir": ".",
-    "outDir": "out"
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": ["*.ts"],
+  "include": ["src/**/*.ts", "../../packages/types/index.d.ts"],
   "tstl": {
     "luaTarget": "Luau",
     "luaLibImport": "inline",

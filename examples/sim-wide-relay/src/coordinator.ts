@@ -1,7 +1,4 @@
-/// <reference path="../../packages/types/index.d.ts" />
-
-// Change this to a unique channel for your deployment
-const PRIVATE_CHANNEL = -1731704569
+import { IGNORED_AVATARS, PRIVATE_CHANNEL, sign } from "./shared"
 
 /** Listener object name in inventory */
 const LISTENER_OBJECT = "Relay Listener"
@@ -90,7 +87,7 @@ function pollAgents() {
 
     const listener = assignedListeners[key]!
 
-    ll.RegionSayTo(listener, PRIVATE_CHANNEL, "UNASSIGN")
+    ll.RegionSayTo(listener, PRIVATE_CHANNEL, sign("UNASSIGN"))
 
     clearAssignment(key, listener)
 
@@ -100,7 +97,9 @@ function pollAgents() {
 
   // Detect arrivals
   for (const agent of agents) {
-    if (assignedListeners[tostring(agent)] === undefined) {
+    const key = tostring(agent)
+
+    if (assignedListeners[key] === undefined && !IGNORED_AVATARS.includes(key)) {
       assignListener(agent)
     }
   }
@@ -122,7 +121,7 @@ function assignListener(avatar: UUID) {
 
   writeAssignment(avatar, listener)
 
-  ll.RegionSayTo(listener, PRIVATE_CHANNEL, "ASSIGN|" + key)
+  ll.RegionSayTo(listener, PRIVATE_CHANNEL, sign("ASSIGN|" + key))
 }
 
 // Verify listeners still exist in region, rez replacements for any missing
@@ -180,7 +179,7 @@ function ensureBuffer() {
 function cullExcess() {
   while (freeListeners.length > POOL_BUFFER_MAX) {
     const listener = freeListeners.pop()!
-    ll.RegionSayTo(listener, PRIVATE_CHANNEL, "KILL")
+    ll.RegionSayTo(listener, PRIVATE_CHANNEL, sign("KILL"))
   }
 }
 
@@ -209,7 +208,7 @@ function updateDiagnostics() {
 // Startup
 
 // Kill any leftover listeners from a previous run
-ll.RegionSay(PRIVATE_CHANNEL, "KILL")
+ll.RegionSay(PRIVATE_CHANNEL, sign("KILL"))
 
 // Clear stale linkset data from previous run
 ll.LinksetDataReset()

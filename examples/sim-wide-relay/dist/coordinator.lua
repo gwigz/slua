@@ -1,5 +1,81 @@
 --[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
-local rezBatched, writeAssignment, assignListener, ensureBuffer, assignedCount, totalListeners, updateDiagnostics, PRIVATE_CHANNEL, LISTENER_OBJECT, poolSize, POOL_BUFFER, assignedListeners, freeListeners, REZ_BATCH_SIZE
+
+local ____modules = {}
+local ____moduleCache = {}
+local ____originalRequire = require
+local function require(file, ...)
+    if ____moduleCache[file] then
+        return ____moduleCache[file].value
+    end
+    if ____modules[file] then
+        local module = ____modules[file]
+        local value = nil
+        if (select("#", ...) > 0) then value = module(...) else value = module(file) end
+        ____moduleCache[file] = { value = value }
+        return value
+    else
+        if ____originalRequire then
+            return ____originalRequire(file)
+        else
+            error("module '" .. file .. "' not found")
+        end
+    end
+end
+____modules = {
+["shared"] = function(...) 
+--[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+local ____exports = {}
+____exports.PRIVATE_CHANNEL = -1731704569
+____exports.IGNORED_AVATARS = {}
+--- Time bucket size in seconds for message signing
+local SIGN_WINDOW = 2
+function ____exports.sign(payload)
+    local bucket = ll.GetUnixTime() // SIGN_WINDOW
+    return (string.sub(
+        ll.MD5String(
+            (tostring(bucket) .. "|") .. payload,
+            ____exports.PRIVATE_CHANNEL
+        ),
+        1,
+        8
+    ) .. "|") .. payload
+end
+function ____exports.verify(text)
+    if #text < 10 then
+        return nil
+    end
+    local hash = string.sub(text, 1, 8)
+    local payload = string.sub(text, 10)
+    local bucket = ll.GetUnixTime() // SIGN_WINDOW
+    if hash == string.sub(
+        ll.MD5String(
+            (tostring(bucket) .. "|") .. payload,
+            ____exports.PRIVATE_CHANNEL
+        ),
+        1,
+        8
+    ) or hash == string.sub(
+        ll.MD5String(
+            (tostring(bucket - 1) .. "|") .. payload,
+            ____exports.PRIVATE_CHANNEL
+        ),
+        1,
+        8
+    ) then
+        return payload
+    end
+    return nil
+end
+return ____exports
+ end,
+["coordinator"] = function(...) 
+--[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+local ____exports = {}
+local rezBatched, writeAssignment, assignListener, ensureBuffer, assignedCount, totalListeners, updateDiagnostics, LISTENER_OBJECT, poolSize, POOL_BUFFER, assignedListeners, freeListeners, REZ_BATCH_SIZE
+local ____shared = require("shared")
+local IGNORED_AVATARS = ____shared.IGNORED_AVATARS
+local PRIVATE_CHANNEL = ____shared.PRIVATE_CHANNEL
+local sign = ____shared.sign
 function rezBatched(count)
     local pos = ll.GetPos()
     local rot = ll.GetRot()
@@ -48,7 +124,11 @@ function assignListener(avatar)
     local key = tostring(avatar)
     assignedListeners[key] = listener
     writeAssignment(avatar, listener)
-    ll.RegionSayTo(listener, PRIVATE_CHANNEL, "ASSIGN|" .. key)
+    ll.RegionSayTo(
+        listener,
+        PRIVATE_CHANNEL,
+        sign("ASSIGN|" .. key)
+    )
 end
 function ensureBuffer()
     local needed = POOL_BUFFER - #freeListeners
@@ -78,7 +158,6 @@ function updateDiagnostics()
     local color = if free == 0 then vector.create(1, 0.3, 0.3) else vector.create(0.5, 1, 0.5)
     ll.SetLinkPrimitiveParamsFast(LINK_THIS, {PRIM_TEXT, text, color, 1})
 end
-PRIVATE_CHANNEL = -1731704569
 LISTENER_OBJECT = "Relay Listener"
 --- How often to poll for avatar changes (seconds)
 local POLL_INTERVAL = 3
@@ -113,13 +192,18 @@ local function pollAgents()
             continue
         end
         local listener = assignedListeners[key]
-        ll.RegionSayTo(listener, PRIVATE_CHANNEL, "UNASSIGN")
+        ll.RegionSayTo(
+            listener,
+            PRIVATE_CHANNEL,
+            sign("UNASSIGN")
+        )
         clearAssignment(key, listener)
         assignedListeners[key] = nil
         freeListeners[#freeListeners + 1] = listener
     end
     for ____, agent in ipairs(agents) do
-        if assignedListeners[tostring(agent)] == nil then
+        local key = tostring(agent)
+        if assignedListeners[key] == nil and not (table.find(IGNORED_AVATARS, key) ~= nil) then
             assignListener(agent)
         end
     end
@@ -156,10 +240,17 @@ end
 local function cullExcess()
     while #freeListeners > POOL_BUFFER_MAX do
         local listener = table.remove(freeListeners)
-        ll.RegionSayTo(listener, PRIVATE_CHANNEL, "KILL")
+        ll.RegionSayTo(
+            listener,
+            PRIVATE_CHANNEL,
+            sign("KILL")
+        )
     end
 end
-ll.RegionSay(PRIVATE_CHANNEL, "KILL")
+ll.RegionSay(
+    PRIVATE_CHANNEL,
+    sign("KILL")
+)
 ll.LinksetDataReset()
 local initialPool = POOL_BUFFER
 ll.SetLinkPrimitiveParamsFast(
@@ -191,3 +282,8 @@ rezCheck = LLTimers:every(
         )
     end
 )
+return ____exports
+ end,
+}
+local ____entry = require("coordinator", ...)
+return ____entry

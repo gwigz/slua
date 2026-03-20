@@ -1,7 +1,4 @@
-/// <reference path="../../packages/types/index.d.ts" />
-
-// Change this to a unique channel for your deployment
-const PRIVATE_CHANNEL = -1731704569
+import { PRIVATE_CHANNEL, sign, verify } from "./shared"
 
 /** How often to reposition (seconds) */
 const FOLLOW_INTERVAL = 0.1
@@ -38,7 +35,13 @@ LLEvents.on("listen", (channel, _name, id, text) => {
       return
     }
 
-    handlePrivateMessage(text)
+    const payload = verify(text)
+
+    if (payload === undefined) {
+      return
+    }
+
+    handlePrivateMessage(payload)
     return
   }
 
@@ -48,7 +51,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
 
   if (id === assignedAvatar) {
     // Forward assigned avatar's chat to sender for relay routing
-    ll.RegionSay(PRIVATE_CHANNEL, `CHAT|${tostring(assignedAvatar)}|${text}`)
+    ll.RegionSay(PRIVATE_CHANNEL, sign(`CHAT|${tostring(assignedAvatar)}|${text}`))
     return
   }
 
@@ -84,6 +87,7 @@ function handlePrivateMessage(text: string) {
 
   if (text === "UNASSIGN") {
     unassignAvatar()
+    return
   }
 
   if (text === "KILL") {
@@ -104,9 +108,6 @@ function assignAvatar(avatar: UUID) {
   assignedAvatar = avatar
   listenHandle = ll.Listen(0, "", avatar, "")
   hearHandle = ll.Listen(0, "", new UUID(""), "")
-
-  // Rename to * so /me messages display as: * secondlife:///app/...
-  ll.SetObjectName("*")
 
   followAvatar()
 }
@@ -150,20 +151,6 @@ LLTimers.every(FOLLOW_INTERVAL, () => followAvatar())
 // Receiving relay messages from sender
 // Format: "RELAY|speakerId|message"
 
-function formatRelayMessage(speakerId: string, message: string): string {
-  const link = `secondlife:///app/agent/${speakerId}/inspect`
-
-  if (message.startsWith("/me'")) {
-    return `/me ${link}${message.substring(3)}`
-  }
-
-  if (message.startsWith("/me ")) {
-    return `/me ${link} ${message.substring(4)}`
-  }
-
-  return `/me ${link}: ${message}`
-}
-
 function handleRelayedMessage(text: string) {
   if (!assignedAvatar) {
     return
@@ -192,6 +179,9 @@ function handleRelayedMessage(text: string) {
 
     recentMessages[hash] = now
 
+    // Send back to sender for delivery
+    ll.RegionSay(PRIVATE_CHANNEL, sign(`SAY|${tostring(assignedAvatar)}|${speakerId}|${message}`))
+
     // Clean up expired entries
     for (const key in recentMessages) {
       if (now - recentMessages[key] >= DEDUP_WINDOW) {
@@ -199,7 +189,5 @@ function handleRelayedMessage(text: string) {
         recentCount--
       }
     }
-
-    ll.RegionSayTo(assignedAvatar, 0, formatRelayMessage(speakerId, message))
   })
 }

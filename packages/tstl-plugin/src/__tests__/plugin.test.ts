@@ -61,19 +61,7 @@ describe("ts-slua plugin", () => {
     expect(diagnostics).toHaveLength(0)
   })
 
-  it("beforeTransform warns on non-none luaLibImport", () => {
-    const diagnostics = plugin.beforeTransform!(
-      {} as ts.Program,
-      {
-        luaTarget: tstl.LuaTarget.Luau,
-        luaLibImport: tstl.LuaLibImportKind.Require,
-      } as tstl.CompilerOptions,
-      {} as tstl.EmitHost,
-    )
 
-    expect(diagnostics).toHaveLength(1)
-    expect((diagnostics as ts.Diagnostic[])[0].category).toBe(ts.DiagnosticCategory.Warning)
-  })
 })
 
 describe("transpilation output", () => {

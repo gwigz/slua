@@ -1,0 +1,7 @@
+{
+  "name": "@gwigz/slua-example-getting-started",
+  "private": true,
+  "scripts": {
+    "build": "tstl -p tsconfig.json"
+  }
+}

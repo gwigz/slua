@@ -4,10 +4,12 @@
   "workspaces": [
     "packages/*",
     "tools/*",
-    "apps/*"
+    "apps/*",
+    "examples/*"
   ],
   "scripts": {
-    "build": "bun run --filter '@gwigz/slua-tstl-plugin' build",
+    "build": "bun run --workspaces --if-present build",
+    "build:examples": "bun run --filter '@gwigz/slua-example-*' build",
     "test": "bun test packages/ tools/",
     "generate": "bun tools/gen-types/src/index.ts refs/lsl-definitions/slua_definitions.yaml refs/lsl-definitions/lsl_definitions.yaml -o packages/types/index.d.ts",
     "lint": "oxlint",

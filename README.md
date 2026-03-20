@@ -109,19 +109,11 @@ I use this toolchain for my own projects, it's how I find the rough edges:
 - [`examples/sim-wide-relay`](examples/sim-wide-relay) -- Region-wide chat relay, deployed at my favorite sim
 - [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) -- Skips the rez-edit-take-replace cycle; patches rezzables using `ll.DerezObject`
 
-## Contributing
-
-```bash
-bun install
-bun run generate   # regenerate types from YAML definitions
-bun run build      # build the TSTL plugin
-bun test           # run all tests
-```
-
-### Scripts
+## Scripts
 
 - `bun run generate` - regenerate `packages/types/index.d.ts` from YAML definitions
-- `bun run build` - build the TSTL plugin
+- `bun run build` - build all workspaces that define a `build` script
+- `bun run build:examples` - build all example workspaces only
 - `bun test` - run all tests
 - `bun run lint` - lint with [oxlint](https://oxc.rs/docs/guide/usage/linter)
 - `bun run lint:fix` - lint and auto-fix

@@ -1,0 +1,7 @@
+{
+  "name": "@gwigz/slua-example-weather-fetcher",
+  "private": true,
+  "scripts": {
+    "build": "tstl -p tsconfig.json"
+  }
+}

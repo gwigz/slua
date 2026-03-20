@@ -1,0 +1,7 @@
+{
+  "name": "@gwigz/slua-example-kitchen-sink",
+  "private": true,
+  "scripts": {
+    "build": "tstl -p tsconfig.json"
+  }
+}

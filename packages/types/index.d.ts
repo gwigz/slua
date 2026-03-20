@@ -720,8 +720,11 @@ declare namespace Quaternion {
 /** String manipulation library. */
 /** @noSelf */
 declare namespace string {
-    /** Returns the numeric code of every byte in the input string within the given range. */
-    export function byte(s: string, i?: number, j?: number): number[];
+    /** Returns the numeric code of the byte at position i (default 1) in the input string. */
+    export function byte(s: string, i?: number): number;
+
+    /** Returns the numeric codes of every byte in the input string within the range [i, j]. */
+    export function byte(s: string, i: number, j: number): number[];
 
     /** Returns a string containing characters for the given byte values. */
     export function char(...args: number[]): string;

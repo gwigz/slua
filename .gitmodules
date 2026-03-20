@@ -1,0 +1,3 @@
+[submodule "refs/lsl-definitions"]
+	path = refs/lsl-definitions
+	url = git@github.com:gwigz/lsl-definitions.git

@@ -79,7 +79,10 @@ export function ResourceCard({
           <div className="flex items-center gap-2">
             <resource.icon className="size-5 text-muted-foreground group-hover:text-[var(--highlight)] transition-colors" />
             {resource.wip && (
-              <Badge variant="outline" className="ml-auto rounded-full text-[10px] uppercase text-muted-foreground/60">
+              <Badge
+                variant="outline"
+                className="ml-auto rounded-full text-[10px] uppercase text-muted-foreground/60"
+              >
                 Work in progress
               </Badge>
             )}

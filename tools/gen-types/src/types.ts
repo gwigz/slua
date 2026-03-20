@@ -103,10 +103,7 @@ export interface LSLConstant {
 
 export interface LSLFunction {
   return?: string
-  arguments?: Record<
-    string,
-    { type: string; tooltip?: string; "index-semantics"?: boolean }
-  >[]
+  arguments?: Record<string, { type: string; tooltip?: string; "index-semantics"?: boolean }>[]
   tooltip?: string
   "slua-removed"?: boolean
   "slua-deprecated"?: boolean | { reason?: string; use?: string }

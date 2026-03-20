@@ -610,9 +610,12 @@ function addVariadicOverloads(ns: ModuleDeclaration, fn: FunctionDef) {
   })
 
   // Overload 2: all params required -> returns array
-  const allRequiredParams = params.map((p) =>
-    p.type?.endsWith("?") ? { ...p, type: p.type.slice(0, -1) } : p,
-  )
+  const allRequiredParams = params.map((p) => {
+    if (p.type?.endsWith("?")) {
+      return Object.assign({}, p, { type: p.type.slice(0, -1) })
+    }
+    return p
+  })
 
   ns.addFunction({
     name: fn.name,

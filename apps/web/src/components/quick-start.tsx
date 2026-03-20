@@ -210,7 +210,8 @@ export function QuickStart() {
             number={3}
             title={
               <>
-                Editor &amp; GitHub setup <span className="text-muted-foreground/40">(optional)</span>
+                Editor &amp; GitHub setup{" "}
+                <span className="text-muted-foreground/40">(optional)</span>
               </>
             }
           >
@@ -226,7 +227,11 @@ export function QuickStart() {
               </a>{" "}
               and forks:
             </p>
-            <CodeBlock code={VSCODE_SETTINGS} html={vscodeSettingsHtml} label=".vscode/settings.json" />
+            <CodeBlock
+              code={VSCODE_SETTINGS}
+              html={vscodeSettingsHtml}
+              label=".vscode/settings.json"
+            />
             <p className="text-xs text-muted-foreground/60 mt-3 mb-3">
               Tell GitHub to highlight <code>.slua</code> files as Lua:
             </p>

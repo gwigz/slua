@@ -199,6 +199,88 @@ function createNamespacedCall(
 }
 
 // ---------------------------------------------------------------------------
+// Self-reassignment array concat -> table.extend optimization
+// ---------------------------------------------------------------------------
+
+/**
+ * Detects `arr = arr.concat(b, c, ...)` where LHS is a simple identifier,
+ * the receiver matches LHS, and all concat arguments are array-typed.
+ */
+function extractConcatSelfAssignment(
+  expr: ts.BinaryExpression,
+  checker: ts.TypeChecker,
+): { name: ts.Identifier; args: ts.Expression[] } | null {
+  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return null
+  if (!ts.isIdentifier(expr.left)) return null
+  if (!ts.isCallExpression(expr.right)) return null
+  if (!ts.isPropertyAccessExpression(expr.right.expression)) return null
+  if (expr.right.expression.name.text !== "concat") return null
+  if (!ts.isIdentifier(expr.right.expression.expression)) return null
+  if (expr.right.expression.expression.text !== expr.left.text) return null
+  if (expr.right.arguments.length === 0) return null
+
+  for (const arg of expr.right.arguments) {
+    if (!isArrayType(arg, checker)) return null
+  }
+
+  return { name: expr.left, args: expr.right.arguments as ts.Expression[] }
+}
+
+/**
+ * Detects `arr = [...arr, ...b, ...c]` where LHS is a simple identifier,
+ * all elements are spreads, the first spread matches LHS, and all tail
+ * spread expressions are array-typed.
+ */
+function extractSpreadSelfAssignment(
+  expr: ts.BinaryExpression,
+  checker: ts.TypeChecker,
+): { name: ts.Identifier; args: ts.Expression[] } | null {
+  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return null
+  if (!ts.isIdentifier(expr.left)) return null
+  if (!ts.isArrayLiteralExpression(expr.right)) return null
+
+  const elements = expr.right.elements
+  if (elements.length < 2) return null
+
+  for (const el of elements) {
+    if (!ts.isSpreadElement(el)) return null
+  }
+
+  const first = elements[0] as ts.SpreadElement
+  if (!ts.isIdentifier(first.expression)) return null
+  if (first.expression.text !== expr.left.text) return null
+
+  const tailArgs: ts.Expression[] = []
+
+  for (let i = 1; i < elements.length; i++) {
+    const spread = elements[i] as ts.SpreadElement
+    if (!isArrayType(spread.expression, checker)) return null
+    tailArgs.push(spread.expression)
+  }
+
+  return { name: expr.left, args: tailArgs }
+}
+
+/**
+ * Builds nested `table.extend` calls:
+ * - Single arg: `table.extend(arr, b)`
+ * - Multiple: `table.extend(table.extend(arr, b), c)`
+ */
+function emitChainedExtend(
+  target: tstl.Expression,
+  args: [tstl.Expression, ...tstl.Expression[]],
+  node: ts.Node,
+): tstl.CallExpression {
+  let result = createNamespacedCall("table", "extend", [target, args[0]], node)
+
+  for (let i = 1; i < args.length; i++) {
+    result = createNamespacedCall("table", "extend", [result, args[i]], node)
+  }
+
+  return result
+}
+
+// ---------------------------------------------------------------------------
 // ll.* index-semantics helpers
 // ---------------------------------------------------------------------------
 
@@ -775,6 +857,23 @@ const plugin: tstl.Plugin = {
           const call = createBit32Call(compoundFn, [left, right], node)
 
           return [tstl.createAssignmentStatement(left, call, node)]
+        }
+
+        // Self-reassignment concat/spread -> table.extend (in-place, no assignment needed)
+        const concatMatch =
+          extractConcatSelfAssignment(node.expression, context.checker) ??
+          extractSpreadSelfAssignment(node.expression, context.checker)
+
+        if (concatMatch) {
+          const target = context.transformExpression(concatMatch.name)
+          const args = concatMatch.args.map((a) => context.transformExpression(a)) as [
+            tstl.Expression,
+            ...tstl.Expression[],
+          ]
+
+          const call = emitChainedExtend(target, args, node)
+
+          return [tstl.createExpressionStatement(call, node)]
         }
       }
 

@@ -5,6 +5,8 @@
 ## What it does
 
 - Translates TypeScript patterns to native Luau/LSL equivalents (see below)
+- Automatically adjusts `ll.*` index arguments and return values from 0-based to 1-based
+- Optimizes self-reassignment array concat/spread to in-place `table.extend`
 - Handles adjusting `Vector`, `Quaternion`, and `UUID` casing
 - Validates `luaTarget` is set to `Luau`
 
@@ -87,6 +89,37 @@ Comparisons of a bitwise AND against zero are automatically optimized to `bit32.
 | `(a & b) === 0` | `not bit32.btest(a, b)` |
 
 This works with `!=`, `==`, and with the zero on either side (`0 !== (a & b)`).
+
+### `ll.*` index adjustment
+
+SLua's `ll.*` functions use 1-based indexing (Lua convention), but TypeScript uses 0-based. The plugin automatically adjusts index arguments and return values based on `@indexArg` and `@indexReturn` JSDoc tags in the type definitions:
+
+| TypeScript                       | Lua output                                                   |
+| -------------------------------- | ------------------------------------------------------------ |
+| `ll.GetSubString("hello", 0, 2)` | `ll.GetSubString("hello", 1, 3)`                             |
+| `ll.GetSubString("hello", i, j)` | `ll.GetSubString("hello", i + 1, j + 1)`                     |
+| `ll.ListFindList(a, b)`          | `____tmp = ll.ListFindList(a, b); ____tmp and (____tmp - 1)` |
+
+- **`@indexArg`** parameters get `+ 1` (constant-folded for literals)
+- **`@indexReturn`** wraps the result in a nil-safe `____tmp and (____tmp - 1)` expression
+- Functions without these tags (e.g. `ll.Say`) are left unchanged
+
+### Array concat self-assignment
+
+When an array is reassigned to itself with additional elements appended, the plugin emits `table.extend` (SLua's in-place append) instead of TSTL's `__TS__ArrayConcat` which allocates a new table:
+
+| TypeScript                   | Lua output                              |
+| ---------------------------- | --------------------------------------- |
+| `arr = arr.concat(b)`        | `table.extend(arr, b)`                  |
+| `arr = arr.concat(b, c)`     | `table.extend(table.extend(arr, b), c)` |
+| `arr = [...arr, ...b]`       | `table.extend(arr, b)`                  |
+| `arr = [...arr, ...b, ...c]` | `table.extend(table.extend(arr, b), c)` |
+
+This optimization only applies when:
+
+- The expression is a statement (not `const result = arr.concat(b)`)
+- The LHS is a simple identifier matching the receiver/first spread
+- All concat arguments / spread expressions are array-typed
 
 ### Floor division
 

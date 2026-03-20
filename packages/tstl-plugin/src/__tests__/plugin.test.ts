@@ -512,3 +512,102 @@ describe("array transforms", () => {
     expect(lua).not.toContain("table.find")
   })
 })
+
+describe("array concat self-assignment", () => {
+  describe("positive cases", () => {
+    it("translates arr = arr.concat(b) to table.extend", () => {
+      const lua = transpileSimple(
+        "declare let arr: number[];\ndeclare const b: number[];\narr = arr.concat(b)",
+      )
+
+      expect(lua).toContain("table.extend(arr, b)")
+    })
+
+    it("translates arr = arr.concat(b, c) to nested table.extend", () => {
+      const lua = transpileSimple(
+        "declare let arr: number[];\ndeclare const b: number[], c: number[];\narr = arr.concat(b, c)",
+      )
+
+      expect(lua).toContain("table.extend(")
+      expect(lua).toContain("table.extend(arr, b)")
+      expect(lua).toMatch(/table\.extend\(\s*table\.extend\(arr, b\),\s*c\s*\)/)
+    })
+
+    it("translates arr = [...arr, ...b] to table.extend", () => {
+      const lua = transpileSimple(
+        "declare let arr: number[];\ndeclare const b: number[];\narr = [...arr, ...b]",
+      )
+
+      expect(lua).toContain("table.extend(arr, b)")
+    })
+
+    it("translates arr = [...arr, ...b, ...c] to nested table.extend", () => {
+      const lua = transpileSimple(
+        "declare let arr: number[];\ndeclare const b: number[], c: number[];\narr = [...arr, ...b, ...c]",
+      )
+
+      expect(lua).toContain("table.extend(arr, b)")
+      expect(lua).toMatch(/table\.extend\(\s*table\.extend\(arr, b\),\s*c\s*\)/)
+    })
+  })
+
+  describe("negative cases", () => {
+    it("does not transform when concat arg is not array-typed", () => {
+      const lua = transpileSimple(
+        "declare let arr: number[];\ndeclare const val: number;\narr = arr.concat(val)",
+      )
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform when LHS differs from receiver", () => {
+      const lua = transpileSimple(
+        "declare let arr: number[];\ndeclare const other: number[];\narr = other.concat(arr)",
+      )
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform property access LHS", () => {
+      const lua = transpileSimple(
+        "declare const obj: { arr: number[] };\ndeclare const b: number[];\nobj.arr = obj.arr.concat(b)",
+      )
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform zero concat arguments", () => {
+      const lua = transpileSimple("declare let arr: number[];\narr = arr.concat()")
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform spread where first element is not LHS", () => {
+      const lua = transpileSimple(
+        "declare let arr: number[];\ndeclare const b: number[];\narr = [...b, ...arr]",
+      )
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform spread with non-spread elements", () => {
+      const lua = transpileSimple("declare let arr: number[];\narr = [...arr, 1]")
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform self-only spread", () => {
+      const lua = transpileSimple("declare let arr: number[];\narr = [...arr]")
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform non-statement context", () => {
+      const lua = transpileSimple(
+        "declare const arr: number[];\ndeclare const b: number[];\nconst result = arr.concat(b)",
+      )
+
+      expect(lua).not.toContain("table.extend")
+    })
+  })
+})

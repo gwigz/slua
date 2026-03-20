@@ -68,7 +68,6 @@ Tell GitHub to highlight `.slua` files as Lua:
 *.slua linguist-language=Lua
 ```
 
-
 ### Write TypeScript, compile to SLua
 
 ```typescript

@@ -174,7 +174,7 @@ const isValidCommand = (command: string) =>
           ])
 
         // Resolve TSTL from the plugin's context so both share typescript 5.7.x.
-        // The ts-playground workspace uses a newer TS which would cause a
+        // The web workspace uses a newer TS which would cause a
         // duplicate-instance AST crash.
         const pluginRequire = createRequire(resolve("../../packages/tstl-plugin/package.json"))
         const tstl: typeof import("typescript-to-lua") = pluginRequire("typescript-to-lua")

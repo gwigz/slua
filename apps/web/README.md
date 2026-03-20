@@ -1,4 +1,4 @@
-# `@gwigz/ts-playground`
+# `@gwigz/web`
 
 Browser-based TypeScript-to-SLua playground. Write TypeScript with full autocomplete for SLua/LSL APIs and see the compiled Luau output in real time.
 

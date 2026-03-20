@@ -7,7 +7,7 @@ import { tsLibs } from "./ts-libs"
 
 loader.config({ monaco })
 
-// Vitesse Dark theme — matches shiki `vitesse-dark` used on the homepage
+// Vitesse Dark theme
 monaco.editor.defineTheme("vitesse-dark", {
   base: "vs-dark",
   inherit: false,

@@ -44,7 +44,6 @@
   --sidebar-accent-foreground: oklch(0.855 0 0);
   --sidebar-border: oklch(0.315 0 0);
   --sidebar-ring: oklch(0.515 0.165 240);
-  /* Accent — warm ochre, like syntax-highlighted function names */
   --highlight: oklch(0.72 0.12 70);
   --surface-glass: oklch(0.14 0 0 / 0.6);
   --surface-glass-border: oklch(0.3 0 0 / 0.35);
@@ -137,13 +136,13 @@
   }
 }
 
-/* Hero — staggered entrance */
+/* Hero */
 .hero-stagger {
   animation: fade-in-up 0.7s ease-out both;
   animation-delay: calc(var(--stagger, 0) * 0.1s + 0.1s);
 }
 
-/* Twoslash — adapted from @shikijs/twoslash/style-rich.css */
+/* Twoslash */
 .twoslash .twoslash-hover {
   border-bottom: 1px dotted transparent;
   transition: border-color 0.3s;
@@ -188,7 +187,7 @@
   overflow: visible;
 }
 
-/* Portal-cloned popups — no collapse, styled independently */
+/* Portal-cloned popups */
 .twoslash-portal .twoslash-popup-container {
   display: inline-flex;
   flex-direction: column;

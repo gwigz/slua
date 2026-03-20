@@ -33,7 +33,7 @@ export function CodeShowcase() {
         style={inView ? { animation: "fade-in-up 0.6s ease-out forwards" } : undefined}
       >
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-16 items-center">
-          {/* Left side — text */}
+          {/* Left side */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             <span
               className="text-xs font-medium uppercase tracking-widest"
@@ -117,7 +117,7 @@ export function CodeShowcase() {
             </p>
           </div>
 
-          {/* Right side — code blocks */}
+          {/* Right side */}
           <div className="lg:col-span-3 flex flex-col gap-4">
             <CodeBlock label="TypeScript" html={tsHtml} />
             <CodeBlock label="SLua" html={luaHtml} />

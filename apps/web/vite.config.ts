@@ -155,7 +155,7 @@ LLEvents.on("touch_start", (events) => {
 const isValidCommand = (command: string) =>
   ["bite", "scratch", "pounce"].includes(command)`
 
-  // Lazily initialized — shared between the two virtual modules
+  // Lazily initialized
   let sharedInit: Promise<{
     codeToHtml: (typeof import("shiki"))["codeToHtml"]
     transformerTwoslash: (typeof import("@shikijs/twoslash"))["transformerTwoslash"]
@@ -235,9 +235,15 @@ const isValidCommand = (command: string) =>
     resolveId(id) {
       if (id === "virtual:twoslash-blocks") return "\0virtual:twoslash-blocks"
       if (id === "virtual:hero-preview") return "\0virtual:hero-preview"
+      if (id === "virtual:quickstart-blocks") return "\0virtual:quickstart-blocks"
     },
     async load(id) {
-      if (id !== "\0virtual:twoslash-blocks" && id !== "\0virtual:hero-preview") return
+      if (
+        id !== "\0virtual:twoslash-blocks" &&
+        id !== "\0virtual:hero-preview" &&
+        id !== "\0virtual:quickstart-blocks"
+      )
+        return
 
       const { codeToHtml, transformerTwoslash, rendererRich, transpileToLua } = await getShared()
 
@@ -246,7 +252,7 @@ const isValidCommand = (command: string) =>
         twoslashOptions: { extraFiles: twoslashExtraFiles },
       })
 
-      // Hero preview — Shiki + twoslash
+      // Hero preview
       if (id === "\0virtual:hero-preview") {
         const heroLua = transpileToLua(HERO_TS)
 
@@ -265,7 +271,7 @@ const isValidCommand = (command: string) =>
         ].join("\n")
       }
 
-      // Showcase blocks — Shiki + twoslash
+      // Showcase blocks
       const LUA_CODE = transpileToLua(TS_CODE)
 
       const [tsHtml, luaHtml] = await Promise.all([

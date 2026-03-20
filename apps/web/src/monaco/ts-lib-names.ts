@@ -1,5 +1,3 @@
-/** Curated TypeScript lib file names — single source of truth for both the
- *  browser worker (via ts-libs.ts) and the build-time twoslash plugin. */
 export const TS_LIB_NAMES = [
   "lib.es5.d.ts",
   "lib.es2015.core.d.ts",

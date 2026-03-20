@@ -1,4 +1,5 @@
 import { useRef } from "react"
+import { IconBraces, IconPackage, IconArrowsExchange } from "@tabler/icons-react"
 import { tsHtml, luaHtml } from "virtual:twoslash-blocks"
 import { useInView } from "~/lib/use-in-view"
 import { useTwoslashPortal } from "~/lib/use-twoslash-portal"
@@ -49,18 +50,56 @@ export function CodeShowcase() {
                 script for Second Life. SLua has decent tooling, but this lets you stay in the
                 ecosystem you already know.
               </p>
-              <ul className="flex flex-col gap-2 text-sm sm:text-base text-muted-foreground pl-1">
+              <div className="flex flex-col gap-2.5">
                 {[
-                  "Generics, mapped types, and conditional types beyond Luau's type system",
-                  "npm linters, formatters, and editor configs carry over unchanged",
-                  "Import/export module system across scripts",
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="size-1.5 shrink-0 rounded-full bg-[var(--highlight)]" />
-                    {item}
-                  </li>
+                  {
+                    icon: IconBraces,
+                    text: "Generics, mapped types, and conditional types beyond Luau's type system",
+                  },
+                  {
+                    icon: IconPackage,
+                    text: (
+                      <>
+                        npm linters, formatters, and editor configs (such as{" "}
+                        <a
+                          href="https://oxc.rs/docs/guide/usage/linter"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[var(--highlight)] hover:underline"
+                        >
+                          oxlint
+                        </a>
+                        {" "}and{" "}
+                        <a
+                          href="https://oxc.rs/docs/guide/usage/formatter"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[var(--highlight)] hover:underline"
+                        >
+                          oxfmt
+                        </a>
+                        ) carry over unchanged
+                      </>
+                    ),
+                  },
+                  {
+                    icon: IconArrowsExchange,
+                    text: "Import/export module system across scripts",
+                  },
+                ].map(({ icon: Icon, text }, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 rounded-lg border border-white/[0.04] bg-white/[0.02] px-3.5 py-3"
+                  >
+                    <Icon
+                      size={18}
+                      className="shrink-0 mt-0.5 text-[var(--highlight)]"
+                      stroke={1.5}
+                    />
+                    <span className="text-sm text-muted-foreground leading-snug">{text}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
 
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">

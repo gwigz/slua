@@ -1,8 +1,8 @@
 # `@gwigz/slua-*`
 
-TypeScript-to-SLua transpiler for Second Life scripting. Write type-safe code in TypeScript, compile to clean [SLua](https://wiki.secondlife.com/wiki/SLua) (Luau) with minimal to zero runtime overhead.
+LSL type definitions and a [TypeScript-to-Lua](https://typescripttolua.github.io) plugin for Second Life. Full editor support, compile-time safety, minimal runtime overhead.
 
-Built on [TypeScriptToLua](https://typescripttolua.github.io) with auto-generated type definitions from the official SLua/LSL YAML definitions.
+If TypeScript is where you're productive, you don't need to learn a new language to script for Second Life. SLua has decent tooling, but this lets you stay in the ecosystem you already know.
 
 ## Packages
 
@@ -17,8 +17,6 @@ Install the packages:
 
 ```bash
 npm install --save-dev typescript typescript-to-lua @gwigz/slua-types @gwigz/slua-tstl-plugin
-# or
-bun add --dev typescript typescript-to-lua @gwigz/slua-types @gwigz/slua-tstl-plugin
 ```
 
 Create a `tsconfig.json` in your project:
@@ -35,14 +33,35 @@ Create a `tsconfig.json` in your project:
   "tstl": {
     "luaTarget": "Luau",
     "luaLibImport": "inline",
-    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }]
+    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }],
+    "extension": "slua"
   }
 }
 ```
 
 See [TypeScriptToLua configuration](https://typescripttolua.github.io/docs/configuration) for more config options.
 
-Write TypeScript:
+### Editor & GitHub setup (optional)
+
+Map `.slua` to Lua highlighting in VS Code (and forks):
+
+```json
+// .vscode/settings.json
+{
+  "files.associations": {
+    "*.slua": "lua"
+  }
+}
+```
+
+Tell GitHub to highlight `.slua` files as Lua:
+
+```
+# .gitattributes
+*.slua linguist-language=Lua
+```
+
+### Write TypeScript, compile to SLua
 
 ```typescript
 const owner = ll.GetOwner()
@@ -60,23 +79,21 @@ LLEvents.on("touch_start", (events) => {
 })
 ```
 
-TypeScript will provide types and autocomplete for `LLEvents`, `ll.*`, etc.
-
-Compile with i.e. `npx tstl` or `bunx tstl` to get Lua:
+Compile with `npx tstl` (or `bunx tstl`, `pnpm tstl`, etc.) to get:
 
 ```lua
 local owner = ll.GetOwner()
 
 LLEvents:on("touch_start", function(events)
-  for ____, event in ipairs(events) do
-    local key = event:getKey()
+    for ____, event in ipairs(events) do
+        local key = event:getKey()
 
-    if key == owner then
-      ll.Say(0, ("Hello secondlife:///app/agent/" .. tostring(key)) .. "/about!")
+        if key == owner then
+            ll.Say(0, ("Hello secondlife:///app/agent/" .. tostring(key)) .. "/about!")
 
-      return
+            return
+        end
     end
-  end
 end)
 ```
 

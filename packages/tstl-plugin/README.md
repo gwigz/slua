@@ -46,6 +46,7 @@ String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib 
 | `str.repeat(n)`        | `string.rep(str, n)`                      |
 | `str.substring(start)` | `string.sub(str, start + 1)`              |
 | `str.substring(s, e)`  | `string.sub(str, s + 1, e)`               |
+| `str.replaceAll(a, b)` | `ll.ReplaceSubString(str, a, b, 0)`       |
 
 > [!NOTE]
 > `str.indexOf(x, fromIndex)` and `str.startsWith(x, position)` with a second argument fall through to TSTL's default handling. Similarly, `str.split()` with no separator is not transformed.

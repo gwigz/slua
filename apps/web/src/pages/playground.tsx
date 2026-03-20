@@ -164,7 +164,7 @@ export function Playground() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
+    <div className="flex flex-col h-[calc(100vh-45px)] bg-background text-foreground">
       <header className="flex items-center justify-between px-4 py-2 border-b border-border shrink-0">
         <span className="font-semibold text-sm">TypeScript to SLua Playground</span>
         <TooltipProvider>

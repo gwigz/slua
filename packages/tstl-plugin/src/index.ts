@@ -491,6 +491,25 @@ const CALL_TRANSFORMS: CallTransform[] = [
       return createNamespacedCall("string", "sub", args, node)
     },
   },
+  // str.replaceAll(search, replacement) -> ll.ReplaceSubString(str, search, replacement, 0)
+  {
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "replaceAll", 2),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+
+      const search = context.transformExpression(node.arguments[0])
+      const replacement = context.transformExpression(node.arguments[1])
+
+      return createNamespacedCall(
+        "ll",
+        "ReplaceSubString",
+        [str, search, replacement, tstl.createNumericLiteral(0)],
+        node,
+      )
+    },
+  },
   // arr.includes(val) -> table.find(arr, val) ~= nil
   {
     match: (node, checker) => isMethodCall(node, checker, isArrayType, "includes", 1),

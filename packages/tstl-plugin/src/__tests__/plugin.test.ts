@@ -444,6 +444,14 @@ describe("string Luau stdlib transforms", () => {
 
     expect(lua).toContain("string.sub(s, i + 1)")
   })
+
+  it("translates replaceAll to ll.ReplaceSubString with count 0", () => {
+    const lua = transpileSimple(
+      'interface String { replaceAll(searchValue: string, replaceValue: string): string }\ndeclare const s: string;\nconst r = s.replaceAll("old", "new")',
+    )
+
+    expect(lua).toContain('ll.ReplaceSubString(s, "old", "new", 0)')
+  })
 })
 
 describe("array transforms", () => {

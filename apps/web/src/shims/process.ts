@@ -28,7 +28,7 @@ const process = {
     throw new Error("process.chdir is not supported")
   },
   umask: () => 0,
-  nextTick: (fn: Function, ...args: unknown[]) => setTimeout(() => fn(...args), 0),
+  nextTick: (fn: (...args: unknown[]) => void, ...args: unknown[]) => setTimeout(() => fn(...args), 0),
   platform: typeof navigator !== "undefined" && /Mac/.test(navigator.platform) ? "darwin" : "linux",
 }
 

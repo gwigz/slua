@@ -371,11 +371,19 @@ function addBaseClass(sf: SourceFile, bc: BaseClass, ctor?: ConstructorInfo) {
 
     sf.addTypeAlias({ name: bc.name, type: ctor.className, hasDeclareKeyword: true })
   } else {
-    const comment = bc.comment ? `${sanitizeComment(bc.comment)}\n@noSelf` : "@noSelf"
+    const useSelf = SELF_CLASSES.has(bc.name)
+    const comment =
+      bc.comment && useSelf
+        ? sanitizeComment(bc.comment)
+        : bc.comment
+          ? `${sanitizeComment(bc.comment)}\n@noSelf`
+          : useSelf
+            ? undefined
+            : "@noSelf"
     const iface = sf.addInterface({
       name: bc.name,
       hasDeclareKeyword: true,
-      docs: [{ description: comment }],
+      ...(comment ? { docs: [{ description: comment }] } : {}),
     })
     addBaseClassMembers(iface, bc)
   }
@@ -415,7 +423,7 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
 }
 
 /** Classes that use colon-style (self) method calls at runtime */
-const SELF_CLASSES = new Set(["LLEvents", "LLTimers"])
+const SELF_CLASSES = new Set(["LLEvents", "LLTimers", "DetectedEvent"])
 
 function addClassDef(sf: SourceFile, cls: ClassDef) {
   const useSelf = SELF_CLASSES.has(cls.name)

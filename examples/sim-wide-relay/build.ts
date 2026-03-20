@@ -29,7 +29,7 @@ for (const script of SCRIPTS) {
     [resolve(`src/${script}.ts`), resolve("../../packages/types/index.d.ts")],
     {
       ...BASE_OPTIONS,
-      luaBundle: `${script}.lua`,
+      luaBundle: `${script}.slua`,
       luaBundleEntry: resolve(`src/${script}.ts`),
     },
   )
@@ -55,4 +55,4 @@ if (hasErrors) {
   process.exit(1)
 }
 
-console.log(`Built ${SCRIPTS.map((s) => `dist/${s}.lua`).join(", ")}`)
+console.log(`Built ${SCRIPTS.map((s) => `dist/${s}.slua`).join(", ")}`)

@@ -426,6 +426,24 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("declare interface DetectedEvent {")
   })
 
+  it("does not emit @noSelf on DetectedEvent (uses colon-style self calls)", () => {
+    // Extract the DetectedEvent interface block
+    const match = output.match(
+      /(\/\*\*[\s\S]*?\*\/\s*)?declare interface DetectedEvent \{[\s\S]*?\n\}/,
+    )
+
+    expect(match).not.toBeNull()
+
+    const block = match![0]
+
+    // Should NOT contain @noSelf
+    expect(block).not.toContain("@noSelf")
+
+    // Should contain methods (injected from detected-semantics LSL functions)
+    expect(block).toContain("getKey(")
+    expect(block).toContain("getName(")
+  })
+
   it("contains @customConstructor annotations", () => {
     expect(output).toContain("@customConstructor vector.create")
     expect(output).toContain("@customConstructor quaternion.create")

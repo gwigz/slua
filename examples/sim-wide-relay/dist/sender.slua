@@ -29,12 +29,13 @@ ____exports.PRIVATE_CHANNEL = -1731704569
 ____exports.IGNORED_AVATARS = {}
 --- Time bucket size in seconds for message signing
 local SIGN_WINDOW = 2
+local SIGN_NONCE = -1977872753
 function ____exports.sign(payload)
     local bucket = ll.GetUnixTime() // SIGN_WINDOW
     return (string.sub(
         ll.MD5String(
             (tostring(bucket) .. "|") .. payload,
-            ____exports.PRIVATE_CHANNEL
+            SIGN_NONCE
         ),
         1,
         8
@@ -50,14 +51,14 @@ function ____exports.verify(text)
     if hash == string.sub(
         ll.MD5String(
             (tostring(bucket) .. "|") .. payload,
-            ____exports.PRIVATE_CHANNEL
+            SIGN_NONCE
         ),
         1,
         8
     ) or hash == string.sub(
         ll.MD5String(
             (tostring(bucket - 1) .. "|") .. payload,
-            ____exports.PRIVATE_CHANNEL
+            SIGN_NONCE
         ),
         1,
         8

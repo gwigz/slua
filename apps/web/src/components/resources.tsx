@@ -7,7 +7,6 @@ import {
   IconBrandGithub,
 } from "@tabler/icons-react"
 import { Card, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
-import { Separator } from "~/components/ui/separator"
 import { useInView } from "~/lib/use-in-view"
 
 const OFFICIAL = [
@@ -114,8 +113,6 @@ export function Resources() {
               ))}
             </div>
           </div>
-
-          <Separator className="bg-white/[0.06]" />
 
           <div>
             <h3 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">

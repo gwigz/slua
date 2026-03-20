@@ -10,7 +10,7 @@ function CodeBlock({ label, html }: { label: string; html: string }) {
   useTwoslashPortal(contentRef, [html])
 
   return (
-    <div className="overflow-hidden rounded-lg border border-white/6 bg-[#0d0d0d]">
+    <div className="overflow-x-auto rounded-lg border border-white/6 bg-[#0d0d0d]">
       <div className="border-b border-white/6 px-4 py-2">
         <span className="text-xs font-medium text-muted-foreground">{label}</span>
       </div>

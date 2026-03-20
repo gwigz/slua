@@ -5,6 +5,7 @@ import sluaTypes from "@gwigz/slua-types/index.d.ts?raw"
 import langExt from "@typescript-to-lua/language-extensions/index.d.ts?raw"
 import lualibFiles from "virtual:tstl-lualib"
 import { tsLibs } from "./monaco/ts-libs"
+import { formatLua } from "./format-lua"
 
 // Patch ts.sys.readFile so TSTL can resolve lualib .lua / .json files that
 // live inside node_modules at build time but aren't on a real filesystem here.
@@ -70,7 +71,9 @@ self.addEventListener("message", (event: MessageEvent<string>) => {
       TSTL_OPTIONS,
     )
 
-    const lua = result.transpiledFiles.find((file) => file.outPath === "main.lua")?.lua ?? ""
+    const lua = formatLua(
+      result.transpiledFiles.find((file) => file.outPath === "main.lua")?.lua ?? "",
+    )
 
     const diagnostics: WorkerDiagnostic[] = result.diagnostics
       .filter(

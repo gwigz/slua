@@ -24,7 +24,7 @@ export function Hero() {
     <section className="relative flex items-center justify-center overflow-hidden bg-[#0a0a0a] pt-14 pb-16 sm:pt-20 sm:pb-24">
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
-        {/* Grid + dot pattern — masked to fade at edges */}
+        {/* Grid + dot pattern */}
         <div
           className="absolute inset-0"
           style={{
@@ -36,18 +36,18 @@ export function Hero() {
           }}
         />
 
-        {/* Blue glow — TypeScript */}
+        {/* Blue glow */}
         <div
-          className="absolute -top-32 right-[12%] h-[600px] w-[600px] rounded-full"
+          className="absolute -top-32 right-[12%] h-150 w-150 rounded-full"
           style={{
             background: "radial-gradient(circle, var(--primary), transparent 70%)",
             opacity: 0.045,
           }}
         />
 
-        {/* Ochre glow — SLua */}
+        {/* Ochre glow */}
         <div
-          className="absolute -bottom-32 left-[12%] h-[500px] w-[500px] rounded-full"
+          className="absolute -bottom-32 left-[12%] h-125 w-125 rounded-full"
           style={{
             background: "radial-gradient(circle, var(--highlight), transparent 70%)",
             opacity: 0.06,
@@ -57,11 +57,11 @@ export function Hero() {
         {/* Floating logos */}
         <TypeScriptLogo
           size={128}
-          className="absolute top-[18%] right-[15%] text-primary/[0.08] animate-[hero-float_14s_ease-in-out_infinite]"
+          className="absolute top-[10%] left-[8%] text-primary/[0.08] animate-[hero-float_14s_ease-in-out_infinite]"
         />
         <LuauLogo
           size={120}
-          className="absolute bottom-[20%] left-[14%] text-[var(--highlight)] opacity-[0.08] animate-[hero-float-alt_16s_ease-in-out_infinite]"
+          className="absolute top-[18%] right-[8%] text-(--highlight) opacity-[0.08] animate-[hero-float-alt_16s_ease-in-out_infinite]"
         />
       </div>
 

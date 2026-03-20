@@ -15,6 +15,14 @@ declare module "virtual:twoslash-blocks" {
   export const luaHtml: string
 }
 
+declare module "virtual:quickstart-blocks" {
+  export const install: Record<string, string>
+  export const tsconfig: string
+  export const compile: Record<string, string>
+  export const vscodeSettings: string
+  export const gitattributes: string
+}
+
 declare module "virtual:tstl-lualib" {
   const files: Record<string, string>
   export default files

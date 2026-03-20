@@ -6,7 +6,7 @@ export function Nav() {
   const isPlayground = location.pathname === "/playground"
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 border-b border-white/[0.06] bg-[#0a0a0a]/80 backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 border-b border-white/6 bg-[#0a0a0a]/50 backdrop-blur-xl">
       <Link
         to="/"
         className="font-display text-sm font-semibold tracking-tight text-foreground hover:text-white transition-colors"

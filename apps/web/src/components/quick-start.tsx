@@ -2,6 +2,13 @@ import { useState, useRef, useEffect } from "react"
 import { IconCopy, IconCheck } from "@tabler/icons-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "~/components/ui/tabs"
 import { useInView } from "~/lib/use-in-view"
+import {
+  install as installHtml,
+  tsconfig as tsconfigHtml,
+  compile as compileHtml,
+  vscodeSettings as vscodeSettingsHtml,
+  gitattributes as gitattributesHtml,
+} from "virtual:quickstart-blocks"
 
 const PACKAGES = ["typescript", "typescript-to-lua", "@gwigz/slua-types", "@gwigz/slua-tstl-plugin"]
 
@@ -15,6 +22,14 @@ const MANAGERS = [
     run: "deno run",
   },
 ] as const
+
+const VSCODE_SETTINGS = `{
+  "files.associations": {
+    "*.slua": "lua"
+  }
+}`
+
+const GITATTRIBUTES = `*.slua linguist-language=Lua`
 
 const TSCONFIG = `{
   "compilerOptions": {
@@ -35,7 +50,7 @@ const TSCONFIG = `{
   }
 }`
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text, className }: { text: string; className?: string }) {
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -57,7 +72,7 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="absolute top-2.5 right-2.5 p-1.5 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+      className={`p-1.5 rounded text-muted-foreground/50 hover:text-muted-foreground transition-colors ${className ?? "absolute top-2.5 right-2.5"}`}
     >
       {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
     </button>
@@ -67,10 +82,12 @@ function CopyButton({ text }: { text: string }) {
 function Step({
   number,
   title,
+  last,
   children,
 }: {
   number: number
-  title: string
+  title: React.ReactNode
+  last?: boolean
   children: React.ReactNode
 }) {
   return (
@@ -79,9 +96,9 @@ function Step({
         <div className="flex size-7 shrink-0 items-center justify-center rounded-full border border-[var(--highlight)]/30 text-xs font-medium text-[var(--highlight)]">
           {number}
         </div>
-        <div className="mt-2 w-px grow bg-white/[0.06]" />
+        {!last && <div className="mt-2 w-px grow bg-white/6" />}
       </div>
-      <div className="flex-1 pb-10">
+      <div className={`flex-1 ${last ? "" : "pb-10"}`}>
         <h3 className="text-sm font-medium text-foreground">{title}</h3>
         <div className="mt-3">{children}</div>
       </div>
@@ -89,18 +106,26 @@ function Step({
   )
 }
 
-function CodeBlock({ code, label }: { code: string; label?: string }) {
+function CodeBlock({ code, html, label }: { code: string; html?: string; label?: string }) {
   return (
     <div className="relative overflow-hidden rounded-lg border border-white/6 bg-[#0d0d0d]">
       {label && (
-        <div className="border-b border-white/6 px-4 py-2">
+        <div className="flex items-center justify-between border-b border-white/6 px-4 py-2">
           <span className="text-xs font-medium text-muted-foreground">{label}</span>
+          <CopyButton text={code} className="-mr-1.5" />
         </div>
       )}
-      <pre className="p-4 text-sm overflow-x-auto font-mono text-muted-foreground">
-        <code>{code}</code>
-      </pre>
-      <CopyButton text={code} />
+      {html ? (
+        <div
+          className="p-4 text-sm overflow-x-auto font-mono [&_pre]:bg-transparent! [&_pre]:m-0 [&_pre]:p-0 [&_code]:text-sm"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : (
+        <pre className="p-4 text-sm overflow-x-auto font-mono text-muted-foreground">
+          <code>{code}</code>
+        </pre>
+      )}
+      {!label && <CopyButton text={code} />}
     </div>
   )
 }
@@ -153,13 +178,20 @@ export function QuickStart() {
             </TabsList>
             {MANAGERS.map((m) => (
               <TabsContent key={m.label} value={m.label}>
-                <CodeBlock code={m.install} />
+                <CodeBlock code={m.install} html={installHtml[m.label]} />
               </TabsContent>
             ))}
           </Step>
 
-          <Step number={2} title="Create tsconfig.json">
-            <CodeBlock code={TSCONFIG} label="tsconfig.json" />
+          <Step
+            number={2}
+            title={
+              <>
+                Create <code>tsconfig.json</code>
+              </>
+            }
+          >
+            <CodeBlock code={TSCONFIG} html={tsconfigHtml} label="tsconfig.json" />
             <p className="mt-2 text-xs text-muted-foreground/60">
               See{" "}
               <a
@@ -174,8 +206,35 @@ export function QuickStart() {
             </p>
           </Step>
 
-          <Step number={3} title="Write TypeScript, compile to SLua">
-            <CodeBlock code={`${manager.run} tstl`} />
+          <Step
+            number={3}
+            title={
+              <>
+                Editor &amp; GitHub setup <span className="text-muted-foreground/40">(optional)</span>
+              </>
+            }
+          >
+            <p className="text-xs text-muted-foreground/60 mb-3">
+              Map <code>.slua</code> to Lua highlighting in{" "}
+              <a
+                href="https://code.visualstudio.com/docs/getstarted/settings"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--highlight)]/70 hover:underline"
+              >
+                VS Code
+              </a>{" "}
+              and forks:
+            </p>
+            <CodeBlock code={VSCODE_SETTINGS} html={vscodeSettingsHtml} label=".vscode/settings.json" />
+            <p className="text-xs text-muted-foreground/60 mt-3 mb-3">
+              Tell GitHub to highlight <code>.slua</code> files as Lua:
+            </p>
+            <CodeBlock code={GITATTRIBUTES} html={gitattributesHtml} label=".gitattributes" />
+          </Step>
+
+          <Step number={4} title="Write TypeScript, compile to SLua" last>
+            <CodeBlock code={`${manager.run} tstl`} html={compileHtml[manager.label]} />
           </Step>
         </Tabs>
       </div>

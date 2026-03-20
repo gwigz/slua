@@ -120,6 +120,7 @@ const nodeGlobalsIIFE = `;(function() {
  * module so the browser never needs to load Shiki or run the TS compiler.
  */
 import { TS_LIB_NAMES } from "./src/monaco/ts-lib-names"
+import { formatLua } from "./src/format-lua"
 
 function twoslashCodeBlocks(): Plugin {
   const sluaTypes = fs
@@ -210,8 +211,9 @@ const isValidCommand = (command: string) =>
             transpileOpts,
           )
 
-          const lua =
-            result.transpiledFiles.find((f) => f.outPath === "main.lua")?.lua?.trimEnd() ?? ""
+          const lua = formatLua(
+            result.transpiledFiles.find((f) => f.outPath === "main.lua")?.lua?.trimEnd() ?? "",
+          )
 
           if (!lua) {
             const msgs = result.diagnostics.map((d) =>
@@ -268,6 +270,92 @@ const isValidCommand = (command: string) =>
         return [
           `export const tsHtml = ${JSON.stringify(heroTsHtml)};`,
           `export const luaHtml = ${JSON.stringify(heroLuaHtml)};`,
+        ].join("\n")
+      }
+
+      // Quick-start blocks — plain Shiki (no twoslash needed)
+      if (id === "\0virtual:quickstart-blocks") {
+        const pkgs = [
+          "typescript",
+          "typescript-to-lua",
+          "@gwigz/slua-types",
+          "@gwigz/slua-tstl-plugin",
+        ]
+
+        const managers = [
+          {
+            label: "npm",
+            install: `npm install --save-dev \\\n  ${pkgs.join(" \\\n  ")}`,
+            run: "npx",
+          },
+          {
+            label: "pnpm",
+            install: `pnpm add -D \\\n  ${pkgs.join(" \\\n  ")}`,
+            run: "pnpm",
+          },
+          {
+            label: "bun",
+            install: `bun add --dev \\\n  ${pkgs.join(" \\\n  ")}`,
+            run: "bunx",
+          },
+          {
+            label: "deno",
+            install: `deno add --dev \\\n  ${pkgs.map((p) => `npm:${p}`).join(" \\\n  ")}`,
+            run: "deno run",
+          },
+        ]
+
+        const tsconfig = `{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "strict": true,
+    "moduleDetection": "force",
+    "types": [
+      "@typescript-to-lua/language-extensions",
+      "@gwigz/slua-types"
+    ]
+  },
+  "tstl": {
+    "luaTarget": "Luau",
+    "luaLibImport": "inline",
+    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }],
+    "extension": "slua"
+  }
+}`
+
+        const vscodeSettings = `{
+  "files.associations": {
+    "*.slua": "lua"
+  }
+}`
+
+        const gitattributes = `*.slua linguist-language=Lua`
+
+        const [installHtmls, tsconfigHtml, compileHtmls, vscodeSettingsHtml, gitattributesHtml] =
+          await Promise.all([
+            Promise.all(
+              managers.map((m) => codeToHtml(m.install, { lang: "bash", theme: "vitesse-dark" })),
+            ),
+            codeToHtml(tsconfig, { lang: "jsonc", theme: "vitesse-dark" }),
+            Promise.all(
+              managers.map((m) =>
+                codeToHtml(`${m.run} tstl`, { lang: "bash", theme: "vitesse-dark" }),
+              ),
+            ),
+            codeToHtml(vscodeSettings, { lang: "jsonc", theme: "vitesse-dark" }),
+            codeToHtml(gitattributes, { lang: "ini", theme: "vitesse-dark" }),
+          ])
+
+        const install = Object.fromEntries(managers.map((m, i) => [m.label, installHtmls[i]]))
+        const compile = Object.fromEntries(managers.map((m, i) => [m.label, compileHtmls[i]]))
+
+        return [
+          `export const install = ${JSON.stringify(install)};`,
+          `export const tsconfig = ${JSON.stringify(tsconfigHtml)};`,
+          `export const compile = ${JSON.stringify(compile)};`,
+          `export const vscodeSettings = ${JSON.stringify(vscodeSettingsHtml)};`,
+          `export const gitattributes = ${JSON.stringify(gitattributesHtml)};`,
         ].join("\n")
       }
 

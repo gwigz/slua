@@ -134,7 +134,7 @@ export function Playground() {
 
       worker.terminate()
     }
-  }, [])
+  }, [initialCode])
 
   const handleMount: OnMount = (editor) => {
     editorRef.current = editor

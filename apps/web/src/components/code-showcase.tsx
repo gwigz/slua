@@ -68,8 +68,8 @@ export function CodeShowcase() {
                           className="text-[var(--highlight)] hover:underline"
                         >
                           oxlint
-                        </a>
-                        {" "}and{" "}
+                        </a>{" "}
+                        and{" "}
                         <a
                           href="https://oxc.rs/docs/guide/usage/formatter"
                           target="_blank"

@@ -371,20 +371,14 @@ function addBaseClass(sf: SourceFile, bc: BaseClass, ctor?: ConstructorInfo) {
 
     sf.addTypeAlias({ name: bc.name, type: ctor.className, hasDeclareKeyword: true })
   } else {
-    const useSelf = SELF_CLASSES.has(bc.name)
-    const comment =
-      bc.comment && useSelf
-        ? sanitizeComment(bc.comment)
-        : bc.comment
-          ? `${sanitizeComment(bc.comment)}\n@noSelf`
-          : useSelf
-            ? undefined
-            : "@noSelf"
+    const comment = buildInterfaceComment(bc.name, bc.comment)
+
     const iface = sf.addInterface({
       name: bc.name,
       hasDeclareKeyword: true,
       ...(comment ? { docs: [{ description: comment }] } : {}),
     })
+
     addBaseClassMembers(iface, bc)
   }
 }
@@ -425,21 +419,26 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
 /** Classes that use colon-style (self) method calls at runtime */
 const SELF_CLASSES = new Set(["LLEvents", "LLTimers", "DetectedEvent"])
 
+/** Build a JSDoc comment, conditionally omitting @noSelf for self-call classes. */
+function buildInterfaceComment(name: string, comment: string | undefined): string | undefined {
+  const useSelf = SELF_CLASSES.has(name)
+
+  if (comment && useSelf) return sanitizeComment(comment)
+  if (comment) return `${sanitizeComment(comment)}\n@noSelf`
+  if (useSelf) return undefined
+
+  return "@noSelf"
+}
+
 function addClassDef(sf: SourceFile, cls: ClassDef) {
-  const useSelf = SELF_CLASSES.has(cls.name)
-  const comment =
-    cls.comment && useSelf
-      ? sanitizeComment(cls.comment)
-      : cls.comment
-        ? `${sanitizeComment(cls.comment)}\n@noSelf`
-        : useSelf
-          ? undefined
-          : "@noSelf"
+  const comment = buildInterfaceComment(cls.name, cls.comment)
+
   const iface = sf.addInterface({
     name: cls.name,
     hasDeclareKeyword: true,
     ...(comment ? { docs: [{ description: comment }] } : {}),
   })
+
   for (const prop of cls.properties ?? []) {
     iface.addProperty({
       name: prop.name,
@@ -448,6 +447,7 @@ function addClassDef(sf: SourceFile, cls: ClassDef) {
       ...(prop.comment ? { docs: [{ description: sanitizeComment(prop.comment) }] } : {}),
     })
   }
+
   for (const method of cls.methods ?? []) {
     // Methods that take LLEventName + LLEventHandler become generic over LLEventMap:
     // <E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E]
@@ -577,9 +577,59 @@ function addModule(sf: SourceFile, mod: ModuleDef, className?: string) {
   addModuleMembers(ns, mod)
 }
 
+/**
+ * Functions where omitting the last optional parameter changes the return
+ * from variadic to scalar (e.g. `byte(s)` → `number`, `byte(s,i,j)` → `number[]`).
+ * Most variadic functions (match, unpack, etc.) always return multiple values
+ * regardless of optional params, so they must NOT get this treatment.
+ */
+const VARIADIC_OVERLOAD_FUNCTIONS = new Set(["byte", "codepoint"])
+
+/**
+ * Generate TypeScript overloads for a variadic-return function whose last
+ * optional parameter controls single-vs-multi return semantics.
+ * e.g. `byte(s: string, i?: number, j?: number): ...number` becomes:
+ *   - `byte(s: string, i?: number): number`
+ *   - `byte(s: string, i: number, j: number): number[]`
+ */
+function addVariadicOverloads(ns: ModuleDeclaration, fn: FunctionDef) {
+  const baseType = mapType(fn.returnType!.slice(3).trim())
+  const params = fn.parameters ?? []
+  const docs = buildDocs(fn.comment, fn.deprecated)
+  const typeParameters = cleanTypeParams(fn.typeParameters)
+
+  // Overload 1: drop the last param (range-end) → returns single value
+  ns.addFunction({
+    name: fn.name,
+    isExported: true,
+    parameters: buildParams(params.slice(0, -1), false),
+    returnType: baseType,
+    typeParameters,
+    ...(docs.length > 0 ? { docs } : {}),
+  })
+
+  // Overload 2: all params required → returns array
+  const allRequiredParams = params.map((p) =>
+    p.type?.endsWith("?") ? { ...p, type: p.type.slice(0, -1) } : p,
+  )
+
+  ns.addFunction({
+    name: fn.name,
+    isExported: true,
+    parameters: buildParams(allRequiredParams, false),
+    returnType: `${baseType}[]`,
+    typeParameters,
+  })
+}
+
 function addModuleMembers(ns: ModuleDeclaration, mod: ModuleDef) {
   if (mod.functions) {
     for (const fn of mod.functions) {
+      if (fn.returnType?.startsWith("...") && VARIADIC_OVERLOAD_FUNCTIONS.has(fn.name)) {
+        addVariadicOverloads(ns, fn)
+        continue
+      }
+
       const docs = buildDocs(fn.comment, fn.deprecated)
 
       ns.addFunction({

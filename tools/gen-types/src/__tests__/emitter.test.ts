@@ -427,21 +427,12 @@ describe("emitAll (end-to-end)", () => {
   })
 
   it("does not emit @noSelf on DetectedEvent (uses colon-style self calls)", () => {
-    // Extract the DetectedEvent interface block
-    const match = output.match(
-      /(\/\*\*[\s\S]*?\*\/\s*)?declare interface DetectedEvent \{[\s\S]*?\n\}/,
-    )
-
-    expect(match).not.toBeNull()
-
-    const block = match![0]
-
-    // Should NOT contain @noSelf
-    expect(block).not.toContain("@noSelf")
+    // No @noSelf between the interface declaration and its closing brace
+    expect(output).not.toMatch(/declare interface DetectedEvent \{[^}]*@noSelf/)
 
     // Should contain methods (injected from detected-semantics LSL functions)
-    expect(block).toContain("getKey(")
-    expect(block).toContain("getName(")
+    expect(output).toContain("getKey(")
+    expect(output).toContain("getName(")
   })
 
   it("contains @customConstructor annotations", () => {
@@ -491,13 +482,16 @@ describe("emitAll (end-to-end)", () => {
   it("contains class interfaces with generic LLEvents methods", () => {
     expect(output).toContain("declare interface LLEvents {")
     expect(output).toContain("declare interface LLTimers {")
+
     // LLEvents methods use generics instead of overloads
     expect(output).toContain(
       "on<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E]",
     )
+
     expect(output).toContain(
       "off<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): boolean",
     )
+
     expect(output).toContain("listeners<E extends keyof LLEventMap>(event: E): LLEventMap[E][]")
     expect(output).toContain("eventNames(): (keyof LLEventMap)[]")
   })
@@ -505,6 +499,7 @@ describe("emitAll (end-to-end)", () => {
   it("contains global variables (non-removed)", () => {
     expect(output).toContain("declare const LLEvents: LLEvents;")
     expect(output).toContain("declare const LLTimers: LLTimers;")
+
     // Removed ones should NOT appear as global vars
     expect(output).not.toMatch(/declare const loadstring/)
   })

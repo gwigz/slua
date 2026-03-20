@@ -798,10 +798,9 @@ declare namespace Quaternion {
 /** String manipulation library. */
 /** @noSelf */
 declare namespace string {
-    /** Returns the numeric code of the byte at position i (default 1) in the input string. */
+    /** Returns the numeric code of every byte in the input string within the given range. */
     export function byte(s: string, i?: number): number;
 
-    /** Returns the numeric codes of every byte in the input string within the range [i, j]. */
     export function byte(s: string, i: number, j: number): number[];
 
     /** Returns a string containing characters for the given byte values. */
@@ -936,7 +935,9 @@ declare namespace utf8 {
     export function codes(s: string): LuaMultiReturn<[(this: void, arg0: string, arg1: number) => LuaMultiReturn<[number, number]>, string, number]>;
 
     /** Returns the Unicode codepoints in the specified range of the string. */
-    export function codepoint(s: string, i?: number, j?: number): number[];
+    export function codepoint(s: string, i?: number): number;
+
+    export function codepoint(s: string, i: number, j: number): number[];
 
     /** Returns the number of Unicode codepoints in the specified range of the string, or nil and error index. */
     export function len(s: string, i?: number, j?: number): LuaMultiReturn<[number | undefined, number | undefined]>;

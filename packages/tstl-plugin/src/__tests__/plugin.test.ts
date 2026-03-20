@@ -60,8 +60,6 @@ describe("ts-slua plugin", () => {
 
     expect(diagnostics).toHaveLength(0)
   })
-
-
 })
 
 describe("transpilation output", () => {
@@ -270,7 +268,7 @@ describe("JSON transforms", () => {
   })
 
   it("translates JSON.parse to lljson.decode", () => {
-    const lua = transpileSimple('declare const s: string;\nconst obj = JSON.parse(s)')
+    const lua = transpileSimple("declare const s: string;\nconst obj = JSON.parse(s)")
 
     expect(lua).toContain("lljson.decode(s)")
     expect(lua).not.toContain("JSON")
@@ -307,7 +305,7 @@ describe("string ll.* transforms", () => {
   })
 
   it("translates trim to ll.StringTrim with STRING_TRIM", () => {
-    const lua = transpileSimple('declare const s: string;\nconst x = s.trim()')
+    const lua = transpileSimple("declare const s: string;\nconst x = s.trim()")
 
     expect(lua).toContain("ll.StringTrim")
     expect(lua).toContain("STRING_TRIM")
@@ -315,7 +313,7 @@ describe("string ll.* transforms", () => {
 
   it("translates trimStart to ll.StringTrim with STRING_TRIM_HEAD", () => {
     const lua = transpileSimple(
-      'interface String { trimStart(): string; }\ndeclare const s: string;\nconst x = s.trimStart()',
+      "interface String { trimStart(): string; }\ndeclare const s: string;\nconst x = s.trimStart()",
     )
 
     expect(lua).toContain("ll.StringTrim")
@@ -324,7 +322,7 @@ describe("string ll.* transforms", () => {
 
   it("translates trimEnd to ll.StringTrim with STRING_TRIM_TAIL", () => {
     const lua = transpileSimple(
-      'interface String { trimEnd(): string; }\ndeclare const s: string;\nconst x = s.trimEnd()',
+      "interface String { trimEnd(): string; }\ndeclare const s: string;\nconst x = s.trimEnd()",
     )
 
     expect(lua).toContain("ll.StringTrim")
@@ -349,7 +347,9 @@ describe("string ll.* transforms", () => {
   })
 
   it("translates indexOf with expression fromIndex to string.find with + 1", () => {
-    const lua = transpileSimple('declare const s: string;\ndeclare const n: number;\nconst i = s.indexOf("x", n)')
+    const lua = transpileSimple(
+      'declare const s: string;\ndeclare const n: number;\nconst i = s.indexOf("x", n)',
+    )
 
     expect(lua).toContain('string.find(s, "x", n + 1, true)')
     expect(lua).toContain("or 0) - 1")
@@ -410,17 +410,13 @@ describe("string Luau stdlib transforms", () => {
   })
 
   it("translates substring(start) to string.sub with constant folding", () => {
-    const lua = transpileSimple(
-      "declare const s: string;\nconst x = s.substring(5)",
-    )
+    const lua = transpileSimple("declare const s: string;\nconst x = s.substring(5)")
 
     expect(lua).toContain("string.sub(s, 6)")
   })
 
   it("translates substring(start, end) to string.sub with constant folding", () => {
-    const lua = transpileSimple(
-      "declare const s: string;\nconst x = s.substring(1, 5)",
-    )
+    const lua = transpileSimple("declare const s: string;\nconst x = s.substring(1, 5)")
 
     expect(lua).toContain("string.sub(s, 2, 5)")
   })

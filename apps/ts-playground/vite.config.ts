@@ -115,6 +115,184 @@ const nodeGlobalsIIFE = `;(function() {
 })();`
 
 /**
+ * Pre-render the homepage code showcase blocks at build time using Shiki with
+ * twoslash for real TypeScript type inference. Serves the result as a virtual
+ * module so the browser never needs to load Shiki or run the TS compiler.
+ */
+import { TS_LIB_NAMES } from "./src/monaco/ts-lib-names"
+
+function twoslashCodeBlocks(): Plugin {
+  const sluaTypes = fs
+    .readFileSync(resolve("../../packages/types/index.d.ts"), "utf-8")
+    .replace(/\/\/\/\s*<reference\s+types="[^"]*"\s*\/>\s*\n?/g, "")
+
+  const langExtTypes = fs.readFileSync(
+    _require.resolve("@typescript-to-lua/language-extensions/index.d.ts"),
+    "utf-8",
+  )
+
+  const twoslashExtraFiles = {
+    "language-extensions.d.ts": langExtTypes,
+    "globals.d.ts": sluaTypes,
+  }
+
+  const TS_CODE = `\
+let owner = ll.GetOwner()
+
+LLEvents.on("changed", (changed) => {
+//                       ^?
+  if ((changed & CHANGED_OWNER) !== 0) {
+    owner = ll.GetOwner()
+  }
+})
+
+LLEvents.on("touch_start", (events) => {
+//                           ^?
+  for (const event of events) {
+    const name = event.getName()
+
+    ll.Say(0, \`\${name} touched at \${event.getTouchPos()}\`)
+  }
+})`
+
+  const HERO_TS = `\
+const isValidCommand = (command: string) =>
+  ["bite", "scratch", "pounce"].includes(command)`
+
+  // Lazily initialized — shared between the two virtual modules
+  let sharedInit: Promise<{
+    codeToHtml: (typeof import("shiki"))["codeToHtml"]
+    transformerTwoslash: (typeof import("@shikijs/twoslash"))["transformerTwoslash"]
+    rendererRich: (typeof import("@shikijs/twoslash"))["rendererRich"]
+    transpileToLua: (tsCode: string) => string
+  }> | null = null
+
+  function getShared() {
+    if (!sharedInit) {
+      sharedInit = (async () => {
+        const [{ codeToHtml }, { transformerTwoslash, rendererRich }, sluaPlugin] =
+          await Promise.all([
+            import("shiki"),
+            import("@shikijs/twoslash"),
+            import("../../packages/tstl-plugin/dist/index.js"),
+          ])
+
+        // Resolve TSTL from the plugin's context so both share typescript 5.7.x.
+        // The ts-playground workspace uses a newer TS which would cause a
+        // duplicate-instance AST crash.
+        const pluginRequire = createRequire(resolve("../../packages/tstl-plugin/package.json"))
+        const tstl: typeof import("typescript-to-lua") = pluginRequire("typescript-to-lua")
+
+        // Read the same curated lib files the browser worker uses. Using the
+        // full esnext libs adds Symbol.iterator overloads that cause TSTL to
+        // emit __TS__Iterator instead of plain ipairs for array for-of loops.
+        const tsDir = path.dirname(pluginRequire.resolve("typescript"))
+        const libFiles = Object.fromEntries(
+          TS_LIB_NAMES.map((n) => [n, fs.readFileSync(path.join(tsDir, n), "utf-8")]),
+        )
+
+        const transpileOpts = {
+          luaTarget: tstl.LuaTarget.Luau,
+          noImplicitSelf: true,
+          noHeader: true,
+          luaLibImport: tstl.LuaLibImportKind.Inline,
+          noImplicitGlobalVariables: true,
+          noLib: true,
+          strict: true,
+          luaPlugins: [{ plugin: sluaPlugin.default as tstl.Plugin }],
+        }
+
+        function transpileToLua(tsCode: string) {
+          const clean = tsCode.replace(/^\s*\/\/\s*\^[?!].*$/gm, "")
+          const result = tstl.transpileVirtualProject(
+            {
+              "main.ts": clean,
+              ...libFiles,
+              "language-extensions.d.ts": langExtTypes,
+              "slua.d.ts": sluaTypes,
+            },
+            transpileOpts,
+          )
+
+          const lua =
+            result.transpiledFiles.find((f) => f.outPath === "main.lua")?.lua?.trimEnd() ?? ""
+
+          if (!lua) {
+            const msgs = result.diagnostics.map((d) =>
+              typeof d.messageText === "string" ? d.messageText : d.messageText.messageText,
+            )
+            throw new Error(`Failed to transpile showcase code:\n${msgs.join("\n")}`)
+          }
+
+          return lua
+        }
+
+        return { codeToHtml, transformerTwoslash, rendererRich, transpileToLua }
+      })()
+    }
+
+    return sharedInit
+  }
+
+  return {
+    name: "twoslash-code-blocks",
+    resolveId(id) {
+      if (id === "virtual:twoslash-blocks") return "\0virtual:twoslash-blocks"
+      if (id === "virtual:hero-preview") return "\0virtual:hero-preview"
+    },
+    async load(id) {
+      if (id !== "\0virtual:twoslash-blocks" && id !== "\0virtual:hero-preview") return
+
+      const { codeToHtml, transformerTwoslash, rendererRich, transpileToLua } = await getShared()
+
+      const twoslashTransformer = transformerTwoslash({
+        renderer: rendererRich({ queryRendering: "line" }),
+        twoslashOptions: { extraFiles: twoslashExtraFiles },
+      })
+
+      // Hero preview — Shiki + twoslash
+      if (id === "\0virtual:hero-preview") {
+        const heroLua = transpileToLua(HERO_TS)
+
+        const [heroTsHtml, heroLuaHtml] = await Promise.all([
+          codeToHtml(HERO_TS, {
+            lang: "tsx",
+            theme: "vitesse-dark",
+            transformers: [twoslashTransformer],
+          }),
+          codeToHtml(heroLua, { lang: "lua", theme: "vitesse-dark" }),
+        ])
+
+        return [
+          `export const tsHtml = ${JSON.stringify(heroTsHtml)};`,
+          `export const luaHtml = ${JSON.stringify(heroLuaHtml)};`,
+        ].join("\n")
+      }
+
+      // Showcase blocks — Shiki + twoslash
+      const LUA_CODE = transpileToLua(TS_CODE)
+
+      const [tsHtml, luaHtml] = await Promise.all([
+        codeToHtml(TS_CODE, {
+          lang: "tsx",
+          theme: "vitesse-dark",
+          transformers: [twoslashTransformer],
+        }),
+        codeToHtml(LUA_CODE, {
+          lang: "lua",
+          theme: "vitesse-dark",
+        }),
+      ])
+
+      return [
+        `export const tsHtml = ${JSON.stringify(tsHtml)};`,
+        `export const luaHtml = ${JSON.stringify(luaHtml)};`,
+      ].join("\n")
+    },
+  }
+}
+
+/**
  * Vite plugin that injects Node.js globals into production bundles via the
  * banner output hook. Only active during `vite build`.
  */
@@ -131,6 +309,7 @@ export default defineConfig({
     injectNodeGlobals(),
     stubTstlResolve(),
     tstlLualib(),
+    twoslashCodeBlocks(),
     tailwindcss(),
     react(),
     babel({ presets: [reactCompilerPreset()] }),

@@ -106,6 +106,7 @@ function handleResponse(status: number, body: string) {
       humidity: parts[3],
       wind: parts[4],
     }
+
     state = RequestState.Idle
   } else {
     state = RequestState.Error

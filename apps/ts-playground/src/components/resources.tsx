@@ -1,0 +1,134 @@
+import {
+  IconBook,
+  IconCode,
+  IconWorld,
+  IconBrandVscode,
+  IconFileTypeTs,
+  IconBrandGithub,
+} from "@tabler/icons-react"
+import { Card, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
+import { Separator } from "~/components/ui/separator"
+import { useInView } from "~/lib/use-in-view"
+
+const OFFICIAL = [
+  {
+    title: "Creator Portal",
+    description: "Second Life creator tools and documentation",
+    url: "https://create.secondlife.com",
+    icon: IconWorld,
+  },
+  {
+    title: "VSCode Extension",
+    description: "SLua language support for VS Code by Linden Lab",
+    url: "https://github.com/secondlife/sl-vscode-plugin",
+    icon: IconBrandVscode,
+  },
+  {
+    title: "LSL Definitions",
+    description: "LSL and SLua API definitions by Linden Lab",
+    url: "https://github.com/secondlife/lsl-definitions",
+    icon: IconFileTypeTs,
+  },
+]
+
+const COMMUNITY = [
+  {
+    title: "SLua Docs",
+    author: "Suzanna Linn",
+    description: "Comprehensive SLua documentation and reference",
+    url: "https://suzanna-linn.github.io/slua",
+    icon: IconBook,
+  },
+  {
+    title: "slua.dev",
+    description: "Community SLua website and resources",
+    url: "https://slua.dev",
+    icon: IconCode,
+  },
+  {
+    title: "@gwigz/slua",
+    description: "TypeScript type definitions and TSTL transpiler plugin",
+    url: "https://github.com/gwigz/slua",
+    icon: IconBrandGithub,
+  },
+]
+
+export function ResourceCard({
+  resource,
+}: {
+  resource: {
+    title: string
+    author?: string
+    description: string
+    url: string
+    icon: React.ComponentType<{ className?: string }>
+  }
+}) {
+  return (
+    <a
+      href={resource.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block transition-all duration-300 hover:-translate-y-0.5"
+    >
+      <Card className="h-full border-[var(--surface-glass-border)] bg-[var(--surface-glass)] backdrop-blur-sm transition-colors group-hover:border-white/[0.12] group-hover:shadow-lg group-hover:shadow-[var(--highlight)]/5">
+        <CardHeader>
+          <resource.icon className="size-5 text-muted-foreground group-hover:text-[var(--highlight)] transition-colors" />
+          <CardTitle className="mt-2">{resource.title}</CardTitle>
+          {resource.author && (
+            <p className="text-xs" style={{ color: "var(--highlight)" }}>
+              by {resource.author}
+            </p>
+          )}
+          <CardDescription>{resource.description}</CardDescription>
+        </CardHeader>
+      </Card>
+    </a>
+  )
+}
+
+export function Resources() {
+  const { ref, inView } = useInView()
+
+  return (
+    <section ref={ref} className="py-24 sm:py-32 bg-[#0a0a0a]">
+      <div
+        className={`max-w-5xl mx-auto px-6 ${inView ? "" : "opacity-0 translate-y-6"}`}
+        style={inView ? { animation: "fade-in-up 0.6s ease-out forwards" } : undefined}
+      >
+        <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground text-center">
+          Resources
+        </h2>
+        <p className="text-muted-foreground text-center max-w-2xl mx-auto mt-4">
+          Tools, documentation, and community projects for SLua development
+        </p>
+
+        <div className="mt-12 sm:mt-16 space-y-10">
+          <div>
+            <h3 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
+              Official
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {OFFICIAL.map((resource) => (
+                <ResourceCard key={resource.title} resource={resource} />
+              ))}
+            </div>
+          </div>
+
+          <Separator className="bg-white/[0.06]" />
+
+          <div>
+            <h3 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
+              Community
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {COMMUNITY.map((resource) => (
+                <ResourceCard key={resource.title} resource={resource} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

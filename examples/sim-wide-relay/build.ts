@@ -1,8 +1,8 @@
-import ts from "typescript";
-import * as tstl from "typescript-to-lua";
-import { resolve } from "node:path";
+import ts from "typescript"
+import * as tstl from "typescript-to-lua"
+import { resolve } from "node:path"
 
-const SCRIPTS = ["coordinator", "listener", "sender"];
+const SCRIPTS = ["coordinator", "listener", "sender"]
 
 const BASE_OPTIONS: tstl.CompilerOptions = {
   target: ts.ScriptTarget.ESNext,
@@ -20,9 +20,9 @@ const BASE_OPTIONS: tstl.CompilerOptions = {
   noImplicitSelf: true,
   noImplicitGlobalVariables: true,
   luaPlugins: [{ name: resolve("../../packages/tstl-plugin/dist/index.js") }],
-};
+}
 
-let hasErrors = false;
+let hasErrors = false
 
 for (const script of SCRIPTS) {
   const result = tstl.transpileFiles(
@@ -32,27 +32,27 @@ for (const script of SCRIPTS) {
       luaBundle: `${script}.lua`,
       luaBundleEntry: resolve(`src/${script}.ts`),
     },
-  );
+  )
 
   for (const diagnostic of result.diagnostics) {
-    const msg = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+    const msg = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")
 
     // TSTL warns about luaBundle + inline but it's harmless
     if (msg.includes("luaBundle")) {
-      continue;
+      continue
     }
 
     if (diagnostic.category === ts.DiagnosticCategory.Error) {
-      console.error(`${script}: error: ${msg}`);
-      hasErrors = true;
+      console.error(`${script}: error: ${msg}`)
+      hasErrors = true
     } else if (diagnostic.category === ts.DiagnosticCategory.Warning) {
-      console.warn(`${script}: warning: ${msg}`);
+      console.warn(`${script}: warning: ${msg}`)
     }
   }
 }
 
 if (hasErrors) {
-  process.exit(1);
+  process.exit(1)
 }
 
-console.log(`Built ${SCRIPTS.map((s) => `dist/${s}.lua`).join(", ")}`);
+console.log(`Built ${SCRIPTS.map((s) => `dist/${s}.lua`).join(", ")}`)

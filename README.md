@@ -106,8 +106,8 @@ local pos = vector.create(128, 128, 20)
 
 I use this toolchain for my own projects, it's how I find the rough edges:
 
-- [`examples/sim-wide-relay`](examples/sim-wide-relay) -- Region-wide chat relay system using pooled listener objects, deployed at my favorite sim
-- [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) -- Skips the rez-edit-take-replace cycle; patches rezzables inventory using `ll.DerezObject`
+- [`examples/sim-wide-relay`](examples/sim-wide-relay) -- Region-wide chat relay, deployed at my favorite sim
+- [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) -- Skips the rez-edit-take-replace cycle; patches rezzables using `ll.DerezObject`
 
 ## Contributing
 

@@ -5,9 +5,18 @@ const patched = { ...path, win32: path, posix: path }
 
 export default patched
 export const {
-  resolve, normalize, isAbsolute, join, relative,
-  dirname, basename, extname, sep, delimiter,
-  parse, format,
+  resolve,
+  normalize,
+  isAbsolute,
+  join,
+  relative,
+  dirname,
+  basename,
+  extname,
+  sep,
+  delimiter,
+  parse,
+  format,
 } = patched
 export const win32 = patched
 export const posix = patched

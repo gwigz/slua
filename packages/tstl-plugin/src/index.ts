@@ -696,7 +696,6 @@ const plugin: tstl.Plugin = {
       })
     }
 
-
     return diagnostics
   },
 

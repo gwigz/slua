@@ -452,11 +452,7 @@ function addClassDef(sf: SourceFile, cls: ClassDef) {
       const remapped = method.parameters.map((p) => ({
         ...p,
         type:
-          p.type === "LLEventName"
-            ? "E"
-            : p.type === "LLEventHandler"
-              ? "LLEventMap[E]"
-              : p.type,
+          p.type === "LLEventName" ? "E" : p.type === "LLEventHandler" ? "LLEventMap[E]" : p.type,
       }))
 
       const retType = retIsHandler

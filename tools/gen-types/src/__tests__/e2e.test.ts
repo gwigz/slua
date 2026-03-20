@@ -5,9 +5,7 @@ import { resolve } from "path"
 const REFS_DIR = resolve(import.meta.dir, "../../../../refs/lsl-definitions")
 
 describe("generate", () => {
-  it(
-    "generates valid .d.ts from real YAML files",
-    () => {
+  it("generates valid .d.ts from real YAML files", () => {
     const output = generate(
       resolve(REFS_DIR, "slua_definitions.yaml"),
       resolve(REFS_DIR, "lsl_definitions.yaml"),
@@ -58,7 +56,5 @@ describe("generate", () => {
     // Has classes
     expect(output).toContain("declare interface LLEvents")
     expect(output).toContain("declare interface LLTimers")
-  },
-  30_000, // ts-morph uses the full TypeScript compiler API (~10s for large inputs)
-  )
+  }, 30_000) // ts-morph uses the full TypeScript compiler API (~10s for large inputs)
 })

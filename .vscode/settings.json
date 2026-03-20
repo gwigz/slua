@@ -1,4 +1,7 @@
 {
+  "files.associations": {
+    "*.slua": "luau"
+  },
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",

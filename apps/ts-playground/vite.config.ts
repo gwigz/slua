@@ -199,7 +199,7 @@ const isValidCommand = (command: string) =>
           noImplicitGlobalVariables: true,
           noLib: true,
           strict: true,
-          luaPlugins: [{ plugin: sluaPlugin.default as tstl.Plugin }],
+          luaPlugins: [{ plugin: sluaPlugin.default as import("typescript-to-lua").Plugin }],
         }
 
         function transpileToLua(tsCode: string) {

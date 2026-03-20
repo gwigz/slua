@@ -3,7 +3,6 @@ import { CodeShowcase } from "~/components/code-showcase"
 import { QuickStart } from "~/components/quick-start"
 import { Examples } from "~/components/examples"
 import { Resources } from "~/components/resources"
-import { Footer } from "~/components/footer"
 
 export function Home() {
   return (
@@ -13,7 +12,6 @@ export function Home() {
       <QuickStart />
       <Examples />
       <Resources />
-      <Footer />
     </div>
   )
 }

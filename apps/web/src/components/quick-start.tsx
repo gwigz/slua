@@ -30,7 +30,8 @@ const TSCONFIG = `{
   "tstl": {
     "luaTarget": "Luau",
     "luaLibImport": "inline",
-    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }]
+    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }],
+    "extension": "slua"
   }
 }`
 

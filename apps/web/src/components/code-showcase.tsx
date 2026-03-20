@@ -10,13 +10,13 @@ function CodeBlock({ label, html }: { label: string; html: string }) {
   useTwoslashPortal(contentRef, [html])
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-white/6 bg-[#0d0d0d]">
+    <div className="overflow-hidden rounded-lg border border-white/6 bg-[#0d0d0d]">
       <div className="border-b border-white/6 px-4 py-2">
         <span className="text-xs font-medium text-muted-foreground">{label}</span>
       </div>
       <div
         ref={contentRef}
-        className="p-4 text-sm font-mono [&_pre]:bg-transparent! [&_code]:text-sm"
+        className="overflow-x-auto py-4 pl-4 text-sm font-mono [&_pre]:bg-transparent! [&_pre]:pr-4 [&_pre]:w-fit [&_pre]:min-w-full [&_code]:text-sm"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

@@ -6,6 +6,7 @@ import {
   IconFileTypeTs,
   IconBrandGithub,
 } from "@tabler/icons-react"
+import { Badge } from "~/components/ui/badge"
 import { Card, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
 import { useInView } from "~/lib/use-in-view"
 
@@ -15,6 +16,7 @@ const OFFICIAL = [
     description: "Second Life creator tools and documentation",
     url: "https://create.secondlife.com",
     icon: IconWorld,
+    wip: true,
   },
   {
     title: "VSCode Extension",
@@ -43,6 +45,7 @@ const COMMUNITY = [
     description: "Community SLua website and resources",
     url: "https://slua.dev",
     icon: IconCode,
+    wip: true,
   },
   {
     title: "@gwigz/slua",
@@ -61,6 +64,7 @@ export function ResourceCard({
     description: string
     url: string
     icon: React.ComponentType<{ className?: string }>
+    wip?: boolean
   }
 }) {
   return (
@@ -72,7 +76,14 @@ export function ResourceCard({
     >
       <Card className="h-full border-[var(--surface-glass-border)] bg-[var(--surface-glass)] backdrop-blur-sm transition-colors group-hover:border-white/[0.12] group-hover:shadow-lg group-hover:shadow-[var(--highlight)]/5">
         <CardHeader>
-          <resource.icon className="size-5 text-muted-foreground group-hover:text-[var(--highlight)] transition-colors" />
+          <div className="flex items-center gap-2">
+            <resource.icon className="size-5 text-muted-foreground group-hover:text-[var(--highlight)] transition-colors" />
+            {resource.wip && (
+              <Badge variant="outline" className="ml-auto rounded-full text-[10px] uppercase text-muted-foreground/60">
+                Work in progress
+              </Badge>
+            )}
+          </div>
           <CardTitle className="mt-2">{resource.title}</CardTitle>
           {resource.author && (
             <p className="text-xs" style={{ color: "var(--highlight)" }}>

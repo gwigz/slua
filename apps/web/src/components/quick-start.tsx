@@ -231,6 +231,18 @@ export function QuickStart() {
               Tell GitHub to highlight <code>.slua</code> files as Lua:
             </p>
             <CodeBlock code={GITATTRIBUTES} html={gitattributesHtml} label=".gitattributes" />
+            <p className="mt-3 text-xs text-muted-foreground/60">
+              You may also like the{" "}
+              <a
+                href="https://github.com/secondlife/sl-vscode-plugin"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--highlight)]/70 hover:underline"
+              >
+                Second Life SLua/LSL extension
+              </a>{" "}
+              for additional language support.
+            </p>
           </Step>
 
           <Step number={4} title="Write TypeScript, compile to SLua" last>

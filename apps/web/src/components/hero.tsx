@@ -91,7 +91,8 @@ export function Hero() {
           >
             TypeScript-to-Lua
           </a>{" "}
-          plugin for Second Life. Full editor support, compile-time safety, zero runtime overhead.
+          plugin for Second Life. Full editor support, compile-time safety, minimal runtime
+          overhead.
         </p>
 
         {/* CTAs */}
@@ -130,7 +131,7 @@ export function Hero() {
               </div>
               <div
                 ref={tsRef}
-                className="twoslash flex-1 px-3 py-2.5 text-[13px] leading-relaxed text-left overflow-x-auto [&_pre]:bg-transparent! [&_pre]:m-0 [&_pre]:p-0 [&_code]:text-[13px]"
+                className="twoslash flex-1 py-2.5 pl-3 text-[13px] leading-relaxed text-left overflow-x-auto [&_pre]:bg-transparent! [&_pre]:m-0 [&_pre]:p-0 [&_pre]:pr-3 [&_pre]:w-fit [&_pre]:min-w-full [&_code]:text-[13px]"
                 onScroll={() =>
                   tsRef.current && luaRef.current && syncScroll(tsRef.current, luaRef.current)
                 }
@@ -145,7 +146,7 @@ export function Hero() {
               </div>
               <div
                 ref={luaRef}
-                className="px-3 py-2.5 text-[13px] leading-relaxed text-left overflow-x-auto [&_pre]:bg-transparent! [&_pre]:m-0 [&_pre]:p-0 [&_code]:text-[13px]"
+                className="py-2.5 pl-3 text-[13px] leading-relaxed text-left overflow-x-auto [&_pre]:bg-transparent! [&_pre]:m-0 [&_pre]:p-0 [&_pre]:pr-3 [&_pre]:w-fit [&_pre]:min-w-full [&_code]:text-[13px]"
                 onScroll={() =>
                   luaRef.current && tsRef.current && syncScroll(luaRef.current, tsRef.current)
                 }

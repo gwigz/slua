@@ -11,6 +11,13 @@ If TypeScript is where you're productive, you don't need to learn a new language
 | [`@gwigz/slua-types`](packages/types)             | Auto-generated TypeScript declarations for all SLua/LSL APIs |
 | [`@gwigz/slua-tstl-plugin`](packages/tstl-plugin) | TSTL plugin enforcing SLua constraints                       |
 
+## Real-world usage
+
+I use this toolchain for my own projects, it's how I find the rough edges:
+
+- [`examples/sim-wide-relay`](examples/sim-wide-relay) -- Region-wide chat relay, deployed at my favorite sim
+- [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) -- Skips the rez-edit-take-replace cycle; patches rezzables using `ll.DerezObject`
+
 ## Quick Start
 
 Install the packages:
@@ -60,6 +67,7 @@ Tell GitHub to highlight `.slua` files as Lua:
 # .gitattributes
 *.slua linguist-language=Lua
 ```
+
 
 ### Write TypeScript, compile to SLua
 
@@ -118,13 +126,6 @@ const pos = new Vector(128, 128, 20)
 local owner = ll.GetOwner()
 local pos = vector.create(128, 128, 20)
 ```
-
-## Real-world usage
-
-I use this toolchain for my own projects, it's how I find the rough edges:
-
-- [`examples/sim-wide-relay`](examples/sim-wide-relay) -- Region-wide chat relay, deployed at my favorite sim
-- [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) -- Skips the rez-edit-take-replace cycle; patches rezzables using `ll.DerezObject`
 
 ## Scripts
 

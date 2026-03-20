@@ -9,8 +9,8 @@ export function Home() {
     <div className="min-h-screen bg-[#0a0a0a]">
       <Hero />
       <CodeShowcase />
-      <QuickStart />
       <Examples />
+      <QuickStart />
       <Resources />
     </div>
   )

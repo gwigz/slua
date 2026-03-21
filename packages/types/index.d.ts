@@ -4314,7 +4314,7 @@ declare const COMBAT_CHANNEL: number
  * Messages from the region to the COMBAT_CHANNEL will all be from this ID.
  *  Scripts may filter llListen calls on this ID to receive only system generated combat log messages.
  */
-declare const COMBAT_LOG_ID: string
+declare const COMBAT_LOG_ID: uuid
 /** "application/atom+xml" */
 declare const CONTENT_TYPE_ATOM: number
 /** "application/x-www-form-urlencoded" */
@@ -4513,17 +4513,17 @@ declare const HTTP_PRAGMA_NO_CACHE: number
 declare const HTTP_USER_AGENT: number
 declare const HTTP_VERBOSE_THROTTLE: number
 declare const HTTP_VERIFY_CERT: number
-declare const IMG_USE_BAKED_AUX1: string
-declare const IMG_USE_BAKED_AUX2: string
-declare const IMG_USE_BAKED_AUX3: string
-declare const IMG_USE_BAKED_EYES: string
-declare const IMG_USE_BAKED_HAIR: string
-declare const IMG_USE_BAKED_HEAD: string
-declare const IMG_USE_BAKED_LEFTARM: string
-declare const IMG_USE_BAKED_LEFTLEG: string
-declare const IMG_USE_BAKED_LOWER: string
-declare const IMG_USE_BAKED_SKIRT: string
-declare const IMG_USE_BAKED_UPPER: string
+declare const IMG_USE_BAKED_AUX1: uuid
+declare const IMG_USE_BAKED_AUX2: uuid
+declare const IMG_USE_BAKED_AUX3: uuid
+declare const IMG_USE_BAKED_EYES: uuid
+declare const IMG_USE_BAKED_HAIR: uuid
+declare const IMG_USE_BAKED_HEAD: uuid
+declare const IMG_USE_BAKED_LEFTARM: uuid
+declare const IMG_USE_BAKED_LEFTLEG: uuid
+declare const IMG_USE_BAKED_LOWER: uuid
+declare const IMG_USE_BAKED_SKIRT: uuid
+declare const IMG_USE_BAKED_UPPER: uuid
 declare const INVENTORY_ALL: number
 declare const INVENTORY_ANIMATION: number
 declare const INVENTORY_BODYPART: number
@@ -4656,7 +4656,7 @@ declare const MASK_OWNER: number
 /** Indicates a notecard read was attempted and the notecard was not yet cached on the server. */
 declare const NAK: string
 declare const NAVIGATE_TO_GOAL_REACHED_DIST: number
-declare const NULL_KEY: string
+declare const NULL_KEY: uuid
 /**
  * Retrieves the account level of an avatar.
  * Returns 0 when the avatar has a basic account,
@@ -5623,11 +5623,11 @@ declare const TERRAIN_PBR_SCALE_1: number
 declare const TERRAIN_PBR_SCALE_2: number
 declare const TERRAIN_PBR_SCALE_3: number
 declare const TERRAIN_PBR_SCALE_4: number
-declare const TEXTURE_BLANK: string
-declare const TEXTURE_DEFAULT: string
-declare const TEXTURE_MEDIA: string
-declare const TEXTURE_PLYWOOD: string
-declare const TEXTURE_TRANSPARENT: string
+declare const TEXTURE_BLANK: uuid
+declare const TEXTURE_DEFAULT: uuid
+declare const TEXTURE_MEDIA: uuid
+declare const TEXTURE_PLYWOOD: uuid
+declare const TEXTURE_TRANSPARENT: uuid
 declare const TOUCH_INVALID_FACE: number
 declare const TOUCH_INVALID_TEXCOORD: vector
 declare const TOUCH_INVALID_VECTOR: vector

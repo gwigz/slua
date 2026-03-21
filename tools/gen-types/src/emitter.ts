@@ -976,7 +976,7 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
     sf.addVariableStatement({
       declarationKind: VariableDeclarationKind.Const,
       hasDeclareKeyword: true,
-      declarations: [{ name, type: mapLslType(c.type) }],
+      declarations: [{ name, type: c["slua-type"] ? mapType(c["slua-type"]) : mapLslType(c.type) }],
       ...(docs.length > 0 ? { docs } : {}),
     })
   }

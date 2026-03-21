@@ -131,14 +131,27 @@ function extractBtestPattern(
 /**
  * Type-checking helpers for catalog transforms.
  */
-function isStringType(expr: ts.Expression, checker: ts.TypeChecker): boolean {
+function isStringType(expr: ts.Expression, checker: ts.TypeChecker) {
   const type = checker.getTypeAtLocation(expr)
   return !!(type.flags & ts.TypeFlags.StringLike)
 }
 
-function isArrayType(expr: ts.Expression, checker: ts.TypeChecker): boolean {
+function isArrayType(expr: ts.Expression, checker: ts.TypeChecker) {
   const type = checker.getTypeAtLocation(expr)
   return checker.isArrayLikeType(type)
+}
+
+function isDetectedEventType(expr: ts.Expression, checker: ts.TypeChecker) {
+  const type = checker.getTypeAtLocation(expr)
+  return type.symbol?.name === "DetectedEvent"
+}
+
+/**
+ * Returns true when `node` is `detectedEvent.index` — a property access
+ * on a `DetectedEvent` reading the `.index` field.
+ */
+function isDetectedEventIndex(node: ts.PropertyAccessExpression, checker: ts.TypeChecker) {
+  return node.name.text === "index" && isDetectedEventType(node.expression, checker)
 }
 
 /**
@@ -209,7 +222,7 @@ function createNamespacedCall(
 function extractConcatSelfAssignment(
   expr: ts.BinaryExpression,
   checker: ts.TypeChecker,
-): { name: ts.Identifier; args: ts.Expression[] } | null {
+): { name: ts.Identifier; args: readonly ts.Expression[] } | null {
   if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return null
   if (!ts.isIdentifier(expr.left)) return null
   if (!ts.isCallExpression(expr.right)) return null
@@ -223,7 +236,7 @@ function extractConcatSelfAssignment(
     if (!isArrayType(arg, checker)) return null
   }
 
-  return { name: expr.left, args: expr.right.arguments as ts.Expression[] }
+  return { name: expr.left, args: expr.right.arguments }
 }
 
 /**
@@ -343,6 +356,14 @@ function getLLIndexSemantics(
 function adjustIndexArg(arg: ts.Expression, context: tstl.TransformationContext): tstl.Expression {
   if (ts.isNumericLiteral(arg)) {
     return tstl.createNumericLiteral(Number(arg.text) + 1)
+  }
+
+  // DetectedEvent.index is already 1-based at runtime. The PropertyAccess
+  // visitor emits `- 1` to make it 0-based for TS, and @indexArg adds `+ 1`.
+  // These cancel out, so emit the raw property access directly.
+  if (ts.isPropertyAccessExpression(arg) && isDetectedEventIndex(arg, context.checker)) {
+    const obj = context.transformExpression(arg.expression)
+    return tstl.createTableIndexExpression(obj, tstl.createStringLiteral("index"))
   }
 
   return tstl.createBinaryExpression(
@@ -791,6 +812,18 @@ const plugin: tstl.Plugin = {
         if (replacement) {
           result.table.text = replacement
         }
+      }
+
+      // DetectedEvent.index is 1-based at runtime in SLua; emit `obj.index - 1`
+      // so TypeScript sees a 0-based value. This composes correctly with
+      // @indexArg functions (which add +1, cancelling out the -1).
+      if (isDetectedEventIndex(node, context.checker)) {
+        return tstl.createBinaryExpression(
+          result,
+          tstl.createNumericLiteral(1),
+          tstl.SyntaxKind.SubtractionOperator,
+          node,
+        )
       }
 
       return result

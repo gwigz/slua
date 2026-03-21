@@ -485,6 +485,38 @@ describe("ll.* index-semantics", () => {
   })
 })
 
+describe("DetectedEvent.index", () => {
+  it("emits obj.index - 1 to convert from 1-based SLua to 0-based TS", () => {
+    const lua = transpile(`
+      declare const evt: DetectedEvent
+      const idx = evt.index
+    `)
+
+    expect(lua).toContain("evt.index - 1")
+  })
+
+  it("composes correctly with @indexArg (no double offset)", () => {
+    const lua = transpile(`
+      declare const evt: DetectedEvent
+      const name = ll.DetectedName(evt.index)
+    `)
+
+    // The -1 and +1 cancel out; optimized to raw property access
+    expect(lua).toContain("ll.DetectedName(evt.index)")
+    expect(lua).not.toContain("+ 1")
+    expect(lua).not.toContain("- 1")
+  })
+
+  it("does not affect other DetectedEvent properties", () => {
+    const lua = transpile(`
+      declare const evt: DetectedEvent
+      const v = evt.valid
+    `)
+
+    expect(lua).not.toContain("- 1")
+  })
+})
+
 describe("array transforms", () => {
   it("translates includes to table.find ~= nil", () => {
     const lua = transpileSimple(

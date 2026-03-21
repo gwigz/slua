@@ -18,7 +18,7 @@
     "fmt:check": "oxfmt --check .",
     "changeset": "bunx changeset",
     "ci:version": "bunx changeset version && bun update",
-    "ci:publish": "npm publish ./packages/types --provenance --access public && npm publish ./packages/tstl-plugin --provenance --access public && bunx changeset tag",
+    "ci:publish": "bunx changeset publish --access public",
     "prepare": "husky"
   },
   "dependencies": {

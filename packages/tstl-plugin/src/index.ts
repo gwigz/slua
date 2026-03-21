@@ -147,7 +147,7 @@ function isDetectedEventType(expr: ts.Expression, checker: ts.TypeChecker) {
 }
 
 /**
- * Returns true when `node` is `detectedEvent.index` — a property access
+ * Returns true when `node` is `detectedEvent.index`, a property access
  * on a `DetectedEvent` reading the `.index` field.
  */
 function isDetectedEventIndex(node: ts.PropertyAccessExpression, checker: ts.TypeChecker) {

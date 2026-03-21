@@ -15,5 +15,8 @@
   "types": "index.d.ts",
   "peerDependencies": {
     "@typescript-to-lua/language-extensions": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

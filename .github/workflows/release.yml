@@ -26,6 +26,8 @@ jobs:
 
       - uses: changesets/action@v1
         with:
+          title: "chore: version packages"
+          commit: "chore: version packages"
           version: bun run ci:version
           publish: bun run ci:publish
         env:

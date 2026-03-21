@@ -46,15 +46,20 @@ function tstlLualib(): Plugin {
   return {
     name: "tstl-lualib",
     resolveId(id) {
-      if (id === "virtual:tstl-lualib") return "\0virtual:tstl-lualib"
+      if (id === "virtual:tstl-lualib") {
+        return "\0virtual:tstl-lualib"
+      }
     },
     load(id) {
-      if (id !== "\0virtual:tstl-lualib") return
+      if (id !== "\0virtual:tstl-lualib") {
+        return
+      }
 
       const tstlDist = path.dirname(_require.resolve("typescript-to-lua"))
       const lualibDir = path.join(tstlDist, "lualib", "universal")
 
       const entries: string[] = []
+
       for (const file of fs.readdirSync(lualibDir)) {
         const content = fs.readFileSync(path.join(lualibDir, file), "utf-8")
         entries.push(`  ${JSON.stringify(file)}: ${JSON.stringify(content)}`)
@@ -273,7 +278,7 @@ const isValidCommand = (command: string) =>
         ].join("\n")
       }
 
-      // Quick-start blocks — plain Shiki (no twoslash needed)
+      // Quick-start blocks
       if (id === "\0virtual:quickstart-blocks") {
         const pkgs = [
           "typescript",

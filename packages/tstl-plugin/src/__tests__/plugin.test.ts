@@ -4,7 +4,7 @@ import { resolve } from "path"
 import * as ts from "typescript"
 import * as tstl from "typescript-to-lua"
 import plugin from "../index"
-import { transpile as transpileSimple } from "./helpers"
+import { transpile as transpileSimple, transpileFull as transpile, initFull } from "./helpers"
 
 const TYPES_PATH = resolve(import.meta.dir, "../../../../packages/types/index.d.ts")
 const LANG_EXT_PATH = resolve(
@@ -12,29 +12,7 @@ const LANG_EXT_PATH = resolve(
   "../../../../node_modules/@typescript-to-lua/language-extensions/index.d.ts",
 )
 
-const sluaTypes = readFileSync(TYPES_PATH, "utf-8")
-const langExt = readFileSync(LANG_EXT_PATH, "utf-8")
-
-function transpile(code: string): string {
-  const result = tstl.transpileVirtualProject(
-    {
-      "main.ts": code,
-      "language-extensions.d.ts": langExt,
-      "slua.d.ts": sluaTypes,
-    },
-    {
-      luaTarget: tstl.LuaTarget.Luau,
-      noImplicitSelf: true,
-      noHeader: true,
-      luaLibImport: tstl.LuaLibImportKind.Inline,
-      noImplicitGlobalVariables: true,
-      noLib: true,
-      strict: true,
-      luaPlugins: [{ plugin: plugin as tstl.Plugin }],
-    },
-  )
-  return result.transpiledFiles.find((f) => f.outPath === "main.lua")?.lua ?? ""
-}
+initFull(readFileSync(TYPES_PATH, "utf-8"), readFileSync(LANG_EXT_PATH, "utf-8"))
 
 describe("ts-slua plugin", () => {
   it("beforeTransform errors on non-Luau target", () => {

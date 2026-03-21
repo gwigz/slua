@@ -18,7 +18,7 @@
     "fmt:check": "oxfmt --check .",
     "changeset": "bunx changeset",
     "ci:version": "bunx changeset version && bun update",
-    "ci:publish": "npm publish packages/types && npm publish packages/tstl-plugin && bunx changeset tag"
+    "ci:publish": "npm publish packages/types --provenance --access public && npm publish packages/tstl-plugin --provenance --access public && bunx changeset tag"
   },
   "dependencies": {
     "@typescript-to-lua/language-extensions": "^1.19.0",

@@ -20,6 +20,9 @@
       "default": "./dist/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "test": "bun test"
@@ -30,8 +33,5 @@
   "peerDependencies": {
     "@gwigz/slua-types": "^0.3.0",
     "typescript": "~5.9.3"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

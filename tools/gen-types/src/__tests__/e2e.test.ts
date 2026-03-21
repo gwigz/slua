@@ -1,10 +1,7 @@
 import { describe, it, expect } from "bun:test"
 import { resolve } from "path"
 
-const OUTPUT_PATH = resolve(
-  import.meta.dir,
-  "../../../../packages/types/index.d.ts",
-)
+const OUTPUT_PATH = resolve(import.meta.dir, "../../../../packages/types/index.d.ts")
 
 describe("generate", () => {
   it("generates valid .d.ts from real YAML files", () => {

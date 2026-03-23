@@ -1,5 +1,11 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.1.0
+
+### Minor Changes
+
+- [`0fbecf9`](https://github.com/gwigz/slua/commit/0fbecf99e8ce448fee0b29a7a572ae6bc1ed2286) Thanks [@gwigz](https://github.com/gwigz)! - add `optimize` option with output optimization flags and new string transforms
+
 ## 1.0.0
 
 ### Patch Changes

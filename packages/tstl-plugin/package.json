@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-tstl-plugin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TypeScriptToLua plugin for targeting Second Life's SLua runtime",
   "license": "MIT",
   "repository": {

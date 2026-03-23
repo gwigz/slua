@@ -3,8 +3,13 @@ import { readFileSync } from "fs"
 import { resolve } from "path"
 import * as ts from "typescript"
 import * as tstl from "typescript-to-lua"
-import plugin from "../index"
-import { transpile as transpileSimple, transpileFull as transpile, initFull } from "./helpers"
+import createPlugin from "../index"
+import {
+  transpile as transpileSimple,
+  transpileFull as transpile,
+  transpileOptimized,
+  initFull,
+} from "./helpers"
 
 const TYPES_PATH = resolve(import.meta.dir, "../../../../packages/types/index.d.ts")
 const LANG_EXT_PATH = resolve(
@@ -16,7 +21,7 @@ initFull(readFileSync(TYPES_PATH, "utf-8"), readFileSync(LANG_EXT_PATH, "utf-8")
 
 describe("ts-slua plugin", () => {
   it("beforeTransform errors on non-Luau target", () => {
-    const diagnostics = plugin.beforeTransform!(
+    const diagnostics = createPlugin().beforeTransform!(
       {} as ts.Program,
       { luaTarget: tstl.LuaTarget.Lua53 } as tstl.CompilerOptions,
       {} as tstl.EmitHost,
@@ -27,7 +32,7 @@ describe("ts-slua plugin", () => {
   })
 
   it("beforeTransform passes with correct config", () => {
-    const diagnostics = plugin.beforeTransform!(
+    const diagnostics = createPlugin().beforeTransform!(
       {} as ts.Program,
       {
         luaTarget: tstl.LuaTarget.Luau,
@@ -407,6 +412,12 @@ describe("string Luau stdlib transforms", () => {
     expect(lua).toContain("string.sub(s, i + 1)")
   })
 
+  it("translates replace to ll.ReplaceSubString with count 1", () => {
+    const lua = transpileSimple('declare const s: string;\nconst r = s.replace("old", "new")')
+
+    expect(lua).toContain('ll.ReplaceSubString(s, "old", "new", 1)')
+  })
+
   it("translates replaceAll to ll.ReplaceSubString with count 0", () => {
     const lua = transpileSimple(
       'interface String { replaceAll(searchValue: string, replaceValue: string): string }\ndeclare const s: string;\nconst r = s.replaceAll("old", "new")',
@@ -619,5 +630,370 @@ describe("array concat self-assignment", () => {
 
       expect(lua).not.toContain("table.extend")
     })
+  })
+})
+
+describe("optimize: filter", () => {
+  it("transforms arr.filter(cb) to inline ipairs loop", () => {
+    const lua = transpileOptimized(
+      "declare const arr: number[];\nconst result = arr.filter(x => x > 0)",
+    )
+
+    expect(lua).toContain("ipairs(arr)")
+    expect(lua).not.toContain("__TS__ArrayFilter")
+  })
+
+  it("composes with table.find inside filter callback", () => {
+    const lua = transpileOptimized(
+      "interface Array<T> { includes(searchElement: T): boolean; }\ndeclare const arr: number[];\ndeclare const other: number[];\nconst result = arr.filter(x => other.includes(x))",
+    )
+
+    expect(lua).toContain("ipairs(arr)")
+    expect(lua).toContain("table.find")
+    expect(lua).not.toContain("__TS__ArrayFilter")
+  })
+
+  it("does not transform without optimize flag", () => {
+    const lua = transpileSimple(
+      "declare const arr: number[];\nconst result = arr.filter(x => x > 0)",
+    )
+
+    expect(lua).not.toContain("ipairs")
+  })
+
+  it("does not transform non-array filter", () => {
+    const lua = transpileOptimized(
+      "interface Foo { filter(cb: (x: number) => boolean): Foo }\ndeclare const foo: Foo;\nconst result = foo.filter(x => x > 0)",
+    )
+
+    expect(lua).not.toContain("ipairs")
+  })
+
+  it("does not transform filter with thisArg", () => {
+    const lua = transpileOptimized(
+      "declare const arr: number[];\nconst result = arr.filter(x => x > 0, {})",
+    )
+
+    expect(lua).not.toContain("ipairs")
+  })
+
+  it("does not inline when file has multiple filter calls", () => {
+    const lua = transpileOptimized(
+      "declare const arr: number[];\nconst a = arr.filter(x => x > 0);\nconst b = arr.filter(x => x < 10)",
+    )
+
+    expect(lua).not.toContain("ipairs")
+    expect(lua).toContain("__TS__ArrayFilter")
+  })
+
+  it("still inlines single filter even when other files have multiple", () => {
+    // Each transpileOptimized call is a separate file, so a single filter should still inline
+    const lua = transpileOptimized(
+      "declare const arr: number[];\nconst result = arr.filter(x => x > 0)",
+    )
+
+    expect(lua).toContain("ipairs(arr)")
+    expect(lua).not.toContain("__TS__ArrayFilter")
+  })
+})
+
+describe("optimize: compoundAssignment", () => {
+  it("rewrites x++ to x += 1", () => {
+    const lua = transpileOptimized("declare let x: number;\nx++")
+
+    expect(lua).toContain("x += 1")
+    expect(lua).not.toMatch(/x = x \+ 1/)
+  })
+
+  it("rewrites x-- to x -= 1", () => {
+    const lua = transpileOptimized("declare let x: number;\nx--")
+
+    expect(lua).toContain("x -= 1")
+    expect(lua).not.toMatch(/x = x - 1/)
+  })
+
+  it("rewrites x += n to compound assignment", () => {
+    const lua = transpileOptimized("declare let x: number, n: number;\nx += n")
+
+    expect(lua).toContain("x += n")
+    expect(lua).not.toMatch(/x = x \+ n/)
+  })
+
+  it("does not rewrite without optimize flag", () => {
+    const lua = transpileSimple("declare let x: number;\nx++")
+
+    expect(lua).toContain("x = x + 1")
+  })
+
+  it("does not rewrite table index assignments", () => {
+    const lua = transpileOptimized("declare const obj: { count: number };\nobj.count++")
+
+    expect(lua).toContain("obj.count = obj.count + 1")
+  })
+
+  it("does not rewrite multi-operator RHS", () => {
+    const lua = transpileOptimized("declare let x: number, y: number;\nx = x + y + 1")
+
+    expect(lua).not.toContain("+=")
+  })
+})
+
+describe("optimize: floorMultiply", () => {
+  it("translates Math.floor((a / b) * c) to a * c // b", () => {
+    const lua = transpileOptimized(
+      "declare const used: number, limit: number;\nconst pct = Math.floor((used / limit) * 100)",
+    )
+
+    expect(lua).toContain("used * 100 // limit")
+    expect(lua).not.toContain("math.floor")
+  })
+
+  it("translates Math.floor(c * (a / b)) to c * a // b", () => {
+    const lua = transpileOptimized(
+      "declare const a: number, b: number;\nconst x = Math.floor(100 * (a / b))",
+    )
+
+    expect(lua).toContain("a * 100 // b")
+    expect(lua).not.toContain("math.floor")
+  })
+
+  it("does not optimize without floorMultiply flag", () => {
+    const lua = transpileSimple(
+      "declare const used: number, limit: number;\nconst pct = Math.floor((used / limit) * 100)",
+    )
+
+    expect(lua).toContain("math.floor")
+    expect(lua).not.toContain("//")
+  })
+
+  it("still optimizes plain Math.floor(a / b) without flag", () => {
+    const lua = transpileSimple("declare const a: number, b: number;\nconst x = Math.floor(a / b)")
+
+    expect(lua).toContain("a // b")
+    expect(lua).not.toContain("math.floor")
+  })
+
+  it("does not transform when arg is not multiply-of-division", () => {
+    const lua = transpileOptimized(
+      "declare const a: number, b: number;\nconst x = Math.floor(a * b)",
+    )
+
+    expect(lua).toContain("math.floor")
+    expect(lua).not.toContain("//")
+  })
+})
+
+describe("optimize: indexOf", () => {
+  it("translates s.indexOf(x) >= 0 to bare string.find", () => {
+    const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") >= 0')
+
+    expect(lua).toContain('string.find(s, "x", 1, true)')
+    expect(lua).not.toContain("or 0")
+    expect(lua).not.toContain("- 1")
+  })
+
+  it("translates s.indexOf(x) !== -1 to bare string.find", () => {
+    const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") !== -1')
+
+    expect(lua).toContain('string.find(s, "x", 1, true)')
+    expect(lua).not.toContain("or 0")
+    expect(lua).not.toContain("- 1")
+  })
+
+  it("translates s.indexOf(x) === -1 to not string.find", () => {
+    const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") === -1')
+
+    expect(lua).toContain('not string.find(s, "x", 1, true)')
+  })
+
+  it("translates s.indexOf(x) < 0 to not string.find", () => {
+    const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") < 0')
+
+    expect(lua).toContain('not string.find(s, "x", 1, true)')
+  })
+
+  it("translates arr.indexOf(x) >= 0 to bare table.find", () => {
+    const lua = transpileOptimized(
+      "interface Array<T> { indexOf(searchElement: T, fromIndex?: number): number; }\ndeclare const arr: number[];\nconst b = arr.indexOf(3) >= 0",
+    )
+
+    expect(lua).toContain("table.find(arr, 3)")
+    expect(lua).not.toContain("or 0")
+  })
+
+  it("translates arr.indexOf(x) === -1 to not table.find", () => {
+    const lua = transpileOptimized(
+      "interface Array<T> { indexOf(searchElement: T, fromIndex?: number): number; }\ndeclare const arr: number[];\nconst b = arr.indexOf(3) === -1",
+    )
+
+    expect(lua).toContain("not table.find(arr, 3)")
+  })
+
+  it("does not optimize without indexOf flag", () => {
+    const lua = transpileSimple('declare const s: string;\nconst b = s.indexOf("x") >= 0')
+
+    expect(lua).toContain("or 0) - 1")
+  })
+
+  it("bare indexOf without comparison still produces (find or 0) - 1", () => {
+    const lua = transpileOptimized('declare const s: string;\nconst i = s.indexOf("x")')
+
+    expect(lua).toContain("or 0) - 1")
+  })
+})
+
+describe("optimize: shortenTemps", () => {
+  it("shortens destructured return temp names", () => {
+    const lua = transpileOptimized(
+      "declare function fn(): { a: number, b: number };\nconst { a, b } = fn()",
+    )
+
+    expect(lua).toContain("_r0")
+    expect(lua).not.toContain("____fn_result")
+  })
+
+  it("assigns distinct short names for multiple destructured calls", () => {
+    const lua = transpileOptimized(
+      "declare function fn(): { a: number, b: number };\ndeclare function gn(): { c: number, d: number };\nconst { a, b } = fn();\nconst { c, d } = gn()",
+    )
+
+    expect(lua).toContain("_r0")
+    expect(lua).toContain("_r1")
+    expect(lua).not.toContain("____fn_result")
+    expect(lua).not.toContain("____gn_result")
+  })
+
+  it("does not shorten without shortenTemps flag", () => {
+    const lua = transpileSimple(
+      "declare function fn(): { a: number, b: number };\nconst { a, b } = fn()",
+    )
+
+    expect(lua).toContain("____fn_result")
+    expect(lua).not.toContain("_r0")
+  })
+
+  it("does not affect non-destructured code", () => {
+    const lua = transpileOptimized("declare function fn(): number;\nconst x = fn()")
+
+    expect(lua).not.toContain("_r0")
+  })
+
+  it("collapses consecutive field accesses into multi-assignment", () => {
+    const lua = transpileOptimized(
+      "declare function fn(): { a: number, b: number };\nfunction test() { const { a, b } = fn(); return a + b }",
+    )
+
+    expect(lua).toContain("local a, b = _r0.a, _r0.b")
+  })
+
+  it("collapses three or more fields", () => {
+    const lua = transpileOptimized(
+      "declare function fn(): { a: number, b: number, c: string };\nfunction test() { const { a, b, c } = fn(); return a }",
+    )
+
+    expect(lua).toContain("local a, b, c = _r0.a, _r0.b, _r0.c")
+  })
+
+  it("does not collapse single field access", () => {
+    const lua = transpileOptimized(
+      "declare function fn(): { a: number, b: number };\nfunction test() { const { a } = fn(); return a }",
+    )
+
+    expect(lua).toContain("local a = _r0.a")
+    expect(lua).not.toMatch(/local a,/)
+  })
+})
+
+describe("optimize: inlineLocals", () => {
+  it("merges forward-declared local with its assignment", () => {
+    const lua = transpileOptimized("function test() {\n  let x: number\n  x = 5\n  return x\n}")
+
+    expect(lua).toContain("local x = 5")
+    expect(lua).not.toMatch(/^\s*local x\s*$/m)
+  })
+
+  it("merges multiple forward-declared locals", () => {
+    const lua = transpileOptimized(
+      "function test() {\n  let x: number\n  let y: string\n  x = 5\n  y = 'hello'\n  return x\n}",
+    )
+
+    expect(lua).toContain("local x = 5")
+    expect(lua).toContain('local y = "hello"')
+  })
+
+  it("does not inline when variable is referenced before assignment", () => {
+    const lua = transpileOptimized(
+      "function test() {\n  let x: number\n  const y = x\n  x = 5\n  return y\n}",
+    )
+
+    expect(lua).toMatch(/^\s*local x\s*$/m)
+  })
+
+  it("does not inline without inlineLocals flag", () => {
+    const lua = transpileSimple("function test() {\n  let x: number\n  x = 5\n  return x\n}")
+
+    expect(lua).toMatch(/^\s*local x\s*$/m)
+    expect(lua).not.toContain("local x = 5")
+  })
+})
+
+describe("optimize: numericConcat", () => {
+  it("strips tostring from number-typed variables in template literals", () => {
+    const lua = transpileOptimized("declare const count: number;\nconst msg = `items: ${count}`")
+
+    expect(lua).toContain(".. count")
+    expect(lua).not.toContain("tostring(count)")
+  })
+
+  it("strips tostring from table length in template literals", () => {
+    const lua = transpileOptimized(
+      "declare const arr: number[];\nconst msg = `length: ${arr.length}`",
+    )
+
+    expect(lua).toContain(".. #arr")
+    expect(lua).not.toContain("tostring(#arr)")
+  })
+
+  it("strips tostring from arithmetic expressions in template literals", () => {
+    const lua = transpileOptimized(
+      "declare const a: number, b: number;\nconst msg = `sum: ${a + b}`",
+    )
+
+    expect(lua).not.toContain("tostring")
+  })
+
+  it("keeps tostring for boolean-typed interpolations", () => {
+    const lua = transpileOptimized("declare const flag: boolean;\nconst msg = `active: ${flag}`")
+
+    expect(lua).toContain("tostring(flag)")
+  })
+
+  it("keeps tostring for any-typed interpolations", () => {
+    const lua = transpileOptimized("declare const val: any;\nconst msg = `value: ${val}`")
+
+    expect(lua).toContain("tostring(val)")
+  })
+
+  it("preserves string interpolations without tostring", () => {
+    // Use `label` instead of `name` to avoid conflict with global Window.name
+    const lua = transpileOptimized("declare const label: string;\nconst msg = `hello ${label}`")
+
+    expect(lua).not.toContain("tostring")
+  })
+
+  it("handles mixed types in template literals", () => {
+    const lua = transpileOptimized(
+      "declare const label: string;\ndeclare const count: number;\ndeclare const flag: boolean;\nconst msg = `${label}: ${count} (${flag})`",
+    )
+
+    expect(lua).not.toContain("tostring(label)")
+    expect(lua).not.toContain("tostring(count)")
+    expect(lua).toContain("tostring(flag)")
+  })
+
+  it("does not strip tostring without numericConcat flag", () => {
+    const lua = transpileSimple("declare const count: number;\nconst msg = `items: ${count}`")
+
+    expect(lua).toContain("tostring(count)")
   })
 })

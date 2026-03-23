@@ -2,7 +2,10 @@ import * as ts from "typescript"
 import * as tstl from "typescript-to-lua"
 import { getPlugins } from "typescript-to-lua/dist/transpilation/plugins"
 import { getProgramTranspileResult } from "typescript-to-lua/dist/transpilation/transpile"
-import plugin from "../index"
+import createPlugin from "../index"
+
+const plugin = createPlugin()
+const optimizedPlugin = createPlugin({ optimize: true })
 
 const tsLibDir = ts.getDefaultLibFilePath({}).replace(/[/\\][^/\\]+$/, "")
 
@@ -102,6 +105,21 @@ function transpileWith(
     sourceFiles: [mainFile],
   })
 
+  // getProgramTranspileResult calls afterPrint but not beforeEmit/afterEmit; invoke manually.
+  const noopEmitHost = { writeFile: () => {} } as unknown as tstl.EmitHost
+
+  for (const p of plugins) {
+    if (p.beforeEmit) {
+      p.beforeEmit(program, options, noopEmitHost, result.transpiledFiles)
+    }
+  }
+
+  for (const p of plugins) {
+    if (p.afterEmit) {
+      p.afterEmit(program, options, noopEmitHost, result.transpiledFiles as tstl.EmitFile[])
+    }
+  }
+
   return { code: result.transpiledFiles[0]?.code ?? "", program }
 }
 
@@ -124,6 +142,26 @@ export function transpile(code: string) {
   const result = transpileWith({ "main.ts": code }, simpleOptions, simpleOldProgram)
 
   simpleOldProgram = result.program
+
+  return result.code
+}
+
+// Optimized transpile (optimize: true), no type files
+let simpleOptimizedOldProgram: ts.Program | undefined
+
+const simpleOptimizedOptions: tstl.CompilerOptions = {
+  ...simpleOptions,
+  luaPlugins: [{ plugin: optimizedPlugin as tstl.Plugin }],
+}
+
+export function transpileOptimized(code: string) {
+  const result = transpileWith(
+    { "main.ts": code },
+    simpleOptimizedOptions,
+    simpleOptimizedOldProgram,
+  )
+
+  simpleOptimizedOldProgram = result.program
 
   return result.code
 }

@@ -1,0 +1,281 @@
+--[[
+Sim-Wide Chat Relay — dialog prompt handler
+
+Isolates ll.TextBox calls (which have a 1-second sleep) from the sender
+script so that relay message routing is never stalled.
+
+Receives requests via link message, prompts the avatar, and sends the
+completed command back to the sender via link message.
+
+@link https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay
+]]
+
+--[[ Generated with @gwigz/slua - https://github.com/gwigz/slua ]]
+
+--- Note, these are defaults, use the `settings.yml` notecard to override them
+local config = { DIALOG_CHANNEL = -1731704570, RATE_LIMIT = 5, PENDING_TIMEOUT = 30 }
+
+-- Lua Library inline imports
+local function __TS__ArrayIsArray(value)
+	return type(value) == "table" and (value[1] ~= nil or next(value) == nil)
+end
+
+local function __TS__ArrayMap(self, callbackfn, thisArg)
+	local result = {}
+
+	for i = 1, #self do
+		result[i] = callbackfn(thisArg, self[i], i - 1, self)
+	end
+
+	return result
+end
+
+-- End of Lua Library inline imports
+local forceCache, NOTECARD_NAME
+
+function forceCache(callback)
+	local requestId = ll.GetNotecardLine(NOTECARD_NAME, 1)
+
+	local function handler(id, _data)
+		if id ~= requestId then
+			return
+		end
+
+		LLEvents:off("dataserver", handler)
+		callback()
+	end
+
+	LLEvents:on("dataserver", handler)
+end
+
+NOTECARD_NAME = "settings.yml"
+
+local function readNotecardSync(callback)
+	local lines = {}
+	local lineNum = 0
+
+	while true do
+		local line = ll.GetNotecardLineSync(NOTECARD_NAME, lineNum + 1)
+
+		if line == NAK then
+			forceCache(function()
+				return readNotecardSync(callback)
+			end)
+			return
+		end
+
+		if line == EOF then
+			break
+		end
+
+		lines[#lines + 1] = line
+		lineNum += 1
+	end
+
+	callback(lines)
+end
+
+local function parseLines(lines)
+	local parsed = {}
+
+	for ____, line in ipairs(lines) do
+		local trimmed = ll.StringTrim(line, STRING_TRIM)
+
+		if trimmed == "" or string.find(trimmed, "#", 1, true) == 1 then
+			continue
+		end
+
+		local sepIndex = (string.find(trimmed, ":", 1, true) or 0) - 1
+
+		if sepIndex == -1 then
+			continue
+		end
+
+		local key = ll.StringTrim(string.sub(trimmed, 1, sepIndex), STRING_TRIM)
+
+		local value = ll.StringTrim(string.sub(trimmed, sepIndex + 1 + 1), STRING_TRIM)
+		parsed[key] = value
+	end
+
+	return parsed
+end
+
+local function applyConfig(config, parsed)
+	for key in pairs(parsed) do
+		if config[key] == nil then
+			continue
+		end
+
+		local value = parsed[key]
+		local existing = config[key]
+
+		if type(existing) == "number" then
+			local num = tonumber(value)
+
+			if num ~= nil then
+				config[key] = num
+			end
+		elseif __TS__ArrayIsArray(existing) then
+			if value == "" then
+				config[key] = {}
+			else
+				config[key] = __TS__ArrayMap(string.split(value, ","), function(____, s)
+					return ll.StringTrim(s, STRING_TRIM)
+				end)
+			end
+		else
+			config[key] = ll.ReplaceSubString(value, "\\n", "\n", 0)
+		end
+	end
+end
+
+local function loadConfig(config, callback)
+	readNotecardSync(function(lines)
+		applyConfig(config, parseLines(lines))
+		callback()
+	end)
+end
+
+local function onConfigChanged(config, callback)
+	local lastKey = ll.GetInventoryKey(NOTECARD_NAME)
+
+	LLEvents:on("changed", function(changed)
+		if not bit32.btest(changed, CHANGED_INVENTORY) then
+			return
+		end
+
+		local currentKey = ll.GetInventoryKey(NOTECARD_NAME)
+
+		if currentKey == lastKey then
+			return
+		end
+
+		lastKey = currentKey
+		readNotecardSync(function(lines)
+			applyConfig(config, parseLines(lines))
+			callback()
+		end)
+	end)
+end
+
+-- Lua Library inline imports
+local function __TS__ObjectEntries(obj)
+	local result = {}
+	local len = 0
+
+	for key in pairs(obj) do
+		len += 1
+		result[len] = { key, obj[key] }
+	end
+
+	return result
+end
+
+-- End of Lua Library inline imports
+local pending = {}
+local lastRequest = {}
+local dialogListenHandle
+
+local function startListening()
+	if dialogListenHandle ~= nil then
+		ll.ListenRemove(dialogListenHandle)
+	end
+
+	dialogListenHandle = ll.Listen(config.DIALOG_CHANNEL, "", NULL_KEY, "")
+end
+
+local function cleanupStale()
+	local now = ll.GetUnixTime()
+
+	for ____, ____value in ipairs(__TS__ObjectEntries(pending)) do
+		local key = ____value[1]
+		local entry = ____value[2]
+
+		if now - entry.timestamp > config.PENDING_TIMEOUT then
+			pending[key] = nil
+		end
+	end
+end
+
+LLEvents:on("link_message", function(_link, _num, action, avatarKey)
+	if action ~= "block" and action ~= "unblock" then
+		return
+	end
+
+	local now = ll.GetUnixTime()
+	local last = lastRequest[avatarKey]
+
+	if last ~= nil and now - last < config.RATE_LIMIT then
+		return
+	end
+
+	lastRequest[avatarKey] = now
+	pending[avatarKey] = { action = action, timestamp = now }
+
+	local prompt = if action == "block"
+		then "Enter the UUID of the avatar to block:"
+		else "Enter the UUID of the avatar to unblock:"
+
+	ll.TextBox(uuid.create(avatarKey), prompt, config.DIALOG_CHANNEL)
+end)
+
+LLEvents:on("listen", function(channel, _name, id, text)
+	if channel ~= config.DIALOG_CHANNEL then
+		return
+	end
+
+	local avatarKey = tostring(id)
+	local entry = pending[avatarKey]
+
+	if entry == nil then
+		return
+	end
+
+	pending[avatarKey] = nil
+
+	ll.MessageLinked(LINK_THIS, 0, (entry.action .. " ") .. ll.StringTrim(text, STRING_TRIM), avatarKey)
+end)
+
+LLTimers:every(config.PENDING_TIMEOUT, cleanupStale)
+
+loadConfig(config, function()
+	startListening()
+
+	onConfigChanged(config, function()
+		ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
+		startListening()
+	end)
+end)
+
+--- Derives a unique positive command channel for an avatar
+local function commandChannel(avatarKey, nonce)
+	local hash = ll.MD5String(avatarKey, nonce)
+
+	return tonumber("0x" .. string.sub(hash, 1, 7)) % 10000000 + 1
+end
+
+local function sign(payload, nonce, window)
+	local bucket = ll.GetUnixTime() // window
+
+	return (string.sub(ll.MD5String((bucket .. "|") .. payload, nonce), 1, 8) .. "|") .. payload
+end
+
+local function verify(text, nonce, window)
+	if #text < 10 then
+		return nil
+	end
+
+	local hash = string.sub(text, 1, 8)
+	local payload = string.sub(text, 10)
+	local bucket = ll.GetUnixTime() // window
+
+	if
+		hash == string.sub(ll.MD5String((bucket .. "|") .. payload, nonce), 1, 8)
+		or hash
+			== string.sub(ll.MD5String((bucket - 1 .. "|") .. payload, nonce), 1, 8)
+	then
+		return payload
+	end
+
+	return nil
+end

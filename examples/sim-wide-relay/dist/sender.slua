@@ -19,7 +19,6 @@ display cleanly.
 local config = {
 
 	PRIVATE_CHANNEL = -1731704569,
-	DIALOG_CHANNEL = -1731704570,
 	SIGN_NONCE = -1977872753,
 	SIGN_WINDOW = 2,
 	IGNORED_AVATARS = {},
@@ -342,8 +341,6 @@ local function parseCommandArg(cmd, text, ...)
 	return nil
 end
 
-local pendingActions = {}
-
 local function formatRelayMessage(speakerId, message)
 	local link = profileLink(speakerId)
 
@@ -404,15 +401,19 @@ local function handleCommand(avatarId, text)
 	end
 
 	if cmd == "mute" or cmd == "block" then
-		pendingActions[avatarKey] = "block"
-		ll.TextBox(avatarId, "Enter the UUID of the avatar to block:", config.DIALOG_CHANNEL)
+		ll.MessageLinked(LINK_THIS, 0, "block", avatarKey)
 
 		return
 	end
 
 	if cmd == "unmute" or cmd == "unblock" then
-		pendingActions[avatarKey] = "unblock"
-		ll.TextBox(avatarId, "Enter the UUID of the avatar to unblock:", config.DIALOG_CHANNEL)
+		if #getBlockList(avatarKey) == 0 then
+			sendCommandResponse(avatarId, "Your block list is empty")
+
+			return
+		end
+
+		ll.MessageLinked(LINK_THIS, 0, "unblock", avatarKey)
 
 		return
 	end
@@ -554,41 +555,24 @@ local function relayToOutOfRange(speakerId, message)
 end
 
 local listenHandle
-local textboxListenHandle
 
 local function startListening()
 	if listenHandle ~= nil then
 		ll.ListenRemove(listenHandle)
 	end
 
-	if textboxListenHandle ~= nil then
-		ll.ListenRemove(textboxListenHandle)
-	end
-
 	listenHandle = ll.Listen(config.PRIVATE_CHANNEL, "", NULL_KEY, "")
-	textboxListenHandle = ll.Listen(config.DIALOG_CHANNEL, "", NULL_KEY, "")
 end
 
-local function handleTextBoxResponse(id, text)
-	local avatarKey = tostring(id)
-	local action = pendingActions[avatarKey]
-
-	if action == nil then
+LLEvents:on("link_message", function(_link, _num, text, avatarKey)
+	if not (string.find(text, "block ", 1, true) == 1) and not (string.find(text, "unblock ", 1, true) == 1) then
 		return
 	end
 
-	pendingActions[avatarKey] = nil
-
-	handleCommand(id, (tostring(action) .. " ") .. ll.StringTrim(text, STRING_TRIM))
-end
+	handleCommand(uuid.create(avatarKey), text)
+end)
 
 LLEvents:on("listen", function(channel, _name, id, text)
-	if channel == config.DIALOG_CHANNEL then
-		handleTextBoxResponse(id, text)
-
-		return
-	end
-
 	if channel ~= config.PRIVATE_CHANNEL then
 		return
 	end

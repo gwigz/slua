@@ -46,9 +46,6 @@ function parseCommandArg(cmd: string, text: string, ...aliases: string[]): strin
   return undefined
 }
 
-// Track pending TextBox actions per avatar
-const pendingActions: Record<string, "block" | "unblock"> = {}
-
 function formatRelayMessage(speakerId: string, message: string): string {
   const link = profileLink(speakerId)
 
@@ -106,14 +103,17 @@ function handleCommand(avatarId: UUID, text: string) {
   }
 
   if (cmd === "mute" || cmd === "block") {
-    pendingActions[avatarKey] = "block"
-    ll.TextBox(avatarId, "Enter the UUID of the avatar to block:", config.DIALOG_CHANNEL)
+    ll.MessageLinked(LINK_THIS, 0, "block", avatarKey)
     return
   }
 
   if (cmd === "unmute" || cmd === "unblock") {
-    pendingActions[avatarKey] = "unblock"
-    ll.TextBox(avatarId, "Enter the UUID of the avatar to unblock:", config.DIALOG_CHANNEL)
+    if (getBlockList(avatarKey).length === 0) {
+      sendCommandResponse(avatarId, "Your block list is empty")
+      return
+    }
+
+    ll.MessageLinked(LINK_THIS, 0, "unblock", avatarKey)
     return
   }
 
@@ -244,40 +244,25 @@ function relayToOutOfRange(speakerId: UUID, message: string) {
 }
 
 let listenHandle: number | undefined
-let textboxListenHandle: number | undefined
 
 function startListening() {
   if (listenHandle !== undefined) {
     ll.ListenRemove(listenHandle)
   }
 
-  if (textboxListenHandle !== undefined) {
-    ll.ListenRemove(textboxListenHandle)
-  }
-
   listenHandle = ll.Listen(config.PRIVATE_CHANNEL, "", NULL_KEY, "")
-  textboxListenHandle = ll.Listen(config.DIALOG_CHANNEL, "", NULL_KEY, "")
 }
 
-function handleTextBoxResponse(id: UUID, text: string) {
-  const avatarKey = tostring(id)
-  const action = pendingActions[avatarKey]
-
-  if (action === undefined) {
+// Receive completed TextBox commands from dialog script
+LLEvents.on("link_message", (_link, _num, text, avatarKey) => {
+  if (!text.startsWith("block ") && !text.startsWith("unblock ")) {
     return
   }
 
-  pendingActions[avatarKey] = undefined!
-
-  handleCommand(id, `${action} ${text.trim()}`)
-}
+  handleCommand(new UUID(avatarKey), text)
+})
 
 LLEvents.on("listen", (channel, _name, id, text) => {
-  if (channel === config.DIALOG_CHANNEL) {
-    handleTextBoxResponse(id, text)
-    return
-  }
-
   if (channel !== config.PRIVATE_CHANNEL) {
     return
   }

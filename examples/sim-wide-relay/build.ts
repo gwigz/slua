@@ -7,7 +7,7 @@ import { resolve } from "node:path"
 const WATCH = process.argv.includes("--watch")
 const GENERATED_HEADER = "--[[ Generated with @gwigz/slua - https://github.com/gwigz/slua ]]"
 
-const SCRIPTS = ["coordinator", "listener", "sender"]
+const SCRIPTS = ["coordinator", "listener", "sender", "dialog"]
 const DIST_FILES = SCRIPTS.map((s) => `dist/${s}.slua`)
 
 const BASE_OPTIONS: tstl.CompilerOptions = {

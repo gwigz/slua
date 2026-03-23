@@ -1,290 +1,458 @@
---[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+--[[
+Sim-Wide Chat Relay — pool coordinator
 
-local ____modules = {}
-local ____moduleCache = {}
-local ____originalRequire = require
-local function require(file, ...)
-    if ____moduleCache[file] then
-        return ____moduleCache[file].value
-    end
-    if ____modules[file] then
-        local module = ____modules[file]
-        local value = nil
-        if (select("#", ...) > 0) then value = module(...) else value = module(file) end
-        ____moduleCache[file] = { value = value }
-        return value
-    else
-        if ____originalRequire then
-            return ____originalRequire(file)
-        else
-            error("module '" .. file .. "' not found")
-        end
-    end
+Manages a dynamic pool of listener objects that follow avatars around
+the region. When an avatar arrives, a free listener is assigned and
+positioned near them. When they leave, the listener is reclaimed.
+
+Listeners are rezzed in batches to avoid overflowing the event queue.
+The pool auto-scales between POOL_BUFFER and POOL_BUFFER_MAX, and a
+periodic verify pass replaces any listeners that have gone missing.
+
+Two-way linkset data mappings (l:<listener> -> avatar, a:<avatar> ->
+listener) let the sender script resolve assignments without KV lookups.
+
+@link https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay
+]]
+
+--[[ Generated with @gwigz/slua - https://github.com/gwigz/slua ]]
+
+--- Note, these are defaults, use the `settings.yml` notecard to override them
+local config = {
+
+	PRIVATE_CHANNEL = -1731704569,
+	SIGN_NONCE = -1977872753,
+	SIGN_WINDOW = 2,
+	IGNORED_AVATARS = {},
+	MAX_BLOCKS = 10,
+	LISTENER_OBJECT = "Relay Listener",
+	WELCOME_MESSAGE = "You're now connected to a sim-wide chat relay, your chat will be relayed to everyone in the region."
+		.. ' [{help} Click here] for a list of chat commands, or type "!help".',
+	POLL_INTERVAL = 3,
+	POOL_BUFFER = 10,
+	POOL_BUFFER_MAX = 20,
+	REZ_BATCH_SIZE = 20,
+}
+
+-- Lua Library inline imports
+local function __TS__ArrayIsArray(value)
+	return type(value) == "table" and (value[1] ~= nil or next(value) == nil)
 end
-____modules = {
-["shared"] = function(...) 
---[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
-local ____exports = {}
-____exports.PRIVATE_CHANNEL = -1731704569
-____exports.IGNORED_AVATARS = {}
---- Time bucket size in seconds for message signing
-local SIGN_WINDOW = 2
-local SIGN_NONCE = -1977872753
-function ____exports.sign(payload)
-    local bucket = ll.GetUnixTime() // SIGN_WINDOW
-    return (string.sub(
-        ll.MD5String(
-            (tostring(bucket) .. "|") .. payload,
-            SIGN_NONCE
-        ),
-        1,
-        8
-    ) .. "|") .. payload
+
+local function __TS__ArrayMap(self, callbackfn, thisArg)
+	local result = {}
+
+	for i = 1, #self do
+		result[i] = callbackfn(thisArg, self[i], i - 1, self)
+	end
+
+	return result
 end
-function ____exports.verify(text)
-    if #text < 10 then
-        return nil
-    end
-    local hash = string.sub(text, 1, 8)
-    local payload = string.sub(text, 10)
-    local bucket = ll.GetUnixTime() // SIGN_WINDOW
-    if hash == string.sub(
-        ll.MD5String(
-            (tostring(bucket) .. "|") .. payload,
-            SIGN_NONCE
-        ),
-        1,
-        8
-    ) or hash == string.sub(
-        ll.MD5String(
-            (tostring(bucket - 1) .. "|") .. payload,
-            SIGN_NONCE
-        ),
-        1,
-        8
-    ) then
-        return payload
-    end
-    return nil
+
+-- End of Lua Library inline imports
+local forceCache, NOTECARD_NAME
+
+function forceCache(callback)
+	local requestId = ll.GetNotecardLine(NOTECARD_NAME, 1)
+
+	local function handler(id, _data)
+		if id ~= requestId then
+			return
+		end
+
+		LLEvents:off("dataserver", handler)
+		callback()
+	end
+
+	LLEvents:on("dataserver", handler)
 end
-return ____exports
- end,
-["coordinator"] = function(...) 
---[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
-local ____exports = {}
-local rezBatched, writeAssignment, assignListener, ensureBuffer, assignedCount, totalListeners, updateDiagnostics, LISTENER_OBJECT, poolSize, POOL_BUFFER, assignedListeners, freeListeners, REZ_BATCH_SIZE
-local ____shared = require("shared")
-local IGNORED_AVATARS = ____shared.IGNORED_AVATARS
-local PRIVATE_CHANNEL = ____shared.PRIVATE_CHANNEL
-local sign = ____shared.sign
+
+NOTECARD_NAME = "settings.yml"
+
+local function readNotecardSync(callback)
+	local lines = {}
+	local lineNum = 0
+
+	while true do
+		local line = ll.GetNotecardLineSync(NOTECARD_NAME, lineNum + 1)
+
+		if line == NAK then
+			forceCache(function()
+				return readNotecardSync(callback)
+			end)
+			return
+		end
+
+		if line == EOF then
+			break
+		end
+
+		lines[#lines + 1] = line
+		lineNum += 1
+	end
+
+	callback(lines)
+end
+
+local function parseLines(lines)
+	local parsed = {}
+
+	for ____, line in ipairs(lines) do
+		local trimmed = ll.StringTrim(line, STRING_TRIM)
+
+		if trimmed == "" or string.find(trimmed, "#", 1, true) == 1 then
+			continue
+		end
+
+		local sepIndex = (string.find(trimmed, ":", 1, true) or 0) - 1
+
+		if sepIndex == -1 then
+			continue
+		end
+
+		local key = ll.StringTrim(string.sub(trimmed, 1, sepIndex), STRING_TRIM)
+
+		local value = ll.StringTrim(string.sub(trimmed, sepIndex + 1 + 1), STRING_TRIM)
+		parsed[key] = value
+	end
+
+	return parsed
+end
+
+local function applyConfig(config, parsed)
+	for key in pairs(parsed) do
+		if config[key] == nil then
+			continue
+		end
+
+		local value = parsed[key]
+		local existing = config[key]
+
+		if type(existing) == "number" then
+			local num = tonumber(value)
+
+			if num ~= nil then
+				config[key] = num
+			end
+		elseif __TS__ArrayIsArray(existing) then
+			if value == "" then
+				config[key] = {}
+			else
+				config[key] = __TS__ArrayMap(string.split(value, ","), function(____, s)
+					return ll.StringTrim(s, STRING_TRIM)
+				end)
+			end
+		else
+			config[key] = ll.ReplaceSubString(value, "\\n", "\n", 0)
+		end
+	end
+end
+
+local function loadConfig(config, callback)
+	readNotecardSync(function(lines)
+		applyConfig(config, parseLines(lines))
+		callback()
+	end)
+end
+
+local function onConfigChanged(config, callback)
+	local lastKey = ll.GetInventoryKey(NOTECARD_NAME)
+
+	LLEvents:on("changed", function(changed)
+		if not bit32.btest(changed, CHANGED_INVENTORY) then
+			return
+		end
+
+		local currentKey = ll.GetInventoryKey(NOTECARD_NAME)
+
+		if currentKey == lastKey then
+			return
+		end
+
+		lastKey = currentKey
+		readNotecardSync(function(lines)
+			applyConfig(config, parseLines(lines))
+			callback()
+		end)
+	end)
+end
+
+--- Derives a unique positive command channel for an avatar
+local function commandChannel(avatarKey, nonce)
+	local hash = ll.MD5String(avatarKey, nonce)
+
+	return tonumber("0x" .. string.sub(hash, 1, 7)) % 10000000 + 1
+end
+
+local function sign(payload, nonce, window)
+	local bucket = ll.GetUnixTime() // window
+
+	return (string.sub(ll.MD5String((bucket .. "|") .. payload, nonce), 1, 8) .. "|") .. payload
+end
+
+local function verify(text, nonce, window)
+	if #text < 10 then
+		return nil
+	end
+
+	local hash = string.sub(text, 1, 8)
+	local payload = string.sub(text, 10)
+	local bucket = ll.GetUnixTime() // window
+
+	if
+		hash == string.sub(ll.MD5String((bucket .. "|") .. payload, nonce), 1, 8)
+		or hash
+			== string.sub(ll.MD5String((bucket - 1 .. "|") .. payload, nonce), 1, 8)
+	then
+		return payload
+	end
+
+	return nil
+end
+
+local rezBatched, writeAssignment, assignListener, ensureBuffer, assignedCount, totalListeners, updateDiagnostics, poolSize, assignedListeners, freeListeners
+
 function rezBatched(count)
-    local pos = ll.GetPos()
-    local rot = ll.GetRot()
-    local remaining = count
-    local function rezBatch()
-        local batch = math.min(REZ_BATCH_SIZE, remaining)
-        do
-            local i = 0
-            while i < batch do
-                ll.RezObject(
-                    LISTENER_OBJECT,
-                    pos,
-                    vector.create(0, 0, 0),
-                    rot,
-                    0
-                )
-                i = i + 1
-            end
-        end
-        remaining = remaining - batch
-        if remaining > 0 then
-            LLTimers:once(1, rezBatch)
-        end
-    end
-    rezBatch()
+	local pos = ll.GetPos()
+	local rot = ll.GetRot()
+	local remaining = count
+
+	local function rezBatch()
+		local startString = (((config.PRIVATE_CHANNEL .. "|") .. config.SIGN_NONCE) .. "|") .. config.SIGN_WINDOW
+		local batch = math.min(config.REZ_BATCH_SIZE, remaining)
+
+		do
+			local i = 0
+
+			while i < batch do
+				ll.RezObjectWithParams(config.LISTENER_OBJECT, {
+					REZ_POS,
+					pos,
+					0,
+					0,
+					REZ_ROT,
+					rot,
+					0,
+					REZ_PARAM_STRING,
+					startString,
+				})
+				i += 1
+			end
+		end
+
+		remaining -= batch
+
+		if remaining > 0 then
+			LLTimers:once(1, rezBatch)
+		end
+	end
+
+	rezBatch()
 end
+
 function writeAssignment(avatar, listener)
-    ll.LinksetDataWrite(
-        "l:" .. tostring(listener),
-        tostring(avatar)
-    )
-    ll.LinksetDataWrite(
-        "a:" .. tostring(avatar),
-        tostring(listener)
-    )
+	ll.LinksetDataWrite("l:" .. tostring(listener), tostring(avatar))
+
+	ll.LinksetDataWrite("a:" .. tostring(avatar), tostring(listener))
 end
+
 function assignListener(avatar)
-    if #freeListeners == 0 then
-        ll.Say(
-            DEBUG_CHANNEL,
-            "Pool exhausted, no listener for " .. ll.Key2Name(avatar)
-        )
-        return
-    end
-    local listener = table.remove(freeListeners)
-    local key = tostring(avatar)
-    assignedListeners[key] = listener
-    writeAssignment(avatar, listener)
-    ll.RegionSayTo(
-        listener,
-        PRIVATE_CHANNEL,
-        sign("ASSIGN|" .. key)
-    )
+	if #freeListeners == 0 then
+		ll.Say(DEBUG_CHANNEL, "Pool exhausted, no listener for " .. ll.Key2Name(avatar))
+
+		return
+	end
+
+	local listener = table.remove(freeListeners)
+	local key = tostring(avatar)
+
+	assignedListeners[key] = listener
+	writeAssignment(avatar, listener)
+
+	ll.RegionSayTo(listener, config.PRIVATE_CHANNEL, sign("ASSIGN|" .. key, config.SIGN_NONCE, config.SIGN_WINDOW))
+
+	ll.RegionSayTo(
+		avatar,
+		0,
+		ll.ReplaceSubString(
+			config.WELCOME_MESSAGE,
+			"{help}",
+			("secondlife:///app/chat/" .. commandChannel(key, config.SIGN_NONCE)) .. "/help",
+			1
+		)
+	)
 end
+
 function ensureBuffer()
-    local needed = POOL_BUFFER - #freeListeners
-    if needed > 0 then
-        local room = poolSize - totalListeners()
-        local toRez = math.min(needed, room)
-        if toRez > 0 then
-            rezBatched(toRez)
-        end
-    end
+	local needed = config.POOL_BUFFER - #freeListeners
+
+	if needed > 0 then
+		local room = poolSize - totalListeners()
+		local toRez = math.min(needed, room)
+
+		if toRez > 0 then
+			rezBatched(toRez)
+		end
+	end
 end
+
 function assignedCount()
-    local count = 0
-    for _ in pairs(assignedListeners) do
-        count = count + 1
-    end
-    return count
+	local count = 0
+
+	for _ in pairs(assignedListeners) do
+		count += 1
+	end
+
+	return count
 end
+
 function totalListeners()
-    return assignedCount() + #freeListeners
+	return assignedCount() + #freeListeners
 end
+
 function updateDiagnostics()
-    local assigned = assignedCount()
-    local free = #freeListeners
-    local total = assigned + free
-    local text = (((((("Sim-Wide Chat\nPool: " .. tostring(total)) .. "/") .. tostring(poolSize)) .. "\nAssigned: ") .. tostring(assigned)) .. " ⋅ Free: ") .. tostring(free)
-    local color = if free == 0 then vector.create(1, 0.3, 0.3) else vector.create(0.5, 1, 0.5)
-    ll.SetLinkPrimitiveParamsFast(LINK_THIS, {PRIM_TEXT, text, color, 1})
+	local assigned = assignedCount()
+	local free = #freeListeners
+	local total = assigned + free
+	local text = (
+		((((("Sim-Wide Chat\n—\nPool: " .. total) .. "/") .. poolSize) .. "\nAssigned: ") .. assigned) .. " ⋅ Free: "
+	) .. free
+	local color = if free == 0 then vector.create(1, 0.3, 0.3) else vector.create(0.5, 1, 0.5)
+
+	ll.SetLinkPrimitiveParamsFast(LINK_THIS, { PRIM_TEXT, text, color, 1 })
 end
-LISTENER_OBJECT = "Relay Listener"
---- How often to poll for avatar changes (seconds)
-local POLL_INTERVAL = 3
+
 poolSize = tonumber(ll.GetEnv("agent_limit"))
-POOL_BUFFER = 10
---- Maximum free listeners before culling excess
-local POOL_BUFFER_MAX = 20
 assignedListeners = {}
 freeListeners = {}
-REZ_BATCH_SIZE = 20
-LLEvents:on(
-    "object_rez",
-    function(rezzedId)
-        freeListeners[#freeListeners + 1] = rezzedId
-    end
-)
+
+LLEvents:on("object_rez", function(rezzedId)
+	freeListeners[#freeListeners + 1] = rezzedId
+end)
+
 local function clearAssignment(avatarKey, listener)
-    ll.LinksetDataWrite(
-        "l:" .. tostring(listener),
-        ""
-    )
-    ll.LinksetDataWrite("a:" .. avatarKey, "")
+	ll.LinksetDataWrite("l:" .. tostring(listener), "")
+	ll.LinksetDataWrite("a:" .. avatarKey, "")
 end
+
 local function pollAgents()
-    local agents = ll.GetAgentList(AGENT_LIST_REGION, {})
-    local agentKeys = {}
-    for ____, agent in ipairs(agents) do
-        agentKeys[tostring(agent)] = true
-    end
-    for key in pairs(assignedListeners) do
-        if agentKeys[key] then
-            continue
-        end
-        local listener = assignedListeners[key]
-        ll.RegionSayTo(
-            listener,
-            PRIVATE_CHANNEL,
-            sign("UNASSIGN")
-        )
-        clearAssignment(key, listener)
-        assignedListeners[key] = nil
-        freeListeners[#freeListeners + 1] = listener
-    end
-    for ____, agent in ipairs(agents) do
-        local key = tostring(agent)
-        if assignedListeners[key] == nil and not (table.find(IGNORED_AVATARS, key) ~= nil) then
-            assignListener(agent)
-        end
-    end
-    ensureBuffer()
-    updateDiagnostics()
+	local agents = ll.GetAgentList(AGENT_LIST_REGION, {})
+	local agentKeys = {}
+
+	for ____, agent in ipairs(agents) do
+		agentKeys[tostring(agent)] = true
+	end
+
+	for key in pairs(assignedListeners) do
+		if agentKeys[key] then
+			continue
+		end
+
+		local listener = assignedListeners[key]
+
+		ll.RegionSayTo(listener, config.PRIVATE_CHANNEL, sign("UNASSIGN", config.SIGN_NONCE, config.SIGN_WINDOW))
+		clearAssignment(key, listener)
+		assignedListeners[key] = nil
+		freeListeners[#freeListeners + 1] = listener
+	end
+
+	for ____, agent in ipairs(agents) do
+		local key = tostring(agent)
+
+		if assignedListeners[key] == nil and not (table.find(config.IGNORED_AVATARS, key) ~= nil) then
+			assignListener(agent)
+		end
+	end
+
+	ensureBuffer()
+	updateDiagnostics()
 end
+
 local function verifyListeners()
-    local rezCount = 0
-    local remaining = {}
-    for ____, listener in ipairs(freeListeners) do
-        if #ll.GetObjectDetails(listener, {OBJECT_POS}) > 0 then
-            remaining[#remaining + 1] = listener
-        else
-            rezCount = rezCount + 1
-        end
-    end
-    freeListeners = remaining
-    for key in pairs(assignedListeners) do
-        local listener = assignedListeners[key]
-        if #ll.GetObjectDetails(listener, {OBJECT_POS}) == 0 then
-            clearAssignment(key, listener)
-            assignedListeners[key] = nil
-            rezCount = rezCount + 1
-        end
-    end
-    if rezCount > 0 then
-        ll.Say(
-            DEBUG_CHANNEL,
-            tostring(rezCount) .. " listener(s) missing, rezzing replacements..."
-        )
-        rezBatched(rezCount)
-    end
+	local rezCount = 0
+	local remaining = {}
+
+	for ____, listener in ipairs(freeListeners) do
+		if #ll.GetObjectDetails(listener, { OBJECT_POS }) > 0 then
+			remaining[#remaining + 1] = listener
+		else
+			rezCount += 1
+		end
+	end
+
+	freeListeners = remaining
+
+	for key in pairs(assignedListeners) do
+		local listener = assignedListeners[key]
+
+		if #ll.GetObjectDetails(listener, { OBJECT_POS }) == 0 then
+			clearAssignment(key, listener)
+			assignedListeners[key] = nil
+			rezCount += 1
+		end
+	end
+
+	if rezCount > 0 then
+		ll.Say(DEBUG_CHANNEL, rezCount .. " listener(s) missing, rezzing replacements...")
+		rezBatched(rezCount)
+	end
 end
+
 local function cullExcess()
-    while #freeListeners > POOL_BUFFER_MAX do
-        local listener = table.remove(freeListeners)
-        ll.RegionSayTo(
-            listener,
-            PRIVATE_CHANNEL,
-            sign("KILL")
-        )
-    end
+	while #freeListeners > config.POOL_BUFFER_MAX do
+		local listener = table.remove(freeListeners)
+
+		ll.RegionSayTo(listener, config.PRIVATE_CHANNEL, sign("KILL", config.SIGN_NONCE, config.SIGN_WINDOW))
+	end
 end
-ll.RegionSay(
-    PRIVATE_CHANNEL,
-    sign("KILL")
-)
-ll.LinksetDataReset()
-local initialPool = POOL_BUFFER
-ll.SetLinkPrimitiveParamsFast(
-    LINK_THIS,
-    {
-        PRIM_TEXT,
-        ("Sim-Wide Chat\nRezzing " .. tostring(initialPool)) .. " listeners...",
-        vector.create(1, 1, 0),
-        1
-    }
-)
-rezBatched(initialPool)
-local rezCheck
-rezCheck = LLTimers:every(
-    1,
-    function()
-        if #freeListeners < initialPool then
-            return
-        end
-        LLTimers:off(rezCheck)
-        pollAgents()
-        LLTimers:every(POLL_INTERVAL, pollAgents)
-        LLTimers:every(
-            30,
-            function()
-                verifyListeners()
-                cullExcess()
-            end
-        )
-    end
-)
-return ____exports
- end,
-}
-local ____entry = require("coordinator", ...)
-return ____entry
+
+local function killAllListeners()
+	ll.RegionSay(config.PRIVATE_CHANNEL, sign("KILL", config.SIGN_NONCE, config.SIGN_WINDOW))
+end
+
+local function startPool()
+	killAllListeners()
+	ll.LinksetDataDeleteFound("^[la]:", "")
+
+	for key in pairs(assignedListeners) do
+		assignedListeners[key] = nil
+	end
+
+	freeListeners = {}
+
+	local initialPool = config.POOL_BUFFER
+
+	ll.SetLinkPrimitiveParamsFast(LINK_THIS, {
+		PRIM_TEXT,
+		("Sim-Wide Chat\n—\nRezzing " .. initialPool) .. " listeners...",
+		vector.create(1, 1, 0),
+		1,
+	})
+	rezBatched(initialPool)
+
+	local function rezCheck()
+		if #freeListeners < initialPool then
+			return
+		end
+
+		LLTimers:off(rezCheck)
+		pollAgents()
+		LLTimers:every(config.POLL_INTERVAL, pollAgents)
+
+		LLTimers:every(30, function()
+			verifyListeners()
+			cullExcess()
+		end)
+	end
+
+	LLTimers:every(1, rezCheck)
+end
+
+loadConfig(config, function()
+	startPool()
+
+	onConfigChanged(config, function()
+		ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
+		startPool()
+	end)
+end)

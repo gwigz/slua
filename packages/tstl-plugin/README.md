@@ -2,6 +2,50 @@
 
 [TypeScriptToLua](https://typescripttolua.github.io) plugin to provide better DX with SLua types.
 
+## Usage
+
+Add the plugin to `tstl.luaPlugins` in your `tsconfig.json`:
+
+```jsonc
+{
+  "tstl": {
+    "luaTarget": "Luau",
+    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }],
+  },
+}
+```
+
+To enable output optimizations, pass `optimize: true` for all flags, or pick individual ones:
+
+```jsonc
+{
+  "tstl": {
+    "luaPlugins": [
+      // all optimizations
+      { "name": "@gwigz/slua-tstl-plugin", "optimize": true },
+    ],
+  },
+}
+```
+
+```jsonc
+{
+  "tstl": {
+    "luaPlugins": [
+      // pick individual optimizations
+      {
+        "name": "@gwigz/slua-tstl-plugin",
+        "optimize": {
+          "compoundAssignment": true,
+          "shortenTemps": true,
+          "inlineLocals": true,
+        },
+      },
+    ],
+  },
+}
+```
+
 ## What it does
 
 - Translates TypeScript patterns to native Luau/LSL equivalents (see below)
@@ -34,24 +78,26 @@ For SL-typed JSON (preserving vector/quaternion/uuid), use `lljson.slencode`/`ll
 
 String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib calls:
 
-| TypeScript             | Lua output                                |
-| ---------------------- | ----------------------------------------- |
-| `str.toUpperCase()`    | `ll.ToUpper(str)`                         |
-| `str.toLowerCase()`    | `ll.ToLower(str)`                         |
-| `str.trim()`           | `ll.StringTrim(str, STRING_TRIM)`         |
-| `str.trimStart()`      | `ll.StringTrim(str, STRING_TRIM_HEAD)`    |
-| `str.trimEnd()`        | `ll.StringTrim(str, STRING_TRIM_TAIL)`    |
-| `str.indexOf(x)`       | `(string.find(str, x, 1, true) or 0) - 1` |
-| `str.includes(x)`      | `string.find(str, x, 1, true) ~= nil`     |
-| `str.startsWith(x)`    | `string.find(str, x, 1, true) == 1`       |
-| `str.split(sep)`       | `string.split(str, sep)`                  |
-| `str.repeat(n)`        | `string.rep(str, n)`                      |
-| `str.substring(start)` | `string.sub(str, start + 1)`              |
-| `str.substring(s, e)`  | `string.sub(str, s + 1, e)`               |
-| `str.replaceAll(a, b)` | `ll.ReplaceSubString(str, a, b, 0)`       |
+| TypeScript             | Lua output                                       |
+| ---------------------- | ------------------------------------------------ |
+| `str.toUpperCase()`    | `ll.ToUpper(str)`                                |
+| `str.toLowerCase()`    | `ll.ToLower(str)`                                |
+| `str.trim()`           | `ll.StringTrim(str, STRING_TRIM)`                |
+| `str.trimStart()`      | `ll.StringTrim(str, STRING_TRIM_HEAD)`           |
+| `str.trimEnd()`        | `ll.StringTrim(str, STRING_TRIM_TAIL)`           |
+| `str.indexOf(x)`       | `(string.find(str, x, 1, true) or 0) - 1`        |
+| `str.indexOf(x, from)` | `(string.find(str, x, from + 1, true) or 0) - 1` |
+| `str.includes(x)`      | `string.find(str, x, 1, true) ~= nil`            |
+| `str.startsWith(x)`    | `string.find(str, x, 1, true) == 1`              |
+| `str.split(sep)`       | `string.split(str, sep)`                         |
+| `str.repeat(n)`        | `string.rep(str, n)`                             |
+| `str.substring(start)` | `string.sub(str, start + 1)`                     |
+| `str.substring(s, e)`  | `string.sub(str, s + 1, e)`                      |
+| `str.replace(a, b)`    | `ll.ReplaceSubString(str, a, b, 1)`              |
+| `str.replaceAll(a, b)` | `ll.ReplaceSubString(str, a, b, 0)`              |
 
 > [!NOTE]
-> `str.indexOf(x, fromIndex)` and `str.startsWith(x, position)` with a second argument fall through to TSTL's default handling. Similarly, `str.split()` with no separator is not transformed.
+> `str.indexOf(x, fromIndex)` adjusts the `fromIndex` to 1-based (constant-folded for literals). `str.startsWith(x, position)` with a second argument falls through to TSTL's default handling. Similarly, `str.split()` with no separator is not transformed.
 
 ### Array methods
 
@@ -133,6 +179,132 @@ This only applies when the argument is directly a `/` expression. `Math.floor(x)
 
 > [!WARNING]
 > JavaScript integer truncation idioms `~~x` and `x | 0` do **not** map cleanly to Luau. `~~x` emits `bit32.bnot(bit32.bnot(x))` and `x | 0` emits `bit32.bor(x, 0)`, neither of which preserves correct semantics for negative numbers (the `bit32` library operates on unsigned 32-bit integers). Use `math.floor(x)` for floor truncation instead.
+
+## Optimizations
+
+Pass `optimize: true` to enable all optimizations, or pass an object to pick individual flags. All flags default to `false` when not specified.
+
+### `filter`
+
+Inlines `arr.filter(cb)` as an `ipairs` loop instead of pulling in `__TS__ArrayFilter`.
+
+Automatically disabled for files with more than one `.filter()` call, where the shared helper is results in a smaller script.
+
+```typescript
+const result = arr.filter((x) => x > 0)
+```
+
+```lua
+local function ____opt_fn_0(x)
+    return x > 0
+end
+local ____opt_0 = {}
+for _, ____opt_v_0 in ipairs(arr) do
+    if ____opt_fn_0(____opt_v_0) then
+        ____opt_0[#____opt_0 + 1] = ____opt_v_0
+    end
+end
+local result = ____opt_0
+```
+
+### `compoundAssignment`
+
+Rewrites self-reassignment arithmetic to Luau compound assignment operators.
+
+| TypeScript   | Lua output |
+| ------------ | ---------- |
+| `x = x + n`  | `x += n`   |
+| `x = x - 1`  | `x -= 1`   |
+| `x = x .. s` | `x ..= s`  |
+
+Only currently only applies to simple identifiers.
+
+### `floorMultiply`
+
+Reorders `Math.floor((a / b) * c)` to use the floor division operator, avoiding a `math.floor` call.
+
+| TypeScript                         | Lua output            |
+| ---------------------------------- | --------------------- |
+| `Math.floor((used / limit) * 100)` | `used * 100 // limit` |
+
+Plain `Math.floor(a / b)` is **always** optimized to `a // b` regardless of this flag.
+
+### `indexOf`
+
+Emits bare `string.find` / `table.find` for `indexOf` _presence checks_ instead of the full `(find or 0) - 1` pattern.
+
+| TypeScript              | Lua output                       |
+| ----------------------- | -------------------------------- |
+| `s.indexOf(x) >= 0`     | `string.find(s, x, 1, true)`     |
+| `s.indexOf(x) !== -1`   | `string.find(s, x, 1, true)`     |
+| `s.indexOf(x) === -1`   | `not string.find(s, x, 1, true)` |
+| `arr.indexOf(x) >= 0`   | `table.find(arr, x)`             |
+| `arr.indexOf(x) === -1` | `not table.find(arr, x)`         |
+
+Bare `indexOf` calls without a comparison will still emit `(find or 0) - 1` to retain 0-index style responses.
+
+### `shortenTemps`
+
+Shortens TSTL's destructuring temp names and collapses consecutive field accesses into multi-assignment.
+
+```typescript
+const { a, b } = fn()
+```
+
+Default output:
+
+```lua
+local ____fn_result_0 = fn()
+local a = ____fn_result_0.a
+local b = ____fn_result_0.b
+```
+
+Optimized output:
+
+```lua
+local _r0 = fn()
+local a, b = _r0.a, _r0.b
+```
+
+### `inlineLocals`
+
+Merges forward-declared `local x` with its first `x = value` assignment when there are no references to `x` in between.
+
+Default output:
+
+```lua
+local x
+x = 5
+```
+
+Optimized output:
+
+```lua
+local x = 5
+```
+
+### `numericConcat`
+
+Strips `tostring()` from number-typed (and string-typed) template literal interpolations, since Luau's `..` operator handles numeric concatenation natively.
+
+```typescript
+// count is number
+const msg = `items: ${count}`
+```
+
+Default output:
+
+```lua
+local msg = "items: " .. tostring(count)
+```
+
+Optimized output:
+
+```lua
+local msg = "items: " .. count
+```
+
+Non-numeric types (booleans, `any`, etc.) still get wrapped in `tostring()`.
 
 ## Keeping output small
 

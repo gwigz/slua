@@ -1,0 +1,236 @@
+/**
+ * Sim-Wide Chat Relay — listener follower
+ *
+ * Rezzed by the coordinator and assigned to a single avatar. Follows
+ * the avatar at a short interval and listens on channel 0 near them.
+ *
+ * When the assigned avatar speaks, the message is forwarded to the
+ * sender script via PRIVATE_CHANNEL. When a RELAY message arrives from
+ * the sender, it is buffered briefly to allow natural chat to arrive
+ * first, then deduplicated and sent back as a SAY request for delivery.
+ *
+ * @link https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay
+ */
+import { config } from "./constants"
+import { loadConfig, onConfigChanged } from "../config"
+import { commandChannel, sign, verify } from "../shared"
+
+// State
+
+const owner = ll.GetOwner()
+
+let assignedAvatar: UUID | undefined
+let hearHandle: number | undefined
+let commandHandle: number | undefined
+
+/** Recently heard messages for dedup against incoming relays */
+let recentMessages: Record<string, number> = {}
+let recentCount = 0
+
+function forwardCommand(avatar: UUID, text: string) {
+  ll.RegionSay(
+    config.PRIVATE_CHANNEL,
+    sign(`CMD|${tostring(avatar)}|${text}`, config.SIGN_NONCE, config.SIGN_WINDOW),
+  )
+}
+
+// Listen for coordinator/sender commands
+
+LLEvents.on("listen", (channel, _name, id, text) => {
+  if (channel === config.PRIVATE_CHANNEL) {
+    if (ll.GetOwnerKey(id) !== owner) {
+      return
+    }
+
+    const payload = verify(text, config.SIGN_NONCE, config.SIGN_WINDOW)
+
+    if (payload === undefined) {
+      return
+    }
+
+    handlePrivateMessage(payload)
+    return
+  }
+
+  if (!assignedAvatar) {
+    return
+  }
+
+  // Command channel from assigned avatar
+  if (channel !== 0 && id === assignedAvatar) {
+    forwardCommand(assignedAvatar, text)
+    return
+  }
+
+  if (channel !== 0) {
+    return
+  }
+
+  if (id === assignedAvatar) {
+    // !-prefixed messages are commands, not chat
+    if (text.startsWith("!")) {
+      forwardCommand(assignedAvatar, text.substring(1))
+      return
+    }
+
+    // Forward assigned avatar's chat to sender for relay routing
+    ll.RegionSay(
+      config.PRIVATE_CHANNEL,
+      sign(`CHAT|${tostring(assignedAvatar)}|${text}`, config.SIGN_NONCE, config.SIGN_WINDOW),
+    )
+    return
+  }
+
+  // Track chat heard naturally for dedup against incoming relays
+  if (recentCount >= config.DEDUP_MAX) {
+    recentMessages = {}
+    recentCount = 0
+  }
+
+  const hash = tostring(id) + "|" + text
+
+  if (recentMessages[hash] === undefined) {
+    recentCount++
+  }
+
+  recentMessages[hash] = ll.GetTime()
+})
+
+// Private channel commands
+
+function handlePrivateMessage(text: string) {
+  // Relayed message from sender
+  if (text.startsWith("RELAY|")) {
+    handleRelayedMessage(text)
+    return
+  }
+
+  // Assignment from coordinator
+  if (text.startsWith("ASSIGN|")) {
+    assignAvatar(new UUID(text.substring(7)))
+    return
+  }
+
+  if (text === "UNASSIGN") {
+    unassignAvatar()
+    return
+  }
+
+  if (text === "KILL") {
+    ll.Die()
+    return
+  }
+}
+
+function assignAvatar(avatar: UUID) {
+  if (hearHandle !== undefined) {
+    ll.ListenRemove(hearHandle)
+    hearHandle = undefined
+  }
+
+  if (commandHandle !== undefined) {
+    ll.ListenRemove(commandHandle)
+    commandHandle = undefined
+  }
+
+  assignedAvatar = avatar
+  hearHandle = ll.Listen(0, "", NULL_KEY, "")
+  commandHandle = ll.Listen(commandChannel(tostring(avatar), config.SIGN_NONCE), "", avatar, "")
+
+  followAvatar()
+}
+
+function unassignAvatar() {
+  if (hearHandle !== undefined) {
+    ll.ListenRemove(hearHandle)
+    hearHandle = undefined
+  }
+
+  if (commandHandle !== undefined) {
+    ll.ListenRemove(commandHandle)
+    commandHandle = undefined
+  }
+
+  assignedAvatar = undefined
+  recentMessages = {}
+  recentCount = 0
+}
+
+// Following
+
+function followAvatar() {
+  if (!assignedAvatar) {
+    return
+  }
+
+  const details = ll.GetObjectDetails(assignedAvatar, [OBJECT_POS])
+
+  if (details.length === 0) {
+    return
+  }
+
+  const avatarPos = details[0] as vector
+
+  ll.SetRegionPos(avatarPos)
+}
+
+// Receiving relay messages from sender
+// Format: "RELAY|speakerId|message"
+
+function handleRelayedMessage(text: string) {
+  if (!assignedAvatar) {
+    return
+  }
+
+  // "RELAY|<36-char-uuid>|<message>"
+  const speakerId = text.substring(6, 42)
+  const message = text.substring(43)
+  const hash = speakerId + "|" + message
+
+  // Buffer relay briefly to let natural chat arrive first for dedup
+  LLTimers.once(config.RELAY_DELAY, () => {
+    if (!assignedAvatar) {
+      return
+    }
+
+    const now = ll.GetTime()
+
+    if (recentMessages[hash] !== undefined && now - recentMessages[hash] < config.DEDUP_WINDOW) {
+      return
+    }
+
+    if (recentMessages[hash] === undefined) {
+      recentCount++
+    }
+
+    recentMessages[hash] = now
+
+    // Send back to sender for delivery
+    ll.RegionSay(
+      config.PRIVATE_CHANNEL,
+      sign(
+        `SAY|${tostring(assignedAvatar)}|${speakerId}|${message}`,
+        config.SIGN_NONCE,
+        config.SIGN_WINDOW,
+      ),
+    )
+
+    // Clean up expired entries
+    for (const key in recentMessages) {
+      if (now - recentMessages[key] >= config.DEDUP_WINDOW) {
+        recentMessages[key] = undefined!
+        recentCount--
+      }
+    }
+  })
+}
+
+loadConfig(config, () => {
+  ll.Listen(config.PRIVATE_CHANNEL, "", NULL_KEY, "")
+  LLTimers.every(config.FOLLOW_INTERVAL, () => followAvatar())
+
+  onConfigChanged(config, () => {
+    ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
+    ll.Listen(config.PRIVATE_CHANNEL, "", NULL_KEY, "")
+  })
+})

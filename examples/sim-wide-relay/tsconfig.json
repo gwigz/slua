@@ -1,4 +1,6 @@
 {
+  "$schema": "https://raw.githubusercontent.com/TypeScriptToLua/TypeScriptToLua/master/tsconfig-schema.json",
+  "include": ["src/**/*.ts"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -7,19 +9,19 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "lib": ["ESNext"],
-    "types": ["@typescript-to-lua/language-extensions"],
+    "types": ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/**/*.ts", "../../packages/types/index.d.ts"],
   "tstl": {
+    "extension": "slua",
     "luaTarget": "Luau",
     "luaLibImport": "inline",
     "noImplicitSelf": true,
     "noImplicitGlobalVariables": true,
-    // NOTE: you should use "@gwigz/slua-tstl-plugin" instead of the local path
-    // check the README for more details
-    "luaPlugins": [{ "name": "../../packages/tstl-plugin/dist/index.js" }],
-    "extension": "slua"
+    "luaPlugins": [
+      { "name": "@gwigz/slua-tstl-plugin", "optimize": true },
+      { "name": "@gwigz/tstl-bundle-flatten" }
+    ]
   }
 }

@@ -49,16 +49,20 @@ Edit `src/shared.ts` to customize:
 
 Private channel messages are signed with a truncated MD5 hash (fast) and time-bucketed to limit replays. A bit overkill since the scripts already filter by owner, but cheap peace of mind.
 
-## Features demonstrated
+## Linkset data patterns
 
-- **Linkset data** (`ll.LinksetDataWrite`, `ll.LinksetDataRead`) for shared state between scripts in the same object
-- **`ll.GetAgentList`** for region-wide avatar detection
-- **`ll.GetObjectDetails`** for position lookups and distance checks
-- **`ll.RegionSayTo`** for targeted cross-region messaging
-- **`ll.SetRegionPos`** for listener repositioning
-- **`ll.RezObject`** for dynamic object creation
-- **`ll.MD5String`** for message signing and verification
-- **Timer events** for polling and following
+The coordinator and sender share state via linkset data (key-value storage scoped to the linkset). Three prefixed key patterns are used:
+
+| Prefix | Key example        | Value                         | Written by  | Read by |
+| ------ | ------------------ | ----------------------------- | ----------- | ------- |
+| `l:`   | `l:<listenerUUID>` | avatar UUID                   | coordinator | -       |
+| `a:`   | `a:<avatarUUID>`   | listener UUID                 | coordinator | sender  |
+| `b:`   | `b:<avatarUUID>`   | comma-separated blocked UUIDs | sender      | sender  |
+
+- **`l:` / `a:` (assignment pair)** two-way mapping between listeners and avatars. The coordinator writes both keys when assigning a listener and clears them on departure or when a listener goes missing. The sender reads `a:` to resolve which listener to route a relay message to.
+- **`b:` (block list)** per-avatar list of blocked UUIDs, stored as CSV. Managed entirely by the sender's `!block` / `!unblock` commands. Capped at `MAX_BLOCKS` entries per avatar.
+
+On startup the coordinator clears stale assignment data with `ll.LinksetDataDeleteFound("^[la]:", "")`, which preserves block lists across restarts.
 
 ## Setup
 

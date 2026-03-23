@@ -1,20 +1,26 @@
-import { IGNORED_AVATARS, PRIVATE_CHANNEL, sign } from "./shared"
-
-/** Listener object name in inventory */
-const LISTENER_OBJECT = "Relay Listener"
-
-/** How often to poll for avatar changes (seconds) */
-const POLL_INTERVAL = 3
+/**
+ * Sim-Wide Chat Relay — pool coordinator
+ *
+ * Manages a dynamic pool of listener objects that follow avatars around
+ * the region. When an avatar arrives, a free listener is assigned and
+ * positioned near them. When they leave, the listener is reclaimed.
+ *
+ * Listeners are rezzed in batches to avoid overflowing the event queue.
+ * The pool auto-scales between POOL_BUFFER and POOL_BUFFER_MAX, and a
+ * periodic verify pass replaces any listeners that have gone missing.
+ *
+ * Two-way linkset data mappings (l:<listener> -> avatar, a:<avatar> ->
+ * listener) let the sender script resolve assignments without KV lookups.
+ *
+ * @link https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay
+ */
+import { config } from "./constants"
+import { loadConfig, onConfigChanged } from "../config"
+import { commandChannel, sign } from "../shared"
 
 // Pool state
 
 const poolSize = tonumber(ll.GetEnv("agent_limit"))!
-
-/** Minimum free listeners to keep as buffer */
-const POOL_BUFFER = 10
-
-/** Maximum free listeners before culling excess */
-const POOL_BUFFER_MAX = 20
 
 /** Avatar string key -> listener UUID */
 const assignedListeners: Record<string, UUID | undefined> = {}
@@ -22,21 +28,28 @@ const assignedListeners: Record<string, UUID | undefined> = {}
 /** Unassigned listener UUIDs */
 let freeListeners: UUID[] = []
 
-// Rez in batches -- rezzing too many at once can overflow the event queue
-// and cause object_rez events to be dropped, losing track of listeners.
-
-const REZ_BATCH_SIZE = 20
-
 function rezBatched(count: number) {
   const pos = ll.GetPos()
   const rot = ll.GetRot()
+
   let remaining = count
 
   function rezBatch() {
-    const batch = math.min(REZ_BATCH_SIZE, remaining)
+    const startString = `${config.PRIVATE_CHANNEL}|${config.SIGN_NONCE}|${config.SIGN_WINDOW}`
+    const batch = math.min(config.REZ_BATCH_SIZE, remaining)
 
     for (let i = 0; i < batch; i++) {
-      ll.RezObject(LISTENER_OBJECT, pos, new Vector(0, 0, 0), rot, 0)
+      ll.RezObjectWithParams(config.LISTENER_OBJECT, [
+        REZ_POS,
+        pos,
+        0,
+        0,
+        REZ_ROT,
+        rot,
+        0,
+        REZ_PARAM_STRING,
+        startString,
+      ])
     }
 
     remaining -= batch
@@ -87,7 +100,11 @@ function pollAgents() {
 
     const listener = assignedListeners[key]!
 
-    ll.RegionSayTo(listener, PRIVATE_CHANNEL, sign("UNASSIGN"))
+    ll.RegionSayTo(
+      listener,
+      config.PRIVATE_CHANNEL,
+      sign("UNASSIGN", config.SIGN_NONCE, config.SIGN_WINDOW),
+    )
 
     clearAssignment(key, listener)
 
@@ -99,7 +116,7 @@ function pollAgents() {
   for (const agent of agents) {
     const key = tostring(agent)
 
-    if (assignedListeners[key] === undefined && !IGNORED_AVATARS.includes(key)) {
+    if (assignedListeners[key] === undefined && !config.IGNORED_AVATARS.includes(key)) {
       assignListener(agent)
     }
   }
@@ -121,7 +138,20 @@ function assignListener(avatar: UUID) {
 
   writeAssignment(avatar, listener)
 
-  ll.RegionSayTo(listener, PRIVATE_CHANNEL, sign("ASSIGN|" + key))
+  ll.RegionSayTo(
+    listener,
+    config.PRIVATE_CHANNEL,
+    sign("ASSIGN|" + key, config.SIGN_NONCE, config.SIGN_WINDOW),
+  )
+
+  ll.RegionSayTo(
+    avatar,
+    0,
+    config.WELCOME_MESSAGE.replace(
+      "{help}",
+      `secondlife:///app/chat/${commandChannel(key, config.SIGN_NONCE)}/help`,
+    ),
+  )
 }
 
 // Verify listeners still exist in region, rez replacements for any missing
@@ -164,7 +194,7 @@ function verifyListeners() {
 // Dynamic pool sizing
 
 function ensureBuffer() {
-  const needed = POOL_BUFFER - freeListeners.length
+  const needed = config.POOL_BUFFER - freeListeners.length
 
   if (needed > 0) {
     const room = poolSize - totalListeners()
@@ -177,9 +207,13 @@ function ensureBuffer() {
 }
 
 function cullExcess() {
-  while (freeListeners.length > POOL_BUFFER_MAX) {
+  while (freeListeners.length > config.POOL_BUFFER_MAX) {
     const listener = freeListeners.pop()!
-    ll.RegionSayTo(listener, PRIVATE_CHANNEL, sign("KILL"))
+    ll.RegionSayTo(
+      listener,
+      config.PRIVATE_CHANNEL,
+      sign("KILL", config.SIGN_NONCE, config.SIGN_WINDOW),
+    )
   }
 }
 
@@ -199,7 +233,7 @@ function updateDiagnostics() {
   const assigned = assignedCount()
   const free = freeListeners.length
   const total = assigned + free
-  const text = `Sim-Wide Chat\nPool: ${total}/${poolSize}\nAssigned: ${assigned} ⋅ Free: ${free}`
+  const text = `Sim-Wide Chat\n—\nPool: ${total}/${poolSize}\nAssigned: ${assigned} ⋅ Free: ${free}`
   const color = free === 0 ? new Vector(1, 0.3, 0.3) : new Vector(0.5, 1, 0.5)
 
   ll.SetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXT, text, color, 1.0])
@@ -207,37 +241,60 @@ function updateDiagnostics() {
 
 // Startup
 
-// Kill any leftover listeners from a previous run
-ll.RegionSay(PRIVATE_CHANNEL, sign("KILL"))
+function killAllListeners() {
+  ll.RegionSay(config.PRIVATE_CHANNEL, sign("KILL", config.SIGN_NONCE, config.SIGN_WINDOW))
+}
 
-// Clear stale linkset data from previous run
-ll.LinksetDataReset()
+function startPool() {
+  // Kill any leftover listeners from a previous run
+  killAllListeners()
 
-const initialPool = POOL_BUFFER
+  // Clear stale assignment data from previous run (preserves block lists)
+  ll.LinksetDataDeleteFound("^[la]:", "")
 
-ll.SetLinkPrimitiveParamsFast(LINK_THIS, [
-  PRIM_TEXT,
-  `Sim-Wide Chat\nRezzing ${initialPool} listeners...`,
-  new Vector(1, 1, 0),
-  1.0,
-])
+  // Clear JS-side assignments
+  for (const key in assignedListeners) {
+    assignedListeners[key] = undefined
+  }
+  freeListeners = []
 
-rezBatched(initialPool)
+  const initialPool = config.POOL_BUFFER
 
-// Wait for initial listeners to register via object_rez before starting
-const rezCheck = LLTimers.every(1, () => {
-  if (freeListeners.length < initialPool) {
-    return
+  ll.SetLinkPrimitiveParamsFast(LINK_THIS, [
+    PRIM_TEXT,
+    `Sim-Wide Chat\n—\nRezzing ${initialPool} listeners...`,
+    new Vector(1, 1, 0),
+    1.0,
+  ])
+
+  rezBatched(initialPool)
+
+  // Wait for initial listeners to register via object_rez before starting
+  function rezCheck() {
+    if (freeListeners.length < initialPool) {
+      return
+    }
+
+    LLTimers.off(rezCheck)
+
+    pollAgents()
+
+    LLTimers.every(config.POLL_INTERVAL, pollAgents)
+
+    LLTimers.every(30, () => {
+      verifyListeners()
+      cullExcess()
+    })
   }
 
-  LLTimers.off(rezCheck)
+  LLTimers.every(1, rezCheck)
+}
 
-  pollAgents()
+loadConfig(config, () => {
+  startPool()
 
-  LLTimers.every(POLL_INTERVAL, pollAgents)
-
-  LLTimers.every(30, () => {
-    verifyListeners()
-    cullExcess()
+  onConfigChanged(config, () => {
+    ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
+    startPool()
   })
 })

@@ -1,0 +1,27 @@
+# Sim-Wide Chat Relay - Settings
+# Edit values below and save to apply changes in-world
+# Use \n for newlines in text values
+
+# Communication (change per deployment)
+PRIVATE_CHANNEL: -1731704569
+DIALOG_CHANNEL: -1731704570
+SIGN_NONCE: -1977872753
+SIGN_WINDOW: 2
+
+# Pool Management
+LISTENER_OBJECT: Relay Listener
+POLL_INTERVAL: 3
+POOL_BUFFER: 10
+POOL_BUFFER_MAX: 20
+REZ_BATCH_SIZE: 20
+
+# Messages
+WELCOME_MESSAGE: You're now connected to a sim-wide chat relay, your chat will be relayed to everyone in the region. [{help} Click here] for a list of chat commands, or type "!help".
+
+# Filtering
+# Comma-separated list of avatar UUIDs to ignore
+IGNORED_AVATARS: a5c808e3-a794-4414-beda-a9b53a60db23
+
+# Maximum number of blocked UUIDs per avatar
+# Keep this low to avoid running out of linkset data slots
+MAX_BLOCKS: 10

@@ -441,10 +441,13 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
   })
 
   for (const [name, ev] of lslEvents) {
+    const docs = buildDocs(ev.tooltip, ev["slua-deprecated"] ?? ev.deprecated)
+
     if (ev["detected-semantics"]) {
       iface.addProperty({
         name,
         type: "(detected: DetectedEvent[]) => void",
+        ...(docs.length > 0 ? { docs } : {}),
       })
     } else {
       const params = (ev.arguments ?? []).map((argObj) => {
@@ -459,6 +462,7 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
       iface.addProperty({
         name,
         type: `(${params.join(", ")}) => void`,
+        ...(docs.length > 0 ? { docs } : {}),
       })
     }
   }
@@ -959,7 +963,7 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
 
     for (const [lslName, fn] of llFunctions) {
       const name = lslName.startsWith("ll") ? lslName.slice(2) : lslName
-      const docs = buildDocs(fn.tooltip, fn["slua-deprecated"])
+      const docs = buildDocs(fn.tooltip, fn["slua-deprecated"] ?? fn.deprecated)
 
       // Collect @indexArg / @indexReturn JSDoc tags from index-semantics flags
       const indexTags: OptionalKind<JSDocTagStructure>[] = []
@@ -1019,7 +1023,7 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
   const lslConstants = Object.entries(lsl.constants).filter(([, c]) => !c["slua-removed"])
 
   for (const [name, c] of lslConstants) {
-    const docs = buildDocs(c.tooltip, c["slua-deprecated"])
+    const docs = buildDocs(c.tooltip, c["slua-deprecated"] ?? c.deprecated)
 
     sf.addVariableStatement({
       declarationKind: VariableDeclarationKind.Const,

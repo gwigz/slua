@@ -99,6 +99,7 @@ export interface LSLConstant {
   tooltip?: string
   "slua-type"?: string
   "slua-removed"?: boolean
+  deprecated?: boolean | { reason?: string; use?: string }
   "slua-deprecated"?: boolean | { reason?: string; use?: string }
 }
 
@@ -107,6 +108,7 @@ export interface LSLFunction {
   arguments?: Record<string, { type: string; tooltip?: string; "index-semantics"?: boolean }>[]
   tooltip?: string
   "slua-removed"?: boolean
+  deprecated?: boolean | { reason?: string; use?: string }
   "slua-deprecated"?: boolean | { reason?: string; use?: string }
   "slua-return"?: string
   "detected-semantics"?: boolean
@@ -119,5 +121,7 @@ export interface LSLEvent {
   arguments?: Record<string, { type: string; tooltip?: string }>[]
   tooltip?: string
   "slua-removed"?: boolean
+  deprecated?: boolean | { reason?: string; use?: string }
+  "slua-deprecated"?: boolean | { reason?: string; use?: string }
   "detected-semantics"?: boolean
 }

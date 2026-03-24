@@ -164,19 +164,29 @@ declare interface DetectedEvent {
 
 /** @noSelf */
 declare interface LLEventMap {
+  /** This event is triggered when a script comes within a defined angle of a target rotation. The range and rotation are set by a call to llRotTarget. */
   at_rot_target: (
     targetNumber: number,
     targetRotation: quaternion,
     currentRotation: quaternion,
   ) => void
+  /** This event is triggered when the scripted object comes within a defined range of the target position, defined by the llTarget function call. */
   at_target: (targetNumber: number, targetPosition: vector, currentPosition: vector) => void
+  /** This event is triggered whenever an object is attached or detached from an avatar. If it is attached, the key of the avatar it is attached to is passed in, otherwise NULL_KEY is. */
   attach: (avatarId: uuid) => void
+  /** Triggered when various events change the object. The change argument will be a bit-field of CHANGED_* constants. */
   changed: (changed: number) => void
+  /** This event is raised while another object, or avatar, is colliding with the object the script is attached to.The number of detected objects is passed to the script. Information on those objects may be gathered via the llDetected* functions. */
   collision: (detected: DetectedEvent[]) => void
+  /** This event is raised when another object, or avatar, stops colliding with the object the script is attached to.The number of detected objects is passed to the script. Information on those objects may be gathered via the llDetected* library functions. */
   collision_end: (detected: DetectedEvent[]) => void
+  /** This event is raised when another object, or avatar, starts colliding with the object the script is attached to.The number of detected objects is passed to the script. Information on those objects may be gathered via the llDetected* library functions. */
   collision_start: (detected: DetectedEvent[]) => void
+  /** Once a script has the ability to grab control inputs from the avatar, this event will be used to pass the commands into the script.The levels and edges are bit-fields of control constants. */
   control: (avatarId: uuid, levels: number, edges: number) => void
+  /** This event is triggered when the requested data is returned to the script.Data may be requested by the llRequestAgentData, llRequestInventoryData, and llGetNotecardLine function calls, for example. */
   dataserver: (requestId: uuid, data: string) => void
+  /** This event is triggered when an email sent to this script arrives.The number remaining tells how many more emails are known to be still pending. */
   email: (
     time: string,
     address: string,
@@ -184,29 +194,56 @@ declare interface LLEventMap {
     body: string,
     numberRemaining: number,
   ) => void
+  /** Triggered when an agent has approved an experience permissions request. */
   experience_permissions: (agentId: uuid) => void
+  /** Describes why the Experience permissions were denied for the agent. */
   experience_permissions_denied: (agentId: uuid, reason: number) => void
+  /** Triggered as damage is applied to an avatar or task, after all on_damage events have been processed. */
   final_damage: (detected: DetectedEvent[]) => void
+  /** This event is raised when game controller input changes. */
   game_control: (id: uuid, buttons: number, axes: number[]) => void
+  /** Triggered when task receives an HTTP request. */
   http_request: (httpRequestId: uuid, httpMethod: string, body: string) => void
+  /** This event handler is invoked when an HTTP response is received for a pending llHTTPRequest request or if a pending request fails or times out. */
   http_response: (httpRequestId: uuid, status: number, metadata: list, body: string) => void
+  /** This event is raised when the object the script is attached to is colliding with the ground. */
   land_collision: (position: vector) => void
+  /** This event is raised when the object the script is attached to stops colliding with the ground. */
   land_collision_end: (position: vector) => void
+  /** This event is raised when the object the script is attached to begins to collide with the ground. */
   land_collision_start: (position: vector) => void
+  /** Triggered when object receives a link message via llMessageLinked function call. */
   link_message: (sendersLink: number, value: number, text: string, id: string) => void
+  /** Triggered when a script modifies the linkset datastore. */
   linkset_data: (action: number, name: string, value: string) => void
+  /** This event is raised whenever a chat message matching the constraints set in the llListen command is received. The name and ID of the speaker, as well as the message, are passed in as parameters.Channel 0 is the public chat channel that all avatars see as chat text. Channels 1 through 2,147,483,648 are private channels that are not sent to avatars but other scripts can listen on those channels. */
   listen: (channel: number, name: string, id: uuid, text: string) => void
+  /** This event is triggered when a resident has given an amount of Linden dollars to the object. */
   money: (payer: uuid, amount: number) => void
+  /** Triggered whenever an object with this script stops moving. */
   moving_end: () => void
+  /** Triggered whenever an object with this script starts moving. */
   moving_start: () => void
+  /** This event is raised when sensors are active, via the llSensor function call, but are not sensing anything. */
   no_sensor: () => void
+  /** When a target is set via the llRotTarget function call, but the script is outside the specified angle this event is raised. */
   not_at_rot_target: () => void
+  /** When a target is set via the llTarget library call, but the script is outside the specified range this event is raised. */
   not_at_target: () => void
+  /** Triggered when an object rezzes another object from its inventory via the llRezObject, or similar, functions. The id is the globally unique key for the object rezzed. */
   object_rez: (rezzedObjectsId: uuid) => void
+  /** Triggered when an avatar or object receives damage. */
   on_damage: (detected: DetectedEvent[]) => void
+  /** Triggered when an avatar reaches 0 health. */
   on_death: () => void
+  /** Triggered whenever an object is rezzed from inventory or by another object. The start parameter is passed in from the llRezObject call, or zero if from inventory. */
   on_rez: (startParameter: number) => void
+  /** This event is called to inform the script of changes within the object's path-finding status. */
   path_update: (type: number, reserved: list) => void
+  /**
+   * This event is deprecated.
+   * @deprecated
+   */
   remote_data: (
     eventType: number,
     channelId: uuid,
@@ -215,12 +252,22 @@ declare interface LLEventMap {
     iData: number,
     sData: string,
   ) => void
+  /** Scripts need permission from either the owner or the avatar they wish to act on before they may perform certain functions, such as debiting money from their owners account, triggering an animation on an avatar, or capturing control inputs. The llRequestPermissions library function is used to request these permissions and the various permissions integer constants can be supplied.The integer returned to this event handler contains the current set of permissions flags, so if permissions equal 0 then no permissions are set. */
   run_time_permissions: (permissionFlags: number) => void
+  /** This event is raised whenever objects matching the constraints of the llSensor command are detected.The number of detected objects is passed to the script in the parameter. Information on those objects may be gathered via the llDetected* functions. */
   sensor: (detected: DetectedEvent[]) => void
+  /**
+   * This event is raised at regular intervals set by the llSetTimerEvent library function.
+   * @deprecated Use 'LLTimers' instead.
+   */
   timer: () => void
+  /** This event is raised while a user is touching the object the script is attached to.The number of touching objects is passed to the script in the parameter.Information on those objects may be gathered via the llDetected* library functions. */
   touch: (detected: DetectedEvent[]) => void
+  /** This event is raised when a user stops touching the object the script is attached to. The number of touches is passed to the script in the parameter.Information on those objects may be gathered via the llDetected* library functions. */
   touch_end: (detected: DetectedEvent[]) => void
+  /** This event is raised when a user first touches the object the script is attached to. The number of touches is passed to the script in the parameter.Information on those objects may be gathered via the llDetected() library functions. */
   touch_start: (detected: DetectedEvent[]) => void
+  /** Triggered by llTransferLindenDollars() function. */
   transaction_result: (requestId: uuid, success: number, message: string) => void
 }
 
@@ -1310,8 +1357,10 @@ declare namespace ll {
    */
   export function ClearCameraParams(): void
 
+  /** @deprecated */
   export function ClearExperience(agentId: uuid, experienceId: uuid): void
 
+  /** @deprecated */
   export function ClearExperiencePermissions(agentId: uuid): void
 
   /**
@@ -1326,10 +1375,16 @@ declare namespace ll {
    */
   export function ClearPrimMedia(face: number): number
 
-  /** This function is deprecated. */
+  /**
+   * This function is deprecated.
+   * @deprecated
+   */
   export function CloseRemoteDataChannel(channelId: uuid): void
 
-  /** Returns the cloud density at the object's position + Offset. */
+  /**
+   * Returns the cloud density at the object's position + Offset.
+   * @deprecated
+   */
   export function Cloud(offset: vector): number
 
   /** Specify an empty string or NULL_KEY for Accept, to not filter on the corresponding parameter. */
@@ -1342,7 +1397,10 @@ declare namespace ll {
    */
   export function CollisionSound(impactSound: string, impactVolume: number): void
 
-  /** Suppress default collision sprites, replace default impact sprite with ImpactSprite; found in the object inventory (empty string to just suppress). */
+  /**
+   * Suppress default collision sprites, replace default impact sprite with ImpactSprite; found in the object inventory (empty string to just suppress).
+   * @deprecated
+   */
   export function CollisionSprite(impactSprite: string): void
 
   /** Returns hex-encoded Hash string of Message using digest Algorithm. */
@@ -1795,6 +1853,7 @@ declare namespace ll {
   /** Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code. */
   export function GetExperienceErrorMessage(error: number): string
 
+  /** @deprecated */
   export function GetExperienceList(agentId: uuid): uuid[]
 
   /**
@@ -2838,6 +2897,7 @@ declare namespace ll {
   /**
    * Make a round explosion of particles. Deprecated: Use llParticleSystem instead.
    * Make a round explosion of particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
+   * @deprecated Use 'll.ParticleSystem' instead.
    */
   export function MakeExplosion(
     particles: number,
@@ -2852,6 +2912,7 @@ declare namespace ll {
   /**
    * Make fire like particles. Deprecated: Use llParticleSystem instead.
    * Make fire particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
+   * @deprecated Use 'll.ParticleSystem' instead.
    */
   export function MakeFire(
     particles: number,
@@ -2866,6 +2927,7 @@ declare namespace ll {
   /**
    * Make a fountain of particles. Deprecated: Use llParticleSystem instead.
    * Make a fountain of particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
+   * @deprecated Use 'll.ParticleSystem' instead.
    */
   export function MakeFountain(
     particles: number,
@@ -2882,6 +2944,7 @@ declare namespace ll {
   /**
    * Make smoke like particles. Deprecated: Use llParticleSystem instead.
    * Make smoky particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
+   * @deprecated Use 'll.ParticleSystem' instead.
    */
   export function MakeSmoke(
     particles: number,
@@ -2959,7 +3022,10 @@ declare namespace ll {
    */
   export function OpenFloater(floaterName: string, url: string, params: list): number
 
-  /** This function is deprecated. */
+  /**
+   * This function is deprecated.
+   * @deprecated
+   */
   export function OpenRemoteDataChannel(): void
 
   /**
@@ -3044,6 +3110,7 @@ declare namespace ll {
    */
   export function PlaySoundSlave(sound: string, volume: number): void
 
+  /** @deprecated */
   export function PointAt(point: vector): void
 
   /**
@@ -3078,7 +3145,10 @@ declare namespace ll {
   /** Starts an asychronous transaction to retrieve the value associated with the key given. Will fail with XP_ERROR_KEY_NOT_FOUND if the key does not exist. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. */
   export function ReadKeyValue(key: string): uuid
 
-  /** Reloads the web page shown on the sides of the object. */
+  /**
+   * Reloads the web page shown on the sides of the object.
+   * @deprecated Use 'll.SetPrimMediaParams' instead.
+   */
   export function RefreshPrimURL(): void
 
   /** Broadcasts Text to entire region on Channel (except for channel 0). */
@@ -3093,6 +3163,7 @@ declare namespace ll {
   /**
    * Return camera to agent.
    * Deprecated: Use llClearCameraParams instead.
+   * @deprecated Use 'll.ClearCameraParams' instead.
    */
   export function ReleaseCamera(avatarId: uuid): void
 
@@ -3105,7 +3176,10 @@ declare namespace ll {
   /** Releases the specified URL, which was previously obtained using llRequestURL.  Once released, the URL will no longer be usable. */
   export function ReleaseURL(url: string): void
 
-  /** This function is deprecated. */
+  /**
+   * This function is deprecated.
+   * @deprecated
+   */
   export function RemoteDataReply(
     channelId: uuid,
     messageId: uuid,
@@ -3113,9 +3187,13 @@ declare namespace ll {
     iData: number,
   ): void
 
-  /** This function is deprecated. */
+  /**
+   * This function is deprecated.
+   * @deprecated
+   */
   export function RemoteDataSetRegion(): void
 
+  /** @deprecated */
   export function RemoteLoadScript(
     target: uuid,
     scriptName: string,
@@ -3417,7 +3495,10 @@ declare namespace ll {
    */
   export function ScriptProfiler(state: number): void
 
-  /** This function is deprecated. */
+  /**
+   * This function is deprecated.
+   * @deprecated
+   */
   export function SendRemoteData(
     channelId: uuid,
     destination: string,
@@ -3521,6 +3602,7 @@ declare namespace ll {
   /** Returns a string with the requested data about the region. */
   export function SetEnvironment(position: vector, envParams: list): number
 
+  /** @deprecated */
   export function SetExperienceKey(experienceId: uuid): number
 
   /**
@@ -3582,7 +3664,10 @@ declare namespace ll {
    */
   export function SetLinkMedia(link: number, face: number, parameters: list): number
 
-  /** Deprecated: Use llSetLinkPrimitiveParamsFast instead. */
+  /**
+   * Deprecated: Use llSetLinkPrimitiveParamsFast instead.
+   * @deprecated Use 'll.SetLinkPrimitiveParamsFast' instead.
+   */
   export function SetLinkPrimitiveParams(linkNumber: number, parameters: list): void
 
   /**
@@ -3684,10 +3769,16 @@ declare namespace ll {
    */
   export function SetPrimMediaParams(face: number, mediaParameters: list): number
 
-  /** Deprecated: Use llSetPrimMediaParams instead. */
+  /**
+   * Deprecated: Use llSetPrimMediaParams instead.
+   * @deprecated Use 'll.SetPrimMediaParams' instead.
+   */
   export function SetPrimURL(url: string): void
 
-  /** Deprecated: Use llSetLinkPrimitiveParamsFast instead. */
+  /**
+   * Deprecated: Use llSetLinkPrimitiveParamsFast instead.
+   * @deprecated Use 'll.SetLinkPrimitiveParamsFast' instead.
+   */
   export function SetPrimitiveParams(parameters: list): void
 
   /**
@@ -3837,12 +3928,14 @@ declare namespace ll {
   /**
    * Deprecated: Use llPlaySound instead.
    * Plays Sound at Volume and specifies whether the sound should loop and/or be enqueued.
+   * @deprecated Use 'll.PlaySound' instead.
    */
   export function Sound(sound: string, volume: number, queue: number, loop: number): void
 
   /**
    * Deprecated: Use llPreloadSound instead.
    * Preloads a sound on viewers within range.
+   * @deprecated Use 'll.PreloadSound' instead.
    */
   export function SoundPreload(sound: string): void
 
@@ -3887,6 +3980,7 @@ declare namespace ll {
    */
   export function StopObjectAnimation(animation: string): void
 
+  /** @deprecated */
   export function StopPointAt(): void
 
   /** Stops playback of the currently attached sound. */
@@ -3913,7 +4007,10 @@ declare namespace ll {
    */
   export function SubStringIndex(text: string, sequence: string): number | undefined
 
-  /** Deprecated: Use llSetCameraParams instead. */
+  /**
+   * Deprecated: Use llSetCameraParams instead.
+   * @deprecated Use 'll.SetCameraParams' instead.
+   */
   export function TakeCamera(avatarId: uuid): void
 
   /**
@@ -4074,6 +4171,7 @@ declare namespace ll {
    * Deprecated: Please use llXorBase64 instead.
    * Incorrectly performs an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats if it is shorter than Text1.
    * Retained for backwards compatibility.
+   * @deprecated Use 'll.XorBase64' instead.
    */
   export function XorBase64Strings(text1: string, text2: string): string
 
@@ -4081,6 +4179,7 @@ declare namespace ll {
    * Deprecated: Please use llXorBase64 instead.
    * Correctly (unless nulls are present) performs an exclusive OR on two Base64 strings and returns a Base64 string.
    * Text2 repeats if it is shorter than Text1.
+   * @deprecated Use 'll.XorBase64' instead.
    */
   export function XorBase64StringsCorrect(text1: string, text2: string): string
 
@@ -4182,7 +4281,10 @@ declare const ATTACH_LHIP: number
 declare const ATTACH_LLARM: number
 /** Attach to the avatar's lower left leg. */
 declare const ATTACH_LLLEG: number
-/** Attach to the avatar's right pectoral. (Deprecated, use ATTACH_RIGHT_PEC) */
+/**
+ * Attach to the avatar's right pectoral. (Deprecated, use ATTACH_RIGHT_PEC)
+ * @deprecated Use 'ATTACH_RIGHT_PEC' instead.
+ */
 declare const ATTACH_LPEC: number
 /** Attach to the avatar's left shoulder. */
 declare const ATTACH_LSHOULDER: number
@@ -4218,7 +4320,10 @@ declare const ATTACH_RIGHT_PEC: number
 declare const ATTACH_RLARM: number
 /** Attach to the avatar's right lower leg. */
 declare const ATTACH_RLLEG: number
-/** Attach to the avatar's left pectoral. (deprecated, use ATTACH_LEFT_PEC) */
+/**
+ * Attach to the avatar's left pectoral. (deprecated, use ATTACH_LEFT_PEC)
+ * @deprecated Use 'ATTACH_LEFT_PEC' instead.
+ */
 declare const ATTACH_RPEC: number
 /** Attach to the avatar's right shoulder. */
 declare const ATTACH_RSHOULDER: number
@@ -5038,6 +5143,7 @@ declare const PRIM_BUMP_SUCTION: number
 declare const PRIM_BUMP_TILE: number
 declare const PRIM_BUMP_WEAVE: number
 declare const PRIM_BUMP_WOOD: number
+/** @deprecated Not implemented. */
 declare const PRIM_CAST_SHADOWS: number
 /** [PRIM_CLICK_ACTION, integer CLICK_ACTION_*] */
 declare const PRIM_CLICK_ACTION: number
@@ -5378,8 +5484,11 @@ declare const REGION_FLAG_DISABLE_PHYSICS: number
 declare const REGION_FLAG_FIXED_SUN: number
 declare const REGION_FLAG_RESTRICT_PUSHOBJECT: number
 declare const REGION_FLAG_SANDBOX: number
+/** @deprecated */
 declare const REMOTE_DATA_CHANNEL: number
+/** @deprecated */
 declare const REMOTE_DATA_REPLY: number
+/** @deprecated */
 declare const REMOTE_DATA_REQUEST: number
 /** Define whether the character needs a line-of-sight to give chase. */
 declare const REQUIRE_LINE_OF_SIGHT: number
@@ -5754,7 +5863,10 @@ declare const VEHICLE_FLAG_MOUSELOOK_BANK: number
 declare const VEHICLE_FLAG_MOUSELOOK_STEER: number
 /** This flag prevents linear deflection parallel to world z-axis. This is useful for preventing ground vehicles with large linear deflection, like bumper cars, from climbing their linear deflection into the sky. */
 declare const VEHICLE_FLAG_NO_DEFLECTION_UP: number
-/** Old, changed to VEHICLE_FLAG_NO_DEFLECTION_UP */
+/**
+ * Old, changed to VEHICLE_FLAG_NO_DEFLECTION_UP
+ * @deprecated Use 'VEHICLE_FLAG_NO_DEFLECTION_UP' instead.
+ */
 declare const VEHICLE_FLAG_NO_FLY_UP: number
 /** A slider between minimum (0.0 = bouncy) and maximum (1.0 = fast as possible) damped motion of the hover behavior. */
 declare const VEHICLE_HOVER_EFFICIENCY: number

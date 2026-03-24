@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "lib": ["ESNext"],
+    "types": ["@types/bun", "@typescript-to-lua/language-extensions", "@gwigz/slua-types"]
+  },
+  "include": ["src"]
+}

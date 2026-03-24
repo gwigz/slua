@@ -14,8 +14,9 @@
  *
  * @link https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay
  */
-import { config } from "./constants"
-import { loadConfig, onConfigChanged } from "../config"
+
+import { NOTECARD_NAME, config } from "./constants"
+import { loadConfig, onConfigChanged } from "@gwigz/slua-modules/config"
 import { commandChannel, sign } from "../shared"
 
 // Pool state
@@ -306,7 +307,7 @@ function startPool() {
   activeTimers.push(LLTimers.every(1, rezCheck))
 }
 
-loadConfig(config, () => {
+loadConfig(NOTECARD_NAME, config, () => {
   startPool()
 
   // Snapshot signing params so we can kill old listeners with their expected credentials
@@ -316,7 +317,7 @@ loadConfig(config, () => {
     channel: config.PRIVATE_CHANNEL,
   }
 
-  onConfigChanged(config, () => {
+  onConfigChanged(NOTECARD_NAME, config, () => {
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
 
     // Kill old listeners using the credentials they recognize

@@ -17,6 +17,8 @@ listener) let the sender script resolve assignments without KV lookups.
 
 --[[ Generated with @gwigz/slua - https://github.com/gwigz/slua ]]
 
+local NOTECARD_NAME = "settings.yml"
+
 --- Note, these are defaults, use the `settings.yml` notecard to override them
 local config = {
 
@@ -50,10 +52,10 @@ local function __TS__ArrayMap(self, callbackfn, thisArg)
 end
 
 -- End of Lua Library inline imports
-local forceCache, NOTECARD_NAME
+local forceCache
 
-function forceCache(callback)
-	local requestId = ll.GetNotecardLine(NOTECARD_NAME, 1)
+function forceCache(notecard, callback)
+	local requestId = ll.GetNotecardLine(notecard, 1)
 
 	local function handler(id, _data)
 		if id ~= requestId then
@@ -67,19 +69,18 @@ function forceCache(callback)
 	LLEvents:on("dataserver", handler)
 end
 
-NOTECARD_NAME = "settings.yml"
-
-local function readNotecardSync(callback)
+local function readNotecardSync(notecard, callback)
 	local lines = {}
 	local lineNum = 0
 
 	while true do
-		local line = ll.GetNotecardLineSync(NOTECARD_NAME, lineNum + 1)
+		local line = ll.GetNotecardLineSync(notecard, lineNum + 1)
 
 		if line == NAK then
-			forceCache(function()
-				return readNotecardSync(callback)
+			forceCache(notecard, function()
+				return readNotecardSync(notecard, callback)
 			end)
+
 			return
 		end
 
@@ -148,7 +149,7 @@ local function applyConfig(config, parsed)
 	end
 end
 
---- Read the settings notecard and apply the values to the config object
+--- Read a settings notecard and apply the values to the config object
 --
 -- @example ```ts
 -- const config = {
@@ -157,45 +158,46 @@ end
 --   // any missing values here will not be read from the notecard
 --   PRIVATE_CHANNEL: -1731704569,
 --   WELCOME_MESSAGE: "Welcome",
---   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000", "11111111-1111-1111-1111-111111111111"],
+--   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000"],
 -- }
 --
--- loadConfig(config, () => {
+-- loadConfig("settings.yml", config, () => {
 --   // initialize your script here
 --   console.log(config)
 --
---   onConfigChanged(config, () => {
+--   onConfigChanged("settings.yml", config, () => {
 --     // update your script here
 --     console.log(config)
 --   })
 -- })
 -- ```
-local function loadConfig(config, callback)
-	readNotecardSync(function(lines)
+local function loadConfig(notecard, config, callback)
+	readNotecardSync(notecard, function(lines)
 		applyConfig(config, parseLines(lines))
 		callback()
 	end)
 end
 
---- Watch for changes to the settings notecard and apply them to the config object
+--- Watch for changes to a settings notecard and apply them to the config object
 --
--- @note This will create an LLEvent listener for each call, so only use it once
-local function onConfigChanged(config, callback)
-	local lastKey = ll.GetInventoryKey(NOTECARD_NAME)
+-- @note This will create an LLEvent listener for each call, so only use it once per notecard
+local function onConfigChanged(notecard, config, callback)
+	local lastKey = ll.GetInventoryKey(notecard)
 
 	LLEvents:on("changed", function(changed)
 		if not bit32.btest(changed, CHANGED_INVENTORY) then
 			return
 		end
 
-		local currentKey = ll.GetInventoryKey(NOTECARD_NAME)
+		local currentKey = ll.GetInventoryKey(notecard)
 
 		if currentKey == lastKey then
 			return
 		end
 
 		lastKey = currentKey
-		readNotecardSync(function(lines)
+
+		readNotecardSync(notecard, function(lines)
 			applyConfig(config, parseLines(lines))
 			callback()
 		end)
@@ -484,12 +486,12 @@ local function startPool()
 	activeTimers[#activeTimers + 1] = LLTimers:every(1, rezCheck)
 end
 
-loadConfig(config, function()
+loadConfig(NOTECARD_NAME, config, function()
 	startPool()
 
 	local prev = { nonce = config.SIGN_NONCE, window = config.SIGN_WINDOW, channel = config.PRIVATE_CHANNEL }
 
-	onConfigChanged(config, function()
+	onConfigChanged(NOTECARD_NAME, config, function()
 		ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
 
 		ll.RegionSay(prev.channel, sign("KILL", prev.nonce, prev.window))

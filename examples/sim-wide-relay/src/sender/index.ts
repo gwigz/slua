@@ -12,8 +12,9 @@
  *
  * @link https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay
  */
-import { config } from "./constants"
-import { loadConfig, onConfigChanged } from "../config"
+
+import { NOTECARD_NAME, config } from "./constants"
+import { loadConfig, onConfigChanged } from "@gwigz/slua-modules/config"
 import { commandChannel, sign, verify } from "../shared"
 
 const SAY_RANGE = tonumber(ll.GetEnv("chat_range"))!
@@ -312,10 +313,10 @@ LLEvents.on("listen", (channel, _name, id, text) => {
 // Rename to * so /me messages display as: * secondlife:///app/...
 ll.SetObjectName("*")
 
-loadConfig(config, () => {
+loadConfig(NOTECARD_NAME, config, () => {
   startListening()
 
-  onConfigChanged(config, () => {
+  onConfigChanged(NOTECARD_NAME, config, () => {
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
     startListening()
   })

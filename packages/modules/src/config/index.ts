@@ -1,17 +1,15 @@
-const NOTECARD_NAME = "settings.yml"
+export type ConfigObject = Record<string, string | number | string[]>
 
-type ConfigObject = Record<string, string | number | string[]>
-
-function readNotecardSync(callback: (lines: string[]) => void) {
+function readNotecardSync(notecard: string, callback: (lines: string[]) => void) {
   const lines: string[] = []
   let lineNum = 0
 
   while (true) {
-    const line = ll.GetNotecardLineSync(NOTECARD_NAME, lineNum)
+    const line = ll.GetNotecardLineSync(notecard, lineNum)
 
     if (line === NAK) {
       // Not cached, force cache then retry
-      forceCache(() => readNotecardSync(callback))
+      forceCache(notecard, () => readNotecardSync(notecard, callback))
       return
     }
 
@@ -26,8 +24,8 @@ function readNotecardSync(callback: (lines: string[]) => void) {
   callback(lines)
 }
 
-function forceCache(callback: () => void) {
-  const requestId = ll.GetNotecardLine(NOTECARD_NAME, 0)
+function forceCache(notecard: string, callback: () => void) {
+  const requestId = ll.GetNotecardLine(notecard, 0)
 
   function handler(id: uuid, _data: string) {
     if (id !== requestId) {
@@ -35,6 +33,7 @@ function forceCache(callback: () => void) {
     }
 
     LLEvents.off("dataserver", handler)
+
     callback()
   }
 
@@ -57,7 +56,6 @@ function parseLines(lines: string[]): Record<string, string> {
       continue
     }
 
-    // TODO: Ignore keys that aren't known/expected
     const key = trimmed.substring(0, sepIndex).trim()
     const value = trimmed.substring(sepIndex + 1).trim()
 
@@ -76,7 +74,6 @@ function applyConfig(config: ConfigObject, parsed: Record<string, string>) {
     const value = parsed[key]
     const existing = config[key]
 
-    // TODO: Consider warnings for missing values, or invalid types
     if (typeof existing === "number") {
       const num = tonumber(value)
 
@@ -96,7 +93,7 @@ function applyConfig(config: ConfigObject, parsed: Record<string, string>) {
 }
 
 /**
- * Read the settings notecard and apply the values to the config object
+ * Read a settings notecard and apply the values to the config object
  *
  * @example
  * ```ts
@@ -106,41 +103,41 @@ function applyConfig(config: ConfigObject, parsed: Record<string, string>) {
  *   // any missing values here will not be read from the notecard
  *   PRIVATE_CHANNEL: -1731704569,
  *   WELCOME_MESSAGE: "Welcome",
- *   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000", "11111111-1111-1111-1111-111111111111"],
+ *   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000"],
  * }
  *
- * loadConfig(config, () => {
+ * loadConfig("settings.yml", config, () => {
  *   // initialize your script here
  *   console.log(config)
  *
- *   onConfigChanged(config, () => {
+ *   onConfigChanged("settings.yml", config, () => {
  *     // update your script here
  *     console.log(config)
  *   })
  * })
  * ```
  */
-export function loadConfig(config: ConfigObject, callback: () => void) {
-  readNotecardSync((lines) => {
+export function loadConfig(notecard: string, config: ConfigObject, callback: () => void) {
+  readNotecardSync(notecard, (lines) => {
     applyConfig(config, parseLines(lines))
     callback()
   })
 }
 
 /**
- * Watch for changes to the settings notecard and apply them to the config object
+ * Watch for changes to a settings notecard and apply them to the config object
  *
- * @note This will create an LLEvent listener for each call, so only use it once
+ * @note This will create an LLEvent listener for each call, so only use it once per notecard
  */
-export function onConfigChanged(config: ConfigObject, callback: () => void) {
-  let lastKey = ll.GetInventoryKey(NOTECARD_NAME)
+export function onConfigChanged(notecard: string, config: ConfigObject, callback: () => void) {
+  let lastKey = ll.GetInventoryKey(notecard)
 
   LLEvents.on("changed", (changed) => {
     if ((changed & CHANGED_INVENTORY) === 0) {
       return
     }
 
-    const currentKey = ll.GetInventoryKey(NOTECARD_NAME)
+    const currentKey = ll.GetInventoryKey(notecard)
 
     if (currentKey === lastKey) {
       return
@@ -148,7 +145,7 @@ export function onConfigChanged(config: ConfigObject, callback: () => void) {
 
     lastKey = currentKey
 
-    readNotecardSync((lines) => {
+    readNotecardSync(notecard, (lines) => {
       applyConfig(config, parseLines(lines))
       callback()
     })

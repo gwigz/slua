@@ -1,0 +1,35 @@
+{
+  "name": "@gwigz/slua-modules",
+  "version": "0.1.0",
+  "description": "Shared runtime modules for SLua projects",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gwigz/slua.git",
+    "directory": "packages/modules"
+  },
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "exports": {
+    "./config": {
+      "types": "./src/config/index.ts",
+      "default": "./src/config/index.ts"
+    },
+    "./testing": {
+      "types": "./src/testing/index.ts",
+      "default": "./src/testing/index.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
+  "peerDependencies": {
+    "@gwigz/slua-types": "^1.0.0",
+    "@typescript-to-lua/language-extensions": "^1.0.0"
+  }
+}

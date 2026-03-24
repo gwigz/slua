@@ -19,7 +19,11 @@ const BASE_OPTIONS: tstl.CompilerOptions = {
   skipLibCheck: true,
   lib: ["lib.esnext.d.ts"],
   types: ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
-  rootDir: resolve("src"),
+  baseUrl: resolve("."),
+  paths: {
+    "@gwigz/slua-modules/*": ["../../packages/modules/src/*/index.ts"],
+  },
+  rootDir: resolve("../.."),
   outDir: resolve("dist"),
   luaTarget: tstl.LuaTarget.Luau,
   luaLibImport: tstl.LuaLibImportKind.Inline,
@@ -77,10 +81,6 @@ function build() {
 
   for (const script of SCRIPTS) {
     const files = [resolve(`src/${script}/index.ts`), resolve("src/shared.ts")]
-
-    if (script !== "listener") {
-      files.push(resolve("src/config.ts"))
-    }
 
     const result = tstl.transpileFiles(files, {
       ...BASE_OPTIONS,

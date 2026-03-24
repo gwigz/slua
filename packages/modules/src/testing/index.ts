@@ -1,0 +1,244 @@
+// Mock constants
+const NAK_VALUE = "\x15"
+const EOF_VALUE = "\x04"
+const CHANGED_INVENTORY_VALUE = 1
+const NULL_KEY_VALUE = "00000000-0000-0000-0000-000000000000"
+const DEBUG_CHANNEL_VALUE = 2147483647
+
+// Internal state
+let notecards: Record<string, string[]> = {}
+let inventoryKeys: Record<string, string> = {}
+let eventHandlers: Record<string, ((...args: any[]) => void)[]> = {}
+let timerCallbacks: Set<(...args: any[]) => void> = new Set()
+let keyCounter = 0
+
+function nextKey(): string {
+  keyCounter++
+
+  return `00000000-0000-0000-0000-${String(keyCounter).padStart(12, "0")}`
+}
+
+// ---
+// Mock LLEvents
+// ---
+
+const mockLLEvents = {
+  on(event: string, callback: (...args: any[]) => void) {
+    if (!eventHandlers[event]) {
+      eventHandlers[event] = []
+    }
+    eventHandlers[event].push(callback)
+    return callback
+  },
+
+  off(event: string, callback: (...args: any[]) => void) {
+    const handlers = eventHandlers[event]
+    if (!handlers) return false
+
+    const index = handlers.indexOf(callback)
+    if (index === -1) return false
+
+    handlers.splice(index, 1)
+    return true
+  },
+
+  once(event: string, callback: (...args: any[]) => void) {
+    const wrapper = (...args: any[]) => {
+      mockLLEvents.off(event, wrapper)
+      callback(...args)
+    }
+
+    return mockLLEvents.on(event, wrapper)
+  },
+
+  handlers(event: string) {
+    return eventHandlers[event] ?? []
+  },
+
+  eventNames() {
+    return Object.keys(eventHandlers).filter((e) => eventHandlers[e].length > 0)
+  },
+}
+
+// ---
+// Mock LLTimers
+// ---
+
+const mockLLTimers = {
+  every(_seconds: number, callback: (...args: any[]) => void) {
+    timerCallbacks.add(callback)
+    return callback
+  },
+
+  once(_seconds: number, callback: (...args: any[]) => void) {
+    timerCallbacks.add(callback)
+    return callback
+  },
+
+  off(callback: (...args: any[]) => void) {
+    return timerCallbacks.delete(callback)
+  },
+}
+
+// ---
+// Mock ll namespace
+// ---
+
+const mockLL: Record<string, (...args: any[]) => any> = {
+  GetNotecardLineSync(name: string, lineNum: number): string {
+    const lines = notecards[name]
+    if (!lines) return NAK_VALUE
+    if (lineNum >= lines.length) return EOF_VALUE
+    return lines[lineNum]
+  },
+
+  GetNotecardLine(_name: string, _lineNum: number): string {
+    return nextKey()
+  },
+
+  GetInventoryKey(name: string): string {
+    if (!inventoryKeys[name]) {
+      inventoryKeys[name] = nextKey()
+    }
+    return inventoryKeys[name]
+  },
+
+  Say() {},
+  RegionSay() {},
+  RegionSayTo() {},
+  OwnerSay() {},
+  Whisper() {},
+  Shout() {},
+  Listen() {
+    return 0
+  },
+  ListenRemove() {},
+  ListenControl() {},
+  SetObjectName() {},
+  GetOwner() {
+    return NULL_KEY_VALUE
+  },
+  GetKey() {
+    return NULL_KEY_VALUE
+  },
+}
+
+// ---
+// Mock tonumber
+// ---
+
+function mockToNumber(s: string, base?: number): number | undefined {
+  const n = base !== undefined ? parseInt(s, base) : Number(s)
+  return isNaN(n) ? undefined : n
+}
+
+// ---
+// Globals tracking
+// ---
+
+const GLOBAL_KEYS = [
+  "ll",
+  "LLEvents",
+  "LLTimers",
+  "NAK",
+  "EOF",
+  "CHANGED_INVENTORY",
+  "NULL_KEY",
+  "DEBUG_CHANNEL",
+  "tonumber",
+] as const
+
+const savedGlobals: Record<string, any> = {}
+
+/**
+ * Install mock globals into the test environment.
+ * Call in `beforeEach`.
+ */
+export function setup(): void {
+  const g = globalThis as any
+
+  // Save any existing values
+  for (const key of GLOBAL_KEYS) {
+    if (key in g) {
+      savedGlobals[key] = g[key]
+    }
+  }
+
+  g.ll = new Proxy(mockLL, {
+    get(target, prop: string) {
+      return target[prop] ?? (() => {})
+    },
+  })
+
+  g.LLEvents = mockLLEvents
+  g.LLTimers = mockLLTimers
+  g.NAK = NAK_VALUE
+  g.EOF = EOF_VALUE
+  g.CHANGED_INVENTORY = CHANGED_INVENTORY_VALUE
+  g.NULL_KEY = NULL_KEY_VALUE
+  g.DEBUG_CHANNEL = DEBUG_CHANNEL_VALUE
+  g.tonumber = mockToNumber
+}
+
+/**
+ * Remove SLua mock globals and reset all internal state.
+ * Call in `afterEach`.
+ */
+export function teardown(): void {
+  const g = globalThis as any
+
+  for (const key of GLOBAL_KEYS) {
+    if (key in savedGlobals) {
+      g[key] = savedGlobals[key]
+      delete savedGlobals[key]
+    } else {
+      delete g[key]
+    }
+  }
+
+  notecards = {}
+  inventoryKeys = {}
+  eventHandlers = {}
+  timerCallbacks = new Set()
+  keyCounter = 0
+}
+
+/**
+ * Register notecard content for `ll.GetNotecardLineSync` to return.
+ *
+ * @example
+ * ```ts
+ * // From a multi-line string
+ * notecard("settings.yml", "CHANNEL: -123\nMESSAGE: Hello")
+ *
+ * // From an array of lines
+ * notecard("settings.yml", ["CHANNEL: -123", "MESSAGE: Hello"])
+ * ```
+ */
+export function notecard(name: string, content: string | string[]): void {
+  const lines = typeof content === "string" ? content.split("\n") : content
+  notecards[name] = lines
+
+  // Update inventory key so onConfigChanged detects the change
+  inventoryKeys[name] = nextKey()
+}
+
+/**
+ * Trigger an event on the mock `LLEvents`, calling all registered handlers.
+ *
+ * @example
+ * ```ts
+ * emit("changed", CHANGED_INVENTORY)
+ * emit("dataserver", requestId, "data")
+ * ```
+ */
+export function emit(event: string, ...args: any[]): void {
+  const handlers = eventHandlers[event]
+  if (!handlers) return
+
+  // Copy to avoid issues if handlers modify the array (e.g., off() inside once())
+  // oxlint-disable-next-line unicorn/no-useless-spread
+  for (const handler of [...handlers]) {
+    handler(...args)
+  }
+}

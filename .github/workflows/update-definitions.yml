@@ -67,6 +67,10 @@ jobs:
         if: steps.check.outputs.up-to-date == 'false'
         run: bun run generate
 
+      - name: Rebuild examples
+        if: steps.check.outputs.up-to-date == 'false'
+        run: bun run build:examples
+
       - name: Create changeset
         if: steps.check.outputs.up-to-date == 'false'
         run: |

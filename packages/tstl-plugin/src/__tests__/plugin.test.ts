@@ -997,3 +997,107 @@ describe("optimize: numericConcat", () => {
     expect(lua).toContain("tostring(count)")
   })
 })
+
+describe("optimize: defaultParams", () => {
+  it("collapses string default to or-expression", () => {
+    const lua = transpileOptimized('function test(x = "") { return x }')
+
+    expect(lua).toContain('x = x or ""')
+    expect(lua).not.toContain("if x == nil then")
+  })
+
+  it("collapses non-empty string default", () => {
+    const lua = transpileOptimized('function test(x = "hello") { return x }')
+
+    expect(lua).toContain('x = x or "hello"')
+    expect(lua).not.toContain("if x == nil then")
+  })
+
+  it("collapses number default", () => {
+    const lua = transpileOptimized("function test(x = 42) { return x }")
+
+    expect(lua).toContain("x = x or 42")
+    expect(lua).not.toContain("if x == nil then")
+  })
+
+  it("collapses zero default", () => {
+    const lua = transpileOptimized("function test(x = 0) { return x }")
+
+    expect(lua).toContain("x = x or 0")
+    expect(lua).not.toContain("if x == nil then")
+  })
+
+  it("does not collapse false default", () => {
+    const lua = transpileOptimized("function test(x = false) { return x }")
+
+    expect(lua).toContain("if x == nil then")
+    expect(lua).not.toContain("x = x or")
+  })
+
+  it("does not collapse without defaultParams flag", () => {
+    const lua = transpileSimple('function test(x = "") { return x }')
+
+    expect(lua).toContain("if x == nil then")
+    expect(lua).not.toContain("x = x or")
+  })
+})
+
+describe("passthrough arrow closures", () => {
+  it("collapses () => fn() to fn when callee has zero params", () => {
+    const lua = transpileSimple(
+      "declare function fn(): void\ndeclare function cb(f: () => void): void\ncb(() => fn())",
+    )
+
+    expect(lua).toContain("cb(fn)")
+    expect(lua).not.toContain("function()")
+  })
+
+  it("collapses block body () => { fn() }", () => {
+    const lua = transpileSimple(
+      "declare function fn(): void\ndeclare function cb(f: () => void): void\ncb(() => { fn() })",
+    )
+
+    expect(lua).toContain("cb(fn)")
+  })
+
+  it("collapses block body with return", () => {
+    const lua = transpileSimple(
+      "declare function fn(): void\ndeclare function cb(f: () => void): void\ncb(() => { return fn() })",
+    )
+
+    expect(lua).toContain("cb(fn)")
+  })
+
+  it("keeps wrapper when callee has parameters", () => {
+    const lua = transpileSimple(
+      "declare function fn(x?: number): void\ndeclare function cb(f: () => void): void\ncb(() => fn())",
+    )
+
+    expect(lua).not.toMatch(/cb\(fn\)/)
+    expect(lua).toContain("function()")
+  })
+
+  it("keeps wrapper when arrow has parameters", () => {
+    const lua = transpileSimple(
+      "declare function fn(): void\ndeclare function cb(f: (x: number) => void): void\ncb((_x) => fn())",
+    )
+
+    expect(lua).not.toMatch(/cb\(fn\)/)
+  })
+
+  it("keeps wrapper when call passes arguments", () => {
+    const lua = transpileSimple(
+      "declare function fn(x: number): void\ndeclare function cb(f: () => void): void\ndeclare const val: number\ncb(() => fn(val))",
+    )
+
+    expect(lua).toContain("function()")
+  })
+
+  it("keeps wrapper for property access calls", () => {
+    const lua = transpileSimple(
+      "declare const obj: { method(): void }\ndeclare function cb(f: () => void): void\ncb(() => obj.method())",
+    )
+
+    expect(lua).toContain("function()")
+  })
+})

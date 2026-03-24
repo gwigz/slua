@@ -18,6 +18,8 @@ export interface OptimizeFlags {
   inlineLocals?: boolean
   /** Strip `tostring()` from number-typed template literal interpolations. */
   numericConcat?: boolean
+  /** Collapse `if x == nil then x = <literal> end` to `x = x or <literal>`. */
+  defaultParams?: boolean
 }
 
 export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
@@ -28,6 +30,7 @@ export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
   shortenTemps: true,
   inlineLocals: true,
   numericConcat: true,
+  defaultParams: true,
 }
 
 /**

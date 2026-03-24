@@ -180,6 +180,22 @@ This only applies when the argument is directly a `/` expression. `Math.floor(x)
 > [!WARNING]
 > JavaScript integer truncation idioms `~~x` and `x | 0` do **not** map cleanly to Luau. `~~x` emits `bit32.bnot(bit32.bnot(x))` and `x | 0` emits `bit32.bor(x, 0)`, neither of which preserves correct semantics for negative numbers (the `bit32` library operates on unsigned 32-bit integers). Use `math.floor(x)` for floor truncation instead.
 
+### Passthrough arrow closures
+
+Zero-parameter arrow functions that just call another zero-parameter function are collapsed to a direct function reference:
+
+| TypeScript                                  | Lua output                          |
+| ------------------------------------------- | ----------------------------------- |
+| `LLTimers.once(1, () => patchNext())`       | `LLTimers:once(1, patchNext)`       |
+| `LLEvents.on("on_rez", () => refreshUrl())` | `LLEvents:on("on_rez", refreshUrl)` |
+
+This applies when:
+
+- The arrow has zero parameters
+- The body is a single call with zero arguments
+- The callee is a simple identifier (not a method call)
+- The callee's type signature has zero parameters (so extra args from the caller are harmlessly ignored)
+
 ## Optimizations
 
 Pass `optimize: true` to enable all optimizations, or pass an object to pick individual flags. All flags default to `false` when not specified.
@@ -305,6 +321,36 @@ local msg = "items: " .. count
 ```
 
 Non-numeric types (booleans, `any`, etc.) still get wrapped in `tostring()`.
+
+### `defaultParams`
+
+Collapses default-parameter nil-checks into a single `or` expression.
+
+```typescript
+function respondPoll(extraHtml = "") {
+  // ...
+}
+```
+
+Default output:
+
+```lua
+function respondPoll(extraHtml)
+    if extraHtml == nil then
+        extraHtml = ""
+    end
+end
+```
+
+Optimized output:
+
+```lua
+function respondPoll(extraHtml)
+    extraHtml = extraHtml or ""
+end
+```
+
+Safe for string and number defaults (both truthy in Lua). Not applied to `false` defaults.
 
 ## Keeping output small
 

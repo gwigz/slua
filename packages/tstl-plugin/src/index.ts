@@ -305,6 +305,40 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           tstl.createBinaryExpression(prev, current, tstl.SyntaxKind.ConcatOperator),
         )
       },
+
+      // Collapse `() => fn()` to just `fn` when fn has zero parameters.
+      // Extra args from the caller are harmlessly ignored by zero-param functions.
+      [ts.SyntaxKind.ArrowFunction]: (node: ts.ArrowFunction, context) => {
+        if (node.parameters.length === 0) {
+          let callExpr: ts.CallExpression | undefined
+
+          if (ts.isCallExpression(node.body)) {
+            callExpr = node.body
+          } else if (ts.isBlock(node.body) && node.body.statements.length === 1) {
+            const stmt = node.body.statements[0]
+            if (ts.isExpressionStatement(stmt) && ts.isCallExpression(stmt.expression)) {
+              callExpr = stmt.expression
+            } else if (
+              ts.isReturnStatement(stmt) &&
+              stmt.expression &&
+              ts.isCallExpression(stmt.expression)
+            ) {
+              callExpr = stmt.expression
+            }
+          }
+
+          if (callExpr && callExpr.arguments.length === 0 && ts.isIdentifier(callExpr.expression)) {
+            const type = context.checker.getTypeAtLocation(callExpr.expression)
+            const sigs = type.getCallSignatures()
+
+            if (sigs.length > 0 && sigs.every((s) => s.parameters.length === 0)) {
+              return context.transformExpression(callExpr.expression)
+            }
+          }
+        }
+
+        return context.superTransformExpression(node)
+      },
     },
 
     beforeTransform(program, compilerOptions) {
@@ -371,6 +405,17 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           file.code = file.code
             .replace(/local ____exports = \{\}\n/, "")
             .replace(/\nreturn ____exports\n?$/, "\n")
+        }
+      }
+
+      // Collapse default-parameter nil-checks into `x = x or <literal>`.
+      // Safe for strings and numbers (both truthy in Lua); skips `false`.
+      if (opt.defaultParams) {
+        const nilCheck =
+          /^(\s*)if (\w+) == nil then\n\1\s+\2 = ("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|-?\d+(?:\.\d+)?)\n\1end$/gm
+
+        for (const file of result) {
+          file.code = file.code.replace(nilCheck, "$1$2 = $2 or $3")
         }
       }
 

@@ -148,6 +148,28 @@ local function applyConfig(config, parsed)
 	end
 end
 
+--- Read the settings notecard and apply the values to the config object
+--
+-- @example ```ts
+-- const config = {
+--   // default values
+--   // note these are required to correctly type the config object
+--   // any missing values here will not be read from the notecard
+--   PRIVATE_CHANNEL: -1731704569,
+--   WELCOME_MESSAGE: "Welcome",
+--   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000", "11111111-1111-1111-1111-111111111111"],
+-- }
+--
+-- loadConfig(config, () => {
+--   // initialize your script here
+--   console.log(config)
+--
+--   onConfigChanged(config, () => {
+--     // update your script here
+--     console.log(config)
+--   })
+-- })
+-- ```
 local function loadConfig(config, callback)
 	readNotecardSync(function(lines)
 		applyConfig(config, parseLines(lines))
@@ -155,6 +177,9 @@ local function loadConfig(config, callback)
 	end)
 end
 
+--- Watch for changes to the settings notecard and apply them to the config object
+--
+-- @note This will create an LLEvent listener for each call, so only use it once
 local function onConfigChanged(config, callback)
 	local lastKey = ll.GetInventoryKey(NOTECARD_NAME)
 
@@ -326,6 +351,17 @@ poolSize = tonumber(ll.GetEnv("agent_limit"))
 assignedListeners = {}
 freeListeners = {}
 
+--- Tracked timers so we can cancel them on pool restart
+local activeTimers = {}
+
+local function cancelActiveTimers()
+	for ____, cb in ipairs(activeTimers) do
+		LLTimers:off(cb)
+	end
+
+	activeTimers = {}
+end
+
 LLEvents:on("object_rez", function(rezzedId)
 	freeListeners[#freeListeners + 1] = rezzedId
 end)
@@ -411,6 +447,7 @@ local function killAllListeners()
 end
 
 local function startPool()
+	cancelActiveTimers()
 	killAllListeners()
 	ll.LinksetDataDeleteFound("^[la]:", "")
 
@@ -437,22 +474,26 @@ local function startPool()
 
 		LLTimers:off(rezCheck)
 		pollAgents()
-		LLTimers:every(config.POLL_INTERVAL, pollAgents)
-
-		LLTimers:every(30, function()
+		activeTimers[#activeTimers + 1] = LLTimers:every(config.POLL_INTERVAL, pollAgents)
+		activeTimers[#activeTimers + 1] = LLTimers:every(30, function()
 			verifyListeners()
 			cullExcess()
 		end)
 	end
 
-	LLTimers:every(1, rezCheck)
+	activeTimers[#activeTimers + 1] = LLTimers:every(1, rezCheck)
 end
 
 loadConfig(config, function()
 	startPool()
 
+	local prev = { nonce = config.SIGN_NONCE, window = config.SIGN_WINDOW, channel = config.PRIVATE_CHANNEL }
+
 	onConfigChanged(config, function()
 		ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
+
+		ll.RegionSay(prev.channel, sign("KILL", prev.nonce, prev.window))
+		prev = { nonce = config.SIGN_NONCE, window = config.SIGN_WINDOW, channel = config.PRIVATE_CHANNEL }
 		startPool()
 	end)
 end)

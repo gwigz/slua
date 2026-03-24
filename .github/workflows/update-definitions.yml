@@ -45,6 +45,7 @@ jobs:
 
             PINNED_SHORT=${PINNED:0:7}
             LATEST_SHORT=${LATEST:0:7}
+            echo "latest-short=$LATEST_SHORT" >> "$GITHUB_OUTPUT"
             echo "compare-url=https://github.com/secondlife/lsl-definitions/compare/${PINNED_SHORT}...${LATEST_SHORT}" >> "$GITHUB_OUTPUT"
 
             echo "Found $(echo "$LOG" | wc -l | tr -d ' ') new upstream commit(s)."
@@ -89,7 +90,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: chore/bump-lsl-definitions
           delete-branch: true
-          commit-message: "chore(types): bump slua-definitions to ${{ steps.check.outputs.latest }}"
+          commit-message: "chore(types): bump slua-definitions to ${{ steps.check.outputs.latest-short }}"
           title: "chore(types): bump slua-definitions submodule"
           body: |
             Automated update of the `refs/lsl-definitions` submodule to the latest upstream commit.

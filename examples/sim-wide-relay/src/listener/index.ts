@@ -22,6 +22,15 @@ const owner = ll.GetOwner()
 let assignedAvatar: UUID | undefined
 let hearHandle: number | undefined
 let commandHandle: number | undefined
+let privateHandle: number | undefined
+
+function startListening() {
+  if (privateHandle !== undefined) {
+    ll.ListenRemove(privateHandle)
+  }
+
+  privateHandle = ll.Listen(config.PRIVATE_CHANNEL, "", NULL_KEY, "")
+}
 
 /** Recently heard messages for dedup against incoming relays */
 let recentMessages: Record<string, number> = {}
@@ -226,11 +235,11 @@ function handleRelayedMessage(text: string) {
 }
 
 loadConfig(config, () => {
-  ll.Listen(config.PRIVATE_CHANNEL, "", NULL_KEY, "")
+  startListening()
   LLTimers.every(config.FOLLOW_INTERVAL, () => followAvatar())
 
   onConfigChanged(config, () => {
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
-    ll.Listen(config.PRIVATE_CHANNEL, "", NULL_KEY, "")
+    startListening()
   })
 })

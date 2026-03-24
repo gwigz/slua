@@ -28,6 +28,17 @@ const assignedListeners: Record<string, UUID | undefined> = {}
 /** Unassigned listener UUIDs */
 let freeListeners: UUID[] = []
 
+/** Tracked timers so we can cancel them on pool restart */
+let activeTimers: LLTimerCallback[] = []
+
+function cancelActiveTimers() {
+  for (const cb of activeTimers) {
+    LLTimers.off(cb)
+  }
+
+  activeTimers = []
+}
+
 function rezBatched(count: number) {
   const pos = ll.GetPos()
   const rot = ll.GetRot()
@@ -246,6 +257,9 @@ function killAllListeners() {
 }
 
 function startPool() {
+  // Cancel timers from a previous run before anything else
+  cancelActiveTimers()
+
   // Kill any leftover listeners from a previous run
   killAllListeners()
 
@@ -279,22 +293,37 @@ function startPool() {
 
     pollAgents()
 
-    LLTimers.every(config.POLL_INTERVAL, pollAgents)
+    activeTimers.push(LLTimers.every(config.POLL_INTERVAL, pollAgents))
 
-    LLTimers.every(30, () => {
-      verifyListeners()
-      cullExcess()
-    })
+    activeTimers.push(
+      LLTimers.every(30, () => {
+        verifyListeners()
+        cullExcess()
+      }),
+    )
   }
 
-  LLTimers.every(1, rezCheck)
+  activeTimers.push(LLTimers.every(1, rezCheck))
 }
 
 loadConfig(config, () => {
   startPool()
 
+  // Snapshot signing params so we can kill old listeners with their expected credentials
+  let prev = {
+    nonce: config.SIGN_NONCE,
+    window: config.SIGN_WINDOW,
+    channel: config.PRIVATE_CHANNEL,
+  }
+
   onConfigChanged(config, () => {
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
+
+    // Kill old listeners using the credentials they recognize
+    ll.RegionSay(prev.channel, sign("KILL", prev.nonce, prev.window))
+
+    prev = { nonce: config.SIGN_NONCE, window: config.SIGN_WINDOW, channel: config.PRIVATE_CHANNEL }
+
     startPool()
   })
 })

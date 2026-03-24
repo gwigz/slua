@@ -20,9 +20,12 @@ import { commandChannel, sign, verify } from "../shared"
 const owner = ll.GetOwner()
 
 let assignedAvatar: UUID | undefined
+let coordinatorId: UUID | undefined
 let hearHandle: number | undefined
 let commandHandle: number | undefined
 let privateHandle: number | undefined
+let followTimer: LLTimerCallback | undefined
+let lastPosition: vector | undefined
 
 function startListening() {
   if (privateHandle !== undefined) {
@@ -57,7 +60,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
       return
     }
 
-    handlePrivateMessage(payload)
+    handlePrivateMessage(id, payload)
     return
   }
 
@@ -107,7 +110,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
 
 // Private channel commands
 
-function handlePrivateMessage(text: string) {
+function handlePrivateMessage(senderId: UUID, text: string) {
   // Relayed message from sender
   if (text.startsWith("RELAY|")) {
     handleRelayedMessage(text)
@@ -116,12 +119,13 @@ function handlePrivateMessage(text: string) {
 
   // Assignment from coordinator
   if (text.startsWith("ASSIGN|")) {
+    coordinatorId = senderId
     assignAvatar(new UUID(text.substring(7)))
     return
   }
 
   if (text === "UNASSIGN") {
-    unassignAvatar()
+    unassignAvatar(senderId)
     return
   }
 
@@ -143,13 +147,17 @@ function assignAvatar(avatar: UUID) {
   }
 
   assignedAvatar = avatar
+  lastPosition = undefined
   hearHandle = ll.Listen(0, "", NULL_KEY, "")
   commandHandle = ll.Listen(commandChannel(tostring(avatar), config.SIGN_NONCE), "", avatar, "")
 
   followAvatar()
+  startFollowTimer()
 }
 
-function unassignAvatar() {
+function unassignAvatar(senderId?: UUID) {
+  stopFollowTimer()
+
   if (hearHandle !== undefined) {
     ll.ListenRemove(hearHandle)
     hearHandle = undefined
@@ -161,11 +169,46 @@ function unassignAvatar() {
   }
 
   assignedAvatar = undefined
+  lastPosition = undefined
   recentMessages = {}
   recentCount = 0
+
+  // Return to the coordinator that unassigned us
+  const target = senderId ?? coordinatorId
+
+  if (target) {
+    returnToObject(target)
+  }
 }
 
 // Following
+
+function startFollowTimer() {
+  stopFollowTimer()
+  followTimer = LLTimers.every(config.FOLLOW_INTERVAL, followAvatar)
+}
+
+function stopFollowTimer() {
+  if (followTimer !== undefined) {
+    LLTimers.off(followTimer)
+    followTimer = undefined
+  }
+}
+
+function moveTo(targetPos: vector) {
+  const myPos = ll.GetPos()
+  const distance = ll.VecDist(myPos, targetPos)
+
+  if (distance < 0.01) {
+    return
+  }
+
+  if (distance >= 10) {
+    ll.SetRegionPos(targetPos)
+  }
+
+  ll.SetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_POSITION, targetPos])
+}
 
 function followAvatar() {
   if (!assignedAvatar) {
@@ -180,7 +223,23 @@ function followAvatar() {
 
   const avatarPos = details[0] as vector
 
-  ll.SetRegionPos(avatarPos)
+  if (lastPosition !== undefined && ll.VecDist(lastPosition, avatarPos) < 0.01) {
+    return
+  }
+
+  lastPosition = avatarPos
+
+  moveTo(avatarPos)
+}
+
+function returnToObject(objectId: UUID) {
+  const details = ll.GetObjectDetails(objectId, [OBJECT_POS])
+
+  if (details.length === 0) {
+    return
+  }
+
+  moveTo(details[0] as vector)
 }
 
 // Receiving relay messages from sender
@@ -236,10 +295,10 @@ function handleRelayedMessage(text: string) {
 
 loadConfig(config, () => {
   startListening()
-  LLTimers.every(config.FOLLOW_INTERVAL, () => followAvatar())
 
   onConfigChanged(config, () => {
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
+
     startListening()
   })
 })

@@ -227,9 +227,9 @@ local function verify(text, nonce, window)
 	return nil
 end
 
-local handlePrivateMessage, assignAvatar, unassignAvatar, followAvatar, handleRelayedMessage, assignedAvatar, hearHandle, commandHandle, recentMessages, recentCount
+local handlePrivateMessage, assignAvatar, unassignAvatar, startFollowTimer, stopFollowTimer, moveTo, followAvatar, returnToObject, handleRelayedMessage, assignedAvatar, coordinatorId, hearHandle, commandHandle, followTimer, lastPosition, recentMessages, recentCount
 
-function handlePrivateMessage(text)
+function handlePrivateMessage(senderId, text)
 	if string.find(text, "RELAY|", 1, true) == 1 then
 		handleRelayedMessage(text)
 
@@ -237,13 +237,14 @@ function handlePrivateMessage(text)
 	end
 
 	if string.find(text, "ASSIGN|", 1, true) == 1 then
+		coordinatorId = senderId
 		assignAvatar(uuid.create(string.sub(text, 8)))
 
 		return
 	end
 
 	if text == "UNASSIGN" then
-		unassignAvatar()
+		unassignAvatar(senderId)
 
 		return
 	end
@@ -267,12 +268,16 @@ function assignAvatar(avatar)
 	end
 
 	assignedAvatar = avatar
+	lastPosition = nil
 	hearHandle = ll.Listen(0, "", NULL_KEY, "")
 	commandHandle = ll.Listen(commandChannel(tostring(avatar), config.SIGN_NONCE), "", avatar, "")
 	followAvatar()
+	startFollowTimer()
 end
 
-function unassignAvatar()
+function unassignAvatar(senderId)
+	stopFollowTimer()
+
 	if hearHandle ~= nil then
 		ll.ListenRemove(hearHandle)
 		hearHandle = nil
@@ -284,8 +289,42 @@ function unassignAvatar()
 	end
 
 	assignedAvatar = nil
+	lastPosition = nil
 	recentMessages = {}
 	recentCount = 0
+
+	local target = senderId or coordinatorId
+
+	if target then
+		returnToObject(target)
+	end
+end
+
+function startFollowTimer()
+	stopFollowTimer()
+	followTimer = LLTimers:every(config.FOLLOW_INTERVAL, followAvatar)
+end
+
+function stopFollowTimer()
+	if followTimer ~= nil then
+		LLTimers:off(followTimer)
+		followTimer = nil
+	end
+end
+
+function moveTo(targetPos)
+	local myPos = ll.GetPos()
+	local distance = ll.VecDist(myPos, targetPos)
+
+	if distance < 0.01 then
+		return
+	end
+
+	if distance >= 10 then
+		ll.SetRegionPos(targetPos)
+	end
+
+	ll.SetLinkPrimitiveParamsFast(LINK_THIS, { PRIM_POSITION, targetPos })
 end
 
 function followAvatar()
@@ -301,7 +340,22 @@ function followAvatar()
 
 	local avatarPos = details[1]
 
-	ll.SetRegionPos(avatarPos)
+	if lastPosition ~= nil and ll.VecDist(lastPosition, avatarPos) < 0.01 then
+		return
+	end
+
+	lastPosition = avatarPos
+	moveTo(avatarPos)
+end
+
+function returnToObject(objectId)
+	local details = ll.GetObjectDetails(objectId, { OBJECT_POS })
+
+	if #details == 0 then
+		return
+	end
+
+	moveTo(details[1])
 end
 
 function handleRelayedMessage(text)
@@ -381,7 +435,7 @@ LLEvents:on("listen", function(channel, _name, id, text)
 			return
 		end
 
-		handlePrivateMessage(payload)
+		handlePrivateMessage(id, payload)
 
 		return
 	end
@@ -432,7 +486,6 @@ end)
 
 loadConfig(config, function()
 	startListening()
-	LLTimers:every(config.FOLLOW_INTERVAL, followAvatar)
 
 	onConfigChanged(config, function()
 		ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")

@@ -291,6 +291,35 @@ declare type OsDateTime = {
   yday?: number
   isdst?: boolean
 }
+/** Configuration options for lljson encoding */
+declare type LLJsonEncodeOptions = {
+  tight?: boolean
+  skip_tojson?: boolean
+  allow_sparse?: boolean
+  replacer: ((this: void, key: any, value: any, parent: any[] | undefined) => any) | undefined
+}
+declare type LLJsonDecodeReviverWithoutPath = (
+  this: void,
+  key: string | number,
+  value: any,
+  parent: any[] | undefined,
+  ctx: any[],
+) => any
+declare type LLJsonDecodeOptionsWithoutPath =
+  | { track_path?: false; reviver?: LLJsonDecodeReviverWithoutPath }
+  | LLJsonDecodeReviverWithoutPath
+declare type LLJsonDecodeOptionsWithPath = {
+  track_path: true
+  reviver: (
+    this: void,
+    key: string | number,
+    value: any,
+    parent: any[] | undefined,
+    ctx: { path: (string | number)[] },
+  ) => any
+}
+/** Configuration options for lljson decoding */
+declare type LLJsonDecodeOptions = LLJsonDecodeOptionsWithoutPath | LLJsonDecodeOptionsWithPath
 
 /** Event registration and management class for Second Life events */
 declare interface LLEvents {
@@ -300,9 +329,9 @@ declare interface LLEvents {
   off<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): boolean
   /** Registers a one-time callback. Returns the wrapper function. */
   once<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): LLEventMap[E]
-  /** Returns a list of all listeners for a specific event. */
-  listeners<E extends keyof LLEventMap>(event: E): LLEventMap[E][]
-  /** Returns a list of all event names that have listeners. */
+  /** Returns a list of all handlers for a specific event. */
+  handlers<E extends keyof LLEventMap>(event: E): LLEventMap[E][]
+  /** Returns a list of all event names that have handlers. */
   eventNames(): (keyof LLEventMap)[]
 }
 
@@ -704,29 +733,29 @@ declare namespace llbase64 {
 /** @noSelf */
 declare namespace lljson {
   /** Encodes a Lua value as JSON. Raises an error if value contains unsupported types. */
-  export function encode(value: any): string
+  export function encode(value: any, options?: LLJsonEncodeOptions): string
 
   /** Decodes a JSON string to a Lua value. Raises an error if JSON is invalid. */
-  export function decode(json: string): any
+  export function decode(json: string, options?: LLJsonDecodeOptions): any
 
   /** Encodes a Lua value as JSON, preserving SL types. Use tight to encode more compactly. Raises an error if value contains unsupported types. */
-  export function slencode(value: any, tight?: boolean): string
+  export function slencode(value: any, options?: LLJsonEncodeOptions): string
 
   /** Decodes a JSON string to a Lua value, preserving SL types. Raises an error if JSON is invalid. */
-  export function sldecode(json: string): any
+  export function sldecode(json: string, options?: LLJsonDecodeOptions): any
 
-  /** A constant to pass for null to json encode */
+  /** A constant to pass for null to json encode. */
   export const null_: any
-  /** Metatable for declaring table as an empty array for json encode */
-  export const empty_array_mt: Record<any, any>
-  /** Metatable for declaring table as an array for json encode */
-  export const array_mt: Record<any, any>
-  /** A constant to pass for an empty array to json encode */
-  export const empty_array: any
-  /** Name of the lljson library */
-  export const _NAME: string
-  /** Version of the lljson library */
-  export const _VERSION: string
+  /** A constant to return from a reviver/replacer replacer function to omit this item. */
+  export const remove: any
+  /** Metatable for declaring table as an array for json encode. */
+  export const array_mt: { __jsonhint: string }
+  /** Metatable for declaring table as an object for json encode. */
+  export const object_mt: { __jsonhint: string }
+  /** A constant to pass for an empty array to json encode. */
+  export const empty_array: any[]
+  /** A constant to pass for an empty object to json encode. */
+  export const empty_object: any[]
 }
 
 /** Mathematical functions library. */

@@ -33,7 +33,7 @@ sequenceDiagram
 - **`shared.ts`** -- Shared constants (`PRIVATE_CHANNEL`, `IGNORED_AVATARS`) and message signing (`sign`/`verify`)
 - **`coordinator.ts`** -- Pool management, avatar polling, linkset data assignments
 - **`listener.ts`** -- Follows assigned avatar, captures chat, deduplicates relayed messages
-- **`sender.ts`** -- Routes chat between listeners based on distance, formats and delivers messages via `llRegionSayTo`
+- **`sender.ts`** -- Routes chat between listeners based on distance, formats and delivers messages via `ll.RegionSayTo`
 
 ## Configuration
 
@@ -43,7 +43,8 @@ Edit `src/shared.ts` to customize:
 - **`SIGN_NONCE`** -- Random integer used as the MD5 nonce for message signing. Change this to a unique value per deployment.
 - **`IGNORED_AVATARS`** -- Array of avatar UUID strings to exclude from the relay (bots, alts, etc.). Ignored avatars won't be assigned listeners and their chat won't be relayed.
 
-> **Note:** You should change `PRIVATE_CHANNEL` and `SIGN_NONCE` to unique values before deploying. For now it may be easier to edit these in the TypeScript source and rebuild, until we look into cleaner output for configurable globals.
+> [!NOTE]
+> You should change `PRIVATE_CHANNEL` and `SIGN_NONCE` to unique values before deploying. For now it may be easier to edit these in the TypeScript source and rebuild, until we look into cleaner output for configurable globals.
 
 ## Message signing
 

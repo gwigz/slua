@@ -1,6 +1,6 @@
 # Sim-Wide Chat Relay
 
-Three-script relay system that extends public chat (channel 0) across an entire region. Each avatar is assigned a listener object that follows them, captures their chat, and relays it to avatars outside hearing range.
+Four-script relay system that extends public chat (channel 0) across an entire region. Each avatar is assigned a listener object that follows them, captures their chat, and relays it to avatars outside hearing range.
 
 ## How it works
 

@@ -1,0 +1,99 @@
+---
+title: Documentation
+description: TypeScript type definitions and TSTL plugin for Second Life's SLua runtime
+---
+
+import { Cards, Card } from "fumadocs-ui/components/card"
+
+## Overview
+
+`@gwigz/slua` provides complete LSL/SLua type definitions and a
+[TypeScript-to-Lua](https://typescripttolua.github.io) plugin for developing
+Second Life scripts in TypeScript. Write type-safe code with full editor
+support, then compile to SLua with minimal runtime overhead.
+
+<Cards>
+  <Card
+    title="Getting Started"
+    href="/docs/getting-started"
+    description="Install dependencies and configure your project"
+  />
+  <Card
+    title="API Reference"
+    href="/docs/api"
+    description="Complete type reference for the SLua runtime"
+  />
+</Cards>
+
+## Examples
+
+Projects built with this toolchain, it's how the rough edges get found and fixed.
+
+<Cards>
+  <Card
+    title="slua-derez-patcher"
+    href="https://github.com/gwigz/slua-derez-patcher"
+    description="Skips the rez-edit-take-replace cycle, patches rezzed objects in-place using ll.DerezObject"
+    external
+  />
+  <Card
+    title="sim-wide-relay"
+    href="https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay"
+    description="Region-wide chat relay system, a multi-script project deployed at a live sim"
+    external
+  />
+  <Card
+    title="weather-fetcher"
+    href="https://github.com/gwigz/slua/tree/main/examples/weather-fetcher"
+    description="Fetches weather data via HTTP, displays it as hover text, and refreshes on a timer"
+    external
+  />
+</Cards>
+
+## Resources
+
+### Official
+
+<Cards>
+  <Card
+    title="Creator Portal"
+    href="https://create.secondlife.com"
+    description="Second Life creator tools and documentation"
+    external
+  />
+  <Card
+    title="VSCode Extension"
+    href="https://github.com/secondlife/sl-vscode-plugin"
+    description="SLua language support for VS Code by Linden Lab"
+    external
+  />
+  <Card
+    title="LSL Definitions"
+    href="https://github.com/secondlife/lsl-definitions"
+    description="LSL and SLua API definitions by Linden Lab"
+    external
+  />
+</Cards>
+
+### Community
+
+<Cards>
+  <Card
+    title="SLua Docs"
+    href="https://suzanna-linn.github.io/slua"
+    description="Comprehensive SLua documentation and reference by Suzanna Linn"
+    external
+  />
+  <Card
+    title="slua.dev"
+    href="https://slua.dev"
+    description="Community SLua website and resources"
+    external
+  />
+  <Card
+    title="@gwigz/slua"
+    href="https://github.com/gwigz/slua"
+    description="TypeScript type definitions and TSTL transpiler plugin"
+    external
+  />
+</Cards>

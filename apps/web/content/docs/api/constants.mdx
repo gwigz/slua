@@ -1,0 +1,92 @@
+---
+title: Constants
+description: 1,022 LSL constants
+---
+
+The SLua runtime defines over 1,000 constants. Below are the most commonly
+used groups. All constants are available as globals, no import needed.
+
+## Common Constants
+
+| Constant        | Type         | Description                   |
+| --------------- | ------------ | ----------------------------- |
+| `ZERO_VECTOR`   | `vector`     | `<0, 0, 0>`                   |
+| `ZERO_ROTATION` | `quaternion` | `<0, 0, 0, 1>`                |
+| `NULL_KEY`      | `uuid`       | Null UUID                     |
+| `PI`            | `number`     | 3.14159...                    |
+| `TWO_PI`        | `number`     | 6.28318...                    |
+| `DEG_TO_RAD`    | `number`     | Degrees to radians multiplier |
+| `RAD_TO_DEG`    | `number`     | Radians to degrees multiplier |
+
+## Change Event Flags (`CHANGED_*`)
+
+Used with `LLEvents.on("changed", ...)`:
+
+`CHANGED_INVENTORY`, `CHANGED_COLOR`, `CHANGED_SHAPE`, `CHANGED_SCALE`,
+`CHANGED_TEXTURE`, `CHANGED_LINK`, `CHANGED_ALLOWED_DROP`, `CHANGED_OWNER`,
+`CHANGED_REGION`, `CHANGED_TELEPORT`, `CHANGED_REGION_START`, `CHANGED_MEDIA`
+
+## Permission Flags (`PERMISSION_*`)
+
+Used with `ll.RequestPermissions()`:
+
+`PERMISSION_DEBIT`, `PERMISSION_TAKE_CONTROLS`, `PERMISSION_TRIGGER_ANIMATION`,
+`PERMISSION_ATTACH`, `PERMISSION_CHANGE_LINKS`, `PERMISSION_TRACK_CAMERA`,
+`PERMISSION_CONTROL_CAMERA`, `PERMISSION_TELEPORT`, `PERMISSION_OVERRIDE_ANIMATIONS`
+
+## Prim Parameters (`PRIM_*`)
+
+Used with `ll.SetPrimitiveParams()` / `ll.GetPrimitiveParams()`:
+
+`PRIM_TYPE`, `PRIM_MATERIAL`, `PRIM_PHYSICS`, `PRIM_TEMP_ON_REZ`,
+`PRIM_PHANTOM`, `PRIM_POSITION`, `PRIM_SIZE`, `PRIM_ROTATION`,
+`PRIM_TEXTURE`, `PRIM_COLOR`, `PRIM_BUMP_SHINY`, `PRIM_FULLBRIGHT`,
+`PRIM_FLEXIBLE`, `PRIM_TEXGEN`, `PRIM_GLOW`, `PRIM_TEXT`,
+`PRIM_NAME`, `PRIM_DESC`, `PRIM_LINK_TARGET`
+
+## Agent Flags (`AGENT_*`)
+
+Used with `ll.GetAgentInfo()`:
+
+`AGENT_FLYING`, `AGENT_ATTACHMENTS`, `AGENT_SCRIPTED`, `AGENT_MOUSELOOK`,
+`AGENT_SITTING`, `AGENT_ON_OBJECT`, `AGENT_AWAY`, `AGENT_WALKING`,
+`AGENT_IN_AIR`, `AGENT_TYPING`, `AGENT_CROUCHING`, `AGENT_BUSY`,
+`AGENT_ALWAYS_RUN`, `AGENT_AUTOPILOT`
+
+## Attachment Points (`ATTACH_*`)
+
+Used with `ll.AttachToAvatar()`:
+
+`ATTACH_CHEST`, `ATTACH_HEAD`, `ATTACH_LSHOULDER`, `ATTACH_RSHOULDER`,
+`ATTACH_LHAND`, `ATTACH_RHAND`, `ATTACH_LFOOT`, `ATTACH_RFOOT`,
+`ATTACH_BACK`, `ATTACH_PELVIS`, `ATTACH_MOUTH`, `ATTACH_CHIN`,
+`ATTACH_LEAR`, `ATTACH_REAR`, `ATTACH_LEYE`, `ATTACH_REYE`,
+`ATTACH_NOSE`, `ATTACH_RUARM`, `ATTACH_RLARM`, `ATTACH_LUARM`,
+`ATTACH_LLARM`, `ATTACH_RHIP`, `ATTACH_RULEG`, `ATTACH_RLLEG`,
+`ATTACH_LHIP`, `ATTACH_LULEG`, `ATTACH_LLLEG`, `ATTACH_BELLY`,
+`ATTACH_LEFT_PEC`, `ATTACH_RIGHT_PEC`, `ATTACH_HUD_CENTER_2`,
+`ATTACH_HUD_TOP_RIGHT`, `ATTACH_HUD_TOP_CENTER`, `ATTACH_HUD_TOP_LEFT`,
+`ATTACH_HUD_CENTER_1`, `ATTACH_HUD_BOTTOM_LEFT`, `ATTACH_HUD_BOTTOM`,
+`ATTACH_HUD_BOTTOM_RIGHT`
+
+## Inventory Types (`INVENTORY_*`)
+
+`INVENTORY_TEXTURE`, `INVENTORY_SOUND`, `INVENTORY_LANDMARK`,
+`INVENTORY_CLOTHING`, `INVENTORY_OBJECT`, `INVENTORY_NOTECARD`,
+`INVENTORY_SCRIPT`, `INVENTORY_BODYPART`, `INVENTORY_ANIMATION`,
+`INVENTORY_GESTURE`, `INVENTORY_SETTING`, `INVENTORY_MATERIAL`,
+`INVENTORY_ALL`, `INVENTORY_NONE`
+
+## Status Codes (`STATUS_*`)
+
+`STATUS_PHYSICS`, `STATUS_ROTATE_X`, `STATUS_ROTATE_Y`, `STATUS_ROTATE_Z`,
+`STATUS_PHANTOM`, `STATUS_SANDBOX`, `STATUS_BLOCK_GRAB`,
+`STATUS_DIE_AT_EDGE`, `STATUS_RETURN_AT_EDGE`, `STATUS_CAST_SHADOWS`,
+`STATUS_OK`, `STATUS_MALFORMED_PARAMS`, `STATUS_TYPE_MISMATCH`,
+`STATUS_BOUNDS_ERROR`, `STATUS_NOT_FOUND`, `STATUS_NOT_SUPPORTED`,
+`STATUS_INTERNAL_ERROR`, `STATUS_WHITELIST_FAILED`
+
+---
+
+For the complete list of all 1,022 constants, see the
+[source type definitions](https://github.com/gwigz/slua/blob/main/packages/types/index.d.ts).

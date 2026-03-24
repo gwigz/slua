@@ -1,0 +1,21 @@
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared"
+
+export const gitConfig = {
+  user: "gwigz",
+  repo: "slua",
+  branch: "main",
+}
+
+export function baseOptions(): BaseLayoutProps {
+  return {
+    nav: {
+      title: "@gwigz/slua",
+    },
+    links: [
+      { text: "Docs", url: "/docs" },
+      { text: "Playground", url: "/playground" },
+    ],
+    githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
+    themeSwitch: { enabled: false },
+  }
+}

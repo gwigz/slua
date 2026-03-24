@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, type RefObject } from "react"
 
 export function useTwoslashPortal(ref: RefObject<HTMLElement | null>, deps: unknown[] = []) {

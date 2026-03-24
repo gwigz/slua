@@ -1,0 +1,38 @@
+---
+title: Global Functions
+description: Lua and SLua global functions
+---
+
+## Lua Standard Globals
+
+Standard Lua functions available in the SLua runtime:
+
+- `pairs(t)` iterate over all key-value pairs
+- `ipairs(t)` iterate over integer keys in order
+- `next(t, key?)` next key-value pair in a table
+- `tonumber(value)` convert to number
+- `tostring(value)` convert to string
+- `type(value)` return type name as string
+- `print(...)` print values to output
+- `select(index, ...)` select from varargs
+- `unpack(t)` unpack table to multiple values
+- `assert(value, message?)` assert a value is truthy
+- `error(message, level?)` throw an error
+- `pcall(fn, ...)` protected call (catches errors)
+- `xpcall(fn, handler, ...)` extended protected call
+- `getmetatable(t)` get a table's metatable
+- `setmetatable(t, mt)` set a table's metatable
+- `rawget(t, key)` get without metamethods
+- `rawset(t, key, value)` set without metamethods
+- `rawlen(t)` length without metamethods
+- `rawequal(a, b)` equality without metamethods
+- `require(module)` import a module
+- `newproxy(useMeta?)` create a new userdata proxy
+- `gcinfo()` garbage collector info
+
+## SLua-specific Globals
+
+- `touuid(value)` convert to UUID
+- `tovector(value)` convert to Vector
+- `toquaternion(value)` / `torotation(value)` convert to Quaternion
+- `dangerouslyexecuterequiredmodule(name)` execute a required module unsandboxed

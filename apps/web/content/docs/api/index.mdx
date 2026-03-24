@@ -1,0 +1,43 @@
+---
+title: API Reference
+description: Complete type reference for the SLua runtime
+---
+
+import { Cards, Card } from "fumadocs-ui/components/card"
+
+The `@gwigz/slua-types` package provides TypeScript definitions for the
+complete SLua/LSL runtime environment. This includes 522 LSL API functions,
+1,022 constants, core types, event handling, and the Lua standard library.
+
+<Cards>
+  <Card
+    title={
+      <>
+        <code>ll.*</code> Namespace
+      </>
+    }
+    href="/docs/api/ll"
+    description="LSL API functions (ll.Say, ll.GetPos, ll.Listen, ...)"
+  />
+  <Card
+    title="Events & Timers"
+    href="/docs/api/events"
+    description="LLEvents, LLTimers, DetectedEvent, and event handlers"
+  />
+  <Card title="Core Types" href="/docs/api/types" description="Vector, Quaternion, UUID classes" />
+  <Card
+    title="Constants"
+    href="/docs/api/constants"
+    description="LSL constants (CHANGED_*, PRIM_*, AGENT_*, ...)"
+  />
+  <Card
+    title="Global Functions"
+    href="/docs/api/globals"
+    description="Lua builtins: pairs, ipairs, print, tonumber, ..."
+  />
+  <Card
+    title="Standard Library"
+    href="/docs/api/stdlib"
+    description="math, string, table, bit32, buffer, coroutine, ..."
+  />
+</Cards>

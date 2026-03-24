@@ -1,0 +1,171 @@
+@import "tailwindcss";
+@import "./theme.css";
+@import "fumadocs-ui/css/preset.css";
+@import "@fontsource-variable/sora";
+@import "@fontsource/fira-code/400.css";
+@import "@fontsource/fira-code/500.css";
+
+/* Landing page custom properties */
+:root {
+  color-scheme: dark;
+  --highlight: #4d9375; /* vitesse green accent */
+  --surface-glass: rgba(18, 18, 18, 0.6); /* vitesse bg with alpha */
+  --surface-glass-border: #19191959; /* vitesse border with alpha */
+}
+
+@theme inline {
+  --font-display: "Sora Variable", sans-serif;
+  --font-mono: "Fira Code", monospace;
+
+  --color-background: var(--color-fd-background);
+  --color-foreground: var(--color-fd-foreground);
+  --color-card: var(--color-fd-card);
+  --color-card-foreground: var(--color-fd-card-foreground);
+  --color-muted: var(--color-fd-muted);
+  --color-muted-foreground: var(--color-fd-muted-foreground);
+  --color-primary: var(--color-fd-primary);
+  --color-primary-foreground: var(--color-fd-primary-foreground);
+  --color-secondary: var(--color-fd-secondary);
+  --color-secondary-foreground: var(--color-fd-secondary-foreground);
+  --color-accent: var(--color-fd-accent);
+  --color-accent-foreground: var(--color-fd-accent-foreground);
+  --color-border: var(--color-fd-border);
+  --color-ring: var(--color-fd-ring);
+  --color-input: var(--color-fd-muted);
+  --color-destructive: #cb7676; /* vitesse errorForeground */
+}
+
+/* Hero animations */
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(3deg);
+  }
+}
+
+@keyframes hero-float-alt {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(10px) rotate(-3deg);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-stagger {
+  animation: fade-in-up 0.7s ease-out both;
+  animation-delay: calc(var(--stagger, 0) * 0.1s + 0.1s);
+}
+
+/* Twoslash */
+.twoslash .twoslash-hover {
+  border-bottom: 1px dotted transparent;
+  transition: border-color 0.3s;
+  position: relative;
+}
+
+.twoslash:hover .twoslash-hover {
+  border-color: #666;
+}
+
+.twoslash .twoslash-popup-container {
+  position: absolute;
+  opacity: 0;
+  display: inline-flex;
+  flex-direction: column;
+  transform: translateY(1.1em);
+  background: #121212;
+  border: 1px solid #191919;
+  transition: opacity 0.3s;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 10;
+  user-select: none;
+  text-align: left;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 8px;
+}
+
+/* Collapse inline popups so they don't affect scroll width.
+   The portal clones them outside the code block on hover. */
+.twoslash .twoslash-hover > .twoslash-popup-container {
+  max-width: 0;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.twoslash .twoslash-query-persisted .twoslash-popup-container,
+.twoslash .twoslash-query-line .twoslash-popup-container {
+  opacity: 1;
+  pointer-events: auto;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
+
+/* Portal-cloned popups */
+.twoslash-portal .twoslash-popup-container {
+  display: inline-flex;
+  flex-direction: column;
+  background: #121212;
+  border: 1px solid #191919;
+  border-radius: 4px;
+  z-index: 10;
+  text-align: left;
+  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 8px;
+}
+
+.twoslash .twoslash-popup-arrow,
+.twoslash-portal .twoslash-popup-arrow {
+  position: absolute;
+  top: -4px;
+  left: 1em;
+  border-top: 1px solid #191919;
+  border-right: 1px solid #191919;
+  background: #121212;
+  transform: rotate(-45deg);
+  width: 6px;
+  height: 6px;
+  pointer-events: none;
+}
+
+.twoslash .twoslash-popup-code,
+.twoslash .twoslash-popup-docs,
+.twoslash-portal .twoslash-popup-code,
+.twoslash-portal .twoslash-popup-docs {
+  padding: 6px 8px !important;
+}
+
+.twoslash .twoslash-popup-code,
+.twoslash-portal .twoslash-popup-code {
+  font-family: inherit;
+  font-size: 0.85em;
+}
+
+.twoslash .twoslash-popup-docs,
+.twoslash-portal .twoslash-popup-docs {
+  color: #888;
+  font-family: sans-serif;
+  font-size: 0.8em;
+  border-top: 1px solid #191919;
+}
+
+.twoslash .twoslash-query-line .twoslash-popup-container {
+  position: relative;
+  margin-bottom: 0.4em;
+  transform: translateY(0.4em);
+}

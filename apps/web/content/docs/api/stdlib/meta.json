@@ -1,0 +1,4 @@
+{
+  "title": "Standard Library",
+  "pages": ["math", "string", "table", "bit32", "buffer", "coroutine", "debug", "os", "utf8"]
+}

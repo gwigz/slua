@@ -1,0 +1,86 @@
+---
+title: Getting Started
+description: Set up a new project with TypeScript-to-Lua for Second Life
+---
+
+## Install Dependencies
+
+```bash tab="npm"
+npm install --save-dev typescript typescript-to-lua @gwigz/slua-types @gwigz/slua-tstl-plugin
+```
+
+```bash tab="pnpm"
+pnpm add -D typescript typescript-to-lua @gwigz/slua-types @gwigz/slua-tstl-plugin
+```
+
+```bash tab="bun"
+bun add --dev typescript typescript-to-lua @gwigz/slua-types @gwigz/slua-tstl-plugin
+```
+
+```bash tab="deno"
+deno add --dev npm:typescript npm:typescript-to-lua npm:@gwigz/slua-types npm:@gwigz/slua-tstl-plugin
+```
+
+## Configure TypeScript
+
+Create a `tsconfig.json` in your project root:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "strict": true,
+    "moduleDetection": "force",
+    "types": ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"]
+  },
+  "tstl": {
+    "luaTarget": "Luau",
+    "luaLibImport": "inline",
+    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }],
+    "extension": "slua"
+  }
+}
+```
+
+See the [TSTL configuration docs](https://typescripttolua.github.io/docs/configuration)
+for all available options.
+
+## Editor Setup (Optional)
+
+Map `.slua` to Lua highlighting in VS Code:
+
+```json title=".vscode/settings.json"
+{
+  "files.associations": {
+    "*.slua": "lua"
+  }
+}
+```
+
+Tell GitHub to highlight `.slua` files as Lua:
+
+```ini title=".gitattributes"
+*.slua linguist-language=Lua
+```
+
+You may also like the [Second Life SLua/LSL extension](https://github.com/secondlife/sl-vscode-plugin)
+for additional language support.
+
+## Compile
+
+```bash tab="npm"
+npx tstl
+```
+
+```bash tab="pnpm"
+pnpm tstl
+```
+
+```bash tab="bun"
+bunx tstl
+```
+
+```bash tab="deno"
+deno run tstl
+```

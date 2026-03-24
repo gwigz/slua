@@ -69,7 +69,7 @@ declare interface DetectedEvent {
   readonly valid: boolean
   readonly canAdjustDamage: boolean
   /** Changes the amount of damage to be delivered by this damage event. */
-  adjustDamage(Damage: number): void
+  adjustDamage(damage: number): void
   /** Returns a list containing the current damage for the event, the damage type and the original damage delivered. */
   getDamage(): list
   /**
@@ -165,63 +165,63 @@ declare interface DetectedEvent {
 /** @noSelf */
 declare interface LLEventMap {
   at_rot_target: (
-    TargetNumber: number,
-    TargetRotation: quaternion,
-    CurrentRotation: quaternion,
+    targetNumber: number,
+    targetRotation: quaternion,
+    currentRotation: quaternion,
   ) => void
-  at_target: (TargetNumber: number, TargetPosition: vector, CurrentPosition: vector) => void
-  attach: (AvatarID: uuid) => void
-  changed: (Changed: number) => void
+  at_target: (targetNumber: number, targetPosition: vector, currentPosition: vector) => void
+  attach: (avatarId: uuid) => void
+  changed: (changed: number) => void
   collision: (detected: DetectedEvent[]) => void
   collision_end: (detected: DetectedEvent[]) => void
   collision_start: (detected: DetectedEvent[]) => void
-  control: (AvatarID: uuid, Levels: number, Edges: number) => void
-  dataserver: (RequestID: uuid, Data: string) => void
+  control: (avatarId: uuid, levels: number, edges: number) => void
+  dataserver: (requestId: uuid, data: string) => void
   email: (
-    Time: string,
-    Address: string,
-    Subject: string,
-    Body: string,
-    NumberRemaining: number,
+    time: string,
+    address: string,
+    subject: string,
+    body: string,
+    numberRemaining: number,
   ) => void
-  experience_permissions: (agent_id: uuid) => void
-  experience_permissions_denied: (agent_id: uuid, Reason: number) => void
+  experience_permissions: (agentId: uuid) => void
+  experience_permissions_denied: (agentId: uuid, reason: number) => void
   final_damage: (detected: DetectedEvent[]) => void
   game_control: (id: uuid, buttons: number, axes: number[]) => void
-  http_request: (HTTPRequestID: uuid, HTTPMethod: string, Body: string) => void
-  http_response: (HTTPRequestID: uuid, Status: number, Metadata: list, Body: string) => void
-  land_collision: (Position: vector) => void
-  land_collision_end: (Position: vector) => void
-  land_collision_start: (Position: vector) => void
-  link_message: (SendersLink: number, Value: number, Text: string, ID: string) => void
+  http_request: (httpRequestId: uuid, httpMethod: string, body: string) => void
+  http_response: (httpRequestId: uuid, status: number, metadata: list, body: string) => void
+  land_collision: (position: vector) => void
+  land_collision_end: (position: vector) => void
+  land_collision_start: (position: vector) => void
+  link_message: (sendersLink: number, value: number, text: string, id: string) => void
   linkset_data: (action: number, name: string, value: string) => void
-  listen: (Channel: number, Name: string, ID: uuid, Text: string) => void
-  money: (Payer: uuid, Amount: number) => void
+  listen: (channel: number, name: string, id: uuid, text: string) => void
+  money: (payer: uuid, amount: number) => void
   moving_end: () => void
   moving_start: () => void
   no_sensor: () => void
   not_at_rot_target: () => void
   not_at_target: () => void
-  object_rez: (RezzedObjectsID: uuid) => void
+  object_rez: (rezzedObjectsId: uuid) => void
   on_damage: (detected: DetectedEvent[]) => void
   on_death: () => void
-  on_rez: (StartParameter: number) => void
-  path_update: (Type: number, Reserved: list) => void
+  on_rez: (startParameter: number) => void
+  path_update: (type: number, reserved: list) => void
   remote_data: (
-    EventType: number,
-    ChannelID: uuid,
-    MessageID: uuid,
-    Sender: string,
-    IData: number,
-    SData: string,
+    eventType: number,
+    channelId: uuid,
+    messageId: uuid,
+    sender: string,
+    iData: number,
+    sData: string,
   ) => void
-  run_time_permissions: (PermissionFlags: number) => void
+  run_time_permissions: (permissionFlags: number) => void
   sensor: (detected: DetectedEvent[]) => void
   timer: () => void
   touch: (detected: DetectedEvent[]) => void
   touch_end: (detected: DetectedEvent[]) => void
   touch_start: (detected: DetectedEvent[]) => void
-  transaction_result: (RequestID: uuid, Success: number, Message: string) => void
+  transaction_result: (requestId: uuid, success: number, message: string) => void
 }
 
 /** 'rotation' is an alias for 'quaternion' */
@@ -1176,10 +1176,10 @@ declare namespace Vector {
 /** @noSelf */
 declare namespace ll {
   /** Returns the absolute (positive) version of Value. */
-  export function Abs(Value: number): number
+  export function Abs(value: number): number
 
   /** Returns the arc-cosine of Value, in radians. */
-  export function Acos(Value: number): number
+  export function Acos(value: number): number
 
   /**
    * Add avatar ID to the parcel ban list for the specified number of Hours.
@@ -1188,48 +1188,48 @@ declare namespace ll {
    * When values that small are used, it seems the function bans in approximately 30 second increments (Probably 36 second increments, as 0.01 of an hour is 36 seconds).
    * Residents teleporting to a parcel where they are banned will be redirected to a neighbouring parcel.
    */
-  export function AddToLandBanList(ID: uuid, Hours: number): void
+  export function AddToLandBanList(id: uuid, hours: number): void
 
   /** Add avatar ID to the land pass list, for a duration of Hours. */
-  export function AddToLandPassList(ID: uuid, Hours: number): void
+  export function AddToLandPassList(id: uuid, hours: number): void
 
   /**
    * Changes the amount of damage to be delivered by this damage event.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function AdjustDamage(Number: number, Damage: number): void
+  export function AdjustDamage(number: number, damage: number): void
 
   /**
    * Adjusts the volume (0.0 - 1.0) of the currently playing attached sound.
    * This function has no effect on sounds started with llTriggerSound.
    */
-  export function AdjustSoundVolume(Volume: number): void
+  export function AdjustSoundVolume(volume: number): void
 
   /** Returns TRUE if the agent is in the Experience and the Experience can run in the current location. */
-  export function AgentInExperience(AgentID: uuid): number
+  export function AgentInExperience(agentId: uuid): number
 
   /** If Flag == TRUE, users without object modify permissions can still drop inventory items into the object. */
-  export function AllowInventoryDrop(Flag: number): void
+  export function AllowInventoryDrop(flag: number): void
 
   /** Returns the angle, in radians, between rotations Rot1 and Rot2. */
-  export function AngleBetween(Rot1: quaternion, Rot2: quaternion): number
+  export function AngleBetween(rot1: quaternion, rot2: quaternion): number
 
   /**
    * Applies impulse to the object.
    * If Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.
    * This function only works on physical objects.
    */
-  export function ApplyImpulse(Force: vector, Local: number): void
+  export function ApplyImpulse(force: vector, local: number): void
 
   /**
    * Applies rotational impulse to the object.
    * If Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.
    * This function only works on physical objects.
    */
-  export function ApplyRotationalImpulse(Force: vector, Local: number): void
+  export function ApplyRotationalImpulse(force: vector, local: number): void
 
   /** Returns the arc-sine, in radians, of Value. */
-  export function Asin(Value: number): number
+  export function Asin(value: number): number
 
   /** Returns the arc-tangent2 of y, x. */
   export function Atan2(y: number, x: number): number
@@ -1238,19 +1238,19 @@ declare namespace ll {
    * Attach to avatar at point AttachmentPoint.
    * Requires the PERMISSION_ATTACH runtime permission.
    */
-  export function AttachToAvatar(AttachmentPoint: number): void
+  export function AttachToAvatar(attachmentPoint: number): void
 
   /**
    * Follows the same convention as llAttachToAvatar, with the exception that the object will not create new inventory for the user, and will disappear on detach or disconnect.
    * Requires the PERMISSION_ATTACH runtime permission.
    */
-  export function AttachToAvatarTemp(AttachPoint: number): void
+  export function AttachToAvatarTemp(attachPoint: number): void
 
   /**
    * If an avatar is sitting on the link's sit target, return the avatar's key, NULL_KEY otherwise.
    * Returns a key that is the UUID of the user seated on the specified link's prim.
    */
-  export function AvatarOnLinkSitTarget(LinkNumber: number): uuid
+  export function AvatarOnLinkSitTarget(linkNumber: number): uuid
 
   /**
    * If an avatar is seated on the sit target, returns the avatar's key, otherwise NULL_KEY.
@@ -1259,22 +1259,22 @@ declare namespace ll {
   export function AvatarOnSitTarget(): uuid
 
   /** Returns the rotation represented by coordinate axes Forward, Left, and Up. */
-  export function Axes2Rot(Forward: vector, Left: vector, Up: vector): quaternion
+  export function Axes2Rot(forward: vector, left: vector, up: vector): quaternion
 
   /** Returns the rotation that is a generated Angle about Axis. */
-  export function AxisAngle2Rot(Axis: vector, Angle: number): quaternion
+  export function AxisAngle2Rot(axis: vector, angle: number): quaternion
 
   /**
    * Returns an integer that is the Text, Base64 decoded as a big endian integer.
    * Returns zero if Text is longer then 8 characters. If Text contains fewer then 6 characters, the return value is unpredictable.
    */
-  export function Base64ToInteger(Text: string): number
+  export function Base64ToInteger(text: string): number
 
   /**
    * Converts a Base64 string to a conventional string.
    * If the conversion creates any unprintable characters, they are converted to question marks.
    */
-  export function Base64ToString(Text: string): string
+  export function Base64ToString(text: string): string
 
   /**
    * De-links all prims in the link set.
@@ -1286,20 +1286,20 @@ declare namespace ll {
    * De-links the prim with the given link number.
    * Requires the PERMISSION_CHANGE_LINKS runtime permission.
    */
-  export function BreakLink(LinkNumber: number): void
+  export function BreakLink(linkNumber: number): void
 
   /** Create a list from a string of comma separated values specified in Text. */
-  export function CSV2List(Text: string): string[]
+  export function CSV2List(text: string): string[]
 
   /**
    * Casts a ray into the physics world from 'start' to 'end' and returns data according to details in Options.
    * Reports collision data for intersections with objects.
    * Return value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1}, UUID_2, {link_number_2}, hit_position_2, {hit_normal_2}, ... , status_code] where {} indicates optional data.
    */
-  export function CastRay(Start: vector, End: vector, Options: list): list
+  export function CastRay(start: vector, end: vector, options: list): list
 
   /** Returns smallest integer value >= Value. */
-  export function Ceil(Value: number): number
+  export function Ceil(value: number): number
 
   /** Returns a single character string that is the representation of the unicode value. */
   export function Char(value: number): string
@@ -1310,62 +1310,62 @@ declare namespace ll {
    */
   export function ClearCameraParams(): void
 
-  export function ClearExperience(AgentID: uuid, ExperienceID: uuid): void
+  export function ClearExperience(agentId: uuid, experienceId: uuid): void
 
-  export function ClearExperiencePermissions(AgentID: uuid): void
+  export function ClearExperiencePermissions(agentId: uuid): void
 
   /**
    * Clears (deletes) the media and all parameters from the given Face on the linked prim.
    * Returns an integer that is a STATUS_* flag, which details the success/failure of the operation.
    */
-  export function ClearLinkMedia(Link: number, Face: number): number
+  export function ClearLinkMedia(link: number, face: number): number
 
   /**
    * Clears (deletes) the media and all parameters from the given Face.
    * Returns an integer that is a STATUS_* flag which details the success/failure of the operation.
    */
-  export function ClearPrimMedia(Face: number): number
+  export function ClearPrimMedia(face: number): number
 
   /** This function is deprecated. */
-  export function CloseRemoteDataChannel(ChannelID: uuid): void
+  export function CloseRemoteDataChannel(channelId: uuid): void
 
   /** Returns the cloud density at the object's position + Offset. */
-  export function Cloud(Offset: vector): number
+  export function Cloud(offset: vector): number
 
   /** Specify an empty string or NULL_KEY for Accept, to not filter on the corresponding parameter. */
-  export function CollisionFilter(ObjectName: string, ObjectID: uuid, Accept: number): void
+  export function CollisionFilter(objectName: string, objectId: uuid, accept: number): void
 
   /**
    * Suppress default collision sounds, replace default impact sounds with ImpactSound.
    * The ImpactSound must be in the object inventory.
    * Supply an empty string to suppress collision sounds.
    */
-  export function CollisionSound(ImpactSound: string, ImpactVolume: number): void
+  export function CollisionSound(impactSound: string, impactVolume: number): void
 
   /** Suppress default collision sprites, replace default impact sprite with ImpactSprite; found in the object inventory (empty string to just suppress). */
-  export function CollisionSprite(ImpactSprite: string): void
+  export function CollisionSprite(impactSprite: string): void
 
   /** Returns hex-encoded Hash string of Message using digest Algorithm. */
-  export function ComputeHash(Message: string, Algorithm: string): string
+  export function ComputeHash(message: string, algorithm: string): string
 
   /** Returns the cosine of Theta (Theta in radians). */
-  export function Cos(Theta: number): number
+  export function Cos(theta: number): number
 
   /**
    * Convert link-set to AI/Physics character.
    * Creates a path-finding entity, known as a "character", from the object containing the script. Required to activate use of path-finding functions.
    * Options is a list of key/value pairs.
    */
-  export function CreateCharacter(Options: list): void
+  export function CreateCharacter(options: list): void
 
   /** Starts an asychronous transaction to create a key-value pair. Will fail with XP_ERROR_STORAGE_EXCEPTION if the key already exists. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value passed to the function. */
-  export function CreateKeyValue(Key: string, Value: string): uuid
+  export function CreateKeyValue(key: string, value: string): uuid
 
   /**
    * Attempt to link the object the script is in, to target.
    * Requires the PERMISSION_CHANGE_LINKS runtime permission.
    */
-  export function CreateLink(TargetPrim: uuid, Parent: number): void
+  export function CreateLink(targetPrim: uuid, parent: number): void
 
   /** Generates a damage event on the targeted agent or task. */
   export function Damage(target: uuid, damage: number, type: number): void
@@ -1380,30 +1380,30 @@ declare namespace ll {
   export function DeleteCharacter(): void
 
   /** Starts an asychronous transaction to delete a key-value pair. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. */
-  export function DeleteKeyValue(Key: string): uuid
+  export function DeleteKeyValue(key: string): uuid
 
   /**
    * Removes the slice from start to end and returns the remainder of the list.
    * Remove a slice from the list and return the remainder, start and end are inclusive.
    * Using negative numbers for start and/or end causes the index to count backwards from the length of the list, so 0, -1 would delete the entire list.
    * If Start is larger than End the list deleted is the exclusion of the entries; so 6, 4 would delete the entire list except for the 5th list entry.
-   * @indexArg Start
-   * @indexArg End
+   * @indexArg start
+   * @indexArg end
    */
-  export function DeleteSubList(Source: T[], Start: number, End: number): T[]
+  export function DeleteSubList(source: T[], start: number, end: number): T[]
 
   /**
    * Removes the indicated sub-string and returns the result.
    * Start and End are inclusive.
    * Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would delete the entire string.
    * If Start is larger than End, the sub-string is the exclusion of the entries; so 6, 4 would delete the entire string except for the 5th character.
-   * @indexArg Start
-   * @indexArg End
+   * @indexArg start
+   * @indexArg end
    */
-  export function DeleteSubString(Source: string, Start: number, End: number): string
+  export function DeleteSubString(source: string, start: number, end: number): string
 
   /** Derezzes an object previously rezzed by a script in this region. Returns TRUE on success or FALSE if the object could not be derezzed. */
-  export function DerezObject(ID: uuid, flags: number): number
+  export function DerezObject(id: uuid, flags: number): number
 
   /**
    * Remove the object containing the script from the avatar.
@@ -1413,116 +1413,116 @@ declare namespace ll {
 
   /**
    * Returns a list containing the current damage for the event, the damage type and the original damage delivered.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedDamage(Number: number): list
+  export function DetectedDamage(number: number): list
 
   /**
    * Returns the grab offset of a user touching the object.
    * Returns <0.0, 0.0, 0.0> if Number is not a valid object.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedGrab(Number: number): vector
+  export function DetectedGrab(number: number): vector
 
   /**
    * Returns TRUE if detected object or agent Number has the same user group active as this object.
    * It will return FALSE if the object or agent is in the group, but the group is not active.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedGroup(Number: number): number
+  export function DetectedGroup(number: number): number
 
   /**
    * Returns the key of detected object or avatar number.
    * Returns NULL_KEY if Number is not a valid index.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedKey(Number: number): uuid
+  export function DetectedKey(number: number): uuid
 
   /**
    * Returns the link position of the triggered event for touches and collisions only.
    * 0 for a non-linked object, 1 for the root of a linked object, 2 for the first child, etc.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedLinkNumber(Number: number): number
+  export function DetectedLinkNumber(number: number): number
 
   /**
    * Returns the name of detected object or avatar number.
    * Returns the name of detected object number.
    * Returns empty string if Number is not a valid index.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedName(Number: number): string
+  export function DetectedName(number: number): string
 
   /**
    * Returns the key of detected object's owner.
    * Returns invalid key if Number is not a valid index.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedOwner(Number: number): uuid
+  export function DetectedOwner(number: number): uuid
 
   /**
    * Returns the position of detected object or avatar number.
    * Returns <0.0, 0.0, 0.0> if Number is not a valid index.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedPos(Number: number): vector
+  export function DetectedPos(number: number): vector
 
   /**
    * Returns the key for the rezzer of the detected object.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedRezzer(Number: number): uuid
+  export function DetectedRezzer(number: number): uuid
 
   /**
    * Returns the rotation of detected object or avatar number.
    * Returns <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedRot(Number: number): quaternion
+  export function DetectedRot(number: number): quaternion
 
   /**
    * Returns the surface bi-normal for a triggered touch event.
    * Returns a vector that is the surface bi-normal (tangent to the surface) where the touch event was triggered.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function DetectedTouchBinormal(Index: number): vector
+  export function DetectedTouchBinormal(index: number): vector
 
   /**
    * Returns the index of the face where the avatar clicked in a triggered touch event.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function DetectedTouchFace(Index: number): number
+  export function DetectedTouchFace(index: number): number
 
   /**
    * Returns the surface normal for a triggered touch event.
    * Returns a vector that is the surface normal (perpendicular to the surface) where the touch event was triggered.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function DetectedTouchNormal(Index: number): vector
+  export function DetectedTouchNormal(index: number): vector
 
   /**
    * Returns the position, in region coordinates, where the object was touched in a triggered touch event.
    * Unless it is a HUD, in which case it returns the position relative to the attach point.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function DetectedTouchPos(Index: number): vector
+  export function DetectedTouchPos(index: number): vector
 
   /**
    * Returns a vector that is the surface coordinates where the prim was touched.
    * The X and Y vector positions contain the horizontal (S) and vertical (T) face coordinates respectively.
    * Each component is in the interval [0.0, 1.0].
    * TOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).
-   * @indexArg Index
+   * @indexArg index
    */
-  export function DetectedTouchST(Index: number): vector
+  export function DetectedTouchST(index: number): vector
 
   /**
    * Returns a vector that is the texture coordinates for where the prim was touched.
    * The X and Y vector positions contain the U and V face coordinates respectively.
    * TOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).
-   * @indexArg Index
+   * @indexArg index
    */
-  export function DetectedTouchUV(Index: number): vector
+  export function DetectedTouchUV(index: number): vector
 
   /**
    * Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object.
@@ -1532,16 +1532,16 @@ declare namespace ll {
    * {
    * 	// ...do stuff with the agent
    * }
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedType(Number: number): number
+  export function DetectedType(number: number): number
 
   /**
    * Returns the velocity of the detected object Number.
    * Returns<0.0, 0.0, 0.0> if Number is not a valid offset.
-   * @indexArg Number
+   * @indexArg number
    */
-  export function DetectedVel(Number: number): vector
+  export function DetectedVel(number: number): vector
 
   /**
    * Shows a dialog box on the avatar's screen with the message.
@@ -1556,7 +1556,7 @@ declare namespace ll {
    * llDialog(who, "This shows only an OK button.", [], -192);
    * llDialog(who, "This chats so you can 'hear' it.", ["Hooray"], 0);
    */
-  export function Dialog(AvatarID: uuid, Text: string, Buttons: string[], Channel: number): void
+  export function Dialog(avatarId: uuid, text: string, buttons: string[], channel: number): void
 
   /** Delete the object which holds the script. */
   export function Die(): void
@@ -1565,95 +1565,95 @@ declare namespace ll {
    * Returns the list as a single string, using Separator between the entries.
    * Write the list out as a single string, using Separator between values.
    */
-  export function DumpList2String(Source: list, Separator: string): string
+  export function DumpList2String(source: list, separator: string): string
 
   /**
    * Checks to see whether the border hit by Direction from Position is the edge of the world (has no neighboring region).
    * Returns TRUE if the line along Direction from Position hits the edge of the world in the current simulator, returns FALSE if that edge crosses into another simulator.
    */
-  export function EdgeOfWorld(Position: vector, Direction: vector): number
+  export function EdgeOfWorld(position: vector, direction: vector): number
 
   /**
    * Ejects AvatarID from land that you own.
    * Ejects AvatarID from land that the object owner (group or resident) owns.
    */
-  export function EjectFromLand(AvatarID: uuid): void
+  export function EjectFromLand(avatarId: uuid): void
 
   /**
    * Sends email to Address with Subject and Message.
    * Sends an email to Address with Subject and Message.
    */
-  export function Email(Address: string, Subject: string, Text: string): void
+  export function Email(address: string, subject: string, text: string): void
 
   /**
    * Returns an escaped/encoded version of url, replacing spaces with %20 etc.
    * Returns the string that is the URL-escaped version of URL (replacing spaces with %20, etc.).
    * This function returns the UTF-8 encoded escape codes for selected characters.
    */
-  export function EscapeURL(URL: string): string
+  export function EscapeURL(url: string): string
 
   /**
    * Returns the rotation representation of the Euler angles.
    * Returns the rotation represented by the Euler Angle.
    */
-  export function Euler2Rot(Vector: vector): quaternion
+  export function Euler2Rot(vector: vector): quaternion
 
   /**
    * Evade a specified target.
    * Characters will (roughly) try to hide from their pursuers if there is a good hiding spot along their fleeing path. Hiding means no direct line of sight from the head of the character (centre of the top of its physics bounding box) to the head of its pursuer and no direct path between the two on the navigation-mesh.
    */
-  export function Evade(TargetID: uuid, Options: list): void
+  export function Evade(targetId: uuid, options: list): void
 
   /**
    * Execute a character command.
    * Send a command to the path system.
    * Currently only supports stopping the current path-finding operation or causing the character to jump.
    */
-  export function ExecCharacterCmd(Command: number, Options: list): void
+  export function ExecCharacterCmd(command: number, options: list): void
 
   /**
    * Returns the positive version of Value.
    * Returns the absolute value of Value.
    */
-  export function Fabs(Value: number): number
+  export function Fabs(value: number): number
 
   /** Searches the text of a cached notecard for lines containing the given pattern and returns the number of matches found through a dataserver event. */
-  export function FindNotecardTextCount(NotecardName: string, Pattern: string, Options: list): uuid
+  export function FindNotecardTextCount(notecardName: string, pattern: string, options: list): uuid
 
   /**
    * Searches the text of a cached notecard for lines containing the given pattern. Returns a list of line numbers and column where a match is found. If the notecard is not inthe cache it returns a list containing a single entry of NAK. If no matches are found anempty list is returned.
-   * @indexArg StartMatch
+   * @indexArg startMatch
    * @indexReturn
    */
   export function FindNotecardTextSync(
-    NotecardName: string,
-    Pattern: string,
-    StartMatch: number,
-    Count: number,
-    Options: list,
+    notecardName: string,
+    pattern: string,
+    startMatch: number,
+    count: number,
+    options: list,
   ): list
 
   /**
    * Flee from a point.
    * Directs a character (llCreateCharacter) to keep away from a defined position in the region or adjacent regions.
    */
-  export function FleeFrom(Source: vector, Distance: number, Options: list): void
+  export function FleeFrom(source: vector, distance: number, options: list): void
 
   /** Returns largest integer value <= Value. */
-  export function Floor(Value: number): number
+  export function Floor(value: number): number
 
   /**
    * If Enable is TRUE any avatar that sits on this object is forced into mouse-look mode.
    * After calling this function with Enable set to TRUE, any agent sitting down on the prim will be forced into mouse-look.
    * Just like llSitTarget, this changes a permanent property of the prim (not the object) and needs to be reset by calling this function with Enable set to FALSE in order to disable it.
    */
-  export function ForceMouselook(Enable: number): void
+  export function ForceMouselook(enable: number): void
 
   /**
    * Returns a pseudo random number in the range [0, Magnitude] or [Magnitude, 0].
    * Returns a pseudo-random number between [0, Magnitude].
    */
-  export function Frand(Magnitude: number): number
+  export function Frand(magnitude: number): number
 
   /**
    * Generates a key (SHA-1 hash) using UUID generation to create a unique key.
@@ -1673,61 +1673,61 @@ declare namespace ll {
    * Returns AGENT_FLYING, AGENT_ATTACHMENTS, AGENT_SCRIPTED, AGENT_SITTING, AGENT_ON_OBJECT, AGENT_MOUSELOOK, AGENT_AWAY, AGENT_BUSY, AGENT_TYPING, AGENT_CROUCHING, AGENT_ALWAYS_RUN, AGENT_WALKING, AGENT_IN_AIR and/or AGENT_FLOATING_VIA_SCRIPTED_ATTACHMENT.
    * Returns information about the given agent ID as a bit-field of agent info constants.
    */
-  export function GetAgentInfo(AvatarID: uuid): number
+  export function GetAgentInfo(avatarId: uuid): number
 
   /**
    * Returns the language code of the preferred interface language of the avatar.
    * Returns a string that is the language code of the preferred interface language of the resident.
    */
-  export function GetAgentLanguage(AvatarID: uuid): string
+  export function GetAgentLanguage(avatarId: uuid): string
 
   /**
    * Requests a list of agents currently in the region, limited by the scope parameter.
    * Returns a list [key UUID-0, key UUID-1, ..., key UUID-n] or [string error_msg] - returns avatar keys for all agents in the region limited to the area(s) specified by scope
    */
-  export function GetAgentList(Scope: number, Options: list): uuid[]
+  export function GetAgentList(scope: number, options: list): uuid[]
 
   /**
    * If the avatar is in the same region, returns the size of the bounding box of the requested avatar by id, otherwise returns ZERO_VECTOR.
    * If the agent is in the same region as the object, returns the size of the avatar.
    */
-  export function GetAgentSize(AvatarID: uuid): vector
+  export function GetAgentSize(avatarId: uuid): vector
 
   /**
    * Returns the alpha value of Face.
    * Returns the 'alpha' of the given face. If face is ALL_SIDES the value returned is the mean average of all faces.
    */
-  export function GetAlpha(Face: number): number
+  export function GetAlpha(face: number): number
 
   /**
    * Returns the name of the currently playing locomotion animation for the avatar id.
    * Returns the currently playing animation for the specified avatar ID.
    */
-  export function GetAnimation(AvatarID: uuid): string
+  export function GetAnimation(avatarId: uuid): string
 
   /**
    * Returns a list of keys of playing animations for an avatar.
    * Returns a list of keys of all playing animations for the specified avatar ID.
    */
-  export function GetAnimationList(AvatarID: uuid): uuid[]
+  export function GetAnimationList(avatarId: uuid): uuid[]
 
   /**
    * Returns a string that is the name of the animation that is used for the specified animation state.
    * Requires the PERMISSION_OVERRIDE_ANIMATIONS or PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted to attached objects).
    */
-  export function GetAnimationOverride(AnimationState: string): string
+  export function GetAnimationOverride(animationState: string): string
 
   /** Returns the object's attachment point, or 0 if not attached. */
   export function GetAttached(): number
 
   /** Returns a list of keys of all visible (not HUD) attachments on the avatar identified by the ID argument */
-  export function GetAttachedList(ID: uuid): uuid[]
+  export function GetAttachedList(id: uuid): uuid[]
 
   /** Retrieves a list of attachments on an avatar. */
-  export function GetAttachedListFiltered(AgentID: uuid, Options: list): uuid[]
+  export function GetAttachedListFiltered(agentId: uuid, options: list): uuid[]
 
   /** Returns the bounding box around the object (including any linked prims) relative to its root prim, as a list in the format [ (vector) min_corner, (vector) max_corner ]. */
-  export function GetBoundingBox(ID: uuid): vector[]
+  export function GetBoundingBox(id: uuid): vector[]
 
   /** Returns the current camera aspect ratio (width / height) of the agent who has granted the scripted object PERMISSION_TRACK_CAMERA permissions. If no permissions have been granted: it returns zero. */
   export function GetCameraAspect(): number
@@ -1751,13 +1751,13 @@ declare namespace ll {
    * Get the closest navigable point to the point provided.
    * The function accepts a point in region-local space (like all the other path-finding methods) and returns either an empty list or a list containing a single vector which is the closest point on the navigation-mesh to the point provided.
    */
-  export function GetClosestNavPoint(Point: vector, Options: list): vector[]
+  export function GetClosestNavPoint(point: vector, options: list): vector[]
 
   /**
    * Returns the color on Face.
    * Returns the color of Face as a vector of red, green, and blue values between 0 and 1. If face is ALL_SIDES the color returned is the mean average of each channel.
    */
-  export function GetColor(Face: number): vector
+  export function GetColor(face: number): vector
 
   /**
    * Returns a key for the creator of the prim.
@@ -1778,24 +1778,24 @@ declare namespace ll {
   export function GetDayOffset(): number
 
   /** Returns the display name of an avatar, if the avatar is connected to the current region, or if the name has been cached.  Otherwise, returns an empty string. Use llRequestDisplayName if the avatar may be absent from the region. */
-  export function GetDisplayName(AvatarID: uuid): string
+  export function GetDisplayName(avatarId: uuid): string
 
   /** Returns how much energy is in the object as a percentage of maximum. */
   export function GetEnergy(): number
 
   /** Returns a string with the requested data about the region. */
-  export function GetEnv(DataRequest: string): string
+  export function GetEnv(dataRequest: string): string
 
   /** Returns a string with the requested data about the region. */
-  export function GetEnvironment(Position: vector, EnvParams: number[]): list
+  export function GetEnvironment(position: vector, envParams: number[]): list
 
   /** Returns a list with the following Experience properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State Message]. State is an integer corresponding to one of the constants XP_ERROR_... and State Message is the string returned by llGetExperienceErrorMessage for that integer. */
-  export function GetExperienceDetails(ExperienceID: uuid): list
+  export function GetExperienceDetails(experienceId: uuid): list
 
   /** Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code. */
-  export function GetExperienceErrorMessage(Error: number): string
+  export function GetExperienceErrorMessage(error: number): string
 
-  export function GetExperienceList(AgentID: uuid): uuid[]
+  export function GetExperienceList(agentId: uuid): uuid[]
 
   /**
    * Returns the force (if the script is physical).
@@ -1828,53 +1828,53 @@ declare namespace ll {
    * Returns the value for header for request_id.
    * Returns a string that is the value of the Header for HTTPRequestID.
    */
-  export function GetHTTPHeader(HTTPRequestID: uuid, Header: string): string
+  export function GetHTTPHeader(httpRequestId: uuid, header: string): string
 
   /** Returns the current health of an avatar or object in the region. */
-  export function GetHealth(ID: uuid): number
+  export function GetHealth(id: uuid): number
 
   /** Returns the time at which the item was placed into this prim's inventory as a timestamp. */
-  export function GetInventoryAcquireTime(InventoryItem: string): string
+  export function GetInventoryAcquireTime(inventoryItem: string): string
 
   /**
    * Returns a key for the creator of the inventory item.
    * This function returns the UUID of the creator of item. If item is not found in inventory, the object says "No item named 'name'".
    */
-  export function GetInventoryCreator(InventoryItem: string): uuid
+  export function GetInventoryCreator(inventoryItem: string): uuid
 
   /** Returns the item description of the item in inventory. If item is not found in inventory, the object says "No item named 'name'" to the debug channel and returns an empty string. */
-  export function GetInventoryDesc(InventoryItem: string): string
+  export function GetInventoryDesc(inventoryItem: string): string
 
   /**
    * Returns the key that is the UUID of the inventory named.
    * Returns the key of the inventory named.
    */
-  export function GetInventoryKey(InventoryItem: string): uuid
+  export function GetInventoryKey(inventoryItem: string): uuid
 
   /**
    * Returns the name of the inventory item of a given type, specified by index number.
    * Use the inventory constants INVENTORY_* to specify the type.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function GetInventoryName(InventoryType: number, Index: number): string
+  export function GetInventoryName(inventoryType: number, index: number): string
 
   /**
    * Returns the quantity of items of a given type (INVENTORY_* flag) in the prim's inventory.
    * Use the inventory constants INVENTORY_* to specify the type.
    */
-  export function GetInventoryNumber(InventoryType: number): number
+  export function GetInventoryNumber(inventoryType: number): number
 
   /**
    * Returns the requested permission mask for the inventory item.
    * Returns the requested permission mask for the inventory item defined by InventoryItem. If item is not in the object's inventory, llGetInventoryPermMask returns FALSE and causes the object to say "No item named '<item>'", where "<item>" is item.
    */
-  export function GetInventoryPermMask(InventoryItem: string, BitMask: number): number
+  export function GetInventoryPermMask(inventoryItem: string, bitMask: number): number
 
   /**
    * Returns the type of the named inventory item.
    * Like all inventory functions, llGetInventoryType is case-sensitive.
    */
-  export function GetInventoryType(InventoryItem: string): number
+  export function GetInventoryType(inventoryItem: string): number
 
   /**
    * Returns the key of the prim the script is attached to.
@@ -1886,22 +1886,22 @@ declare namespace ll {
    * Returns the key of the land owner, returns NULL_KEY if public.
    * Returns the key of the land owner at Position, or NULL_KEY if public.
    */
-  export function GetLandOwnerAt(Position: vector): uuid
+  export function GetLandOwnerAt(position: vector): uuid
 
   /**
    * Returns the key of the linked prim LinkNumber.
    * Returns the key of LinkNumber in the link set.
    */
-  export function GetLinkKey(LinkNumber: number): uuid
+  export function GetLinkKey(linkNumber: number): uuid
 
   /** Get the media parameters for a particular face on linked prim, given the desired list of parameter names. Returns a list of values in the order requested.	Returns an empty list if no media exists on the face. */
-  export function GetLinkMedia(LinkNumber: number, Face: number, Parameters: number[]): list
+  export function GetLinkMedia(linkNumber: number, face: number, parameters: number[]): list
 
   /**
    * Returns the name of LinkNumber in a link set.
    * Returns the name of LinkNumber the link set.
    */
-  export function GetLinkName(LinkNumber: number): string
+  export function GetLinkName(linkNumber: number): string
 
   /**
    * Returns the link number of the prim containing the script (0 means not linked, 1 the prim is the root, 2 the prim is the first child, etc.).
@@ -1913,7 +1913,7 @@ declare namespace ll {
    * Returns the number of sides of the specified linked prim.
    * Returns an integer that is the number of faces (or sides) of the prim link.
    */
-  export function GetLinkNumberOfSides(LinkNumber: number): number
+  export function GetLinkNumberOfSides(linkNumber: number): number
 
   /**
    * Returns the list of primitive attributes requested in the Parameters list for LinkNumber.
@@ -1921,23 +1921,23 @@ declare namespace ll {
    * * Supplying a prim or object flag will return that flag's attributes.
    * * Face flags require the user to also supply a face index parameter.
    */
-  export function GetLinkPrimitiveParams(LinkNumber: number, Parameters: number[]): list
+  export function GetLinkPrimitiveParams(linkNumber: number, parameters: number[]): list
 
   /** Returns the sit flags set on the specified prim in a linkset. */
-  export function GetLinkSitFlags(LinkNumber: number): number
+  export function GetLinkSitFlags(linkNumber: number): number
 
   /**
    * Returns the type of the index entry in the list (TYPE_INTEGER, TYPE_FLOAT, TYPE_STRING, TYPE_KEY, TYPE_VECTOR, TYPE_ROTATION, or TYPE_INVALID if index is off list).
    * Returns the type of the variable at Index in ListVariable.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function GetListEntryType(ListVariable: list, Index: number): number
+  export function GetListEntryType(listVariable: list, index: number): number
 
   /**
    * Returns the number of elements in the list.
    * Returns the number of elements in ListVariable.
    */
-  export function GetListLength(ListVariable: list): number
+  export function GetListLength(listVariable: list): number
 
   /**
    * Returns the position relative to the root.
@@ -1982,29 +1982,29 @@ declare namespace ll {
    * Fetch the next queued email with that matches the given address and/or subject, via the email event.
    * If the parameters are blank, they are not used for filtering.
    */
-  export function GetNextEmail(Address: string, Subject: string): void
+  export function GetNextEmail(address: string, subject: string): void
 
   /**
    * Returns LineNumber from NotecardName via the dataserver event. The line index starts at zero in LSL, one in Lua.
    * If the requested line is passed the end of the note-card the dataserver event will return the constant EOF string.
    * The key returned by this function is a unique identifier which will be supplied to the dataserver event in the requested parameter.
-   * @indexArg LineNumber
+   * @indexArg lineNumber
    */
-  export function GetNotecardLine(NotecardName: string, LineNumber: number): uuid
+  export function GetNotecardLine(notecardName: string, lineNumber: number): uuid
 
   /**
    * Returns LineNumber from NotecardName. The line index starts at zero in LSL, one in Lua.
    * If the requested line is past the end of the note-card the return value will be set to the constant EOF string.
    * If the note-card is not cached on the simulator the return value is the NAK string.
-   * @indexArg LineNumber
+   * @indexArg lineNumber
    */
-  export function GetNotecardLineSync(NotecardName: string, LineNumber: number): string
+  export function GetNotecardLineSync(notecardName: string, lineNumber: number): string
 
   /**
    * Returns the number of lines contained within a notecard via the dataserver event.
    * The key returned by this function is a query ID for identifying the dataserver reply.
    */
-  export function GetNumberOfNotecardLines(NotecardName: string): uuid
+  export function GetNumberOfNotecardLines(notecardName: string): uuid
 
   /**
    * Returns the number of prims in a link set the script is attached to.
@@ -2034,19 +2034,19 @@ declare namespace ll {
    * Returns a list of object details specified in the Parameters list for the object or avatar in the region with key ID.
    * Parameters are specified by the OBJECT_* constants.
    */
-  export function GetObjectDetails(ID: uuid, Parameters: number[]): list
+  export function GetObjectDetails(id: uuid, parameters: number[]): list
 
   /**
    * Returns the key of the linked prim link_no in a linkset.
    * Returns the key of link_no in the link set specified by id.
    */
-  export function GetObjectLinkKey(id: uuid, link_no: number): uuid
+  export function GetObjectLinkKey(id: uuid, linkNo: number): uuid
 
   /**
    * Returns the mass of the avatar or object in the region.
    * Gets the mass of the object or avatar corresponding to ID.
    */
-  export function GetObjectMass(ID: uuid): number
+  export function GetObjectMass(id: uuid): number
 
   /**
    * Returns the name of the prim which the script is attached to.
@@ -2055,13 +2055,13 @@ declare namespace ll {
   export function GetObjectName(): string
 
   /** Returns the permission mask of the requested category for the object. */
-  export function GetObjectPermMask(Category: number): number
+  export function GetObjectPermMask(category: number): number
 
   /**
    * Returns the total number of prims for an object in the region.
    * Returns the prim count for any object id in the same region.
    */
-  export function GetObjectPrimCount(ObjectID: uuid): number
+  export function GetObjectPrimCount(objectId: uuid): number
 
   /**
    * Returns the rotation velocity in radians per second.
@@ -2079,26 +2079,26 @@ declare namespace ll {
    * Returns the owner of ObjectID.
    * Returns the key for the owner of object ObjectID.
    */
-  export function GetOwnerKey(ObjectID: uuid): uuid
+  export function GetOwnerKey(objectId: uuid): uuid
 
   /**
    * Returns a list of parcel details specified in the ParcelDetails list for the parcel at Position.
    * Parameters is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS.
    * Returns a list that is the parcel details specified in ParcelDetails (in the same order) for the parcel at Position.
    */
-  export function GetParcelDetails(Position: vector, ParcelDetails: number[]): list
+  export function GetParcelDetails(position: vector, parcelDetails: number[]): list
 
   /**
    * Returns a mask of the parcel flags (PARCEL_FLAG_*) for the parcel that includes the point Position.
    * Returns a bit-field specifying the parcel flags (PARCEL_FLAG_*) for the parcel at Position.
    */
-  export function GetParcelFlags(Position: vector): number
+  export function GetParcelFlags(position: vector): number
 
   /**
    * Returns the maximum number of prims allowed on the parcel at Position for a given scope.
    * The scope may be set to an individual parcel or the combined resources of all parcels with the same ownership in the region.
    */
-  export function GetParcelMaxPrims(Position: vector, SimWide: number): number
+  export function GetParcelMaxPrims(position: vector, simWide: number): number
 
   /**
    * Gets the streaming audio URL for the parcel object is on.
@@ -2113,7 +2113,7 @@ declare namespace ll {
    * If SimWide is TRUE, it returns the total number of objects for all parcels with matching ownership in the category specified.
    * If SimWide is FALSE, it returns the number of objects on this specific parcel in the category specified
    */
-  export function GetParcelPrimCount(Position: vector, Category: number, SimWide: number): number
+  export function GetParcelPrimCount(position: vector, category: number, simWide: number): number
 
   /**
    * Returns a list of up to 100 residents who own objects on the parcel at Position, with per-owner land impact totals.
@@ -2121,7 +2121,7 @@ declare namespace ll {
    * The list is formatted as [ key agentKey1, integer agentLI1, key agentKey2, integer agentLI2, ... ], sorted by agent key.
    * The integers are the combined land impacts of the objects owned by the corresponding agents.
    */
-  export function GetParcelPrimOwners(Position: vector): list
+  export function GetParcelPrimOwners(position: vector): list
 
   /** Returns an integer bitmask of the permissions that have been granted to the script.  Individual permissions can be determined using a bit-wise "and" operation against the PERMISSION_* constants */
   export function GetPermissions(): number
@@ -2142,13 +2142,13 @@ declare namespace ll {
   export function GetPos(): vector
 
   /** Returns the media parameters for a particular face on an object, given the desired list of parameter names, in the order requested. Returns an empty list if no media exists on the face. */
-  export function GetPrimMediaParams(Face: number, Parameters: number[]): list
+  export function GetPrimMediaParams(face: number, parameters: number[]): list
 
   /**
    * Returns the primitive parameters specified in the parameters list.
    * Returns primitive parameters specified in the Parameters list.
    */
-  export function GetPrimitiveParams(Parameters: number[]): list
+  export function GetPrimitiveParams(parameters: number[]): list
 
   /**
    * Returns the number of avatars in the region.
@@ -2211,7 +2211,7 @@ declare namespace ll {
    * Returns a string that is the render material on face (the inventory name if it is a material in the prim's inventory, otherwise the key).
    * Returns the render material of a face, if it is found in object inventory, its key otherwise.
    */
-  export function GetRenderMaterial(Face: number): string
+  export function GetRenderMaterial(face: number): string
 
   /**
    * Returns the position (in region coordinates) of the root prim of the object which the script is attached to.
@@ -2253,10 +2253,10 @@ declare namespace ll {
    * Returns TRUE if the script named is running.
    * Returns TRUE if ScriptName is running.
    */
-  export function GetScriptState(ScriptName: string): number
+  export function GetScriptState(scriptName: string): number
 
   /** Returns a float that is the requested statistic. */
-  export function GetSimStats(StatType: number): number
+  export function GetSimStats(statType: number): number
 
   /**
    * Returns the host-name of the machine which the script is running on.
@@ -2276,19 +2276,19 @@ declare namespace ll {
    */
   export function GetStartString(): string
 
-  export function GetStaticPath(Start: vector, End: vector, Radius: number, Parameters: list): list
+  export function GetStaticPath(start: vector, end: vector, radius: number, parameters: list): list
 
   /** Returns boolean value of the specified status (e.g. STATUS_PHANTOM) of the object the script is attached to. */
-  export function GetStatus(StatusFlag: number): number
+  export function GetStatus(statusFlag: number): number
 
   /**
    * Returns a sub-string from String, in a range specified by the Start and End indices (inclusive).
    * Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.
    * If Start is greater than End, the sub string is the exclusion of the entries.
-   * @indexArg Start
-   * @indexArg End
+   * @indexArg start
+   * @indexArg end
    */
-  export function GetSubString(String: string, Start: number, End: number): string
+  export function GetSubString(string: string, start: number, end: number): string
 
   /**
    * Returns a normalized vector of the direction of the sun in the parcel.
@@ -2303,19 +2303,19 @@ declare namespace ll {
    * Returns a string that is the texture on face (the inventory name if it is a texture in the prim's inventory, otherwise the key).
    * Returns the texture of a face, if it is found in object inventory, its key otherwise.
    */
-  export function GetTexture(Face: number): string
+  export function GetTexture(face: number): string
 
   /** Returns the texture offset of face in the x and y components of a vector. */
-  export function GetTextureOffset(Face: number): vector
+  export function GetTextureOffset(face: number): vector
 
   /** Returns the texture rotation of side. */
-  export function GetTextureRot(Face: number): number
+  export function GetTextureRot(face: number): number
 
   /**
    * Returns the texture scale of side in the x and y components of a vector.
    * Returns the texture scale of a side in the x and y components of a vector.
    */
-  export function GetTextureScale(Face: number): vector
+  export function GetTextureScale(face: number): vector
 
   /** Returns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime. */
   export function GetTime(): number
@@ -2342,7 +2342,7 @@ declare namespace ll {
   export function GetUsedMemory(): number
 
   /** Returns the username of an avatar, if the avatar is connected to the current region, or if the name has been cached.  Otherwise, returns an empty string. Use llRequestUsername if the avatar may be absent from the region. */
-  export function GetUsername(AvatarID: uuid): string
+  export function GetUsername(avatarId: uuid): string
 
   /**
    * Returns the velocity of the object.
@@ -2351,7 +2351,7 @@ declare namespace ll {
   export function GetVel(): vector
 
   /** Returns a list of the current value for each requested visual parameter. */
-  export function GetVisualParams(ID: uuid, Parameters: (number | string)[]): (number | "")[]
+  export function GetVisualParams(id: uuid, parameters: (number | string)[]): (number | "")[]
 
   /**
    * Returns the time in seconds since midnight California Pacific time (PST/PDT).
@@ -2361,54 +2361,54 @@ declare namespace ll {
 
   /** Give InventoryItems to the specified agent as a new folder of items, as permitted by the permissions system. The target must be an agent. */
   export function GiveAgentInventory(
-    AgentID: uuid,
-    FolderName: string,
-    InventoryItems: string[],
-    Options: list,
+    agentId: uuid,
+    folderName: string,
+    inventoryItems: string[],
+    options: list,
   ): number
 
   /**
    * Give InventoryItem to destination represented by TargetID, as permitted by the permissions system.
    * TargetID may be any agent or an object in the same region.
    */
-  export function GiveInventory(TargetID: uuid, InventoryItem: string): void
+  export function GiveInventory(targetId: uuid, inventoryItem: string): void
 
   /**
    * Give InventoryItems to destination (represented by TargetID) as a new folder of items, as permitted by the permissions system.
    * TargetID may be any agent or an object in the same region. If TargetID is an object, the items are passed directly to the object inventory (no folder is created).
    */
   export function GiveInventoryList(
-    TargetID: uuid,
-    FolderName: string,
-    InventoryItems: string[],
+    targetId: uuid,
+    folderName: string,
+    inventoryItems: string[],
   ): void
 
   /**
    * Transfers Amount of L$ from script owner to AvatarID.
    * This call will silently fail if PERMISSION_DEBIT has not been granted.
    */
-  export function GiveMoney(AvatarID: uuid, Amount: number): number
+  export function GiveMoney(avatarId: uuid, amount: number): number
 
   /** Rez directly off of a UUID if owner has god-bit set. */
-  export function GodLikeRezObject(InventoryItemID: uuid, Position: vector): void
+  export function GodLikeRezObject(inventoryItemId: uuid, position: vector): void
 
   /**
    * Returns the ground height at the object position + offset.
    * Returns the ground height at the object's position + Offset.
    */
-  export function Ground(Offset: vector): number
+  export function Ground(offset: vector): number
 
   /**
    * Returns the ground contour direction below the object position + Offset.
    * Returns the ground contour at the object's position + Offset.
    */
-  export function GroundContour(Offset: vector): vector
+  export function GroundContour(offset: vector): vector
 
   /**
    * Returns the ground normal below the object position + offset.
    * Returns the ground contour at the object's position + Offset.
    */
-  export function GroundNormal(Offset: vector): vector
+  export function GroundNormal(offset: vector): vector
 
   /**
    * Critically damps to height if within height * 0.5 of level (either above ground level or above the higher of land and water if water == TRUE).
@@ -2416,25 +2416,25 @@ declare namespace ll {
    * The height is above ground level if iWater is FALSE or above the higher of land and water if iWater is TRUE.
    * Do not use with vehicles. Only works in physics-enabled objects.
    */
-  export function GroundRepel(Height: number, Water: number, Tau: number): void
+  export function GroundRepel(height: number, water: number, tau: number): void
 
   /**
    * Returns the ground slope below the object position + Offset.
    * Returns the ground slope at the object position + Offset.
    */
-  export function GroundSlope(Offset: vector): vector
+  export function GroundSlope(offset: vector): vector
 
   /** Returns the base64-encoded hashed message authentication code (HMAC), of Message using PEM-formatted Key and digest Algorithm (md5, sha1, sha224, sha256, sha384, sha512). */
-  export function HMAC(Key: string, Message: string, Algorithm: string): string
+  export function HMAC(key: string, message: string, algorithm: string): string
 
   /**
    * Sends an HTTP request to the specified URL with the Body of the request and Parameters.
    * Returns a key that is a handle identifying the HTTP request made.
    */
-  export function HTTPRequest(URL: string, Parameters: list, Body: string): uuid
+  export function HTTPRequest(url: string, parameters: list, body: string): uuid
 
   /** Responds to an incoming HTTP request which was triggerd by an http_request event within the script. HTTPRequestID specifies the request to respond to (this ID is supplied in the http_request event handler).  Status and Body specify the status code and message to respond with. */
-  export function HTTPResponse(HTTPRequestID: uuid, Status: number, Body: string): void
+  export function HTTPResponse(httpRequestId: uuid, status: number, body: string): void
 
   /** Calculates the 32bit hash value for the provided string. */
   export function Hash(value: string): number
@@ -2442,28 +2442,28 @@ declare namespace ll {
   /**
    * Inserts SourceVariable into TargetVariable at Position, and returns the result.
    * Inserts SourceVariable into TargetVariable at Position and returns the result. Note this does not alter TargetVariable.
-   * @indexArg Position
+   * @indexArg position
    */
   export function InsertString(
-    TargetVariable: string,
-    Position: number,
-    SourceVariable: string,
+    targetVariable: string,
+    position: number,
+    sourceVariable: string,
   ): string
 
   /**
    * IMs Text to the user identified.
    * Send Text to the user as an instant message.
    */
-  export function InstantMessage(AvatarID: uuid, Text: string): void
+  export function InstantMessage(avatarId: uuid, text: string): void
 
   /**
    * Returns a string that is a Base64 big endian encode of Value.
    * Encodes the Value as an 8-character Base64 string.
    */
-  export function IntegerToBase64(Value: number): string
+  export function IntegerToBase64(value: number): string
 
   /** Returns TRUE if avatar ID is a friend of the script owner. */
-  export function IsFriend(agent_id: uuid): number
+  export function IsFriend(agentId: uuid): number
 
   /** Checks the face for a PBR render material. */
   export function IsLinkGLTFMaterial(link: number, face: number): number
@@ -2472,40 +2472,40 @@ declare namespace ll {
    * Converts the top level of the JSON string to a list.
    * @deprecated Use 'lljson.decode' instead.
    */
-  export function Json2List(JSON: string): list
+  export function Json2List(json: string): list
 
   /**
    * Gets the value indicated by Specifiers from the JSON string.
    * @deprecated Use 'lljson.decode' instead. Also, the indices are zero-based.
    */
-  export function JsonGetValue(JSON: string, Specifiers: list): string
+  export function JsonGetValue(json: string, specifiers: list): string
 
   /**
    * Returns a new JSON string that is the JSON given with the Value indicated by Specifiers set to Value.
    * @deprecated Use 'lljson.encode' instead. Also, the indices are zero-based.
    */
-  export function JsonSetValue(JSON: string, Specifiers: list, Value: string): string
+  export function JsonSetValue(json: string, specifiers: list, value: string): string
 
   /**
    * Returns the type constant (JSON_*) for the value in JSON indicated by Specifiers.
    * @deprecated Use 'lljson.decode' and 'typeof' instead. Also, the indices are zero-based.
    */
-  export function JsonValueType(JSON: string, Specifiers: list): string
+  export function JsonValueType(json: string, specifiers: list): string
 
   /**
    * Returns the name of the prim or avatar specified by ID. The ID must be a valid rezzed prim or avatar key in the current simulator, otherwise an empty string is returned.
    * For avatars, the returned name is the legacy name
    */
-  export function Key2Name(ID: uuid): string
+  export function Key2Name(id: uuid): string
 
   /** Starts an asychronous transaction the request the number of keys in the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will the the number of keys in the system. */
   export function KeyCountKeyValue(): uuid
 
   /**
    * Starts an asychronous transaction the request a number of keys from the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. The error XP_ERROR_KEY_NOT_FOUND is returned if First is greater than or equal to the number of keys in the data store. In the success case the subsequent items will be the keys requested. The number of keys returned may be less than requested if the return value is too large or if there is not enough keys remaining. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed. Because the keys are returned in a comma-delimited list it is not recommended to use commas in key names if this function is used.
-   * @indexArg First
+   * @indexArg first
    */
-  export function KeysKeyValue(First: number, Count: number): uuid
+  export function KeysKeyValue(first: number, count: number): uuid
 
   /** Converts a color from the linear colorspace to sRGB. */
   export function Linear2sRGB(color: vector): vector
@@ -2514,40 +2514,40 @@ declare namespace ll {
    * Adjusts the volume (0.0 - 1.0) of the currently playing sound attached to the link.
    * This function has no effect on sounds started with llTriggerSound.
    */
-  export function LinkAdjustSoundVolume(LinkNumber: number, Volume: number): void
+  export function LinkAdjustSoundVolume(linkNumber: number, volume: number): void
 
   /**
    * Creates a particle system in prim LinkNumber based on Rules. An empty list removes a particle system from object.
    * List format is [ rule-1, data-1, rule-2, data-2 ... rule-n, data-n ].
    * This is identical to llParticleSystem except that it applies to a specified linked prim and not just the prim the script is in.
    */
-  export function LinkParticleSystem(LinkNumber: number, Rules: list): void
+  export function LinkParticleSystem(linkNumber: number, rules: list): void
 
   /**
    * Plays Sound, once or looping, at Volume (0.0 - 1.0). The sound may be attached to the link or triggered at its location.
    * Only one sound may be attached to an object at a time, and attaching a new sound or calling llStopSound will stop the previously attached sound.
    */
   export function LinkPlaySound(
-    LinkNumber: number,
-    Sound: string,
-    Volume: number,
-    Flags: number,
+    linkNumber: number,
+    sound: string,
+    volume: number,
+    flags: number,
   ): void
 
   /** Limits radius for audibility of scripted sounds (both attached and triggered) to distance Radius around the link. */
-  export function LinkSetSoundQueueing(LinkNumber: number, QueueEnable: number): void
+  export function LinkSetSoundQueueing(linkNumber: number, queueEnable: number): void
 
   /** Limits radius for audibility of scripted sounds (both attached and triggered) to distance Radius around the link. */
-  export function LinkSetSoundRadius(LinkNumber: number, radius: number): void
+  export function LinkSetSoundRadius(linkNumber: number, radius: number): void
 
   /**
    * Set the sit location for the linked prim(s). If Offset == <0,0,0> clear it.
    * Set the sit location for the linked prim(s). The sit location is relative to the prim's position and rotation.
    */
-  export function LinkSitTarget(LinkNumber: number, Offset: vector, Rotation: quaternion): void
+  export function LinkSitTarget(linkNumber: number, offset: vector, rotation: quaternion): void
 
   /** Stops playback of the currently attached sound on a link. */
-  export function LinkStopSound(LinkNumber: number): void
+  export function LinkStopSound(linkNumber: number): void
 
   /** Returns the number of bytes remaining in the linkset's datastore. */
   export function LinksetDataAvailable(): number
@@ -2598,166 +2598,166 @@ declare namespace ll {
    * Creates a string of comma separated values from the list.
    * Create a string of comma separated values from the specified list.
    */
-  export function List2CSV(ListVariable: list): string
+  export function List2CSV(listVariable: list): string
 
   /**
    * Copies the float at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a float, then zero is returned.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function List2Float(ListVariable: list, Index: number): number
+  export function List2Float(listVariable: list, index: number): number
 
   /**
    * Copies the integer at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to an integer, then zero is returned.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function List2Integer(ListVariable: list, Index: number): number
+  export function List2Integer(listVariable: list, index: number): number
 
   /**
    * Converts either a strided list of key:value pairs to a JSON_OBJECT, or a list of values to a JSON_ARRAY.
    * @deprecated Use 'lljson.encode' instead.
    */
-  export function List2Json(JsonType: string, Values: list): string
+  export function List2Json(jsonType: string, values: list): string
 
   /**
    * Copies the key at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a key, then null string is returned.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function List2Key(ListVariable: list, Index: number): uuid
+  export function List2Key(listVariable: list, index: number): uuid
 
   /**
    * Returns a subset of entries from ListVariable, in a range specified by the Start and End indicies (inclusive).
    * Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.
    * If Start is greater than End, the sub string is the exclusion of the entries.
-   * @indexArg Start
-   * @indexArg End
+   * @indexArg start
+   * @indexArg end
    */
-  export function List2List(ListVariable: T[], Start: number, End: number): T[]
+  export function List2List(listVariable: T[], start: number, end: number): T[]
 
   /**
    * Returns a subset of entries from ListVariable, in a range specified by Start and End indices (inclusive) return the slice_index element of each stride.
    *  Using negative numbers for Start and/or End causes the index to count backwards from the length of the list. (e.g. 0, -1 captures entire list)
    * If slice_index is less than 0, it is counted backwards from the end of the stride.
    *  Stride must be a positive integer > 0 or an empy list is returned.  If slice_index falls outside range of stride, an empty list is returned. slice_index is zero-based. (e.g. A stride of 2 has valid indices 0,1)
-   * @indexArg Start
-   * @indexArg End
-   * @indexArg slice_index
+   * @indexArg start
+   * @indexArg end
+   * @indexArg sliceIndex
    */
   export function List2ListSlice(
-    ListVariable: T[],
-    Start: number,
-    End: number,
-    Stride: number,
-    slice_index: number,
+    listVariable: T[],
+    start: number,
+    end: number,
+    stride: number,
+    sliceIndex: number,
   ): T[]
 
   /**
    * Copies the strided slice of the list from Start to End.
    * Returns a copy of the strided slice of the specified list from Start to End.
-   * @indexArg Start
-   * @indexArg End
+   * @indexArg start
+   * @indexArg end
    */
   export function List2ListStrided(
-    ListVariable: T[],
-    Start: number,
-    End: number,
-    Stride: number,
+    listVariable: T[],
+    start: number,
+    end: number,
+    stride: number,
   ): T[]
 
   /**
    * Copies the rotation at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to rotation, thenZERO_ROTATION is returned.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function List2Rot(ListVariable: list, Index: number): quaternion
+  export function List2Rot(listVariable: list, index: number): quaternion
 
   /**
    * Copies the string at Index in the list.
    * Returns the value at Index in the specified list as a string. If Index describes a location not in the list then null string is returned.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function List2String(ListVariable: list, Index: number): string
+  export function List2String(listVariable: list, index: number): string
 
   /**
    * Copies the vector at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a vector, then ZERO_VECTOR is returned.
-   * @indexArg Index
+   * @indexArg index
    */
-  export function List2Vector(ListVariable: list, Index: number): vector
+  export function List2Vector(listVariable: list, index: number): vector
 
   /**
    * Returns the first index where Find appears in ListVariable. Returns -1 if not found.
    * @indexReturn
    */
-  export function ListFindList(ListVariable: list, Find: list): number | undefined
+  export function ListFindList(listVariable: list, find: list): number | undefined
 
   /**
    * Returns the nth index where Find appears in ListVariable. Returns -1 if not found.
-   * @indexArg Instance
+   * @indexArg instance
    * @indexReturn
    */
   export function ListFindListNext(
-    ListVariable: list,
-    Find: list,
-    Instance: number,
+    listVariable: list,
+    find: list,
+    instance: number,
   ): number | undefined
 
   /**
    * Returns the first index (where Start <= index <= End) where Find appears in ListVariable. Steps through ListVariable by Stride.  Returns -1 if not found.
-   * @indexArg Start
-   * @indexArg End
+   * @indexArg start
+   * @indexArg end
    * @indexReturn
    */
   export function ListFindStrided(
-    ListVariable: list,
-    Find: list,
-    Start: number,
-    End: number,
-    Stride: number,
+    listVariable: list,
+    find: list,
+    start: number,
+    end: number,
+    stride: number,
   ): number | undefined
 
   /**
    * Returns a list that contains all the elements from Target but with the elements from ListVariable inserted at Position start.
    * Returns a new list, created by inserting ListVariable into the Target list at Position. Note this does not alter the Target.
-   * @indexArg Position
+   * @indexArg position
    */
-  export function ListInsertList(Target: T[], ListVariable: T[], Position: number): T[]
+  export function ListInsertList(target: T[], listVariable: T[], position: number): T[]
 
   /**
    * Returns a version of the input ListVariable which has been randomized by blocks of size Stride.
    * If the remainder from the length of the list, divided by the stride is non-zero, this function does not randomize the list.
    */
-  export function ListRandomize(ListVariable: T[], Stride: number): T[]
+  export function ListRandomize(listVariable: T[], stride: number): T[]
 
   /**
    * Returns a list that is Target with Start through End removed and ListVariable inserted at Start.
    * Returns a list replacing the slice of the Target list from Start to End with the specified ListVariable. Start and End are inclusive, so 0, 1 would replace the first two entries and 0, 0 would replace only the first list entry.
-   * @indexArg Start
-   * @indexArg End
+   * @indexArg start
+   * @indexArg end
    */
-  export function ListReplaceList(Target: T[], ListVariable: T[], Start: number, End: number): T[]
+  export function ListReplaceList(target: T[], listVariable: T[], start: number, end: number): T[]
 
   /** Returns the specified list, sorted into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype. */
-  export function ListSort(ListVariable: T[], Stride: number, Ascending: number): T[]
+  export function ListSort(listVariable: T[], stride: number, ascending: number): T[]
 
   /**
    * Returns the specified list, sorted by the specified element into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype.
-   * @indexArg Sortkey
+   * @indexArg sortkey
    */
   export function ListSortStrided(
-    ListVariable: T[],
-    Stride: number,
-    Sortkey: number,
-    Ascending: number,
+    listVariable: T[],
+    stride: number,
+    sortkey: number,
+    ascending: number,
   ): T[]
 
   /**
    * Performs a statistical aggregate function, specified by a LIST_STAT_* constant, on ListVariables.
    * This function allows a script to perform a statistical operation as defined by operation on a list composed of integers and floats.
    */
-  export function ListStatistics(Operation: number, ListVariable: list): number
+  export function ListStatistics(operation: number, listVariable: list): number
 
   /**
    * Creates a listen callback for Text on Channel from SpeakersName and SpeakersID (SpeakersName, SpeakersID, and/or Text can be empty) and returns an identifier that can be used to deactivate or remove the listen.
@@ -2765,45 +2765,45 @@ declare namespace ll {
    * PUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.
    */
   export function Listen(
-    Channel: number,
-    SpeakersName: string,
-    SpeakersID: uuid,
-    Text: string,
+    channel: number,
+    speakersName: string,
+    speakersId: uuid,
+    text: string,
   ): number
 
   /**
    * Makes a listen event callback active or inactive. Pass in the value returned from llListen to the iChannelHandle parameter to specify which listener you are controlling.
    * Use boolean values to specify Active
    */
-  export function ListenControl(ChannelHandle: number, Active: number): void
+  export function ListenControl(channelHandle: number, active: number): void
 
   /** Removes a listen event callback. Pass in the value returned from llListen to the iChannelHandle parameter to specify which listener to remove. */
-  export function ListenRemove(ChannelHandle: number): void
+  export function ListenRemove(channelHandle: number): void
 
   /**
    * Shows dialog to avatar AvatarID offering to load web page at URL.	If user clicks yes, launches their web browser.
    * llLoadURL displays a dialogue box to the user, offering to load the specified web page using the default web browser.
    */
-  export function LoadURL(AvatarID: uuid, Text: string, URL: string): void
+  export function LoadURL(avatarId: uuid, text: string, url: string): void
 
   /**
    * Returns the natural logarithm of Value. Returns zero if Value <= 0.
    * Returns the base e (natural) logarithm of the specified Value.
    */
-  export function Log(Value: number): number
+  export function Log(value: number): number
 
   /**
    * Returns the base 10 logarithm of Value. Returns zero if Value <= 0.
    * Returns the base 10 (common) logarithm of the specified Value.
    */
-  export function Log10(Value: number): number
+  export function Log10(value: number): number
 
   /**
    * Cause object name to point its forward axis towards Target, at a force controlled by Strength and Damping.
    * Good Strength values are around half the mass of the object and good Damping values are less than 1/10th of the Strength.
    * Asymmetrical shapes require smaller Damping. A Strength of 0.0 cancels the look at.
    */
-  export function LookAt(Target: vector, Strength: number, Damping: number): void
+  export function LookAt(target: vector, strength: number, damping: number): void
 
   /**
    * Plays specified Sound, looping indefinitely, at Volume (0.0 - 1.0).
@@ -2812,14 +2812,14 @@ declare namespace ll {
    * Setting the volume to 0 is not the same as calling llStopSound; a sound with 0 volume will continue to loop.
    * To restart the sound from the beginning, call llStopSound before calling llLoopSound again.
    */
-  export function LoopSound(Sound: string, Volume: number): void
+  export function LoopSound(sound: string, volume: number): void
 
   /**
    * Plays attached Sound, looping at volume (0.0 - 1.0), and declares it a sync master.
    * Behaviour is identical to llLoopSound, with the addition of marking the source as a "Sync Master", causing "Slave" sounds to sync to it. If there are multiple masters within a viewers interest area, the most audible one (a function of both distance and volume) will win out as the master.
    * The use of multiple masters within a small area is unlikely to produce the desired effect.
    */
-  export function LoopSoundMaster(Sound: string, Volume: number): void
+  export function LoopSoundMaster(sound: string, volume: number): void
 
   /**
    * Plays attached sound looping at volume (0.0 - 1.0), synced to most audible sync master.
@@ -2827,26 +2827,26 @@ declare namespace ll {
    * If a Sync Master is already playing the Slave sound will begin playing from the same point the master is in its loop synchronizing the loop points of both sounds.
    * If a Sync Master is started when the Slave is already playing, the Slave will skip to the correct position to sync with the Master.
    */
-  export function LoopSoundSlave(Sound: string, Volume: number): void
+  export function LoopSoundSlave(sound: string, volume: number): void
 
   /**
    * Returns a string of 32 hex characters that is an RSA Data Security Inc., MD5 Message-Digest Algorithm of Text with Nonce used as the salt.
    * Returns a 32-character hex string. (128-bit in binary.)
    */
-  export function MD5String(Text: string, Nonce: number): string
+  export function MD5String(text: string, nonce: number): string
 
   /**
    * Make a round explosion of particles. Deprecated: Use llParticleSystem instead.
    * Make a round explosion of particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
    */
   export function MakeExplosion(
-    Particles: number,
-    Scale: number,
-    Velocity: number,
-    Lifetime: number,
-    Arc: number,
-    Texture: string,
-    Offset: vector,
+    particles: number,
+    scale: number,
+    velocity: number,
+    lifetime: number,
+    arc: number,
+    texture: string,
+    offset: vector,
   ): void
 
   /**
@@ -2854,13 +2854,13 @@ declare namespace ll {
    * Make fire particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
    */
   export function MakeFire(
-    Particles: number,
-    Scale: number,
-    Velocity: number,
-    Lifetime: number,
-    Arc: number,
-    Texture: string,
-    Offset: vector,
+    particles: number,
+    scale: number,
+    velocity: number,
+    lifetime: number,
+    arc: number,
+    texture: string,
+    offset: vector,
   ): void
 
   /**
@@ -2868,15 +2868,15 @@ declare namespace ll {
    * Make a fountain of particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
    */
   export function MakeFountain(
-    Particles: number,
-    Scale: number,
-    Velocity: number,
-    Lifetime: number,
-    Arc: number,
-    Bounce: number,
-    Texture: string,
-    Offset: vector,
-    Bounce_Offset: number,
+    particles: number,
+    scale: number,
+    velocity: number,
+    lifetime: number,
+    arc: number,
+    bounce: number,
+    texture: string,
+    offset: vector,
+    bounceOffset: number,
   ): void
 
   /**
@@ -2884,13 +2884,13 @@ declare namespace ll {
    * Make smoky particles using texture from the objects inventory. Deprecated: Use llParticleSystem instead.
    */
   export function MakeSmoke(
-    Particles: number,
-    Scale: number,
-    Velocity: number,
-    Lifetime: number,
-    Arc: number,
-    Texture: string,
-    Offset: vector,
+    particles: number,
+    scale: number,
+    velocity: number,
+    lifetime: number,
+    arc: number,
+    texture: string,
+    offset: vector,
   ): void
 
   /**
@@ -2898,66 +2898,66 @@ declare namespace ll {
    * Returns an integer representing a boolean, TRUE if the call was successful; FALSE if throttled, invalid action, invalid or null id or object owner is not allowed to manage the estate.
    * The object owner is notified of any changes, unless PERMISSION_SILENT_ESTATE_MANAGEMENT has been granted to the script.
    */
-  export function ManageEstateAccess(Action: number, AvatarID: uuid): number
+  export function ManageEstateAccess(action: number, avatarId: uuid): number
 
   /** Displays an in world beacon and optionally opens world map for avatar who touched the object or is wearing the script, centered on RegionName with Position highlighted. Only works for scripts attached to avatar, or during touch events. */
-  export function MapBeacon(RegionName: string, Position: vector, Options: list): void
+  export function MapBeacon(regionName: string, position: vector, options: list): void
 
   /**
    * Opens world map for avatar who touched it or is wearing the script, centred on RegionName with Position highlighted. Only works for scripts attached to avatar, or during touch events.
    * Direction currently has no effect.
    */
-  export function MapDestination(RegionName: string, Position: vector, Direction: vector): void
+  export function MapDestination(regionName: string, position: vector, direction: vector): void
 
   /**
    * Sends Number, Text, and ID to members of the link set identified by LinkNumber.
    * LinkNumber is either a linked number (available through llGetLinkNumber) or a LINK_* constant.
    */
   export function MessageLinked(
-    LinkNumber: number,
-    Number: number,
-    Text: string | uuid,
-    ID: string | uuid,
+    linkNumber: number,
+    number: number,
+    text: string | uuid,
+    id: string | uuid,
   ): void
 
   /** Set the minimum time between events being handled. */
-  export function MinEventDelay(Delay: number): void
+  export function MinEventDelay(delay: number): void
 
   /**
    * Returns a Value raised to the Power, mod Modulus. ((a**b)%c) b is capped at 0xFFFF (16 bits).
    * Returns (Value ^ Power) % Modulus. (Value raised to the Power, Modulus). Value is capped at 0xFFFF (16 bits).
    */
-  export function ModPow(Value: number, Power: number, Modulus: number): number
+  export function ModPow(value: number, power: number, modulus: number): number
 
   /** Modify land with action (LAND_LEVEL, LAND_RAISE, LAND_LOWER, LAND_SMOOTH, LAND_NOISE, LAND_REVERT) on size (0, 1, 2, corresponding to 2m x 2m, 4m x 4m, 8m x 8m). */
-  export function ModifyLand(Action: number, Area: number): void
+  export function ModifyLand(action: number, area: number): void
 
   /**
    * Critically damp to Target in Tau seconds (if the script is physical).
    * Critically damp to position target in tau-seconds if the script is physical. Good tau-values are greater than 0.2. A tau of 0.0 stops the critical damping.
    */
-  export function MoveToTarget(Target: vector, Tau: number): void
+  export function MoveToTarget(target: vector, tau: number): void
 
   /** Look up Agent ID for the named agent in the region. */
-  export function Name2Key(Name: string): uuid
+  export function Name2Key(name: string): uuid
 
   /**
    * Navigate to destination.
    * Directs an object to travel to a defined position in the region or adjacent regions.
    */
-  export function NavigateTo(Location: vector, Options: list): void
+  export function NavigateTo(location: vector, options: list): void
 
   /**
    * Sets the texture S and T offsets for the chosen Face.
    * If Face is ALL_SIDES this function sets the texture offsets for all faces.
    */
-  export function OffsetTexture(OffsetS: number, OffsetT: number, Face: number): void
+  export function OffsetTexture(offsetS: number, offsetT: number, face: number): void
 
   /**
    * Returns the value for header for request_id.
    * Returns a string that is the value of the Header for HTTPRequestID.
    */
-  export function OpenFloater(floater_name: string, url: string, params: list): number
+  export function OpenFloater(floaterName: string, url: string, params: list): number
 
   /** This function is deprecated. */
   export function OpenRemoteDataChannel(): void
@@ -2972,62 +2972,62 @@ declare namespace ll {
    * Returns TRUE if id ID over land owned by the script owner, otherwise FALSE.
    * Returns TRUE if key ID is over land owned by the object owner, FALSE otherwise.
    */
-  export function OverMyLand(ID: uuid): number
+  export function OverMyLand(id: uuid): number
 
   /**
    * says Text to owner only (if owner is in region).
    * Says Text to the owner of the object running the script, if the owner has been within the object's simulator since logging into Second Life, regardless of where they may be in-world.
    */
-  export function OwnerSay(Text: string): void
+  export function OwnerSay(text: string): void
 
   /** Controls the playback of multimedia resources on a parcel or for an agent, via one or more PARCEL_MEDIA_COMMAND_* arguments specified in CommandList. */
-  export function ParcelMediaCommandList(CommandList: list): void
+  export function ParcelMediaCommandList(commandList: list): void
 
   /**
    * Queries the media properties of the parcel containing the script, via one or more PARCEL_MEDIA_COMMAND_* arguments specified in CommandList.
    * This function will only work if the script is contained within an object owned by the land-owner (or if the land is owned by a group, only if the object has been deeded to the group).
    */
-  export function ParcelMediaQuery(QueryList: number[]): list
+  export function ParcelMediaQuery(queryList: number[]): list
 
   /**
    * Converts Text into a list, discarding Separators, keeping Spacers (Separators and Spacers must be lists of strings, maximum of 8 each).
    * Separators and Spacers are lists of strings with a maximum of 8 entries each.
    */
-  export function ParseString2List(Text: string, Separators: string[], Spacers: string[]): string[]
+  export function ParseString2List(text: string, separators: string[], spacers: string[]): string[]
 
   /**
    * Breaks Text into a list, discarding separators, keeping spacers, keeping any null values generated. (separators and spacers must be lists of strings, maximum of 8 each).
    * llParseStringKeepNulls works almost exactly like llParseString2List, except that if a null is found it will add a null-string instead of discarding it like llParseString2List does.
    */
   export function ParseStringKeepNulls(
-    Text: string,
-    Separators: string[],
-    Spacers: string[],
+    text: string,
+    separators: string[],
+    spacers: string[],
   ): string[]
 
   /**
    * Creates a particle system in the prim the script is attached to, based on Parameters. An empty list removes a particle system from object.
    * List format is [ rule-1, data-1, rule-2, data-2 ... rule-n, data-n ].
    */
-  export function ParticleSystem(Parameters: list): void
+  export function ParticleSystem(parameters: list): void
 
   /**
    * Configures how collision events are passed to scripts in the linkset.
    * If Pass == TRUE, collisions involving collision-handling scripted child prims are also passed on to the root prim. If Pass == FALSE (default behavior), such collisions will only trigger events in the affected child prim.
    */
-  export function PassCollisions(Pass: number): void
+  export function PassCollisions(pass: number): void
 
   /**
    * Configures how touch events are passed to scripts in the linkset.
    * If Pass == TRUE, touches involving touch-handling scripted child prims are also passed on to the root prim. If Pass == FALSE (default behavior), such touches will only trigger events in the affected child prim.
    */
-  export function PassTouches(Pass: number): void
+  export function PassTouches(pass: number): void
 
   /**
    * Patrol a list of points.
    * Sets the points for a character (llCreateCharacter) to patrol along.
    */
-  export function PatrolPoints(Points: vector[], Options: list): void
+  export function PatrolPoints(points: vector[], options: list): void
 
   /**
    * Plays Sound once, at Volume (0.0 - 1.0) and attached to the object.
@@ -3035,66 +3035,66 @@ declare namespace ll {
    * A second call to llPlaySound with the same sound will not restart the sound, but the new volume will be used, which allows control over the volume of already playing sounds.
    * To restart the sound from the beginning, call llStopSound before calling llPlaySound again.
    */
-  export function PlaySound(Sound: string, Volume: number): void
+  export function PlaySound(sound: string, volume: number): void
 
   /**
    * Plays attached Sound once, at Volume (0.0 - 1.0), synced to next loop of most audible sync master.
    * Behaviour is identical to llPlaySound, unless there is a "Sync Master" present. If a Sync Master is already playing, the Slave sound will not be played until the Master hits its loop point and returns to the beginning.
    * llPlaySoundSlave will play the sound exactly once; if it is desired to have the sound play every time the Master loops, either use llLoopSoundSlave with extra silence padded on the end of the sound or ensure that llPlaySoundSlave is called at least once per loop of the Master.
    */
-  export function PlaySoundSlave(Sound: string, Volume: number): void
+  export function PlaySoundSlave(sound: string, volume: number): void
 
-  export function PointAt(Point: vector): void
+  export function PointAt(point: vector): void
 
   /**
    * Returns the Value raised to the power Exponent, or returns 0 and triggers Math Error for imaginary results.
    * Returns the Value raised to the Exponent.
    */
-  export function Pow(Value: number, Exponent: number): number
+  export function Pow(value: number, exponent: number): number
 
   /**
    * Causes nearby viewers to preload the Sound from the object's inventory.
    * This is intended to prevent delays in starting new sounds when called upon.
    */
-  export function PreloadSound(Sound: string): void
+  export function PreloadSound(sound: string): void
 
   /**
    * Chase after a target.
    * Causes the character (llCharacter) to pursue the target defined by TargetID.
    */
-  export function Pursue(TargetID: uuid, Options: list): void
+  export function Pursue(targetId: uuid, options: list): void
 
   /**
    * Applies Impulse and AngularImpulse to ObjectID.
    * Applies the supplied impulse and angular impulse to the object specified.
    */
   export function PushObject(
-    ObjectID: uuid,
-    Impulse: vector,
-    AngularImpulse: vector,
-    Local: number,
+    objectId: uuid,
+    impulse: vector,
+    angularImpulse: vector,
+    local: number,
   ): void
 
   /** Starts an asychronous transaction to retrieve the value associated with the key given. Will fail with XP_ERROR_KEY_NOT_FOUND if the key does not exist. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. */
-  export function ReadKeyValue(Key: string): uuid
+  export function ReadKeyValue(key: string): uuid
 
   /** Reloads the web page shown on the sides of the object. */
   export function RefreshPrimURL(): void
 
   /** Broadcasts Text to entire region on Channel (except for channel 0). */
-  export function RegionSay(Channel: number, Text: string): void
+  export function RegionSay(channel: number, text: string): void
 
   /**
    * Says Text, on Channel, to avatar or object indicated by TargetID (if within region).
    * If TargetID is an avatar and Channel is nonzero, Text can be heard by any attachment on the avatar.
    */
-  export function RegionSayTo(TargetID: uuid, Channel: number, Text: string): void
+  export function RegionSayTo(targetId: uuid, channel: number, text: string): void
 
   /**
    * Return camera to agent.
    * Deprecated: Use llClearCameraParams instead.
    */
-  export function ReleaseCamera(AvatarID: uuid): void
+  export function ReleaseCamera(avatarId: uuid): void
 
   /**
    * Stop taking inputs.
@@ -3103,12 +3103,12 @@ declare namespace ll {
   export function ReleaseControls(): void
 
   /** Releases the specified URL, which was previously obtained using llRequestURL.  Once released, the URL will no longer be usable. */
-  export function ReleaseURL(URL: string): void
+  export function ReleaseURL(url: string): void
 
   /** This function is deprecated. */
   export function RemoteDataReply(
-    ChannelID: uuid,
-    MessageID: uuid,
+    channelId: uuid,
+    messageId: uuid,
     sData: string,
     iData: number,
   ): void
@@ -3117,48 +3117,48 @@ declare namespace ll {
   export function RemoteDataSetRegion(): void
 
   export function RemoteLoadScript(
-    Target: uuid,
-    ScriptName: string,
-    Unknown1: number,
-    Unknown2: number,
+    target: uuid,
+    scriptName: string,
+    unknown1: number,
+    unknown2: number,
   ): void
 
   /** If the owner of the object containing this script can modify the object identified by the specified object key, and if the PIN matches the PIN previously set using llSetRemoteScriptAccessPin (on the target prim), then the script will be copied into target. Running is a boolean specifying whether the script should be enabled once copied into the target object. */
   export function RemoteLoadScriptPin(
-    ObjectID: uuid,
-    ScriptName: string,
-    PIN: number,
-    Running: number,
-    StartParameter: number,
+    objectId: uuid,
+    scriptName: string,
+    pin: number,
+    running: number,
+    startParameter: number,
   ): void
 
   /**
    * Remove avatar from the land ban list.
    * Remove specified avatar from the land parcel ban list.
    */
-  export function RemoveFromLandBanList(AvatarID: uuid): void
+  export function RemoveFromLandBanList(avatarId: uuid): void
 
   /**
    * Remove avatar from the land pass list.
    * Remove specified avatar from the land parcel pass list.
    */
-  export function RemoveFromLandPassList(AvatarID: uuid): void
+  export function RemoveFromLandPassList(avatarId: uuid): void
 
   /**
    * Remove the named inventory item.
    * Remove the named inventory item from the object inventory.
    */
-  export function RemoveInventory(InventoryItem: string): void
+  export function RemoveInventory(inventoryItem: string): void
 
   /**
    * Removes the enabled bits in 'flags'.
    * Sets the vehicle flags to FALSE. Valid parameters can be found in the vehicle flags constants section.
    */
-  export function RemoveVehicleFlags(Vehiclelags: number): void
+  export function RemoveVehicleFlags(vehiclelags: number): void
 
   /** Replaces the entire environment for an agent. Must be used as part of an experience. */
   export function ReplaceAgentEnvironment(
-    agent_id: uuid,
+    agentId: uuid,
     transition: number,
     environment: string,
   ): number
@@ -3167,47 +3167,47 @@ declare namespace ll {
   export function ReplaceEnvironment(
     position: vector,
     environment: string,
-    track_no: number,
-    day_length: number,
-    day_offset: number,
+    trackNo: number,
+    dayLength: number,
+    dayOffset: number,
   ): number
 
   /** Searches InitialString and replaces instances of SubString with NewSubString. Zero Count means "replace all". Positive Count moves left to right. Negative moves right to left. */
   export function ReplaceSubString(
-    InitialString: string,
-    SubString: string,
-    NewSubString: string,
-    Count: number,
+    initialString: string,
+    subString: string,
+    newSubString: string,
+    count: number,
   ): string
 
   /**
    * Requests data about AvatarID. When data is available the dataserver event will be raised.
    * This function requests data about an avatar. If and when the information is collected, the dataserver event is triggered with the key returned from this function passed in the requested parameter. See the agent data constants (DATA_*) for details about valid values of data and what each will return in the dataserver event.
    */
-  export function RequestAgentData(AvatarID: uuid, Data: number): uuid
+  export function RequestAgentData(avatarId: uuid, data: number): uuid
 
   /**
    * Requests the display name of the agent. When the display name is available the dataserver event will be raised.
    * The avatar identified does not need to be in the same region or online at the time of the request.
    * Returns a key that is used to identify the dataserver event when it is raised.
    */
-  export function RequestDisplayName(AvatarID: uuid): uuid
+  export function RequestDisplayName(avatarId: uuid): uuid
 
   /** Ask the agent for permission to participate in an experience. This request is similar to llRequestPermissions with the following permissions: PERMISSION_TAKE_CONTROLS, PERMISSION_TRIGGER_ANIMATION, PERMISSION_ATTACH, PERMISSION_TRACK_CAMERA, PERMISSION_CONTROL_CAMERA and PERMISSION_TELEPORT. However, unlike llRequestPermissions the decision to allow or block the request is persistent and applies to all scripts using the experience grid wide. Subsequent calls to llRequestExperiencePermissions from scripts in the experience will receive the same response automatically with no user interaction. One of experience_permissions or experience_permissions_denied will be generated in response to this call. Outstanding permission requests will be lost if the script is derezzed, moved to another region or reset. */
-  export function RequestExperiencePermissions(AgentID: uuid, unused: string): void
+  export function RequestExperiencePermissions(agentId: uuid, unused: string): void
 
   /**
    * Requests data for the named InventoryItem.
    * When data is available, the dataserver event will be raised with the key returned from this function in the requested parameter.
    * The only request currently implemented is to request data from landmarks, where the data returned is in the form "<float, float, float>" which can be cast to a vector. This position is in region local coordinates.
    */
-  export function RequestInventoryData(InventoryItem: string): uuid
+  export function RequestInventoryData(inventoryItem: string): uuid
 
   /**
    * Ask AvatarID to allow the script to perform certain actions, specified in the PermissionMask bitmask. PermissionMask should be one or more PERMISSION_* constants. Multiple permissions can be requested simultaneously by ORing the constants together. Many of the permissions requests can only go to object owner.
    * This call will not stop script execution. If the avatar grants the requested permissions, the run_time_permissions event will be called.
    */
-  export function RequestPermissions(AvatarID: uuid, PermissionMask: number): void
+  export function RequestPermissions(avatarId: uuid, permissionMask: number): void
 
   /**
    * Requests one HTTPS:// (SSL) URL for use by this object. The http_request event is triggered with results.
@@ -3220,7 +3220,7 @@ declare namespace ll {
    * Data should use one of the DATA_SIM_* constants.
    * Returns a dataserver query ID and triggers the dataserver event when data is found.
    */
-  export function RequestSimulatorData(RegionName: string, Data: number): uuid
+  export function RequestSimulatorData(regionName: string, data: number): uuid
 
   /**
    * Requests one HTTP:// URL for use by this script. The http_request event is triggered with the result of the request.
@@ -3229,7 +3229,7 @@ declare namespace ll {
   export function RequestURL(): uuid
 
   /** Look up Agent ID for the named agent using a historical name. */
-  export function RequestUserKey(Name: string): uuid
+  export function RequestUserKey(name: string): uuid
 
   /**
    * Requests single-word user-name of an avatar. When data is available the dataserver event will be raised.
@@ -3237,14 +3237,14 @@ declare namespace ll {
    * The agent identified does not need to be in the same region or online at the time of the request.
    * Returns a key that is used to identify the dataserver event when it is raised.
    */
-  export function RequestUsername(AvatarID: uuid): uuid
+  export function RequestUsername(avatarId: uuid): uuid
 
   /**
    * Resets the animation of the specified animation state to the default value.
    * If animation state equals "ALL", then all animation states are reset.
    * Requires the PERMISSION_OVERRIDE_ANIMATIONS permission (automatically granted to attached objects).
    */
-  export function ResetAnimationOverride(AnimationState: string): void
+  export function ResetAnimationOverride(animationState: string): void
 
   /** Removes all residents from the land ban list. */
   export function ResetLandBanList(): void
@@ -3253,7 +3253,7 @@ declare namespace ll {
   export function ResetLandPassList(): void
 
   /** Resets the named script. */
-  export function ResetOtherScript(ScriptName: string): void
+  export function ResetOtherScript(scriptName: string): void
 
   /** Resets the script. */
   export function ResetScript(): void
@@ -3262,24 +3262,24 @@ declare namespace ll {
    * Return objects using their UUIDs.
    * Requires the PERMISSION_RETURN_OBJECTS permission and that the script owner owns the parcel the returned objects are in, or is an estate manager or region owner.
    */
-  export function ReturnObjectsByID(ObjectIDs: uuid[]): number
+  export function ReturnObjectsByID(objectIDs: uuid[]): number
 
   /**
    * Return objects based upon their owner and a scope of parcel, parcel owner, or region.
    * Requires the PERMISSION_RETURN_OBJECTS permission and that the script owner owns the parcel the returned objects are in, or is an estate manager or region owner.
    */
-  export function ReturnObjectsByOwner(ID: uuid, Scope: number): number
+  export function ReturnObjectsByOwner(id: uuid, scope: number): number
 
   /**
    * Instantiate owner's InventoryItem at Position with Velocity, Rotation and with StartParameter. The last selected root object's location will be set to Position.
    * Creates object's inventory item at the given Position, with Velocity, Rotation, and StartParameter.
    */
   export function RezAtRoot(
-    InventoryItem: string,
-    Position: vector,
-    Velocity: vector,
-    Rotation: quaternion,
-    StartParameter: number,
+    inventoryItem: string,
+    position: vector,
+    velocity: vector,
+    rotation: quaternion,
+    startParameter: number,
   ): void
 
   /**
@@ -3288,91 +3288,91 @@ declare namespace ll {
    * The Velocity parameter is ignored if the rezzed object is not physical.
    */
   export function RezObject(
-    InventoryItem: string,
-    Position: vector,
-    Velocity: vector,
-    Rotation: quaternion,
-    StartParameter: number,
+    inventoryItem: string,
+    position: vector,
+    velocity: vector,
+    rotation: quaternion,
+    startParameter: number,
   ): void
 
   /** Instantiate owner's InventoryItem with the given parameters. */
-  export function RezObjectWithParams(InventoryItem: string, Params: list): uuid
+  export function RezObjectWithParams(inventoryItem: string, params: list): uuid
 
   /**
    * Returns the rotation angle represented by Rotation.
    * Returns the angle represented by the Rotation.
    */
-  export function Rot2Angle(Rotation: quaternion): number
+  export function Rot2Angle(rotation: quaternion): number
 
   /**
    * Returns the rotation axis represented by Rotation.
    * Returns the axis represented by the Rotation.
    */
-  export function Rot2Axis(Rotation: quaternion): vector
+  export function Rot2Axis(rotation: quaternion): vector
 
   /**
    * Returns the Euler representation (roll, pitch, yaw) of Rotation.
    * Returns the Euler Angle representation of the Rotation.
    */
-  export function Rot2Euler(Rotation: quaternion): vector
+  export function Rot2Euler(rotation: quaternion): vector
 
   /**
    * Returns the forward vector defined by Rotation.
    * Returns the forward axis represented by the Rotation.
    */
-  export function Rot2Fwd(Rotation: quaternion): vector
+  export function Rot2Fwd(rotation: quaternion): vector
 
   /**
    * Returns the left vector defined by Rotation.
    * Returns the left axis represented by the Rotation.
    */
-  export function Rot2Left(Rotation: quaternion): vector
+  export function Rot2Left(rotation: quaternion): vector
 
   /**
    * Returns the up vector defined by Rotation.
    * Returns the up axis represented by the Rotation.
    */
-  export function Rot2Up(Rotation: quaternion): vector
+  export function Rot2Up(rotation: quaternion): vector
 
   /**
    * Returns the rotation to rotate Vector1 to Vector2.
    * Returns the rotation needed to rotate Vector1 to Vector2.
    */
-  export function RotBetween(Vector1: vector, Vector2: vector): quaternion
+  export function RotBetween(vector1: vector, vector2: vector): quaternion
 
   /**
    * Cause object to rotate to Rotation, with a force function defined by Strength and Damping parameters. Good strength values are around half the mass of the object and good damping values are less than 1/10th of the strength.
    * Asymmetrical shapes require smaller damping.
    * A strength of 0.0 cancels the look at.
    */
-  export function RotLookAt(Rotation: quaternion, Strength: number, Damping: number): void
+  export function RotLookAt(rotation: quaternion, strength: number, damping: number): void
 
   /**
    * Set rotations with error of LeeWay radians as a rotational target, and return an ID for the rotational target.
    * The returned number is a handle that can be used in at_rot_target and llRotTargetRemove.
    */
-  export function RotTarget(Rotation: quaternion, LeeWay: number): number
+  export function RotTarget(rotation: quaternion, leeWay: number): number
 
   /**
    * Removes rotational target number.
    * Remove rotational target indicated by the handle.
    */
-  export function RotTargetRemove(Handle: number): void
+  export function RotTargetRemove(handle: number): void
 
   /**
    * Sets the texture rotation for the specified Face to angle Radians.
    * If Face is ALL_SIDES, rotates the texture of all sides.
    */
-  export function RotateTexture(Radians: number, Face: number): void
+  export function RotateTexture(radians: number, face: number): void
 
   /**
    * Returns Value rounded to the nearest integer.
    * Returns the Value rounded to the nearest integer.
    */
-  export function Round(Value: number): number
+  export function Round(value: number): number
 
   /** Returns a string of 40 hex characters that is the SHA1 security hash of text. */
-  export function SHA1String(Text: string): string
+  export function SHA1String(text: string): string
 
   /** Returns a string of 64 hex characters that is the SHA256 security hash of text. */
   export function SHA256String(text: string): string
@@ -3381,14 +3381,14 @@ declare namespace ll {
    * Returns TRUE if avatar ID is in the same region and has the same active group, otherwise FALSE.
    * Returns TRUE if the object or agent identified is in the same simulator and has the same active group as this object. Otherwise, returns FALSE.
    */
-  export function SameGroup(ID: uuid): number
+  export function SameGroup(id: uuid): number
 
   /**
    * Says Text on Channel.
    * This chat method has a range of 20m radius.
    * PUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.
    */
-  export function Say(Channel: number, Text: string): void
+  export function Say(channel: number, text: string): void
 
   /**
    * Attempts to resize the entire object by ScalingFactor, maintaining the size-position ratios of the prims.
@@ -3396,33 +3396,33 @@ declare namespace ll {
    * Resizing is subject to prim scale limits and linkability limits. This function can not resize the object if the linkset is physical, a pathfinding character, in a keyframed motion, or if resizing would cause the parcel to overflow.
    * Returns a boolean (an integer) TRUE if it succeeds, FALSE if it fails.
    */
-  export function ScaleByFactor(ScalingFactor: number): number
+  export function ScaleByFactor(scalingFactor: number): number
 
   /**
    * Sets the diffuse texture Horizontal and Vertical repeats on Face of the prim the script is attached to.
    * If Face == ALL_SIDES, all sides are set in one call.
    * Negative values for horizontal and vertical will flip the texture.
    */
-  export function ScaleTexture(Horizontal: number, Vertical: number, Face: number): void
+  export function ScaleTexture(horizontal: number, vertical: number, face: number): void
 
   /**
    * Returns TRUE if Position is over public land, sandbox land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.
    * Returns true if the position is over public land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.
    */
-  export function ScriptDanger(Position: vector): number
+  export function ScriptDanger(position: vector): number
 
   /**
    * Enables or disables script profiling options. Currently only supports PROFILE_SCRIPT_MEMORY (Mono only) and PROFILE_NONE.
    * May significantly reduce script performance.
    */
-  export function ScriptProfiler(State: number): void
+  export function ScriptProfiler(state: number): void
 
   /** This function is deprecated. */
   export function SendRemoteData(
-    ChannelID: uuid,
-    Destination: string,
-    Value: number,
-    Text: string,
+    channelId: uuid,
+    destination: string,
+    value: number,
+    text: string,
   ): uuid
 
   /**
@@ -3430,7 +3430,7 @@ declare namespace ll {
    * Specifying a blank Name, 0 Type, or NULL_KEY ID will prevent filtering results based on that parameter. A range of 0.0 does not perform a scan.
    * Results are returned in the sensor and no_sensor events.
    */
-  export function Sensor(Name: string, ID: uuid, Type: number, Range: number, Arc: number): void
+  export function Sensor(name: string, id: uuid, type: number, range: number, arc: number): void
 
   /**
    * removes sensor.
@@ -3444,16 +3444,16 @@ declare namespace ll {
    * Results are returned in the sensor and no_sensor events.
    */
   export function SensorRepeat(
-    Name: string,
-    ID: uuid,
-    Type: number,
-    Range: number,
-    Arc: number,
-    Rate: number,
+    name: string,
+    id: uuid,
+    type: number,
+    range: number,
+    arc: number,
+    rate: number,
   ): void
 
   /** Sets an agent's environmental values to the specified values. Must be used as part of an experience. */
-  export function SetAgentEnvironment(agent_id: uuid, transition: number, Settings: list): number
+  export function SetAgentEnvironment(agentId: uuid, transition: number, settings: list): number
 
   /** Sets the avatar rotation to the given value. */
   export function SetAgentRot(rot: quaternion, flags: number): void
@@ -3462,93 +3462,93 @@ declare namespace ll {
    * Sets the alpha (opacity) of Face.
    * Sets the alpha (opacity) value for Face. If Face is ALL_SIDES, sets the alpha for all faces. The alpha value is interpreted as an opacity percentage (1.0 is fully opaque, and 0.2 is mostly transparent). This function will clamp alpha values less than 0.1 to 0.1 and greater than 1.0 to 1.
    */
-  export function SetAlpha(Opacity: number, Face: number): void
+  export function SetAlpha(opacity: number, face: number): void
 
   /**
    * Sets an object's angular velocity to AngVel, in local coordinates if Local == TRUE (if the script is physical).
    * Has no effect on non-physical objects.
    */
-  export function SetAngularVelocity(AngVel: vector, Local: number): void
+  export function SetAngularVelocity(angVel: vector, local: number): void
 
   /**
    * Sets the animation (in object inventory) that will play for the given animation state.
    * To use this function the script must obtain the PERMISSION_OVERRIDE_ANIMATIONS permission.
    */
-  export function SetAnimationOverride(AnimationState: string, AnimationName: string): void
+  export function SetAnimationOverride(animationState: string, animationName: string): void
 
   /**
    * Set the tasks buoyancy (0 is none, < 1.0 sinks, 1.0 floats, > 1.0 rises).
    * Set the object buoyancy. A value of 0 is none, less than 1.0 sinks, 1.0 floats, and greater than 1.0 rises.
    */
-  export function SetBuoyancy(Buoyancy: number): void
+  export function SetBuoyancy(buoyancy: number): void
 
   /**
    * Sets the camera used in this object, at offset, if an avatar sits on it.
    * Sets the offset that an avatar's camera will be moved to if the avatar sits on the object.
    */
-  export function SetCameraAtOffset(Offset: vector): void
+  export function SetCameraAtOffset(offset: vector): void
 
   /** Sets the camera eye offset used in this object if an avatar sits on it. */
-  export function SetCameraEyeOffset(Offset: vector): void
+  export function SetCameraEyeOffset(offset: vector): void
 
   /**
    * Sets multiple camera parameters at once. List format is [ rule-1, data-1, rule-2, data-2 . . . rule-n, data-n ].
    * Requires the PERMISSION_CONTROL_CAMERA runtime permission (automatically granted to attached or sat on objects).
    */
-  export function SetCameraParams(Parameters: list): void
+  export function SetCameraParams(parameters: list): void
 
   /** Sets the action performed when a prim is clicked upon. */
-  export function SetClickAction(Action: number): void
+  export function SetClickAction(action: number): void
 
   /**
    * Sets the color, for the face.
    * Sets the color of the side specified. If Face is ALL_SIDES, sets the color on all faces.
    */
-  export function SetColor(Color: vector, Face: number): void
+  export function SetColor(color: vector, face: number): void
 
   /**
    * Set the media type of an LSL HTTP server response to ContentType.
    * HTTPRequestID must be a valid http_request ID. ContentType must be one of the CONTENT_TYPE_* constants.
    */
-  export function SetContentType(HTTPRequestID: uuid, ContentType: number): void
+  export function SetContentType(httpRequestId: uuid, contentType: number): void
 
   /**
    * Sets the amount of damage that will be done to an avatar that this task hits.	Task will be killed.
    * Sets the amount of damage that will be done to an avatar that this object hits. This object will be destroyed on damaging an avatar, and no collision event is triggered.
    */
-  export function SetDamage(Damage: number): void
+  export function SetDamage(damage: number): void
 
   /** Returns a string with the requested data about the region. */
-  export function SetEnvironment(Position: vector, EnvParams: list): number
+  export function SetEnvironment(position: vector, envParams: list): number
 
-  export function SetExperienceKey(ExperienceID: uuid): number
+  export function SetExperienceKey(experienceId: uuid): number
 
   /**
    * Sets Force on object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetForce(Force: vector, Local: number): void
+  export function SetForce(force: vector, local: number): void
 
   /**
    * Sets the Force and Torque of object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetForceAndTorque(Force: vector, Torque: vector, Local: number): void
+  export function SetForceAndTorque(force: vector, torque: vector, local: number): void
 
   /** Changes terrain texture properties in the region. */
-  export function SetGroundTexture(Changes: list): number
+  export function SetGroundTexture(changes: list): number
 
   /**
    * Critically damps a physical object to a Height (either above ground level or above the higher of land and water if water == TRUE).
    * Do not use with vehicles. Use llStopHover to stop hovering.
    */
-  export function SetHoverHeight(Height: number, Water: number, Tau: number): void
+  export function SetHoverHeight(height: number, water: number, tau: number): void
 
   /** Sets the given permission mask to the new value on the inventory item. */
   export function SetInventoryPermMask(
-    InventoryItem: string,
-    PermissionFlag: number,
-    PermissionMask: number,
+    inventoryItem: string,
+    permissionFlag: number,
+    permissionMask: number,
   ): void
 
   /**
@@ -3556,22 +3556,22 @@ declare namespace ll {
    * Specify a list of times, positions, and orientations to be followed by an object. The object will be smoothly moved between key-frames by the simulator. Collisions with other non-physical or key-framed objects will be ignored (no script events will fire and collision processing will not occur). Collisions with physical objects will be computed and reported, but the key-framed object will be unaffected by those collisions.
    * Keyframes is a strided list containing positional, rotational, and time data for each step in the motion.  Options is a list containing optional arguments and parameters (specified by KFM_* constants).
    */
-  export function SetKeyframedMotion(Keyframes: list, Options: list): void
+  export function SetKeyframedMotion(keyframes: list, options: list): void
 
   /**
    * If a prim exists in the link chain at LinkNumber, set Face to Opacity.
    * Sets the Face, on the linked prim specified, to the Opacity.
    */
-  export function SetLinkAlpha(LinkNumber: number, Opacity: number, Face: number): void
+  export function SetLinkAlpha(linkNumber: number, opacity: number, face: number): void
 
   /** Sets the camera eye offset, and the offset that camera is looking at, for avatars that sit on the linked prim. */
-  export function SetLinkCamera(LinkNumber: number, EyeOffset: vector, LookOffset: vector): void
+  export function SetLinkCamera(linkNumber: number, eyeOffset: vector, lookOffset: vector): void
 
   /**
    * If a task exists in the link chain at LinkNumber, set the Face to color.
    * Sets the color of the linked child's side, specified by LinkNumber.
    */
-  export function SetLinkColor(LinkNumber: number, Color: vector, Face: number): void
+  export function SetLinkColor(linkNumber: number, color: vector, face: number): void
 
   /** Sets or changes GLTF Overrides set on the selected faces. */
   export function SetLinkGLTFOverrides(link: number, face: number, options: list): void
@@ -3580,29 +3580,29 @@ declare namespace ll {
    * Set the media parameters for a particular face on linked prim, specified by Link. Returns an integer that is a STATUS_* flag which details the success/failure of the operation(s).
    * MediaParameters is a set of name/value pairs in no particular order. Parameters not specified are unchanged, or if new media is added then set to the default specified.
    */
-  export function SetLinkMedia(Link: number, Face: number, Parameters: list): number
+  export function SetLinkMedia(link: number, face: number, parameters: list): number
 
   /** Deprecated: Use llSetLinkPrimitiveParamsFast instead. */
-  export function SetLinkPrimitiveParams(LinkNumber: number, Parameters: list): void
+  export function SetLinkPrimitiveParams(linkNumber: number, parameters: list): void
 
   /**
    * Set primitive parameters for LinkNumber based on Parameters, without a delay.
    * Set parameters for link number, from the list of Parameters, with no built-in script sleep. This function is identical to llSetLinkPrimitiveParams, except without the delay.
    */
-  export function SetLinkPrimitiveParamsFast(LinkNumber: number, Parameters: list): void
+  export function SetLinkPrimitiveParamsFast(linkNumber: number, parameters: list): void
 
   /** Sets the Render Material of Face on a linked prim, specified by LinkNumber. Render Material may be a UUID or name of a material in prim inventory. */
   export function SetLinkRenderMaterial(
-    LinkNumber: number,
-    RenderMaterial: string,
-    Face: number,
+    linkNumber: number,
+    renderMaterial: string,
+    face: number,
   ): void
 
   /** Sets the sit flags for the specified prim in a linkset. */
-  export function SetLinkSitFlags(LinkNumber: number, Flags: number): void
+  export function SetLinkSitFlags(linkNumber: number, flags: number): void
 
   /** Sets the Texture of Face on a linked prim, specified by LinkNumber. Texture may be a UUID or name of a texture in prim inventory. */
-  export function SetLinkTexture(LinkNumber: number, Texture: string, Face: number): void
+  export function SetLinkTexture(linkNumber: number, texture: string, face: number): void
 
   /**
    * Animates a texture on the prim specified by LinkNumber, by setting the texture scale and offset.
@@ -3613,30 +3613,30 @@ declare namespace ll {
    * Rate specifies the animation playback rate.
    */
   export function SetLinkTextureAnim(
-    LinkNumber: number,
-    Mode: number,
-    Face: number,
-    SizeX: number,
-    SizeY: number,
-    Start: number,
-    Length: number,
-    Rate: number,
+    linkNumber: number,
+    mode: number,
+    face: number,
+    sizeX: number,
+    sizeY: number,
+    start: number,
+    length: number,
+    rate: number,
   ): void
 
   /** Sets the rotation of a child prim relative to the root prim. */
-  export function SetLocalRot(Rotation: quaternion): void
+  export function SetLocalRot(rotation: quaternion): void
 
   /**
    * Sets the description of the prim to Description.
    * The description field is limited to 127 characters.
    */
-  export function SetObjectDesc(Description: string): void
+  export function SetObjectDesc(description: string): void
 
   /** Sets the prim's name to Name. */
-  export function SetObjectName(Name: string): void
+  export function SetObjectName(name: string): void
 
   /** Sets the specified PermissionFlag permission to the value specified by PermissionMask on the object the script is attached to. */
-  export function SetObjectPermMask(PermissionFlag: number, PermissionMask: number): void
+  export function SetObjectPermMask(permissionFlag: number, permissionMask: number): void
 
   /**
    * Sets the parcel the object is on for sale.
@@ -3644,31 +3644,31 @@ declare namespace ll {
    *  Setting ForSale to FALSE will remove the parcel from sale and clear any options that were set.
    * Requires the PERMISSION_PRIVILEGED_LAND_ACCESS permission.
    */
-  export function SetParcelForSale(ForSale: number, Options: list): number
+  export function SetParcelForSale(forSale: number, options: list): number
 
   /**
    * Sets the streaming audio URL for the parcel the object is on.
    * The object must be owned by the owner of the parcel; if the parcel is group owned the object must be owned by that group.
    */
-  export function SetParcelMusicURL(URL: string): void
+  export function SetParcelMusicURL(url: string): void
 
   /**
    * Sets the default amount when someone chooses to pay this object.
    * Price is the default price shown in the text input field.  QuickButtons specifies the 4 payment values shown in the payment dialog's buttons.
    * Input field and buttons may be hidden with PAY_HIDE constant, and may be set to their default values using PAY_DEFAULT.
    */
-  export function SetPayPrice(Price: number, QuickButtons: number[]): void
+  export function SetPayPrice(price: number, quickButtons: number[]): void
 
   /**
    * Sets the selected parameters of the object's physics behavior.
    * MaterialBits is a bitmask specifying which of the parameters in the other arguments should be applied to the object. GravityMultiplier, Restitution, Friction, and Density are the possible parameters to manipulate.
    */
   export function SetPhysicsMaterial(
-    MaterialBits: number,
-    GravityMultiplier: number,
-    Restitution: number,
-    Friction: number,
-    Density: number,
+    materialBits: number,
+    gravityMultiplier: number,
+    restitution: number,
+    friction: number,
+    density: number,
   ): void
 
   /**
@@ -3676,19 +3676,19 @@ declare namespace ll {
    * If the script is in a child prim, Position is treated as root relative and the link-set is adjusted.
    * If the prim is the root prim, the entire object is moved (up to 10m) to Position in region coordinates.
    */
-  export function SetPos(Position: vector): void
+  export function SetPos(position: vector): void
 
   /**
    * Sets the MediaParameters for a particular Face on the prim. Returns an integer that is a STATUS_* flag which details the success/failure of the operation(s).
    * MediaParameters is a set of name/value pairs in no particular order. Parameters not specified are unchanged, or if new media is added then set to the default specified.
    */
-  export function SetPrimMediaParams(Face: number, MediaParameters: list): number
+  export function SetPrimMediaParams(face: number, mediaParameters: list): number
 
   /** Deprecated: Use llSetPrimMediaParams instead. */
-  export function SetPrimURL(URL: string): void
+  export function SetPrimURL(url: string): void
 
   /** Deprecated: Use llSetLinkPrimitiveParamsFast instead. */
-  export function SetPrimitiveParams(Parameters: list): void
+  export function SetPrimitiveParams(parameters: list): void
 
   /**
    * Attempts to move the object so that the root prim is within 0.1m of Position.
@@ -3696,58 +3696,58 @@ declare namespace ll {
    * Position may be any location within the region or up to 10m across a region border.
    * If the position is below ground, it will be set to the ground level at that x,y location.
    */
-  export function SetRegionPos(Position: vector): number
+  export function SetRegionPos(position: vector): number
 
   /** If PIN is set to a non-zero number, the task will accept remote script loads via llRemoteLoadScriptPin() if it passes in the correct PIN. Othersise, llRemoteLoadScriptPin() is ignored. */
-  export function SetRemoteScriptAccessPin(PIN: number): void
+  export function SetRemoteScriptAccessPin(pin: number): void
 
   /**
    * Applies Render Material to Face of prim.
    * Render Material may be a UUID or name of a material in prim inventory.
    * If Face is ALL_SIDES, set the render material on all faces.
    */
-  export function SetRenderMaterial(Material: string, Face: number): void
+  export function SetRenderMaterial(material: string, face: number): void
 
   /**
    * If the object is not physical, this function sets the rotation of the prim.
    * If the script is in a child prim, Rotation is treated as root relative and the link-set is adjusted.
    * If the prim is the root prim, the entire object is rotated to Rotation in the global reference frame.
    */
-  export function SetRot(Rotation: quaternion): void
+  export function SetRot(rotation: quaternion): void
 
   /** Sets the prim's scale (size) to Scale. */
-  export function SetScale(Scale: vector): void
+  export function SetScale(scale: vector): void
 
   /** Enable or disable the script Running state of Script in the prim. */
-  export function SetScriptState(ScriptName: string, Running: number): void
+  export function SetScriptState(scriptName: string, running: number): void
 
   /** Displays Text rather than 'Sit' in the viewer's context menu. */
-  export function SetSitText(Text: string): void
+  export function SetSitText(text: string): void
 
   /**
    * Sets whether successive calls to llPlaySound, llLoopSound, etc., (attached sounds) interrupt the currently playing sound.
    * The default for objects is FALSE. Setting this value to TRUE will make the sound wait until the current playing sound reaches its end. The queue is one level deep.
    */
-  export function SetSoundQueueing(QueueEnable: number): void
+  export function SetSoundQueueing(queueEnable: number): void
 
   /** Limits radius for audibility of scripted sounds (both attached and triggered) to distance Radius. */
-  export function SetSoundRadius(Radius: number): void
+  export function SetSoundRadius(radius: number): void
 
   /**
    * Sets object status specified in Status bitmask (e.g. STATUS_PHYSICS|STATUS_PHANTOM) to boolean Value.
    * For a full list of STATUS_* constants, see wiki documentation.
    */
-  export function SetStatus(Status: number, Value: number): void
+  export function SetStatus(status: number, value: number): void
 
   /** Causes Text to float above the prim, using the specified Color and Opacity. */
-  export function SetText(Text: string, Color: vector, Opacity: number): void
+  export function SetText(text: string, color: vector, opacity: number): void
 
   /**
    * Applies Texture to Face of prim.
    * Texture may be a UUID or name of a texture in prim inventory.
    * If Face is ALL_SIDES, set the texture on all faces.
    */
-  export function SetTexture(Texture: string, Face: number): void
+  export function SetTexture(texture: string, face: number): void
 
   /**
    * Animates a texture by setting the texture scale and offset.
@@ -3758,119 +3758,119 @@ declare namespace ll {
    * Rate specifies the animation playback rate.
    */
   export function SetTextureAnim(
-    Mode: number,
-    Face: number,
-    SizeX: number,
-    SizeY: number,
-    Start: number,
-    Length: number,
-    Rate: number,
+    mode: number,
+    face: number,
+    sizeX: number,
+    sizeY: number,
+    start: number,
+    length: number,
+    rate: number,
   ): void
 
   /**
    * Sets the Torque acting on the script's object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetTorque(Torque: vector, Local: number): void
+  export function SetTorque(torque: vector, local: number): void
 
   /** Displays Text in the viewer context menu that acts on a touch. */
-  export function SetTouchText(Text: string): void
+  export function SetTouchText(text: string): void
 
   /**
    * Enables the vehicle flags specified in the Flags bitmask.
    * Valid parameters can be found in the wiki documentation.
    */
-  export function SetVehicleFlags(Flags: number): void
+  export function SetVehicleFlags(flags: number): void
 
   /**
    * Sets a vehicle float parameter.
    * Valid parameters can be found in the wiki documentation.
    */
-  export function SetVehicleFloatParam(ParameterName: number, ParameterValue: number): void
+  export function SetVehicleFloatParam(parameterName: number, parameterValue: number): void
 
   /**
    * Sets a vehicle rotation parameter.
    * Valid parameters can be found in the wiki documentation.
    */
-  export function SetVehicleRotationParam(ParameterName: number, ParameterValue: quaternion): void
+  export function SetVehicleRotationParam(parameterName: number, parameterValue: quaternion): void
 
   /**
    * Activates the vehicle action on the object with vehicle preset Type.
    * Valid Types and an explanation of their characteristics can be found in wiki documentation.
    */
-  export function SetVehicleType(Type: number): void
+  export function SetVehicleType(type: number): void
 
   /**
    * Sets a vehicle vector parameter.
    * Valid parameters can be found in the wiki documentation.
    */
-  export function SetVehicleVectorParam(ParameterName: number, ParameterValue: vector): void
+  export function SetVehicleVectorParam(parameterName: number, parameterValue: vector): void
 
   /**
    * If the object is physics-enabled, sets the object's linear velocity to Velocity.
    * If Local==TRUE, Velocity is treated as a local directional vector; otherwise, Velocity is treated as a global directional vector.
    */
-  export function SetVelocity(Velocity: vector, Local: number): void
+  export function SetVelocity(velocity: vector, local: number): void
 
   /**
    * Shouts Text on Channel.
    * This chat method has a range of 100m radius.
    * PUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.
    */
-  export function Shout(Channel: number, Text: string): void
+  export function Shout(channel: number, text: string): void
 
   /** Returns the base64-encoded RSA signature of Message using PEM-formatted PrivateKey and digest Algorithm (sha1, sha224, sha256, sha384, sha512). */
-  export function SignRSA(PrivateKey: string, Message: string, Algorithm: string): string
+  export function SignRSA(privateKey: string, message: string, algorithm: string): string
 
   /** Returns the sine of Theta (Theta in radians). */
-  export function Sin(Theta: number): number
+  export function Sin(theta: number): number
 
   /** If agent identified by AvatarID is participating in the experience, sit them on the specified link's sit target. */
-  export function SitOnLink(AvatarID: uuid, LinkID: number): number
+  export function SitOnLink(avatarId: uuid, linkId: number): number
 
   /** Set the sit location for this object. If offset == ZERO_VECTOR, clears the sit target. */
-  export function SitTarget(Offset: vector, Rotation: quaternion): void
+  export function SitTarget(offset: vector, rotation: quaternion): void
 
   /** Put script to sleep for Time seconds. */
-  export function Sleep(Time: number): void
+  export function Sleep(time: number): void
 
   /**
    * Deprecated: Use llPlaySound instead.
    * Plays Sound at Volume and specifies whether the sound should loop and/or be enqueued.
    */
-  export function Sound(Sound: string, Volume: number, Queue: number, Loop: number): void
+  export function Sound(sound: string, volume: number, queue: number, loop: number): void
 
   /**
    * Deprecated: Use llPreloadSound instead.
    * Preloads a sound on viewers within range.
    */
-  export function SoundPreload(Sound: string): void
+  export function SoundPreload(sound: string): void
 
   /**
    * Returns the square root of Value.
    * Triggers a math runtime error for imaginary results (if Value < 0.0).
    */
-  export function Sqrt(Value: number): number
+  export function Sqrt(value: number): number
 
   /**
    * This function plays the specified animation from playing on the avatar who received the script's most recent permissions request.
    * Animation may be an animation in task inventory or a built-in animation.
    * Requires the PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted to attached or sat on objects).
    */
-  export function StartAnimation(Animation: string): void
+  export function StartAnimation(animation: string): void
 
   /**
    * This function plays the specified animation on the rigged mesh object associated with the current script.
    * Animation may be an animation in task inventory or a built-in animation.
    */
-  export function StartObjectAnimation(Animation: string): void
+  export function StartObjectAnimation(animation: string): void
 
   /**
    * This function stops the specified animation on the avatar who received the script's most recent permissions request.
    * Animation may be an animation in task inventory, a built-in animation, or the uuid of an animation.
    * Requires the PERMISSION_TRIGGER_ANIMATION runtime permission (automatically granted to attached or sat on objects).
    */
-  export function StopAnimation(Animation: string): void
+  export function StopAnimation(animation: string): void
 
   /** Stop hovering to a height (due to llSetHoverHeight()). */
   export function StopHover(): void
@@ -3885,7 +3885,7 @@ declare namespace ll {
    * This function stops the specified animation on the rigged mesh object associated with the current script.
    * Animation may be an animation in task inventory, a built-in animation, or the uuid of an animation.
    */
-  export function StopObjectAnimation(Animation: string): void
+  export function StopObjectAnimation(animation: string): void
 
   export function StopPointAt(): void
 
@@ -3893,10 +3893,10 @@ declare namespace ll {
   export function StopSound(): void
 
   /** Returns an integer that is the number of characters in Text (not counting the null). */
-  export function StringLength(Text: string): number
+  export function StringLength(text: string): number
 
   /** Returns the string Base64 representation of the input string. */
-  export function StringToBase64(Text: string): string
+  export function StringToBase64(text: string): string
 
   /**
    * Outputs a string, eliminating white-space from the start and/or end of the input string Text.
@@ -3905,44 +3905,44 @@ declare namespace ll {
    * STRING_TRIM_TAIL: trim all trailing spaces in Text
    * STRING_TRIM: trim all leading and trailing spaces in Text.
    */
-  export function StringTrim(Text: string, TrimType: number): string
+  export function StringTrim(text: string, trimType: number): string
 
   /**
    * Returns the first index where Sequence appears in Text. Returns -1 if not found.
    * @indexReturn
    */
-  export function SubStringIndex(Text: string, Sequence: string): number | undefined
+  export function SubStringIndex(text: string, sequence: string): number | undefined
 
   /** Deprecated: Use llSetCameraParams instead. */
-  export function TakeCamera(AvatarID: uuid): void
+  export function TakeCamera(avatarId: uuid): void
 
   /**
    * Take controls from the agent the script has permissions for.
    * If (Accept == (Controls & input)), send input to the script.  PassOn determines whether Controls also perform their normal functions.
    * Requires the PERMISSION_TAKE_CONTROLS runtime permission (automatically granted to attached or sat on objects).
    */
-  export function TakeControls(Controls: number, Accept: number, PassOn: number): void
+  export function TakeControls(controls: number, accept: number, passOn: number): void
 
   /** Returns the tangent of Theta (Theta in radians). */
-  export function Tan(Theta: number): number
+  export function Tan(theta: number): number
 
   /**
    * This function is to have the script know when it has reached a position.
    * It registers a Position with a Range that triggers at_target and not_at_target events continuously until unregistered.
    */
-  export function Target(Position: vector, Range: number): number
+  export function Target(position: vector, range: number): number
 
   /**
    * Attempt to spin at SpinRate with strength Gain on Axis.
    * A spin rate of 0.0 cancels the spin. This function always works in object-local coordinates.
    */
-  export function TargetOmega(Axis: vector, SpinRate: number, Gain: number): void
+  export function TargetOmega(axis: vector, spinRate: number, gain: number): void
 
   /** Removes positional target Handle registered with llTarget. */
-  export function TargetRemove(Target: number): void
+  export function TargetRemove(target: number): void
 
   /** Sends an email with Subject and Message to the owner or creator of an object. */
-  export function TargetedEmail(Target: number, Subject: string, Text: string): void
+  export function TargetedEmail(target: number, subject: string, text: string): void
 
   /**
    * Requests a teleport of avatar to a landmark stored in the object's inventory. If no landmark is provided (an empty string), the avatar is teleported to the location position in the current region. In either case, the avatar is turned to face the position given by look_at in local coordinates.
@@ -3950,10 +3950,10 @@ declare namespace ll {
    * This function can only teleport the owner of the object.
    */
   export function TeleportAgent(
-    AvatarID: uuid,
-    LandmarkName: string,
-    Position: vector,
-    LookAtPoint: vector,
+    avatarId: uuid,
+    landmarkName: string,
+    position: vector,
+    lookAtPoint: vector,
   ): void
 
   /**
@@ -3962,80 +3962,80 @@ declare namespace ll {
    * This function can only teleport the owner of the object.
    */
   export function TeleportAgentGlobalCoords(
-    AvatarID: uuid,
-    GlobalPosition: vector,
-    RegionPosition: vector,
-    LookAtPoint: vector,
+    avatarId: uuid,
+    globalPosition: vector,
+    regionPosition: vector,
+    lookAtPoint: vector,
   ): void
 
   /** Teleport agent over the owner's land to agent's home location. */
-  export function TeleportAgentHome(AvatarID: uuid): void
+  export function TeleportAgentHome(avatarId: uuid): void
 
   /** Opens a dialog for the specified avatar with message Text, which contains a text box for input. Any text that is entered is said on the specified Channel (as if by the avatar) when the "OK" button is clicked. */
-  export function TextBox(AvatarID: uuid, Text: string, Channel: number): void
+  export function TextBox(avatarId: uuid, text: string, channel: number): void
 
   /** Returns a string that is Text with all lower-case characters. */
-  export function ToLower(Text: string): string
+  export function ToLower(text: string): string
 
   /** Returns a string that is Text with all upper-case characters. */
-  export function ToUpper(Text: string): string
+  export function ToUpper(text: string): string
 
   /**
    * Transfer Amount of linden dollars (L$) from script owner to AvatarID. Returns a key to a corresponding transaction_result event for the success of the transfer.
    * Attempts to send the amount of money to the specified avatar, and trigger a transaction_result event identified by the returned key. Requires the PERMISSION_DEBIT runtime permission.
    */
-  export function TransferLindenDollars(AvatarID: uuid, Amount: number): uuid
+  export function TransferLindenDollars(avatarId: uuid, amount: number): uuid
 
   /** Transfers ownership of an object, or a copy of the object to a new agent. */
-  export function TransferOwnership(AgentID: uuid, Flags: number, Params: list): number
+  export function TransferOwnership(agentId: uuid, flags: number, params: list): number
 
   /**
    * Plays Sound at Volume (0.0 - 1.0), centered at but not attached to object.
    * There is no limit to the number of triggered sounds which can be generated by an object, and calling llTriggerSound does not affect the attached sounds created by llPlaySound and llLoopSound. This is very useful for things like collision noises, explosions, etc. There is no way to stop or alter the volume of a sound triggered by this function.
    */
-  export function TriggerSound(Sound: string, Volume: number): void
+  export function TriggerSound(sound: string, volume: number): void
 
   /**
    * Plays Sound at Volume (0.0 - 1.0), centered at but not attached to object, limited to axis-aligned bounding box defined by vectors top-north-east (TNE) and bottom-south-west (BSW).
    * There is no limit to the number of triggered sounds which can be generated by an object, and calling llTriggerSound does not affect the attached sounds created by llPlaySound and llLoopSound. This is very useful for things like collision noises, explosions, etc. There is no way to stop or alter the volume of a sound triggered by this function.
    */
-  export function TriggerSoundLimited(Sound: string, Volume: number, TNE: vector, BSW: vector): void
+  export function TriggerSoundLimited(sound: string, volume: number, tne: vector, bsw: vector): void
 
   /** If agent identified by AvatarID is sitting on the object the script is attached to or is over land owned by the object's owner, the agent is forced to stand up. */
-  export function UnSit(AvatarID: uuid): void
+  export function UnSit(avatarId: uuid): void
 
   /**
    * Returns the string that is the URL unescaped, replacing "%20" with spaces, etc., version of URL.
    * This function can output raw UTF-8 strings.
    */
-  export function UnescapeURL(URL: string): string
+  export function UnescapeURL(url: string): string
 
   /** Updates settings for a pathfinding character. */
-  export function UpdateCharacter(Options: list): void
+  export function UpdateCharacter(options: list): void
 
   /** Starts an asychronous transaction to update the value associated with the key given. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. If Checked is 1 the existing value in the data store must match the OriginalValue passed or XP_ERROR_RETRY_UPDATE will be returned. If Checked is 0 the key will be created if necessary. */
   export function UpdateKeyValue(
-    Key: string,
-    Value: string,
-    Checked: number,
-    OriginalValue: string,
+    key: string,
+    value: string,
+    checked: number,
+    originalValue: string,
   ): uuid
 
   /** Returns the distance between Location1 and Location2. */
-  export function VecDist(Location1: vector, Location2: vector): number
+  export function VecDist(location1: vector, location2: vector): number
 
   /** Returns the magnitude of the vector. */
-  export function VecMag(Vector: vector): number
+  export function VecMag(vector: vector): number
 
   /** Returns normalized vector. */
-  export function VecNorm(Vector: vector): vector
+  export function VecNorm(vector: vector): vector
 
   /** Returns TRUE if PublicKey, Message, and Algorithm produce the same base64-formatted Signature. */
   export function VerifyRSA(
-    PublicKey: string,
-    Message: string,
-    Signature: string,
-    Algorithm: string,
+    publicKey: string,
+    message: string,
+    signature: string,
+    algorithm: string,
   ): number
 
   /**
@@ -4043,46 +4043,46 @@ declare namespace ll {
    * If another object (including avatars) interpenetrates it, it will get a collision_start event.
    * When an object stops interpenetrating, a collision_end event is generated. While the other is inter-penetrating, collision events are NOT generated.
    */
-  export function VolumeDetect(DetectEnabled: number): void
+  export function VolumeDetect(detectEnabled: number): void
 
   /**
    * Wander within a specified volume.
    * Sets a character to wander about a central spot within a specified area.
    */
-  export function WanderWithin(Origin: vector, Area: vector, Options: list): void
+  export function WanderWithin(origin: vector, area: vector, options: list): void
 
   /** Returns the water height below the object position + Offset. */
-  export function Water(Offset: vector): number
+  export function Water(offset: vector): number
 
   /**
    * Whispers Text on Channel.
    * This chat method has a range of 10m radius.
    * PUBLIC_CHANNEL is the public chat channel that all avatars see as chat text. DEBUG_CHANNEL is the script debug channel, and is also visible to nearby avatars. All other channels are are not sent to avatars, but may be used to communicate with scripts.
    */
-  export function Whisper(Channel: number, Text: string): void
+  export function Whisper(channel: number, text: string): void
 
   /** Returns the wind velocity at the object position + Offset. */
-  export function Wind(Offset: vector): vector
+  export function Wind(offset: vector): vector
 
   /** Returns the local position that would put the origin of a HUD object directly over world_pos as viewed by the current camera. Requires the PERMISSION_TRACK_CAMERA runtime permission (else will return zero vector). */
-  export function WorldPosToHUD(world_pos: vector): vector
+  export function WorldPosToHUD(worldPos: vector): vector
 
   /** Performs an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats if it is shorter than Text1. */
-  export function XorBase64(Text1: string, Text2: string): string
+  export function XorBase64(text1: string, text2: string): string
 
   /**
    * Deprecated: Please use llXorBase64 instead.
    * Incorrectly performs an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats if it is shorter than Text1.
    * Retained for backwards compatibility.
    */
-  export function XorBase64Strings(Text1: string, Text2: string): string
+  export function XorBase64Strings(text1: string, text2: string): string
 
   /**
    * Deprecated: Please use llXorBase64 instead.
    * Correctly (unless nulls are present) performs an exclusive OR on two Base64 strings and returns a Base64 string.
    * Text2 repeats if it is shorter than Text1.
    */
-  export function XorBase64StringsCorrect(Text1: string, Text2: string): string
+  export function XorBase64StringsCorrect(text1: string, text2: string): string
 
   /** Converts a color from the sRGB to the linear colorspace. */
   export function sRGB2Linear(srgb: vector): vector

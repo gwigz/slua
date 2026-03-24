@@ -457,18 +457,18 @@ describe("emitAll (end-to-end)", () => {
     // Detected events use DetectedEvent[] callback
     expect(output).toContain("collision: (detected: DetectedEvent[]) => void")
     expect(output).toContain("touch_start: (detected: DetectedEvent[]) => void")
-    // Non-detected events have typed params
+    // Non-detected events have typed params (camelCase)
     expect(output).toContain(
-      "listen: (Channel: number, Name: string, ID: uuid, Text: string) => void",
+      "listen: (channel: number, name: string, id: uuid, text: string) => void",
     )
     expect(output).toContain("timer: () => void")
     expect(output).toContain(
-      "email: (Time: string, Address: string, Subject: string, Body: string, NumberRemaining: number) => void",
+      "email: (time: string, address: string, subject: string, body: string, numberRemaining: number) => void",
     )
     // slua-type overrides are respected
     expect(output).toContain("game_control: (id: uuid, buttons: number, axes: number[]) => void")
     expect(output).toContain(
-      "link_message: (SendersLink: number, Value: number, Text: string, ID: string) => void",
+      "link_message: (sendersLink: number, value: number, text: string, id: string) => void",
     )
     // Removed events should NOT appear
     expect(output).not.toMatch(/state_entry:/)

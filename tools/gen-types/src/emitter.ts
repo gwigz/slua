@@ -145,7 +145,52 @@ function mapLslReturnType(lslType: string) {
 // ---------------------------------------------------------------------------
 
 /**
- * Sanitize a parameter name, replacing TypeScript reserved words.
+ * Convert a PascalCase, UPPER_CASE, or snake_case parameter name to standard
+ * JS camelCase.
+ *
+ * Handles acronyms correctly:
+ *   AvatarID   -> avatarId
+ *   HTTPMethod -> httpMethod
+ *   URL        -> url
+ *   Value      -> value
+ *   world_pos  -> worldPos
+ *   agent_id   -> agentId
+ */
+function toCamelCase(name: string) {
+  // snake_case: split on underscores, lowercase-join with capitalised segments
+  if (name.includes("_")) {
+    return name
+      .split("_")
+      .map((seg, i) => {
+        if (i === 0) return seg.toLowerCase()
+
+        return seg[0].toUpperCase() + seg.slice(1).toLowerCase()
+      })
+      .join("")
+  }
+
+  // No uppercase at all -> already camelCase / lowercase
+  if (!/[A-Z]/.test(name)) {
+    return name
+  }
+
+  const words = name.match(/[A-Z]{2,}(?=[A-Z][a-z]|$)|[A-Z][a-z]*|[a-z]+|\d+/g)
+
+  if (!words) {
+    return name
+  }
+
+  return words
+    .map((word, i) => {
+      if (i === 0) return word.toLowerCase()
+
+      return word[0].toUpperCase() + word.slice(1).toLowerCase()
+    })
+    .join("")
+}
+
+/**
+ * Sanitize a parameter name: convert to camelCase and escape reserved words.
  */
 function sanitizeParamName(name: string) {
   // "..." is the variadic marker -- keep as-is.
@@ -153,12 +198,14 @@ function sanitizeParamName(name: string) {
     return name
   }
 
+  const camel = toCamelCase(name)
+
   // Replace reserved words used as parameter names
-  if (TS_RESERVED_WORDS.has(name)) {
-    return `${name}_`
+  if (TS_RESERVED_WORDS.has(camel)) {
+    return `${camel}_`
   }
 
-  return name
+  return camel
 }
 
 /**
@@ -922,12 +969,13 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
         const argDef = argObj[argName]
         const sluaType = (argDef as any)["slua-type"]
         const tsType = sluaType ? mapType(sluaType) : mapLslType(argDef.type)
+        const paramName = sanitizeParamName(argName)
 
         if (argDef["index-semantics"]) {
-          indexTags.push({ tagName: "indexArg", text: argName })
+          indexTags.push({ tagName: "indexArg", text: paramName })
         }
 
-        return { name: argName, type: tsType }
+        return { name: paramName, type: tsType }
       })
 
       const hasIndexReturn = !!fn["index-semantics"]

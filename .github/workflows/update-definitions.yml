@@ -72,6 +72,13 @@ jobs:
         if: steps.check.outputs.up-to-date == 'false'
         run: bun run build:examples
 
+      - name: Verify
+        if: steps.check.outputs.up-to-date == 'false'
+        run: |
+          bun run test
+          bun run fmt:check
+          bun run lint
+
       - name: Create changeset
         if: steps.check.outputs.up-to-date == 'false'
         run: |

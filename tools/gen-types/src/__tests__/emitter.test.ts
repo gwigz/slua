@@ -492,7 +492,7 @@ describe("emitAll (end-to-end)", () => {
       "off<E extends keyof LLEventMap>(event: E, callback: LLEventMap[E]): boolean",
     )
 
-    expect(output).toContain("listeners<E extends keyof LLEventMap>(event: E): LLEventMap[E][]")
+    expect(output).toContain("handlers<E extends keyof LLEventMap>(event: E): LLEventMap[E][]")
     expect(output).toContain("eventNames(): (keyof LLEventMap)[]")
   })
 

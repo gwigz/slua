@@ -1,5 +1,11 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.2.0
+
+### Minor Changes
+
+- [`c8d8b88`](https://github.com/gwigz/slua/commit/c8d8b88b752927587385190836294330ed130650) Thanks [@gwigz](https://github.com/gwigz)! - add compile-time `define` option with dead code elimination
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1314,12 +1314,14 @@ declare namespace ll {
   /**
    * Returns an integer that is the Text, Base64 decoded as a big endian integer.
    * Returns zero if Text is longer then 8 characters. If Text contains fewer then 6 characters, the return value is unpredictable.
+   * @deprecated Use 'llbase64.decode' and 'string.unpack' or 'buffer.readi32' instead.
    */
   export function Base64ToInteger(text: string): number
 
   /**
    * Converts a Base64 string to a conventional string.
    * If the conversion creates any unprintable characters, they are converted to question marks.
+   * @deprecated Use 'llbase64.decode' instead.
    */
   export function Base64ToString(text: string): string
 
@@ -1988,6 +1990,7 @@ declare namespace ll {
   /**
    * Returns the type of the index entry in the list (TYPE_INTEGER, TYPE_FLOAT, TYPE_STRING, TYPE_KEY, TYPE_VECTOR, TYPE_ROTATION, or TYPE_INVALID if index is off list).
    * Returns the type of the variable at Index in ListVariable.
+   * @deprecated Use 'typeof' instead.
    * @indexArg index
    */
   export function GetListEntryType(listVariable: list, index: number): number
@@ -1995,6 +1998,7 @@ declare namespace ll {
   /**
    * Returns the number of elements in the list.
    * Returns the number of elements in ListVariable.
+   * @deprecated Use '#' or 'rawlen' instead. Metatable support.
    */
   export function GetListLength(listVariable: list): number
 
@@ -2662,6 +2666,7 @@ declare namespace ll {
   /**
    * Copies the float at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a float, then zero is returned.
+   * @deprecated Use '[]' and 'tonumber' instead.
    * @indexArg index
    */
   export function List2Float(listVariable: list, index: number): number
@@ -2669,6 +2674,7 @@ declare namespace ll {
   /**
    * Copies the integer at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to an integer, then zero is returned.
+   * @deprecated Use '[]', 'tonumber', and 'math.modf' instead.
    * @indexArg index
    */
   export function List2Integer(listVariable: list, index: number): number
@@ -2682,6 +2688,7 @@ declare namespace ll {
   /**
    * Copies the key at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a key, then null string is returned.
+   * @deprecated Use '[]' and 'touuid' instead.
    * @indexArg index
    */
   export function List2Key(listVariable: list, index: number): uuid
@@ -2728,6 +2735,7 @@ declare namespace ll {
   /**
    * Copies the rotation at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to rotation, thenZERO_ROTATION is returned.
+   * @deprecated Use '[]' instead.
    * @indexArg index
    */
   export function List2Rot(listVariable: list, index: number): quaternion
@@ -2735,6 +2743,7 @@ declare namespace ll {
   /**
    * Copies the string at Index in the list.
    * Returns the value at Index in the specified list as a string. If Index describes a location not in the list then null string is returned.
+   * @deprecated Use '[]' and 'tostring' instead.
    * @indexArg index
    */
   export function List2String(listVariable: list, index: number): string
@@ -2742,6 +2751,7 @@ declare namespace ll {
   /**
    * Copies the vector at Index in the list.
    * Returns the value at Index in the specified list. If Index describes a location not in the list, or the value cannot be type-cast to a vector, then ZERO_VECTOR is returned.
+   * @deprecated Use '[]' instead.
    * @indexArg index
    */
   export function List2Vector(listVariable: list, index: number): vector
@@ -3043,6 +3053,7 @@ declare namespace ll {
   /**
    * says Text to owner only (if owner is in region).
    * Says Text to the owner of the object running the script, if the owner has been within the object's simulator since logging into Second Life, regardless of where they may be in-world.
+   * @deprecated Use 'print' instead.
    */
   export function OwnerSay(text: string): void
 
@@ -3986,10 +3997,16 @@ declare namespace ll {
   /** Stops playback of the currently attached sound. */
   export function StopSound(): void
 
-  /** Returns an integer that is the number of characters in Text (not counting the null). */
+  /**
+   * Returns an integer that is the number of characters in Text (not counting the null).
+   * @deprecated Use 'utf8.len' or '#' or 'string.len' instead.
+   */
   export function StringLength(text: string): number
 
-  /** Returns the string Base64 representation of the input string. */
+  /**
+   * Returns the string Base64 representation of the input string.
+   * @deprecated Use 'llbase64.encode' instead.
+   */
   export function StringToBase64(text: string): string
 
   /**
@@ -5808,19 +5825,40 @@ declare const TRAVERSAL_TYPE_NONE: number
 declare const TRAVERSAL_TYPE_SLOW: number
 /** 6.28318530 - The radians of a circle. */
 declare const TWO_PI: number
-/** The list entry is a float. */
+/**
+ * The list entry is a float.
+ * @deprecated Use '"number"' instead.
+ */
 declare const TYPE_FLOAT: number
-/** The list entry is an integer. */
+/**
+ * The list entry is an integer.
+ * @deprecated Use '"number"' instead.
+ */
 declare const TYPE_INTEGER: number
-/** The list entry is invalid. */
+/**
+ * The list entry is invalid.
+ * @deprecated Use 'nil' instead.
+ */
 declare const TYPE_INVALID: number
-/** The list entry is a key. */
+/**
+ * The list entry is a key.
+ * @deprecated Use '"uuid"' instead.
+ */
 declare const TYPE_KEY: number
-/** The list entry is a rotation. */
+/**
+ * The list entry is a rotation.
+ * @deprecated Use '"quaternion"' instead.
+ */
 declare const TYPE_ROTATION: number
-/** The list entry is a string. */
+/**
+ * The list entry is a string.
+ * @deprecated Use '"string"' instead.
+ */
 declare const TYPE_STRING: number
-/** The list entry is a vector. */
+/**
+ * The list entry is a vector.
+ * @deprecated Use '"vector"' instead.
+ */
 declare const TYPE_VECTOR: number
 declare const URL_REQUEST_DENIED: string
 declare const URL_REQUEST_GRANTED: string

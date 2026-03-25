@@ -11,6 +11,7 @@ If TypeScript is where you're productive, you don't need to learn a new language
 | [`@gwigz/slua-types`](packages/types)             | Auto-generated TypeScript declarations for all SLua/LSL APIs |
 | [`@gwigz/slua-tstl-plugin`](packages/tstl-plugin) | TSTL plugin enforcing SLua constraints                       |
 | [`@gwigz/slua-modules`](packages/modules)         | Shared runtime modules (config helpers, testing utilities)   |
+| [`@gwigz/slua-create`](packages/create)           | CLI scaffolding tool for new SLua projects                   |
 
 ## Examples
 
@@ -32,6 +33,16 @@ These packages also pair well with the TSTL pipeline, and LSL HTTP-in features:
 | [`slick-css`](https://github.com/gwigz/slick-css)                     | A shadcn-style classless CSS semantic component library                     |
 
 ## Quick Start
+
+Scaffold a new project with the CLI:
+
+```bash
+bunx @gwigz/slua-create
+```
+
+This walks you through template selection, optional extras (JSX, config module, StyLua, linting), and generates a ready-to-build project.
+
+### Manual Setup
 
 Install the packages:
 
@@ -154,16 +165,17 @@ local pos = vector.create(128, 128, 20)
 
 ```
 ├── packages/
-│   ├── types/          # auto-generated .d.ts declarations
-│   ├── tstl-plugin/    # TSTL plugin for SLua constraints
-│   └── modules/        # shared runtime modules
+│   ├── types/            # auto-generated .d.ts declarations
+│   ├── tstl-plugin/      # TSTL plugin for SLua constraints
+│   ├── modules/          # shared runtime modules
+│   └── create/           # CLI scaffolding tool
 ├── tools/
-│   └── gen-types/      # type generation tool (YAML -> .d.ts)
+│   └── gen-types/        # type generation tool (YAML -> .d.ts)
 ├── examples/
-│   ├── getting-started/   # minimal example
-│   ├── kitchen-sink/      # feature showcase
-│   ├── sim-wide-relay/    # multi-script relay system
-│   └── weather-fetcher/   # HTTP request example
+│   ├── getting-started/  # minimal example
+│   ├── kitchen-sink/     # feature showcase
+│   ├── sim-wide-relay/   # multi-script relay system
+│   └── weather-fetcher/  # HTTP request example
 └── refs/
     └── lsl-definitions/  # upstream YAML definitions (submodule)
 ```

@@ -1,0 +1,14 @@
+export const VERSIONS = {
+  "typescript-to-lua": "^1.34.0",
+  "@typescript-to-lua/language-extensions": "^1.19.0",
+  "@gwigz/slua-tstl-plugin": "^1.1.0",
+  "@gwigz/slua-types": "^1.0.0",
+  "@gwigz/tstl-bundle-flatten": "^1.0.0",
+  "@gwigz/slua-modules": "^0.1.0",
+  "@gwigz/jsx-inline": "^1.1.0",
+  "@johnnymorganz/stylua-bin": "^2.4.0",
+  "@types/node": "^25.5.0",
+  tsx: "^4.21.0",
+  oxlint: "^1.57.0",
+  oxfmt: "^0.42.0",
+} as const

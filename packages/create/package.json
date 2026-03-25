@@ -1,0 +1,29 @@
+{
+  "name": "@gwigz/slua-create",
+  "version": "0.0.1",
+  "description": "Scaffold new TSTL-powered SLua projects",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gwigz/slua.git",
+    "directory": "packages/create"
+  },
+  "bin": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.9.1",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0"
+  }
+}

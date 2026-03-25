@@ -1,0 +1,11 @@
+{
+  "name": "@gwigz/slua-gen-api-docs",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ts-morph": "^27.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0"
+  }
+}

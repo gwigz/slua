@@ -1,114 +1,83 @@
 /**
  * Generates the ll namespace API reference page for Fumadocs.
  *
- * Reads packages/types/index.d.ts, extracts all functions from the
- * `declare namespace ll { ... }` block, and outputs an MDX page with:
+ * Uses ts-morph to parse packages/types/index.d.ts, extracts all functions
+ * from the `declare namespace ll { ... }` block, and outputs an MDX page with:
  * - Alphabetically grouped sections (A, B, C, ...)
  * - Each function with its JSDoc description and typed signature(s)
- * - Overloaded functions grouped under one heading
  * - Search-friendly text: ll.FunctionName, llFunctionName, FunctionName
  * - Deprecated functions shown with a callout and reason
+ * - Links to the official LSL reference for each function
  *
  * Usage: bun tools/gen-api-docs/generate-ll.ts
  */
 
-import { readFileSync, writeFileSync } from "fs"
-import { resolve, dirname } from "path"
-import { fileURLToPath } from "url"
+import { writeFileSync } from "node:fs"
+import { resolve, dirname } from "node:path"
+import { fileURLToPath } from "node:url"
+import { Project, type FunctionDeclaration } from "ts-morph"
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
 const ROOT = resolve(__dirname, "../..")
 const TYPES_FILE = resolve(ROOT, "packages/types/index.d.ts")
 const OUTPUT_FILE = resolve(ROOT, "apps/web/content/docs/api/ll.mdx")
 
-interface LLOverload {
-  signature: string
-  jsdoc: string
-  deprecated: string | null
-}
+const LSL_REF_BASE = "https://create.secondlife.com/script/lsl-reference/functions/ll"
 
 interface LLFunction {
   name: string
-  overloads: LLOverload[]
-}
-
-function extractLLNamespace(source: string): string {
-  const start = source.indexOf("declare namespace ll {")
-  if (start === -1) throw new Error("Could not find 'declare namespace ll' in types file")
-
-  let depth = 0
-  let i = source.indexOf("{", start)
-  const blockStart = i + 1
-
-  for (; i < source.length; i++) {
-    if (source[i] === "{") depth++
-    else if (source[i] === "}") {
-      depth--
-      if (depth === 0) return source.slice(blockStart, i)
-    }
-  }
-
-  throw new Error("Unterminated namespace block")
+  signature: string
+  jsdoc: string
+  deprecated: string | null
 }
 
 function escapeMdx(s: string): string {
   return s.replace(/</g, "\\<").replace(/>/g, "\\>").replace(/\{/g, "\\{").replace(/\}/g, "\\}")
 }
 
-function parseFunctions(block: string): LLFunction[] {
-  const byName = new Map<string, LLOverload[]>()
-  const order: string[] = []
+function buildSignature(fn: FunctionDeclaration): string {
+  const name = fn.getName()!
+  const typeParams = fn.getTypeParameters()
+  const typeParamStr =
+    typeParams.length > 0 ? `<${typeParams.map((tp) => tp.getText()).join(", ")}>` : ""
 
-  // Match JSDoc + export function patterns
-  const regex = /(?:\/\*\*([\s\S]*?)\*\/\s*)?export function (\w+)\(([\s\S]*?)\):\s*([^\n]+)/g
-  let match: RegExpExecArray | null
+  const params = fn.getParameters().map((p) => {
+    const paramName = p.getName()
+    const optional = p.isOptional() ? "?" : ""
+    const type = p.getTypeNode()?.getText() ?? "unknown"
 
-  while ((match = regex.exec(block)) !== null) {
-    const [, rawJsdoc, name, params, returnType] = match
+    return `${paramName}${optional}: ${type}`
+  })
 
-    let jsdoc = ""
-    let deprecated: string | null = null
+  const returnType = fn.getReturnTypeNode()?.getText() ?? "void"
+  return `function ${name}${typeParamStr}(${params.join(", ")}): ${returnType}`
+}
 
-    if (rawJsdoc) {
-      const lines = rawJsdoc.split("\n").map((line) => line.replace(/^\s*\*\s?/, "").trim())
+function extractJsDoc(fn: FunctionDeclaration): { description: string; deprecated: string | null } {
+  const jsDocs = fn.getJsDocs()
+  if (jsDocs.length === 0) return { description: "", deprecated: null }
 
-      // Extract @deprecated reason
-      const deprecatedLine = lines.find((l) => l.startsWith("@deprecated"))
-      if (deprecatedLine) {
-        deprecated =
-          deprecatedLine.replace(/^@deprecated\s*/, "").trim() || "This function is deprecated."
+  let description = ""
+  let deprecated: string | null = null
+
+  for (const doc of jsDocs) {
+    // Extract @deprecated tag
+    for (const tag of doc.getTags()) {
+      if (tag.getTagName() === "deprecated") {
+        const comment = tag.getCommentText()?.trim()
+        deprecated = comment || "This function is deprecated."
       }
-
-      // Description: non-empty, non-tag lines
-      jsdoc = escapeMdx(
-        lines
-          .filter((line) => !line.startsWith("@") && line.length > 0)
-          .join(" ")
-          .trim(),
-      )
     }
 
-    // Clean up params (normalize whitespace)
-    const cleanParams = params
-      .split("\n")
-      .map((l) => l.trim())
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim()
-
-    const signature = `function ${name}(${cleanParams}): ${returnType.trim()}`
-
-    if (!byName.has(name)) {
-      byName.set(name, [])
-      order.push(name)
+    // Extract description (non-tag text)
+    const comment = doc.getCommentText()?.trim()
+    if (comment) {
+      description = escapeMdx(comment)
     }
-    byName.get(name)!.push({ signature, jsdoc, deprecated })
   }
 
-  return order.map((name) => ({
-    name,
-    overloads: byName.get(name)!,
-  }))
+  return { description, deprecated }
 }
 
 function groupByLetter(fns: LLFunction[]): Map<string, LLFunction[]> {
@@ -116,11 +85,19 @@ function groupByLetter(fns: LLFunction[]): Map<string, LLFunction[]> {
 
   for (const fn of fns) {
     const letter = fn.name[0].toUpperCase()
-    if (!groups.has(letter)) groups.set(letter, [])
+
+    if (!groups.has(letter)) {
+      groups.set(letter, [])
+    }
+
     groups.get(letter)!.push(fn)
   }
 
   return new Map([...groups.entries()].toSorted(([a], [b]) => a.localeCompare(b)))
+}
+
+function lslRefUrl(name: string): string {
+  return `${LSL_REF_BASE}${name.toLowerCase()}`
 }
 
 function generateMdx(functions: LLFunction[]): string {
@@ -140,41 +117,35 @@ function generateMdx(functions: LLFunction[]): string {
     lines.push(``)
 
     for (const fn of fns) {
-      const deprecated = fn.overloads.find((o) => o.deprecated)?.deprecated
-
-      // Heading with function name
-      if (deprecated) {
-        lines.push(`### ~~${fn.name}~~`)
+      if (fn.deprecated) {
+        lines.push(`### <del>${fn.name}</del> \\{#${fn.name}\\}`)
       } else {
         lines.push(`### ${fn.name}`)
       }
 
       lines.push(``)
 
-      // Search keywords: ll.PlaySound and llPlaySound
-      lines.push(`\`ll.${fn.name}\` · \`ll${fn.name}\``)
+      // Search keywords: ll.Name for SLua style, llName links to LSL reference
+      lines.push(`\`ll.${fn.name}\` · [\`ll${fn.name}\`](${lslRefUrl(fn.name)})`)
       lines.push(``)
 
       // Deprecated callout
-      if (deprecated) {
+      if (fn.deprecated) {
         lines.push(`<Callout type="warn" title="Deprecated">`)
-        lines.push(escapeMdx(deprecated))
+        lines.push(escapeMdx(fn.deprecated))
         lines.push(`</Callout>`)
         lines.push(``)
       }
 
       // Description
-      const jsdoc = fn.overloads.find((o) => o.jsdoc)?.jsdoc
-      if (jsdoc) {
-        lines.push(jsdoc)
+      if (fn.jsdoc) {
+        lines.push(fn.jsdoc)
         lines.push(``)
       }
 
-      // Signature(s) as code block
+      // Signature
       lines.push("```ts")
-      for (const overload of fn.overloads) {
-        lines.push(overload.signature)
-      }
+      lines.push(fn.signature)
       lines.push("```")
       lines.push(``)
     }
@@ -184,11 +155,29 @@ function generateMdx(functions: LLFunction[]): string {
 }
 
 // Main
-const source = readFileSync(TYPES_FILE, "utf-8")
-const block = extractLLNamespace(source)
-const functions = parseFunctions(block)
+const project = new Project({ compilerOptions: { strict: true } })
+const sourceFile = project.addSourceFileAtPath(TYPES_FILE)
 
-const deprecatedCount = functions.filter((fn) => fn.overloads.some((o) => o.deprecated)).length
+// Find `declare namespace ll { ... }`
+const llNamespace = sourceFile
+  .getModules()
+  .find((m) => m.getName() === "ll" && m.hasNamespaceKeyword())
+
+if (!llNamespace) {
+  throw new Error("Could not find 'declare namespace ll' in types file")
+}
+
+const exportedFunctions = llNamespace.getFunctions().filter((fn) => fn.isExported())
+
+const functions: LLFunction[] = exportedFunctions.map((fn) => {
+  const name = fn.getName()!
+  const signature = buildSignature(fn)
+  const { description, deprecated } = extractJsDoc(fn)
+
+  return { name, signature, jsdoc: description, deprecated }
+})
+
+const deprecatedCount = functions.filter((fn) => fn.deprecated).length
 
 console.log(
   `Parsed ${functions.length} unique functions (${deprecatedCount} deprecated) from ll namespace`,

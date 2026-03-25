@@ -25,11 +25,11 @@ I use this toolchain for my own projects, it's how I find the rough edges:
 
 These packages also pair well with the TSTL pipeline, and LSL HTTP-in features:
 
-| Project                                                               | Description                                                               |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [`tstl-bundle-flatten`](https://github.com/gwigz/tstl-bundle-flatten) | TSTL plugin that flattens luaBundle output, eliminating the module system |
-| [`jsx-inline`](https://github.com/gwigz/jsx-inline)                   | Compiles JSX templates into optimized inline string literals              |
-| [`slick-css`](https://github.com/gwigz/slick-css)                     | A shadcn-style classless CSS semantic component library                   |
+| Project                                                               | Description                                                                 |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [`tstl-bundle-flatten`](https://github.com/gwigz/tstl-bundle-flatten) | TSTL plugin that flattens `luaBundle` output, eliminating the module system |
+| [`jsx-inline`](https://github.com/gwigz/jsx-inline)                   | Compiles JSX templates into optimized inline string literals                |
+| [`slick-css`](https://github.com/gwigz/slick-css)                     | A shadcn-style classless CSS semantic component library                     |
 
 ## Quick Start
 
@@ -76,7 +76,7 @@ Map `.slua` to Lua highlighting in VS Code (and forks):
 
 Tell GitHub to highlight `.slua` files as Lua:
 
-```
+```ini
 # .gitattributes
 *.slua linguist-language=Lua
 ```

@@ -12,6 +12,7 @@
     "build:examples": "bun run build && bun run --filter '@gwigz/slua-example-*' build",
     "test": "bun test packages/ tools/",
     "generate": "bun tools/gen-types/src/index.ts refs/lsl-definitions/slua_definitions.yaml refs/lsl-definitions/lsl_definitions.yaml -o packages/types/index.d.ts && oxfmt --write packages/types/index.d.ts",
+    "generate:docs": "bun tools/gen-api-docs/generate-ll.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt --write .",

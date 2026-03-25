@@ -118,7 +118,7 @@ function generateMdx(functions: LLFunction[]): string {
 
     for (const fn of fns) {
       if (fn.deprecated) {
-        lines.push(`### <del>${fn.name}</del> \\{#${fn.name}\\}`)
+        lines.push(`### ~~${fn.name}~~`)
       } else {
         lines.push(`### ${fn.name}`)
       }

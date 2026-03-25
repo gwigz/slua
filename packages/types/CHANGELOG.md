@@ -1,5 +1,15 @@
 # @gwigz/slua-types
 
+## 1.0.2
+
+### Patch Changes
+
+- [#11](https://github.com/gwigz/slua/pull/11) [`9f93192`](https://github.com/gwigz/slua/commit/9f931923f6b59e0216e4323331feecbd798be934) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update SLua definitions submodule to latest upstream
+
+- [`902b8fd`](https://github.com/gwigz/slua/commit/902b8fd6f845a62d233bf28b5f33928e457f1af6) Thanks [@gwigz](https://github.com/gwigz)! - fix missing deprecated tags
+
+- [`4e9b96f`](https://github.com/gwigz/slua/commit/4e9b96fccbc7ddb327f5a85fe267e79ca169b2b3) Thanks [@gwigz](https://github.com/gwigz)! - camel-case adjustments
+
 ## 1.0.1
 
 ### Patch Changes

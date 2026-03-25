@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-types",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TypeScript type definitions for Second Life's SLua runtime",
   "license": "MIT",
   "repository": {

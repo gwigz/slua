@@ -10,13 +10,26 @@ If TypeScript is where you're productive, you don't need to learn a new language
 | ------------------------------------------------- | ------------------------------------------------------------ |
 | [`@gwigz/slua-types`](packages/types)             | Auto-generated TypeScript declarations for all SLua/LSL APIs |
 | [`@gwigz/slua-tstl-plugin`](packages/tstl-plugin) | TSTL plugin enforcing SLua constraints                       |
+| [`@gwigz/slua-modules`](packages/modules)         | Shared runtime modules (config helpers, testing utilities)   |
 
-## Real-world usage
+## Examples
 
 I use this toolchain for my own projects, it's how I find the rough edges:
 
-- [`examples/sim-wide-relay`](examples/sim-wide-relay) -- Region-wide chat relay, deployed at my favorite sim
-- [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) -- Skips the rez-edit-take-replace cycle; patches rezzables using `ll.DerezObject`
+| Project                                                             | Description                                                                     |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [`examples/sim-wide-relay`](examples/sim-wide-relay)                | Region-wide chat relay, deployed at my favorite sim                             |
+| [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) | Skips the rez-edit-take-replace cycle; patches rezzables using `ll.DerezObject` |
+
+### Related Projects
+
+These packages also pair well with the TSTL pipeline, and LSL HTTP-in features:
+
+| Project                                                               | Description                                                               |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| [`tstl-bundle-flatten`](https://github.com/gwigz/tstl-bundle-flatten) | TSTL plugin that flattens luaBundle output, eliminating the module system |
+| [`jsx-inline`](https://github.com/gwigz/jsx-inline)                   | Compiles JSX templates into optimized inline string literals              |
+| [`slick-css`](https://github.com/gwigz/slick-css)                     | A shadcn-style classless CSS semantic component library                   |
 
 ## Quick Start
 
@@ -142,7 +155,8 @@ local pos = vector.create(128, 128, 20)
 ```
 ├── packages/
 │   ├── types/          # auto-generated .d.ts declarations
-│   └── tstl-plugin/    # TSTL plugin for SLua constraints
+│   ├── tstl-plugin/    # TSTL plugin for SLua constraints
+│   └── modules/        # shared runtime modules
 ├── tools/
 │   └── gen-types/      # type generation tool (YAML -> .d.ts)
 ├── examples/
@@ -153,3 +167,11 @@ local pos = vector.create(128, 128, 20)
 └── refs/
     └── lsl-definitions/  # upstream YAML definitions (submodule)
 ```
+
+# Resources
+
+| Resource                                                           | Description                                     |
+| ------------------------------------------------------------------ | ----------------------------------------------- |
+| [Creator Portal](https://create.secondlife.com)                    | Second Life creator tools and documentation     |
+| [VSCode Extension](https://github.com/secondlife/sl-vscode-plugin) | SLua language support for VS Code by Linden Lab |
+| [LSL Definitions](https://github.com/secondlife/lsl-definitions)   | LSL and SLua API definitions by Linden Lab      |

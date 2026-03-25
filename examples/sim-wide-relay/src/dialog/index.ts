@@ -91,10 +91,10 @@ LLEvents.on("listen", (channel, _name, id, text) => {
 // Periodic cleanup of stale pending actions
 LLTimers.every(config.PENDING_TIMEOUT, cleanupStale)
 
-loadConfig(NOTECARD_NAME, config, () => {
+loadConfig(NOTECARD_NAME, { config }, () => {
   startListening()
 
-  onConfigChanged(NOTECARD_NAME, config, () => {
+  onConfigChanged(NOTECARD_NAME, { config }, () => {
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
     startListening()
   })

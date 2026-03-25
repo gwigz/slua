@@ -31,7 +31,11 @@ const BASE_OPTIONS: tstl.CompilerOptions = {
   noImplicitSelf: true,
   noImplicitGlobalVariables: true,
   luaPlugins: [
-    { name: "@gwigz/slua-tstl-plugin", optimize: true },
+    {
+      name: "@gwigz/slua-tstl-plugin",
+      optimize: true,
+      define: { CONFIG_YAML_PARSER: true, CONFIG_LLJSON_PARSER: false },
+    },
     { name: "@gwigz/tstl-bundle-flatten" },
   ],
 }
@@ -66,10 +70,10 @@ function reportDiagnostics(diagnostics: readonly Diagnostic[]) {
     }
 
     if (diagnostic.category === ts.DiagnosticCategory.Error) {
-      console.error("error:", msg)
+      console.error("Error:", msg)
       hasErrors = true
     } else if (diagnostic.category === ts.DiagnosticCategory.Warning) {
-      console.warn("warning:", msg)
+      console.warn("Warning:", msg)
     }
   }
 
@@ -80,7 +84,11 @@ function build() {
   let hasErrors = false
 
   for (const script of SCRIPTS) {
-    const files = [resolve(`src/${script}/index.ts`), resolve("src/shared.ts")]
+    const files = [
+      resolve(`src/${script}/index.ts`),
+      resolve("src/shared.ts"),
+      resolve("../../packages/modules/src/config/flags.d.ts"),
+    ]
 
     const result = tstl.transpileFiles(files, {
       ...BASE_OPTIONS,
@@ -147,10 +155,8 @@ if (WATCH) {
 
     debounce = setTimeout(() => {
       debounce = null
-
       console.log(`\nRebuilding...`)
-
       build()
-    }, 100)
+    }, 50)
   })
 }

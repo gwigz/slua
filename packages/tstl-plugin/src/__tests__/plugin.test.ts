@@ -1,6 +1,6 @@
 import { describe, it, expect } from "bun:test"
-import { readFileSync } from "fs"
-import { resolve } from "path"
+import { readFileSync } from "node:fs"
+import { resolve } from "node:path"
 import * as ts from "typescript"
 import * as tstl from "typescript-to-lua"
 import createPlugin from "../index"
@@ -8,10 +8,12 @@ import {
   transpile as transpileSimple,
   transpileFull as transpile,
   transpileOptimized,
+  transpileWithDefine,
   initFull,
 } from "./helpers"
 
 const TYPES_PATH = resolve(import.meta.dir, "../../../../packages/types/index.d.ts")
+
 const LANG_EXT_PATH = resolve(
   import.meta.dir,
   "../../../../node_modules/@typescript-to-lua/language-extensions/index.d.ts",
@@ -1099,5 +1101,287 @@ describe("passthrough arrow closures", () => {
     )
 
     expect(lua).toContain("function()")
+  })
+})
+
+describe("define", () => {
+  it("replaces boolean define with literal", () => {
+    const lua = transpileWithDefine("declare const FEATURE_X: boolean\nconst x = FEATURE_X", {
+      FEATURE_X: true,
+    })
+
+    expect(lua).toContain("x = true")
+    expect(lua).not.toContain("FEATURE_X")
+  })
+
+  it("replaces numeric define with literal", () => {
+    const lua = transpileWithDefine("declare const VERSION: number\nconst v = VERSION", {
+      VERSION: 42,
+    })
+
+    expect(lua).toContain("v = 42")
+    expect(lua).not.toContain("VERSION")
+  })
+
+  it("replaces string define with literal", () => {
+    const lua = transpileWithDefine("declare const MODE: string\nconst m = MODE", {
+      MODE: "production",
+    })
+
+    expect(lua).toContain('"production"')
+    expect(lua).not.toContain("MODE")
+  })
+
+  it("does not replace property access names", () => {
+    const lua = transpileWithDefine(
+      "declare const obj: { FEATURE_X: boolean }\nconst x = obj.FEATURE_X",
+      { FEATURE_X: true },
+    )
+
+    expect(lua).toContain("obj.FEATURE_X")
+  })
+
+  it("does not replace declaration names", () => {
+    const lua = transpileWithDefine("const FEATURE_X = 123", { FEATURE_X: true })
+
+    expect(lua).toContain("FEATURE_X")
+    expect(lua).toContain("123")
+  })
+
+  it("leaves undefined identifiers untouched", () => {
+    const lua = transpileWithDefine("declare const OTHER: boolean\nconst x = OTHER", {
+      FEATURE_X: true,
+    })
+
+    expect(lua).toContain("OTHER")
+  })
+})
+
+describe("@define JSDoc tag", () => {
+  it("strips function when flag is false", () => {
+    const lua = transpileWithDefine(`/** @define FEATURE_X */\nfunction helper() { return 1 }`, {
+      FEATURE_X: false,
+    })
+
+    expect(lua).not.toContain("helper")
+  })
+
+  it("keeps function when flag is true", () => {
+    const lua = transpileWithDefine(`/** @define FEATURE_X */\nfunction helper() { return 1 }`, {
+      FEATURE_X: true,
+    })
+
+    expect(lua).toContain("helper")
+  })
+
+  it("strips variable when flag is false", () => {
+    const lua = transpileWithDefine(`/** @define FEATURE_X */\nconst MAGIC = 42`, {
+      FEATURE_X: false,
+    })
+
+    expect(lua).not.toContain("MAGIC")
+    expect(lua).not.toContain("42")
+  })
+
+  it("keeps variable when flag is true", () => {
+    const lua = transpileWithDefine(`/** @define FEATURE_X */\nconst MAGIC = 42`, {
+      FEATURE_X: true,
+    })
+
+    expect(lua).toContain("42")
+  })
+
+  it("keeps declaration when flag is not in define map", () => {
+    const lua = transpileWithDefine(`/** @define UNKNOWN */\nfunction helper() { return 1 }`, {
+      FEATURE_X: true,
+    })
+
+    expect(lua).toContain("helper")
+  })
+
+  it("strips @define tag from Lua output", () => {
+    const lua = transpileWithDefine(`/** @define FEATURE_X */\nfunction helper() { return 1 }`, {
+      FEATURE_X: true,
+    })
+
+    expect(lua).not.toContain("@define")
+  })
+
+  it("strips multi-line @define JSDoc completely", () => {
+    const lua = transpileWithDefine(
+      `/**
+ * @define FEATURE_X
+ * compile time gate for YAML parsing
+ */
+function helper() { return 1 }`,
+      { FEATURE_X: true },
+    )
+
+    expect(lua).not.toContain("@define")
+    expect(lua).not.toContain("compile time")
+    expect(lua).toContain("helper")
+  })
+})
+
+describe("dead code elimination", () => {
+  it("keeps then-branch when condition is true", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (FEATURE) {
+  const x = 1
+}`,
+      { FEATURE: true },
+    )
+
+    expect(lua).toContain("x = 1")
+    expect(lua).not.toContain("if")
+  })
+
+  it("eliminates entire block when condition is false and no else", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (FEATURE) {
+  const x = 1
+}`,
+      { FEATURE: false },
+    )
+
+    expect(lua).not.toContain("x =")
+    expect(lua).not.toContain("if")
+  })
+
+  it("keeps else-branch when condition is false", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (FEATURE) {
+  const x = 1
+} else {
+  const y = 2
+}`,
+      { FEATURE: false },
+    )
+
+    expect(lua).not.toContain("x = 1")
+    expect(lua).toContain("y = 2")
+    expect(lua).not.toContain("if")
+  })
+
+  it("handles negation: !FLAG", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (!FEATURE) {
+  const x = 1
+}`,
+      { FEATURE: true },
+    )
+
+    expect(lua).not.toContain("x =")
+    expect(lua).not.toContain("if")
+  })
+
+  it("handles strict equality: FLAG === true", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (FEATURE === true) {
+  const x = 1
+}`,
+      { FEATURE: true },
+    )
+
+    expect(lua).toContain("x = 1")
+    expect(lua).not.toContain("if")
+  })
+
+  it("handles strict inequality: FLAG !== false", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (FEATURE !== false) {
+  const x = 1
+}`,
+      { FEATURE: true },
+    )
+
+    expect(lua).toContain("x = 1")
+    expect(lua).not.toContain("if")
+  })
+
+  it("handles else-if chains", () => {
+    const lua = transpileWithDefine(
+      `declare const A: boolean
+declare const B: boolean
+if (A) {
+  const x = 1
+} else if (B) {
+  const y = 2
+} else {
+  const z = 3
+}`,
+      { A: false, B: true },
+    )
+
+    expect(lua).not.toContain("x = 1")
+    expect(lua).toContain("y = 2")
+    expect(lua).not.toContain("z = 3")
+  })
+
+  it("falls through else-if chain to else", () => {
+    const lua = transpileWithDefine(
+      `declare const A: boolean
+declare const B: boolean
+if (A) {
+  const x = 1
+} else if (B) {
+  const y = 2
+} else {
+  const z = 3
+}`,
+      { A: false, B: false },
+    )
+
+    expect(lua).not.toContain("x = 1")
+    expect(lua).not.toContain("y = 2")
+    expect(lua).toContain("z = 3")
+  })
+
+  it("does not wrap kept then-branch in do...end", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (FEATURE) {
+  const x = 1
+}`,
+      { FEATURE: true },
+    )
+
+    expect(lua).toContain("x = 1")
+    expect(lua).not.toContain("do")
+    expect(lua).not.toContain("end")
+  })
+
+  it("does not wrap kept else-branch in do...end", () => {
+    const lua = transpileWithDefine(
+      `declare const FEATURE: boolean
+if (FEATURE) {
+  const x = 1
+} else {
+  const y = 2
+}`,
+      { FEATURE: false },
+    )
+
+    expect(lua).toContain("y = 2")
+    expect(lua).not.toContain("do")
+    expect(lua).not.toContain("end")
+  })
+
+  it("delegates unresolvable conditions to normal transpiler", () => {
+    const lua = transpileWithDefine(
+      `declare const runtime: boolean
+if (runtime) {
+  const x = 1
+}`,
+      { FEATURE: true },
+    )
+
+    expect(lua).toContain("if runtime then")
   })
 })

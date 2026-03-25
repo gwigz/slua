@@ -294,12 +294,11 @@ function handleRelayedMessage(text: string) {
   })
 }
 
-loadConfig(NOTECARD_NAME, config, () => {
+loadConfig(NOTECARD_NAME, { config }, () => {
   startListening()
 
-  onConfigChanged(NOTECARD_NAME, config, () => {
+  onConfigChanged(NOTECARD_NAME, { config }, () => {
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
-
     startListening()
   })
 })

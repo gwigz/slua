@@ -124,6 +124,28 @@ const mockLL: Record<string, (...args: any[]) => any> = {
 }
 
 // ---
+// Mock lljson
+// ---
+
+const mockLljson = {
+  encode(value: unknown): string {
+    return JSON.stringify(value)
+  },
+
+  decode(text: string): any {
+    return JSON.parse(text)
+  },
+
+  slencode(value: unknown): string {
+    return JSON.stringify(value)
+  },
+
+  sldecode(text: string): any {
+    return JSON.parse(text)
+  },
+}
+
+// ---
 // Mock tonumber
 // ---
 
@@ -146,6 +168,9 @@ const GLOBAL_KEYS = [
   "NULL_KEY",
   "DEBUG_CHANNEL",
   "tonumber",
+  "lljson",
+  "CONFIG_YAML_PARSER",
+  "CONFIG_LLJSON_PARSER",
 ] as const
 
 const savedGlobals: Record<string, any> = {}
@@ -178,6 +203,9 @@ export function setup(): void {
   g.NULL_KEY = NULL_KEY_VALUE
   g.DEBUG_CHANNEL = DEBUG_CHANNEL_VALUE
   g.tonumber = mockToNumber
+  g.lljson = mockLljson
+  g.CONFIG_YAML_PARSER = true
+  g.CONFIG_LLJSON_PARSER = false
 }
 
 /**

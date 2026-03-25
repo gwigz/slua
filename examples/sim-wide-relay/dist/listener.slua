@@ -43,10 +43,22 @@ local function __TS__ArrayMap(self, callbackfn, thisArg)
 	return result
 end
 
--- End of Lua Library inline imports
-local forceCache
+local function __TS__ObjectAssign(target, ...)
+	local sources = { ... }
 
-function forceCache(notecard, callback)
+	for i = 1, #sources do
+		local source = sources[i]
+
+		for key in pairs(source) do
+			target[key] = source[key]
+		end
+	end
+
+	return target
+end
+
+-- End of Lua Library inline imports
+local function forceCache(notecard, callback)
 	local requestId = ll.GetNotecardLine(notecard, 1)
 
 	local function handler(id, _data)
@@ -61,6 +73,8 @@ function forceCache(notecard, callback)
 	LLEvents:on("dataserver", handler)
 end
 
+---
+-- @internal Read a notecard line-by-line, force-caching if needed.
 local function readNotecardSync(notecard, callback)
 	local lines = {}
 	local lineNum = 0
@@ -81,12 +95,14 @@ local function readNotecardSync(notecard, callback)
 		end
 
 		lines[#lines + 1] = line
-		lineNum += 1
+		lineNum = lineNum + 1
 	end
 
 	callback(lines)
 end
 
+---
+-- @internal Parse yml-style `key: value` lines into a flat string map.
 local function parseLines(lines)
 	local parsed = {}
 
@@ -112,6 +128,8 @@ local function parseLines(lines)
 	return parsed
 end
 
+---
+-- @internal Apply yml-parsed string values to a config object, coercing types based on defaults.
 local function applyConfig(config, parsed)
 	for key in pairs(parsed) do
 		if config[key] == nil then
@@ -141,40 +159,77 @@ local function applyConfig(config, parsed)
 	end
 end
 
---- Read a settings notecard and apply the values to the config object
+---
+-- @internal Dispatch to the correct parser based on `type` and compile-time flags.
+local function applyFromLines(config, lines, ____type)
+	applyConfig(config, parseLines(lines))
+end
+
+--- Read a settings notecard and apply values to `config` in-place.
 --
+-- @typeParam T - Config shape, inferred from `options.config`.
+-- @param notecard - Name of the notecard in the object's inventory.
+-- @param options - Config options including the target object and optional format.
+-- @param callback - Called once the notecard has been read and applied.
 -- @example ```ts
 -- const config = {
---   // default values
---   // note these are required to correctly type the config object
---   // any missing values here will not be read from the notecard
 --   PRIVATE_CHANNEL: -1731704569,
 --   WELCOME_MESSAGE: "Welcome",
 --   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000"],
 -- }
 --
--- loadConfig("settings.yml", config, () => {
---   // initialize your script here
---   console.log(config)
---
---   onConfigChanged("settings.yml", config, () => {
---     // update your script here
---     console.log(config)
---   })
+-- loadConfig("settings.yml", { config }, () => {
+--   ll.Say(config.PRIVATE_CHANNEL, config.WELCOME_MESSAGE)
 -- })
 -- ```
-local function loadConfig(notecard, config, callback)
+-- @example Using lljson (requires `CONFIG_LLJSON_PARSER: true`):
+-- ```ts
+-- const config = {
+-- SPAWN_POS: Vector.zero,
+-- SPAWN_ROT: Quaternion.identity,
+-- OWNER: NULL_KEY,
+-- RADIUS: 10,
+-- }
+--
+-- loadConfig("config.json", { config, type: "lljson" }, () => {
+-- ll.SetPos(config.SPAWN_POS)
+-- })
+-- ```
+local function loadConfig(notecard, options, callback)
+	local config = options.config
+	local ____type = options.type or "yml"
+
 	readNotecardSync(notecard, function(lines)
-		applyConfig(config, parseLines(lines))
+		applyFromLines(config, lines, ____type)
 		callback()
 	end)
 end
 
---- Watch for changes to a settings notecard and apply them to the config object
+--- Watch for changes to a settings notecard and re-parse on update.
 --
--- @note This will create an LLEvent listener for each call, so only use it once per notecard
-local function onConfigChanged(notecard, config, callback)
+-- Each time the notecard's inventory key changes, `config` is
+-- reset to a snapshot taken at registration time, then re-parsed
+-- from the updated notecard — the same object is mutated in-place.
+--
+-- @typeParam T - Config shape, inferred from `options.config`.
+-- @param notecard - Name of the notecard in the object's inventory.
+-- @param options - Config options including the target object and optional format.
+-- @param callback - Called once the config has been re-applied.
+-- @note Creates a persistent `changed` event listener. Call once per notecard.
+-- @example ```ts
+-- const config = { CHANNEL: 0, MESSAGE: "" }
+--
+-- loadConfig("settings.yml", { config }, () => {
+--   onConfigChanged("settings.yml", { config }, () => {
+--     ll.Say(config.CHANNEL, "Config reloaded")
+--   })
+-- })
+-- ```
+local function onConfigChanged(notecard, options, callback)
 	local lastKey = ll.GetInventoryKey(notecard)
+	local config = options.config
+	local snapshot = __TS__ObjectAssign({}, config)
+	local ____type = options.type or "yml"
 
 	LLEvents:on("changed", function(changed)
 		if not bit32.btest(changed, CHANGED_INVENTORY) then
@@ -190,7 +245,11 @@ local function onConfigChanged(notecard, config, callback)
 		lastKey = currentKey
 
 		readNotecardSync(notecard, function(lines)
-			applyConfig(config, parseLines(lines))
+			for key in pairs(snapshot) do
+				config[key] = snapshot[key]
+			end
+
+			applyFromLines(config, lines, ____type)
 			callback()
 		end)
 	end)
@@ -229,9 +288,9 @@ local function verify(text, nonce, window)
 	return nil
 end
 
-local handlePrivateMessage, assignAvatar, unassignAvatar, startFollowTimer, stopFollowTimer, moveTo, followAvatar, returnToObject, handleRelayedMessage, assignedAvatar, coordinatorId, hearHandle, commandHandle, followTimer, lastPosition, recentMessages, recentCount
+local assignAvatar, unassignAvatar, startFollowTimer, stopFollowTimer, followAvatar, returnToObject, handleRelayedMessage, assignedAvatar, coordinatorId, hearHandle, commandHandle, followTimer, lastPosition, recentMessages, recentCount
 
-function handlePrivateMessage(senderId, text)
+local function handlePrivateMessage(senderId, text)
 	if string.find(text, "RELAY|", 1, true) == 1 then
 		handleRelayedMessage(text)
 
@@ -314,7 +373,7 @@ function stopFollowTimer()
 	end
 end
 
-function moveTo(targetPos)
+local function moveTo(targetPos)
 	local myPos = ll.GetPos()
 	local distance = ll.VecDist(myPos, targetPos)
 
@@ -381,7 +440,7 @@ function handleRelayedMessage(text)
 		end
 
 		if recentMessages[hash] == nil then
-			recentCount += 1
+			recentCount = recentCount + 1
 		end
 
 		recentMessages[hash] = now
@@ -398,7 +457,7 @@ function handleRelayedMessage(text)
 		for key in pairs(recentMessages) do
 			if now - recentMessages[key] >= config.DEDUP_WINDOW then
 				recentMessages[key] = nil
-				recentCount -= 1
+				recentCount = recentCount - 1
 			end
 		end
 	end)
@@ -480,16 +539,16 @@ LLEvents:on("listen", function(channel, _name, id, text)
 	local hash = (tostring(id) .. "|") .. text
 
 	if recentMessages[hash] == nil then
-		recentCount += 1
+		recentCount = recentCount + 1
 	end
 
 	recentMessages[hash] = ll.GetTime()
 end)
 
-loadConfig(NOTECARD_NAME, config, function()
+loadConfig(NOTECARD_NAME, { config = config }, function()
 	startListening()
 
-	onConfigChanged(NOTECARD_NAME, config, function()
+	onConfigChanged(NOTECARD_NAME, { config = config }, function()
 		ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
 		startListening()
 	end)

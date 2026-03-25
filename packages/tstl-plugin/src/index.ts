@@ -20,19 +20,31 @@ import {
   isDetectedEventIndex,
   createNamespacedCall,
   createStringFindCall,
-  escapeRegex,
 } from "./utils.js"
 import { CALL_TRANSFORMS } from "./transforms.js"
 import { createOptimizeTransforms, countFilterCalls, ALL_OPTIMIZE } from "./optimize.js"
+import { tryEvaluateCondition, shouldStripDefineGuard } from "./define.js"
+import {
+  stripInternalJSDocTags,
+  stripEmptyModuleBoilerplate,
+  collapseDefaultParamNilChecks,
+  shortenTempNames,
+  collapseFieldAccesses,
+  inlineForwardDeclarations,
+} from "./lua-transforms.js"
 
+import type { ProcessedFile } from "typescript-to-lua"
 import type { CallTransform } from "./transforms.js"
 import type { OptimizeFlags } from "./optimize.js"
+import type { DefineMap } from "./define.js"
 
-export type { CallTransform, OptimizeFlags }
+export type { CallTransform, OptimizeFlags, DefineMap }
 
 export interface SluaPluginOptions {
   /** Enable per-transform output optimizations. Pass `true` to enable all. */
   optimize?: boolean | OptimizeFlags
+  /** Compile-time defines for dead code elimination. */
+  define?: Record<string, boolean | number | string>
   [key: string]: any
 }
 
@@ -41,9 +53,101 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
   const filterSkipFiles = new Set<string>()
   const optTransforms = opt.filter ? createOptimizeTransforms(filterSkipFiles) : []
   const transforms = [...CALL_TRANSFORMS, ...optTransforms]
+  const defineMap: DefineMap = new Map(options.define ? Object.entries(options.define) : [])
 
   const plugin: tstl.Plugin = {
     visitors: {
+      [ts.SyntaxKind.Identifier]:
+        defineMap.size > 0
+          ? (node: ts.Identifier, context) => {
+              const value = defineMap.get(node.text)
+              if (value === undefined) return context.superTransformExpression(node)
+
+              // Don't replace if this identifier is:
+              // - A property name in a property access (obj.CONFIG_X)
+              // - A declaration name (const CONFIG_X = ...)
+              // - A parameter name
+              // - A property assignment name ({ CONFIG_X: ... })
+              // - A shorthand property assignment name ({ CONFIG_X })
+              const parent = node.parent
+
+              if (ts.isPropertyAccessExpression(parent) && parent.name === node) {
+                return context.superTransformExpression(node)
+              }
+
+              if (
+                (ts.isVariableDeclaration(parent) ||
+                  ts.isFunctionDeclaration(parent) ||
+                  ts.isParameter(parent) ||
+                  ts.isEnumMember(parent)) &&
+                parent.name === node
+              ) {
+                return context.superTransformExpression(node)
+              }
+
+              if (ts.isPropertyAssignment(parent) && parent.name === node) {
+                return context.superTransformExpression(node)
+              }
+
+              if (ts.isShorthandPropertyAssignment(parent) && parent.name === node) {
+                return context.superTransformExpression(node)
+              }
+
+              if (typeof value === "boolean") {
+                return tstl.createBooleanLiteral(value, node)
+              }
+
+              if (typeof value === "number") {
+                return tstl.createNumericLiteral(value, node)
+              }
+
+              return tstl.createStringLiteral(value, node)
+            }
+          : undefined,
+
+      [ts.SyntaxKind.IfStatement]:
+        defineMap.size > 0
+          ? (node: ts.IfStatement, context) => {
+              const result = tryEvaluateCondition(node.expression, defineMap)
+
+              if (result === undefined) {
+                return context.superTransformStatements(node)
+              }
+
+              if (result) {
+                const stmts = ts.isBlock(node.thenStatement)
+                  ? [...node.thenStatement.statements]
+                  : [node.thenStatement]
+                return stmts.flatMap((s) => context.transformStatements(s))
+              }
+
+              if (node.elseStatement) {
+                const stmts = ts.isBlock(node.elseStatement)
+                  ? [...node.elseStatement.statements]
+                  : [node.elseStatement]
+                return stmts.flatMap((s) => context.transformStatements(s))
+              }
+
+              return []
+            }
+          : undefined,
+
+      [ts.SyntaxKind.FunctionDeclaration]:
+        defineMap.size > 0
+          ? (node: ts.FunctionDeclaration, context) => {
+              if (shouldStripDefineGuard(node, defineMap)) return []
+              return context.superTransformStatements(node)
+            }
+          : undefined,
+
+      [ts.SyntaxKind.VariableStatement]:
+        defineMap.size > 0
+          ? (node: ts.VariableStatement, context) => {
+              if (shouldStripDefineGuard(node, defineMap)) return []
+              return context.superTransformStatements(node)
+            }
+          : undefined,
+
       [ts.SyntaxKind.PropertyAccessExpression]: (node: ts.PropertyAccessExpression, context) => {
         const result = context.superTransformExpression(node)
 
@@ -316,6 +420,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
             callExpr = node.body
           } else if (ts.isBlock(node.body) && node.body.statements.length === 1) {
             const stmt = node.body.statements[0]
+
             if (ts.isExpressionStatement(stmt) && ts.isCallExpression(stmt.expression)) {
               callExpr = stmt.expression
             } else if (
@@ -374,187 +479,41 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       return diagnostics
     },
 
-    beforeEmit(program, _options, _emitHost, result) {
-      // Strip internal @indexArg / @indexReturn JSDoc tags from Lua comments.
-      // These are only consumed by the plugin at transpile time; they should
-      // not leak into the output as Lua comments.
+    afterPrint(program, _options, emitHost, result: ProcessedFile[]) {
       for (const file of result) {
-        file.code = file.code
-          .replace(/^--\s*@index(?:Arg|Return)\b.*\n/gm, "")
-          .replace(/^(---.*)\n(?:-- *\n)+(?=local |ll\.)/gm, "$1\n")
-      }
+        if (!file.luaAst) continue
+        let dirty = false
 
-      // Strip empty module boilerplate from files without explicit exports.
-      // `moduleDetection: "force"` causes TSTL to wrap every file as a module;
-      // standalone SLua scripts don't need the ____exports wrapper.
-      for (const file of result) {
-        if (!file.code.includes("local ____exports = {}\n")) continue
-        if (!file.code.trimEnd().endsWith("return ____exports")) continue
+        // Always-on transforms
+        dirty = stripInternalJSDocTags(file.luaAst) || dirty
+        dirty = stripEmptyModuleBoilerplate(file.luaAst, file.sourceFiles) || dirty
 
-        const hasExplicitExports = file.sourceFiles?.some((sf) =>
-          sf.statements.some(
-            (s) =>
-              ts.isExportDeclaration(s) ||
-              ts.isExportAssignment(s) ||
-              (ts.canHaveModifiers(s) &&
-                ts.getModifiers(s)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)),
-          ),
-        )
+        // Opt-in transforms
+        if (opt.defaultParams) dirty = collapseDefaultParamNilChecks(file.luaAst) || dirty
 
-        if (!hasExplicitExports) {
-          file.code = file.code
-            .replace(/local ____exports = \{\}\n/, "")
-            .replace(/\nreturn ____exports\n?$/, "\n")
+        if (opt.shortenTemps) {
+          dirty = shortenTempNames(file.luaAst) || dirty
+          dirty = collapseFieldAccesses(file.luaAst) || dirty
         }
-      }
 
-      // Collapse default-parameter nil-checks into `x = x or <literal>`.
-      // Safe for strings and numbers (both truthy in Lua); skips `false`.
-      if (opt.defaultParams) {
-        const nilCheck =
-          /^(\s*)if (\w+) == nil then\n\1\s+\2 = ("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|-?\d+(?:\.\d+)?)\n\1end$/gm
+        if (opt.inlineLocals) dirty = inlineForwardDeclarations(file.luaAst) || dirty
 
-        for (const file of result) {
-          file.code = file.code.replace(nilCheck, "$1$2 = $2 or $3")
+        // Re-print if AST was modified
+        if (dirty) {
+          const printer = new tstl.LuaPrinter(emitHost, program, file.fileName)
+          const printed = printer.print(file.luaAst)
+
+          file.code = printed.code
+          file.sourceMap = printed.sourceMap
+          file.sourceMapNode = printed.sourceMapNode
         }
-      }
 
-      // Shorten TSTL destructuring temp names: ____fn_result_N -> _rN
-      // Then collapse consecutive field accesses into multi-assignment:
-      // local a = _r0.x\nlocal b = _r0.y -> local a, b = _r0.x, _r0.y
-      if (opt.shortenTemps) {
-        for (const file of result) {
-          const seen = new Map<string, string>()
-          let counter = 0
-
-          // Collect all unique temp names in order of first occurrence
-          for (const match of file.code.matchAll(/____\w+_result_\d+/g)) {
-            if (!seen.has(match[0])) {
-              seen.set(match[0], `_r${counter++}`)
-            }
-          }
-
-          // Replace all long names with short aliases in a single pass
-          if (seen.size > 0) {
-            const combined = new RegExp(`\\b(${[...seen.keys()].join("|")})\\b`, "g")
-            file.code = file.code.replace(combined, (m) => seen.get(m) ?? m)
-          }
-
-          // Collapse consecutive field accesses from the same temp into multi-assignment
-          const lines = file.code.split("\n")
-          const collapsed: string[] = []
-          let li = 0
-
-          while (li < lines.length) {
-            const m = lines[li].match(/^(\s*)local\s+(\w+)\s*=\s*(_r\d+)\.(\w+)\s*$/)
-
-            if (m) {
-              const [, indent, name, temp, field] = m
-              const names = [name]
-              const accesses = [`${temp}.${field}`]
-              const nextRe = new RegExp(
-                `^${escapeRegex(indent)}local\\s+(\\w+)\\s*=\\s*${temp}\\.(\\w+)\\s*$`,
-              )
-
-              while (li + 1 < lines.length) {
-                const next = lines[li + 1].match(nextRe)
-                if (!next) break
-                names.push(next[1])
-                accesses.push(`${temp}.${next[2]}`)
-                li++
-              }
-
-              if (names.length > 1) {
-                collapsed.push(`${indent}local ${names.join(", ")} = ${accesses.join(", ")}`)
-              } else {
-                collapsed.push(lines[li])
-              }
-            } else {
-              collapsed.push(lines[li])
-            }
-            li++
-          }
-
-          file.code = collapsed.join("\n")
-        }
-      }
-
-      // Merge forward-declared `local x` with its first `x = value` assignment.
-      // Only inlines when there are no references to x between declaration and assignment.
-      if (opt.inlineLocals) {
-        for (const file of result) {
-          const lines = file.code.split("\n")
-          const removedLines = new Set<number>()
-
-          for (let i = 0; i < lines.length; i++) {
-            if (removedLines.has(i)) continue
-
-            // Match forward declaration: `local var1, var2, ...` with no `=`
-            const declMatch = lines[i].match(/^(\s*)local\s+((?:\w+(?:,\s*)*)*\w+)\s*$/)
-            if (!declMatch) continue
-
-            const indent = declMatch[1]
-            const escapedIndent = escapeRegex(indent)
-            const vars = declMatch[2]
-              .split(/,\s*/)
-              .map((v) => v.trim())
-              .filter(Boolean)
-            const inlined = new Set<string>()
-
-            for (const varName of vars) {
-              // Hoist regex compilation outside inner loop; negative lookahead
-              // rejects multi-variable assignment lines like `a, b = fn()`
-              const assignRe = new RegExp(`^${escapedIndent}${varName}(?!\\s*,)\\s*=\\s*(.+)$`)
-              const refRe = new RegExp(`\\b${varName}\\b`)
-
-              for (let j = i + 1; j < lines.length; j++) {
-                if (removedLines.has(j)) continue
-
-                // Check for bare single-variable assignment at same indentation
-                const assignMatch = lines[j].match(assignRe)
-
-                if (assignMatch) {
-                  // Don't inline if RHS references the variable (self-referencing)
-                  if (refRe.test(assignMatch[1])) break
-                  lines[j] = `${indent}local ${varName} = ${assignMatch[1]}`
-                  inlined.add(varName)
-                  break
-                }
-
-                // Reference to varName prevents inlining
-                if (refRe.test(lines[j])) break
-              }
-            }
-
-            if (inlined.size === 0) continue
-
-            const remaining = vars.filter((v) => !inlined.has(v))
-            if (remaining.length === 0) {
-              removedLines.add(i)
-            } else {
-              lines[i] = `${indent}local ${remaining.join(", ")}`
-            }
-          }
-
-          file.code = lines.filter((_, idx) => !removedLines.has(idx)).join("\n")
-        }
-      }
-    },
-
-    // Compound assignment runs in afterEmit so it applies after other plugins
-    // that may also post-process the Lua source in beforeEmit.
-    // `+=` is Luau-only syntax and would be garbled by Lua 5.1 parsers.
-    afterEmit(_program, _options, emitHost, result) {
-      if (!opt.compoundAssignment) return
-
-      for (const file of result) {
-        file.code = file.code.replace(
-          /^(\s*)(\w+) = \2 (\/\/|\.\.|[+\-*/%^]) (\S+)(\s*(?:--.*)?)$/gm,
-          "$1$2 $3= $4$5",
-        )
-
-        if (emitHost.writeFile) {
-          emitHost.writeFile(file.outputPath, file.code, false)
+        // Compound assignment stays as regex (no Lua AST node for +=)
+        if (opt.compoundAssignment) {
+          file.code = file.code.replace(
+            /^(\s*)(\w+) = \2 (\/\/|\.\.|[+\-*/%^]) (\S+)(\s*(?:--.*)?)$/gm,
+            "$1$2 $3= $4$5",
+          )
         }
       }
     },

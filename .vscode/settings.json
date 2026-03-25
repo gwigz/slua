@@ -2,7 +2,6 @@
   "files.associations": {
     "*.slua": "lua"
   },
-  "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "editor.codeActionsOnSave": {

@@ -3,7 +3,28 @@ title: Getting Started
 description: Set up a new project with TypeScript-to-Lua for Second Life
 ---
 
-## Install Dependencies
+## Scaffold a Project
+
+The fastest way to get started is with the scaffolding CLI:
+
+```bash tab="npm"
+npx @gwigz/slua-create
+```
+
+```bash tab="pnpm"
+pnpm dlx @gwigz/slua-create
+```
+
+```bash tab="bun"
+bunx @gwigz/slua-create
+```
+
+This walks you through template selection, optional extras (JSX, config module,
+StyLua, linting), and generates a ready-to-build project.
+
+## Manual Setup
+
+If you prefer to set things up yourself, install the packages directly:
 
 ```bash tab="npm"
 npm install --save-dev typescript typescript-to-lua @gwigz/slua-types @gwigz/slua-tstl-plugin
@@ -21,9 +42,7 @@ bun add --dev typescript typescript-to-lua @gwigz/slua-types @gwigz/slua-tstl-pl
 deno add --dev npm:typescript npm:typescript-to-lua npm:@gwigz/slua-types npm:@gwigz/slua-tstl-plugin
 ```
 
-## Configure TypeScript
-
-Create a `tsconfig.json` in your project root:
+Then create a `tsconfig.json` in your project root:
 
 ```json title="tsconfig.json"
 {

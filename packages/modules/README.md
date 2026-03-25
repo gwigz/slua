@@ -31,9 +31,15 @@ TSTL's `luaBundle` resolver cannot resolve TypeScript source from `node_modules`
 
 ### `@gwigz/slua-modules/config`
 
-A flat YAML-style notecard config parser. Reads key-value pairs from an in-world notecard and applies them to a typed defaults object, with automatic type coercion based on the default values.
+Typed notecard config with two parser backends. Values are applied to the config object **in-place**, so the same reference stays valid across reloads.
 
-#### Notecard format
+#### Formats
+
+Both parsers are gated by compile-time flags (`CONFIG_YAML_PARSER`, `CONFIG_LLJSON_PARSER`). When a flag is `false`, the parser code is stripped from the Lua output, see [`@gwigz/slua-tstl-plugin` `define`](../tstl-plugin/README.md).
+
+##### `YAML`
+
+This is the default parser, only supports fla `key: value` lines, with automatic type coercion:
 
 ```yaml
 # Comment
@@ -42,16 +48,18 @@ WELCOME_MESSAGE: Hello\nWorld
 ADMIN_KEYS: key1, key2, key3
 ```
 
-- **Numbers** defined in config default are converted via `tonumber()`
-- **Arrays** are split on `,` and trimmed, and treated as strings
+- **Numbers** are converted via `tonumber()`
+- **Arrays** are split on `,` and trimmed
 - **Strings** have `\n` replaced with newlines
-- Unknown config keys (not in the defaults object) are ignored
+- Unknown keys (not in the config object) are ignored
+
+##### `LLJSON.sldecode`
+
+Full JSON via `lljson.sldecode`, with native support for vectors, rotations, and UUIDs. Provide appropriate defaults (e.g. `Vector.zero`, `Quaternion.identity`, `NULL_KEY`).
 
 #### Usage
 
 ```ts
-const NOTECARD_NAME = "settings.yml"
-
 import { loadConfig, onConfigChanged } from "@gwigz/slua-modules/config"
 
 const config = {
@@ -60,31 +68,63 @@ const config = {
   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000"],
 }
 
-loadConfig(NOTECARD_NAME, config, () => {
-  // config values are now loaded from the notecard
-  console.log(config)
+loadConfig("settings.yml", { config }, () => {
+  // config is mutated in-place, use it directly
+  ll.Say(config.PRIVATE_CHANNEL, config.WELCOME_MESSAGE)
 
-  onConfigChanged(NOTECARD_NAME, config, () => {
-    // called when the notecard is updated in-world
-    console.log(config)
+  onConfigChanged("settings.yml", { config }, () => {
+    // config has been reset and re-parsed from the updated notecard
+    ll.Say(config.PRIVATE_CHANNEL, "Config reloaded")
   })
+})
+```
+
+Using lljson (requires `CONFIG_LLJSON_PARSER: true` in the TSTL plugin `define` options):
+
+```ts
+const config = {
+  SPAWN_POS: Vector.zero,
+  SPAWN_ROT: Quaternion.identity,
+  OWNER: NULL_KEY,
+  RADIUS: 10,
+}
+
+loadConfig("config.json", { config, type: "lljson" }, () => {
+  ll.SetPos(config.SPAWN_POS)
 })
 ```
 
 #### API
 
-##### `loadConfig(notecard: string, config: ConfigObject, callback: () => void)`
-
-Reads the named notecard and applies parsed values to the config object, then calls the callback.
-
-##### `onConfigChanged(notecard: string, config: ConfigObject, callback: () => void)`
-
-Watches for inventory changes and re-reads the notecard when it changes. Only call once per notecard (creates one `LLEvents` listener).
-
-##### `ConfigObject`
+##### `loadConfig(notecard, options, callback)`
 
 ```ts
-type ConfigObject = Record<string, string | number | string[]>
+function loadConfig<T>(notecard: string, options: ConfigOptions<T>, callback: () => void): void
+```
+
+Reads the named notecard and applies parsed values to `options.config` in-place, then calls the callback.
+
+##### `onConfigChanged(notecard, options, callback)`
+
+```ts
+function onConfigChanged<T>(notecard: string, options: ConfigOptions<T>, callback: () => void): void
+```
+
+Watches for inventory changes and re-reads the notecard when it changes. On each change, values are reset to a snapshot taken at registration time before re-parsing. Only call once per notecard (creates one `LLEvents` listener).
+
+##### `ConfigOptions<T>`
+
+```ts
+interface ConfigOptions<T extends Record<string, ConfigValue>> {
+  config: T
+  type?: "yml" | "lljson" // default: "yml"
+}
+```
+
+##### `ConfigValue`
+
+```ts
+type ConfigValue = string | number | string[]
 ```
 
 ---
@@ -104,11 +144,11 @@ beforeEach(() => setup())
 afterEach(() => teardown())
 
 it("loads config from notecard", () => {
-  notecard("settings.yml", "CHANNEL: -123\nMESSAGE: Hello")
+  notecard("settings.yml", ["CHANNEL: -123", "MESSAGE: Hello"])
 
   const config = { CHANNEL: 0, MESSAGE: "" }
 
-  loadConfig("settings.yml", config, () => {
+  loadConfig("settings.yml", { config }, () => {
     expect(config.CHANNEL).toBe(-123)
     expect(config.MESSAGE).toBe("Hello")
   })

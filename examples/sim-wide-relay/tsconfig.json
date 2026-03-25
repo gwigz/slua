@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/TypeScriptToLua/TypeScriptToLua/master/tsconfig-schema.json",
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../../packages/modules/src/config/flags.d.ts"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",

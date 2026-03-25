@@ -105,21 +105,6 @@ function transpileWith(
     sourceFiles: [mainFile],
   })
 
-  // getProgramTranspileResult calls afterPrint but not beforeEmit/afterEmit; invoke manually.
-  const noopEmitHost = { writeFile: () => {} } as unknown as tstl.EmitHost
-
-  for (const p of plugins) {
-    if (p.beforeEmit) {
-      p.beforeEmit(program, options, noopEmitHost, result.transpiledFiles)
-    }
-  }
-
-  for (const p of plugins) {
-    if (p.afterEmit) {
-      p.afterEmit(program, options, noopEmitHost, result.transpiledFiles as tstl.EmitFile[])
-    }
-  }
-
   return { code: result.transpiledFiles[0]?.code ?? "", program }
 }
 
@@ -191,6 +176,24 @@ export function transpileFull(code: string) {
   const result = transpileWith({ "main.ts": code, ...fullFiles }, fullOptions, fullOldProgram)
 
   fullOldProgram = result.program
+
+  return result.code
+}
+
+// Define-aware transpile, creates a fresh plugin per call with the given define map.
+// Cannot reuse old programs since each has a different plugin instance.
+export function transpileWithDefine(
+  code: string,
+  define: Record<string, boolean | number | string>,
+) {
+  const definePlugin = createPlugin({ define })
+
+  const defineOptions: tstl.CompilerOptions = {
+    ...simpleOptions,
+    luaPlugins: [{ plugin: definePlugin as tstl.Plugin }],
+  }
+
+  const result = transpileWith({ "main.ts": code }, defineOptions, undefined)
 
   return result.code
 }

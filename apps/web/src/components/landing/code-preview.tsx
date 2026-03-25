@@ -9,7 +9,7 @@ const isValidCommand = (command: string) =>
 
 const HERO_LUA = `\
 local function isValidCommand(command)
-    return ({ "bite", "scratch", "pounce" }):includes(command)
+  return table.find({"bite", "scratch", "pounce"}, command) ~= nil
 end`
 
 const SHOWCASE_TS = `\
@@ -30,16 +30,16 @@ LLEvents.on("touch_start", (events) => {
 const SHOWCASE_LUA = `\
 local owner = ll.GetOwner()
 
-LLEvents.on("changed", function(changed)
-    if bit32.band(changed, CHANGED_OWNER) ~= 0 then
-        owner = ll.GetOwner()
-    end
+LLEvents:on("changed", function(changed)
+  if bit32.btest(changed, CHANGED_OWNER) then
+    owner = ll.GetOwner()
+  end
 end)
 
-LLEvents.on("touch_start", function(events)
-    for _, event in events do
-        ll.Say(0, event:getName() .. " touched at " .. tostring(event:getTouchPos()))
-    end
+LLEvents:on("touch_start", function(events)
+  for ____, event in ipairs(events) do
+    ll.Say(0, (event:getName() .. " touched at ") .. tostring(event:getTouchPos()))
+  end
 end)`
 
 function loadExtraFiles(): Record<string, string> {

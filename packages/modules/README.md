@@ -5,6 +5,8 @@ Shared runtime modules for [SLua](https://github.com/gwigz/slua) projects.
 ## Installation
 
 ```sh
+npm install @gwigz/slua-modules
+# or
 bun add @gwigz/slua-modules
 ```
 

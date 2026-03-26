@@ -1,0 +1,28 @@
+{
+  "name": "@gwigz/slua-json",
+  "version": "0.0.1",
+  "description": "TypeScript implementation of SLua's lljson.slencode/sldecode tagged JSON format",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gwigz/slua.git",
+    "directory": "packages/json"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "bun test"
+  }
+}

@@ -5,7 +5,20 @@ icon: BookOpen
 ---
 
 import { Cards, Card } from "fumadocs-ui/components/card"
-import { Rocket, BookText, Gamepad2, PlugZap, Box, Cloud, Globe, Code2, Puzzle } from "lucide-react"
+import {
+  IconRocket,
+  IconDeviceGamepad2,
+  IconListDetails,
+  IconPuzzle,
+  IconReplace,
+  IconMessageForward,
+  IconCloudSearch,
+  IconWorld,
+  IconBrandVscode,
+  IconFileTypeTs,
+  IconBook,
+  IconCode,
+} from "@tabler/icons-react"
 
 ## Overview
 
@@ -19,25 +32,25 @@ support, then compile to SLua with minimal runtime overhead.
     title="Getting Started"
     href="/docs/slua/getting-started"
     description="Install dependencies and configure your project"
-    icon={<Rocket />}
+    icon={<IconRocket />}
   />
   <Card
     title="Playground"
     href="/playground"
     description="Try TypeScript-to-SLua compilation in the browser"
-    icon={<Gamepad2 />}
+    icon={<IconDeviceGamepad2 />}
   />
   <Card
     title="API Reference"
     href="/docs/slua/api"
     description="Complete type reference for the SLua runtime"
-    icon={<BookText />}
+    icon={<IconListDetails />}
   />
   <Card
     title="Transpiler Plugin"
     href="/docs/slua/transpiler-plugin"
     description="How the TSTL plugin optimises your TypeScript for SLua"
-    icon={<Puzzle />}
+    icon={<IconPuzzle />}
   />
 </Cards>
 
@@ -55,21 +68,21 @@ Projects built with this toolchain, it's how the rough edges get found and fixed
         <code>ll.DerezObject</code>
       </>
     }
-    icon={<Box />}
+    icon={<IconReplace />}
     external
   />
   <Card
     title="sim-wide-relay"
     href="https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay"
     description="Region-wide chat relay system, a multi-script project deployed at a live sim"
-    icon={<Globe />}
+    icon={<IconMessageForward />}
     external
   />
   <Card
     title="weather-fetcher"
     href="https://github.com/gwigz/slua/tree/main/examples/weather-fetcher"
     description="Fetches weather data via HTTP, displays it as hover text, and refreshes on a timer"
-    icon={<Cloud />}
+    icon={<IconCloudSearch />}
     external
   />
 </Cards>
@@ -83,18 +96,21 @@ Projects built with this toolchain, it's how the rough edges get found and fixed
     title="Creator Portal"
     href="https://create.secondlife.com"
     description="Second Life creator tools and documentation"
+    icon={<IconWorld />}
     external
   />
   <Card
     title="VSCode Extension"
     href="https://github.com/secondlife/sl-vscode-plugin"
     description="SLua language support for VS Code by Linden Lab"
+    icon={<IconBrandVscode />}
     external
   />
   <Card
     title="LSL Definitions"
     href="https://github.com/secondlife/lsl-definitions"
     description="LSL and SLua API definitions by Linden Lab"
+    icon={<IconFileTypeTs />}
     external
   />
 </Cards>
@@ -106,12 +122,14 @@ Projects built with this toolchain, it's how the rough edges get found and fixed
     title="SLua Docs"
     href="https://suzanna-linn.github.io/slua"
     description="Comprehensive SLua documentation and reference by Suzanna Linn"
+    icon={<IconBook />}
     external
   />
   <Card
     title="slua.dev"
     href="https://slua.dev"
     description="Community SLua website and resources"
+    icon={<IconCode />}
     external
   />
 </Cards>

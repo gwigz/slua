@@ -1,4 +1,3 @@
 {
-  "title": "Documentation",
-  "pages": ["getting-started", "transpiler-plugin", "api"]
+  "pages": ["slua", "create", "json"]
 }

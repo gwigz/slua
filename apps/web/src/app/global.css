@@ -8,7 +8,7 @@
 /* Landing page custom properties */
 :root {
   color-scheme: dark;
-  --highlight: #4d9375; /* vitesse green accent */
+  --highlight: #efb822; /* primary amber accent */
   --surface-glass: rgba(18, 18, 18, 0.6); /* vitesse bg with alpha */
   --surface-glass-border: #19191959; /* vitesse border with alpha */
 }

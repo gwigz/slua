@@ -17,7 +17,7 @@ export function baseOptions(): BaseLayoutProps {
       ),
     },
     links: [
-      { text: "Docs", url: "/docs" },
+      { text: "Docs", url: "/docs/slua" },
       { text: "Playground", url: "/playground" },
     ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,

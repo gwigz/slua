@@ -1,0 +1,15 @@
+{
+  "title": "@gwigz/slua",
+  "description": "TypeScript type definitions and TSTL plugin for SLua",
+  "root": true,
+  "icon": "Code2",
+  "pages": [
+    "---Introduction---",
+    "index",
+    "getting-started",
+    "[Gamepad2][Playground](/playground)",
+    "transpiler-plugin",
+    "---Reference---",
+    "...api"
+  ]
+}

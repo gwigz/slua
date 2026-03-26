@@ -1,0 +1,105 @@
+---
+title: API Reference
+description: slencode, sldecode, createCodec, and Second Life type classes
+---
+
+## `slencode(value, options?)`
+
+Encodes a JavaScript value to SLua tagged JSON string.
+
+```ts
+import { slencode, Vector } from "@gwigz/slua-json"
+
+slencode({ pos: new Vector(1, 2, 3) })
+// -> '{"pos":"!v<1,2,3>"}'
+
+slencode(new Vector(0, 0, 1), { tight: true })
+// -> '"!v,,1"'
+```
+
+### Options
+
+| Option  | Type      | Default | Description                                        |
+| ------- | --------- | ------- | -------------------------------------------------- |
+| `tight` | `boolean` | `false` | Use tight encoding (shorter output, zeros omitted) |
+
+---
+
+## `sldecode<T>(json)`
+
+Decodes a SLua tagged JSON string into a typed JavaScript value.
+
+```ts
+import { sldecode, Vector, Quaternion } from "@gwigz/slua-json"
+
+const data = sldecode<{ pos: Vector; rot: Quaternion }>('{"pos":"!v<1,2,3>","rot":"!q<0,0,0,1>"}')
+
+data.pos.x // 1
+data.rot.w // 1
+```
+
+---
+
+## `createCodec(options?)`
+
+Creates a custom codec with your own constructor/detector types instead of
+the built-in `Vector`, `Quaternion`, and `UUID` classes. Useful when you
+already have these types from another library.
+
+```ts
+import { createCodec } from "@gwigz/slua-json"
+import { UUID, Vector3, Quaternion } from "@caspertech/node-metaverse"
+
+const codec = createCodec({
+  vector: {
+    create: (x, y, z) => new Vector3(x, y, z),
+    test: (vec) => vec instanceof Vector3,
+  },
+  quaternion: {
+    create: (x, y, z, w) => new Quaternion(x, y, z, w),
+    test: (quat) => quat instanceof Quaternion,
+  },
+  uuid: {
+    create: (value) => new UUID(value),
+    test: (uuid) => uuid instanceof UUID,
+  },
+})
+
+const { pos } = codec.sldecode<{ pos: Vector3 }>('{"pos":"!v<1,2,3>"}')
+codec.slencode({ pos: new Vector3(1, 2, 3) })
+// -> '{"pos":"!v<1,2,3>"}'
+```
+
+You can override any combination of `vector`, `quaternion`, and `uuid`.
+Unspecified types fall back to the built-in classes. `createCodec()` with
+no arguments behaves identically to the bare `slencode`/`sldecode` exports.
+
+For UUID types where `String(value)` does not return the UUID string, provide
+a `value` function:
+
+```ts
+const codec = createCodec({
+  uuid: {
+    create: (value) => ({ __type: "uuid", id: value }),
+    test: (uuid) => uuid?.__type === "uuid",
+    value: (uuid) => uuid.id,
+  },
+})
+```
+
+---
+
+## Type Classes
+
+### `Vector(x, y, z)`
+
+Three-component vector. Properties: `x`, `y`, `z`.
+
+### `Quaternion(x, y, z, w)`
+
+Four-component quaternion. Properties: `x`, `y`, `z`, `w`.
+
+### `UUID(value)`
+
+UUID wrapper. Lowercases the input string automatically. Needed for
+`instanceof` detection during encode.

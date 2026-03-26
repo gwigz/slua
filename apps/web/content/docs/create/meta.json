@@ -1,0 +1,7 @@
+{
+  "title": "@gwigz/slua-create",
+  "description": "Scaffolding CLI for new SLua projects",
+  "root": true,
+  "icon": "Terminal",
+  "pages": ["---Introduction---", "index", "usage", "---Reference---", "templates"]
+}

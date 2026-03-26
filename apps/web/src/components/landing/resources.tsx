@@ -141,6 +141,19 @@ export function Resources() {
             </div>
           </div>
         </div>
+
+        <p className="text-xs text-fd-muted-foreground/50 text-center mt-10">
+          Function descriptions and API data sourced from{" "}
+          <a
+            href="https://github.com/secondlife/lsl-definitions"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-fd-muted-foreground transition-colors"
+          >
+            lsl-definitions
+          </a>{" "}
+          by Linden Lab and its contributors
+        </p>
       </div>
     </section>
   )

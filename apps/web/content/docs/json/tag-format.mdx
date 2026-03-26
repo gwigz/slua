@@ -1,0 +1,38 @@
+---
+title: Tag Format
+description: Complete reference for SLua tagged JSON tags, tight mode, and null/nil mapping
+---
+
+## Tag Reference
+
+| Tag  | Type        | Normal format                | Tight format                |
+| ---- | ----------- | ---------------------------- | --------------------------- |
+| `!v` | Vector      | `!v<x,y,z>`                  | `!vx,y,z` (zeros omitted)   |
+| `!q` | Quaternion  | `!q<x,y,z,w>`                | `!qx,y,z,w` (zeros omitted) |
+| `!u` | UUID        | `!uXXXX-XXXX-...` (36 chars) | `!u` + base64 (22 chars)    |
+| `!d` | Buffer      | `!d` + base64                | same                        |
+| `!f` | Float       | `!f3.14`                     | same                        |
+| `!b` | Boolean     | `!b1` / `!b0`                | same                        |
+| `!n` | Nil         | `!n`                         | same                        |
+| `!!` | Escaped `!` | `!!text`                     | same                        |
+
+## Tight Mode
+
+Pass `{ tight: true }` to `slencode` (or `codec.slencode`) to produce more
+compact output. In tight mode:
+
+- Vector and quaternion zero components are omitted (e.g. `!v,,1` for `(0, 0, 1)`)
+- UUIDs are base64-encoded (22 chars instead of 36)
+
+Tight mode output can always be decoded by the standard `sldecode`.
+
+## JS ↔ Lua Null Mapping
+
+| JavaScript  | Lua           | JSON wire |
+| ----------- | ------------- | --------- |
+| `null`      | `lljson.null` | `null`    |
+| `undefined` | `nil`         | `"!n"`    |
+
+`null` in JavaScript maps to the special `lljson.null` sentinel in Lua and
+serialises as JSON `null`. `undefined` maps to Lua `nil` and serialises as the
+`"!n"` tag.

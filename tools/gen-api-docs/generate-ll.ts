@@ -21,7 +21,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const ROOT = resolve(__dirname, "../..")
 const TYPES_FILE = resolve(ROOT, "packages/types/index.d.ts")
-const OUTPUT_FILE = resolve(ROOT, "apps/web/content/docs/api/ll.mdx")
+const OUTPUT_FILE = resolve(ROOT, "apps/web/content/docs/slua/api/ll.mdx")
 
 const LSL_REF_BASE = "https://create.secondlife.com/script/lsl-reference/functions/ll"
 
@@ -110,6 +110,12 @@ function generateMdx(functions: LLFunction[]): string {
   lines.push(`---`)
   lines.push(``)
   lines.push(`The \`ll\` namespace contains all ${functions.length} LSL API functions.`)
+  lines.push(``)
+  lines.push(`<Callout type="info">`)
+  lines.push(
+    `  Function descriptions and signatures are sourced from the [lsl-definitions](https://github.com/secondlife/lsl-definitions) repository by Linden Lab and its contributors.`,
+  )
+  lines.push(`</Callout>`)
   lines.push(``)
 
   for (const [letter, fns] of grouped) {

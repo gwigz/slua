@@ -1,0 +1,78 @@
+---
+title: Templates
+description: Available project templates and optional extras
+---
+
+## Single Script
+
+The `single` template produces the simplest possible project layout, one
+`main.ts` file that compiles to a single `.slua` output via TSTL.
+
+```
+my-project/
+├── src/
+│   └── main.ts
+├── package.json
+└── tsconfig.json
+```
+
+Build command
+
+```bash tab="npm"
+npm run build
+```
+
+```bash tab="pnpm"
+pnpm build
+```
+
+```bash tab="bun"
+bun run build
+```
+
+## Multi Script
+
+The `multi` template is for projects with multiple entry points (e.g.
+separate scripts for a coordinator, sender, and listener). It includes a
+custom `build.ts` script that compiles each entry point independently.
+
+```
+my-project/
+├── src/
+│   ├── coordinator/
+│   │   └── index.ts
+│   └── listener/
+│       └── index.ts
+├── build.ts
+├── package.json
+└── tsconfig.json
+```
+
+`build.ts` uses the TSTL API directly to compile each entry point with its
+own output path.
+
+## Optional Extras
+
+### JSX Templates (`@gwigz/jsx-inline`)
+
+Adds support for JSX template syntax via `@gwigz/jsx-inline`. Useful for
+generating structured Lua string outputs from TypeScript JSX.
+
+### Config Module (`@gwigz/slua-modules/config`)
+
+Includes the `@gwigz/slua-modules/config` package for runtime configuration.
+Provides a typed config module pattern compatible with SLua's module system.
+
+### StyLua Formatting
+
+Adds a `.stylua.toml` config to your project so you can auto-format compiled
+`.slua` output with [StyLua](https://github.com/JohnnyMorganz/StyLua).
+
+### Linting (`oxlint`)
+
+Adds an `oxlint` config and lint script to your project for fast TypeScript
+linting.
+
+### Formatting (`oxfmt`)
+
+Adds `oxfmt` for consistent TypeScript source formatting.

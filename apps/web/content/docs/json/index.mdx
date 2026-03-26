@@ -1,0 +1,67 @@
+---
+title: Documentation
+description: TypeScript implementation of SLua's tagged JSON codec
+icon: BookOpen
+---
+
+import { Cards, Card } from "fumadocs-ui/components/card"
+import { BookText, Table2 } from "lucide-react"
+
+<Callout type="info" title="Note">
+  This package is **not** for use inside TSTL pipelines. Use it in projects that communicate with
+  SLua externally (e.g. web backends, bots, tools).
+</Callout>
+
+`@gwigz/slua-json` is a TypeScript implementation of SLua's
+`lljson.slencode`/`sldecode` tagged JSON format. It lets Node.js and browser
+code exchange typed data: vectors, quaternions, UUIDs, buffers, with SLua
+scripts over HTTP or other transports.
+
+## Install
+
+```bash tab="npm"
+npm install @gwigz/slua-json
+```
+
+```bash tab="pnpm"
+pnpm add @gwigz/slua-json
+```
+
+```bash tab="bun"
+bun add @gwigz/slua-json
+```
+
+## Quick Example
+
+```ts
+import { slencode, sldecode, Vector, Quaternion } from "@gwigz/slua-json"
+
+// Decode tagged JSON received from an SLua script
+const data = sldecode<{ pos: Vector; rot: Quaternion }>('{"pos":"!v<1,2,3>","rot":"!q<0,0,0,1>"}')
+
+data.pos.x // 1
+data.rot.w // 1
+
+// Encode data for an SLua script to consume via lljson.sldecode
+const json = slencode({ pos: new Vector(1, 2, 3) })
+// -> '{"pos":"!v<1,2,3>"}'
+
+// Use tight mode for smaller payloads
+slencode(new Vector(0, 0, 1), { tight: true })
+// -> '"!v,,1"'
+```
+
+<Cards>
+  <Card
+    title="API Reference"
+    href="/docs/json/api-reference"
+    description="slencode, sldecode, createCodec, and type classes"
+    icon={<BookText />}
+  />
+  <Card
+    title="Tag Format"
+    href="/docs/json/tag-format"
+    description="Complete tag reference table and null/nil mapping"
+    icon={<Table2 />}
+  />
+</Cards>

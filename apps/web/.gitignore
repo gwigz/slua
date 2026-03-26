@@ -4,7 +4,7 @@
 # generated content
 .source
 /lib/slua-types.d.ts
-/content/docs/api/ll.mdx
+/content/docs/slua/api/ll.mdx
 /src/playground/generated/
 /public/playground-worker.js
 

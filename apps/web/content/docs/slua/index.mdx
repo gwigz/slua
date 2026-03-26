@@ -1,9 +1,11 @@
 ---
 title: Documentation
 description: TypeScript type definitions and TSTL plugin for Second Life's SLua runtime
+icon: BookOpen
 ---
 
 import { Cards, Card } from "fumadocs-ui/components/card"
+import { Rocket, BookText, Gamepad2, PlugZap, Box, Cloud, Globe, Code2, Puzzle } from "lucide-react"
 
 ## Overview
 
@@ -15,13 +17,27 @@ support, then compile to SLua with minimal runtime overhead.
 <Cards>
   <Card
     title="Getting Started"
-    href="/docs/getting-started"
+    href="/docs/slua/getting-started"
     description="Install dependencies and configure your project"
+    icon={<Rocket />}
+  />
+  <Card
+    title="Playground"
+    href="/playground"
+    description="Try TypeScript-to-SLua compilation in the browser"
+    icon={<Gamepad2 />}
   />
   <Card
     title="API Reference"
-    href="/docs/api"
+    href="/docs/slua/api"
     description="Complete type reference for the SLua runtime"
+    icon={<BookText />}
+  />
+  <Card
+    title="Transpiler Plugin"
+    href="/docs/slua/transpiler-plugin"
+    description="How the TSTL plugin optimises your TypeScript for SLua"
+    icon={<Puzzle />}
   />
 </Cards>
 
@@ -33,19 +49,27 @@ Projects built with this toolchain, it's how the rough edges get found and fixed
   <Card
     title="slua-derez-patcher"
     href="https://github.com/gwigz/slua-derez-patcher"
-    description="Skips the rez-edit-take-replace cycle, patches rezzed objects in-place using ll.DerezObject"
+    description={
+      <>
+        Skips the rez-edit-take-replace cycle, patches rezzed objects in-place using{" "}
+        <code>ll.DerezObject</code>
+      </>
+    }
+    icon={<Box />}
     external
   />
   <Card
     title="sim-wide-relay"
     href="https://github.com/gwigz/slua/tree/main/examples/sim-wide-relay"
     description="Region-wide chat relay system, a multi-script project deployed at a live sim"
+    icon={<Globe />}
     external
   />
   <Card
     title="weather-fetcher"
     href="https://github.com/gwigz/slua/tree/main/examples/weather-fetcher"
     description="Fetches weather data via HTTP, displays it as hover text, and refreshes on a timer"
+    icon={<Cloud />}
     external
   />
 </Cards>
@@ -88,12 +112,6 @@ Projects built with this toolchain, it's how the rough edges get found and fixed
     title="slua.dev"
     href="https://slua.dev"
     description="Community SLua website and resources"
-    external
-  />
-  <Card
-    title="@gwigz/slua"
-    href="https://github.com/gwigz/slua"
-    description="TypeScript type definitions and TSTL transpiler plugin"
     external
   />
 </Cards>

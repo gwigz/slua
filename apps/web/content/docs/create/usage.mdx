@@ -1,0 +1,53 @@
+---
+title: Usage
+description: Running @gwigz/slua-create, interactive prompts, and options
+icon: Play
+---
+
+## Running the CLI
+
+Run without arguments to start the interactive wizard:
+
+```bash tab="npm"
+npx @gwigz/slua-create
+```
+
+```bash tab="pnpm"
+pnpm dlx @gwigz/slua-create
+```
+
+```bash tab="bun"
+bunx @gwigz/slua-create
+```
+
+Pass a directory name to skip the first prompt:
+
+```bash
+npx @gwigz/slua-create ./my-project
+```
+
+## Interactive Prompts
+
+The CLI walks you through the following steps:
+
+1. **Project directory** where to create the project (skipped if a positional argument is given)
+2. **Template** choose between `single` (one `main.ts`) or `multi` (custom `build.ts` with multiple entry points)
+3. **Extras** optional add-ons (see below)
+4. **Git** whether to initialize a Git repository
+5. **Install packages** whether to run the package manager install automatically
+
+## Extras
+
+| Extra             | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| JSX templates     | Adds `@gwigz/jsx-inline` for JSX template support    |
+| Config module     | Adds `@gwigz/slua-modules/config` for runtime config |
+| StyLua formatting | Adds a StyLua config for Lua output formatting       |
+| Linting           | Adds `oxlint` for TypeScript linting                 |
+| Formatting        | Adds `oxfmt` for TypeScript formatting               |
+
+## Package Manager Detection
+
+The CLI automatically detects the package manager you used to invoke it
+(`npm`, `pnpm`, or `bun`) and uses the same one for install commands and
+the suggested `run` script in the final message.

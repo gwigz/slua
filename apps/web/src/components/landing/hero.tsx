@@ -102,8 +102,8 @@ export function Hero({ tsPreview, luaPreview }: { tsPreview: string; luaPreview:
           style={{ "--stagger": 3 } as React.CSSProperties}
         >
           <Link
-            href="/docs/getting-started"
-            className="group inline-flex items-center justify-center rounded-md bg-[var(--highlight)] px-7 py-3 text-sm font-semibold text-[#0a0a0a] transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_30px_oklch(0.72_0.12_70/0.15)]"
+            href="/docs/slua/getting-started"
+            className="group inline-flex items-center justify-center rounded-md border border-[var(--highlight)]/40 bg-[var(--highlight)]/10 px-7 py-3 text-sm font-semibold text-[var(--highlight)] transition-all duration-200 hover:bg-[var(--highlight)]/15 hover:border-[var(--highlight)]/60"
           >
             Get Started
             <IconArrowRight
@@ -112,7 +112,7 @@ export function Hero({ tsPreview, luaPreview }: { tsPreview: string; luaPreview:
             />
           </Link>
           <Link
-            href="/docs"
+            href="/docs/slua"
             className="inline-flex items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.03] px-7 py-3 text-sm font-medium text-fd-muted-foreground transition-all duration-200 hover:border-white/[0.15] hover:text-fd-foreground hover:bg-white/[0.05]"
           >
             Documentation

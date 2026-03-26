@@ -12,7 +12,7 @@
   --color-fd-popover-foreground: #dbd7ca; /* foreground */
   --color-fd-card: #181818; /* list.activeSelectionBackground */
   --color-fd-card-foreground: #dbd7ca; /* foreground */
-  --color-fd-border: #191919; /* panel.border */
+  --color-fd-border: #2a2a2a; /* panel.border */
   --color-fd-primary: #efb822; /* vitesse editorWarnin, warm amber */
   --color-fd-primary-foreground: #121212;
   --color-fd-secondary: #2f363d; /* welcomePage.buttonBackground */
@@ -31,7 +31,7 @@
   --color-fd-popover-foreground: #dbd7ca;
   --color-fd-card: #181818;
   --color-fd-card-foreground: #dbd7ca;
-  --color-fd-border: #191919;
+  --color-fd-border: #2a2a2a;
   --color-fd-primary: #efb822;
   --color-fd-primary-foreground: #121212;
   --color-fd-secondary: #222324;
@@ -44,7 +44,7 @@
 .dark #nd-sidebar {
   --color-fd-background: #121212; /* sideBar.background */
   --color-fd-foreground: #bfbaaa; /* sideBar.foreground */
-  --color-fd-border: #191919; /* sideBar.border */
+  --color-fd-border: #2a2a2a; /* sideBar.border */
   --color-fd-accent: #1c1c1c;
   --color-fd-accent-foreground: #dbd7ca;
   --color-fd-ring: #efb822;

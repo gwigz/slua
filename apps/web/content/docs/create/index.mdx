@@ -1,0 +1,48 @@
+---
+title: Documentation
+description: Scaffolding CLI for new SLua TypeScript projects
+icon: BookOpen
+---
+
+import { Cards, Card } from "fumadocs-ui/components/card"
+import { Play, Layout } from "lucide-react"
+
+`@gwigz/slua-create` is an interactive CLI that scaffolds a ready-to-build
+SLua TypeScript project in seconds. It walks you through template selection,
+optional extras, and initial configuration.
+
+## Quick Start
+
+```bash tab="npm"
+npx @gwigz/slua-create
+```
+
+```bash tab="pnpm"
+pnpm dlx @gwigz/slua-create
+```
+
+```bash tab="bun"
+bunx @gwigz/slua-create
+```
+
+You can also pass a directory name as a positional argument to skip the
+directory prompt:
+
+```bash
+npx @gwigz/slua-create my-slua-project
+```
+
+<Cards>
+  <Card
+    title="Usage"
+    href="/docs/create/usage"
+    description="Interactive prompts, flags, and package manager detection"
+    icon={<Play />}
+  />
+  <Card
+    title="Templates"
+    href="/docs/create/templates"
+    description="Single-script and multi-script templates, optional extras"
+    icon={<Layout />}
+  />
+</Cards>

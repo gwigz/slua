@@ -1222,10 +1222,16 @@ declare namespace Vector {
 
 /** @noSelf */
 declare namespace ll {
-  /** Returns the absolute (positive) version of Value. */
+  /**
+   * Returns the absolute (positive) version of Value.
+   * @deprecated Use 'math.abs' instead. Double precision; fastcall.
+   */
   export function Abs(value: number): number
 
-  /** Returns the arc-cosine of Value, in radians. */
+  /**
+   * Returns the arc-cosine of Value, in radians.
+   * @deprecated Use 'math.acos' instead. Double precision; fastcall.
+   */
   export function Acos(value: number): number
 
   /**
@@ -1275,10 +1281,16 @@ declare namespace ll {
    */
   export function ApplyRotationalImpulse(force: vector, local: number): void
 
-  /** Returns the arc-sine, in radians, of Value. */
+  /**
+   * Returns the arc-sine, in radians, of Value.
+   * @deprecated Use 'math.asin' instead. Double precision; fastcall.
+   */
   export function Asin(value: number): number
 
-  /** Returns the arc-tangent2 of y, x. */
+  /**
+   * Returns the arc-tangent2 of y, x.
+   * @deprecated Use 'math.atan2' instead. Double precision; fastcall.
+   */
   export function Atan2(y: number, x: number): number
 
   /**
@@ -1347,7 +1359,10 @@ declare namespace ll {
    */
   export function CastRay(start: vector, end: vector, options: list): list
 
-  /** Returns smallest integer value >= Value. */
+  /**
+   * Returns smallest integer value >= Value.
+   * @deprecated Use 'math.ceil' instead. Double precision; fastcall.
+   */
   export function Ceil(value: number): number
 
   /** Returns a single character string that is the representation of the unicode value. */
@@ -1408,7 +1423,10 @@ declare namespace ll {
   /** Returns hex-encoded Hash string of Message using digest Algorithm. */
   export function ComputeHash(message: string, algorithm: string): string
 
-  /** Returns the cosine of Theta (Theta in radians). */
+  /**
+   * Returns the cosine of Theta (Theta in radians).
+   * @deprecated Use 'math.cos' instead. Double precision; fastcall.
+   */
   export function Cos(theta: number): number
 
   /**
@@ -1674,6 +1692,7 @@ declare namespace ll {
   /**
    * Returns the positive version of Value.
    * Returns the absolute value of Value.
+   * @deprecated Use 'math.abs' instead. Double precision; fastcall.
    */
   export function Fabs(value: number): number
 
@@ -1699,7 +1718,10 @@ declare namespace ll {
    */
   export function FleeFrom(source: vector, distance: number, options: list): void
 
-  /** Returns largest integer value <= Value. */
+  /**
+   * Returns largest integer value <= Value.
+   * @deprecated Use 'math.floor' instead. Double precision; fastcall.
+   */
   export function Floor(value: number): number
 
   /**
@@ -2858,12 +2880,14 @@ declare namespace ll {
   /**
    * Returns the natural logarithm of Value. Returns zero if Value <= 0.
    * Returns the base e (natural) logarithm of the specified Value.
+   * @deprecated Use 'math.log' instead. It's a fastcall.
    */
   export function Log(value: number): number
 
   /**
    * Returns the base 10 logarithm of Value. Returns zero if Value <= 0.
    * Returns the base 10 (common) logarithm of the specified Value.
+   * @deprecated Use 'math.log10' instead. It's a fastcall.
    */
   export function Log10(value: number): number
 
@@ -3127,6 +3151,7 @@ declare namespace ll {
   /**
    * Returns the Value raised to the power Exponent, or returns 0 and triggers Math Error for imaginary results.
    * Returns the Value raised to the Exponent.
+   * @deprecated Use '^' instead. It's a fastcall.
    */
   export function Pow(value: number, exponent: number): number
 
@@ -3457,6 +3482,7 @@ declare namespace ll {
   /**
    * Returns Value rounded to the nearest integer.
    * Returns the Value rounded to the nearest integer.
+   * @deprecated Use 'math.round' instead. It's a fastcall.
    */
   export function Round(value: number): number
 
@@ -3924,7 +3950,10 @@ declare namespace ll {
   /** Returns the base64-encoded RSA signature of Message using PEM-formatted PrivateKey and digest Algorithm (sha1, sha224, sha256, sha384, sha512). */
   export function SignRSA(privateKey: string, message: string, algorithm: string): string
 
-  /** Returns the sine of Theta (Theta in radians). */
+  /**
+   * Returns the sine of Theta (Theta in radians).
+   * @deprecated Use 'math.sin' instead. It's a fastcall.
+   */
   export function Sin(theta: number): number
 
   /** If agent identified by AvatarID is participating in the experience, sit them on the specified link's sit target. */
@@ -3953,6 +3982,7 @@ declare namespace ll {
   /**
    * Returns the square root of Value.
    * Triggers a math runtime error for imaginary results (if Value < 0.0).
+   * @deprecated Use 'math.sqrt' instead. It's a fastcall.
    */
   export function Sqrt(value: number): number
 
@@ -4037,7 +4067,10 @@ declare namespace ll {
    */
   export function TakeControls(controls: number, accept: number, passOn: number): void
 
-  /** Returns the tangent of Theta (Theta in radians). */
+  /**
+   * Returns the tangent of Theta (Theta in radians).
+   * @deprecated Use 'math.tan' instead. It's a fastcall.
+   */
   export function Tan(theta: number): number
 
   /**

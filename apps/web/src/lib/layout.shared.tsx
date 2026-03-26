@@ -9,7 +9,12 @@ export const gitConfig = {
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      title: "@gwigz/slua",
+      title: (
+        <>
+          <img src="/favicon.svg" alt="" width={24} height={24} />
+          @gwigz/slua
+        </>
+      ),
     },
     links: [
       { text: "Docs", url: "/docs" },

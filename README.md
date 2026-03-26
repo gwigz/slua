@@ -155,36 +155,6 @@ local owner = ll.GetOwner()
 local pos = vector.create(128, 128, 20)
 ```
 
-## Scripts
-
-- `bun run generate` - regenerate `packages/types/index.d.ts` from YAML definitions
-- `bun run build` - build all workspaces that define a `build` script
-- `bun run build:examples` - build all example workspaces only
-- `bun test` - run all tests
-- `bun run lint` - lint with [oxlint](https://oxc.rs/docs/guide/usage/linter)
-- `bun run lint:fix` - lint and auto-fix
-- `bun run fmt` - format with [oxfmt](https://oxc.rs/docs/guide/usage/formatter)
-- `bun run fmt:check` - check formatting without writing
-
-## Project Structure
-
-```
-├── packages/
-│   ├── types/            # auto-generated .d.ts declarations
-│   ├── tstl-plugin/      # TSTL plugin for SLua constraints
-│   ├── modules/          # shared runtime modules
-│   └── create/           # CLI scaffolding tool
-├── tools/
-│   └── gen-types/        # type generation tool (YAML -> .d.ts)
-├── examples/
-│   ├── getting-started/  # minimal example
-│   ├── kitchen-sink/     # feature showcase
-│   ├── sim-wide-relay/   # multi-script relay system
-│   └── weather-fetcher/  # HTTP request example
-└── refs/
-    └── lsl-definitions/  # upstream YAML definitions (submodule)
-```
-
 # Resources
 
 | Resource                                                           | Description                                     |

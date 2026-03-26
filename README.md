@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".github/assets/logo.svg" width="128" height="128" alt="Logo" />
+</p>
+
 # `@gwigz/slua-*`
 
 LSL type definitions and a [TypeScript-to-Lua](https://typescripttolua.github.io) plugin for Second Life. Full editor support, compile-time safety, minimal runtime overhead.
@@ -6,12 +10,13 @@ If TypeScript is where you're productive, you don't need to learn a new language
 
 ## Packages
 
-| Package                                           | Description                                                  |
-| ------------------------------------------------- | ------------------------------------------------------------ |
-| [`@gwigz/slua-types`](packages/types)             | Auto-generated TypeScript declarations for all SLua/LSL APIs |
-| [`@gwigz/slua-tstl-plugin`](packages/tstl-plugin) | TSTL plugin enforcing SLua constraints                       |
-| [`@gwigz/slua-modules`](packages/modules)         | Shared runtime modules (config helpers, testing utilities)   |
-| [`@gwigz/slua-create`](packages/create)           | CLI scaffolding tool for new SLua projects                   |
+| Package                                           | Description                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------- |
+| [`@gwigz/slua-types`](packages/types)             | Auto-generated TypeScript declarations for all SLua/LSL APIs  |
+| [`@gwigz/slua-tstl-plugin`](packages/tstl-plugin) | TSTL plugin enforcing SLua constraints                        |
+| [`@gwigz/slua-modules`](packages/modules)         | Shared runtime modules (config helpers, testing utilities)    |
+| [`@gwigz/slua-create`](packages/create)           | CLI scaffolding tool for new SLua projects                    |
+| [`@gwigz/slua-json`](packages/json)               | Tagged JSON codec for exchanging typed data with SLua scripts |
 
 ## Examples
 

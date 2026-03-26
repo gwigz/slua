@@ -6,3 +6,5 @@ bun.lock
 !examples/**/dist/
 !examples/**/out/
 TODO.md
+*.af
+*.*~lock~

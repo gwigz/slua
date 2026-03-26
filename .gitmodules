@@ -1,3 +1,6 @@
 [submodule "refs/lsl-definitions"]
 	path = refs/lsl-definitions
 	url = https://github.com/secondlife/lsl-definitions.git
+[submodule "refs/slua"]
+	path = refs/slua
+	url = https://github.com/secondlife/slua.git

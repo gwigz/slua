@@ -5,7 +5,7 @@ import {
   IconCode,
   IconWorld,
   IconBrandVscode,
-  IconFileTypeTs,
+  IconFile,
   IconBrandGithub,
 } from "@tabler/icons-react"
 import { Badge } from "~/components/ui/badge"
@@ -30,7 +30,7 @@ const OFFICIAL = [
     title: "LSL Definitions",
     description: "LSL and SLua API definitions by Linden Lab",
     url: "https://github.com/secondlife/lsl-definitions",
-    icon: IconFileTypeTs,
+    icon: IconFile,
   },
 ]
 

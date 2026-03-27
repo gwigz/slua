@@ -3,7 +3,7 @@
 Scaffold new TSTL-powered SLua projects.
 
 <p align="center">
-  <img src="../../.github/assets/create.webp" alt="create" width="50%" />
+  <img src="../../.github/assets/create.webp" alt="create" width="75%" />
 </p>
 
 ## Usage

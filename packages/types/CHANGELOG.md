@@ -1,5 +1,15 @@
 # @gwigz/slua-types
 
+## 1.1.0
+
+### Minor Changes
+
+- [`a18e1f1`](https://github.com/gwigz/slua/commit/a18e1f14890fd0931dde4ca9b9346d41fd35b324) Thanks [@gwigz](https://github.com/gwigz)! - rename `vector`, `quaternion`, `uuid` type aliases to PascalCase (`Vector`, `Quaternion`, `UUID`)
+
+### Patch Changes
+
+- [#14](https://github.com/gwigz/slua/pull/14) [`1ac6263`](https://github.com/gwigz/slua/commit/1ac62630cd02cbc19851c3b08248f3b50ec556f4) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update SLua definitions submodule to latest upstream
+
 ## 1.0.2
 
 ### Patch Changes

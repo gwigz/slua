@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/@changesets/config@3.1.1/schema.json",
   "changelog": ["@changesets/changelog-github", { "repo": "gwigz/slua" }],
   "commit": false,
-  "fixed": [],
+  "fixed": [["@gwigz/slua-types", "@gwigz/slua-modules", "@gwigz/slua-tstl-plugin"]],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

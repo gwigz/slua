@@ -84,7 +84,7 @@ function pairs<K, V>(
 Calls function f with parameters args, returning success and function results or an error.
 
 ```ts
-function pcall(f: (...args: any[]) => any, args?: any[][]): any
+function pcall(f: (...args: any[]) => any, args: any[][]): any
 ```
 
 ### `print`
@@ -92,7 +92,7 @@ function pcall(f: (...args: any[]) => any, args?: any[][]): any
 Prints all arguments to standard output using Tab as a separator.
 
 ```ts
-function print(args?: any[]): void
+function print(args: any[]): void
 ```
 
 ### `rawequal`
@@ -140,7 +140,7 @@ function require(target: string): any
 Returns a subset of arguments or the number of arguments.
 
 ```ts
-function select(i: string | number, args?: any[]): any
+function select(i: string | number, args: any[]): any
 ```
 
 ### `setmetatable`
@@ -188,7 +188,7 @@ function unpack<V>(a: V[], f?: number, t?: number): V[]
 Calls function f with parameters args, handling errors with e if they occur.
 
 ```ts
-function xpcall<E>(f: (...args: any[]) => any, e: (...args: any[]) => any, args?: any[][]): any
+function xpcall<E>(f: (...args: any[]) => any, e: (...args: any[]) => any, args: any[][]): any
 ```
 
 ## SLua-specific Globals
@@ -198,7 +198,7 @@ function xpcall<E>(f: (...args: any[]) => any, e: (...args: any[]) => any, args?
 Converts a string to a quaternion, returns nil if invalid
 
 ```ts
-function toquaternion(val: string | undefined | quaternion): quaternion | undefined
+function toquaternion(val: string | undefined | Quaternion): Quaternion | undefined
 ```
 
 ### `torotation`
@@ -206,7 +206,7 @@ function toquaternion(val: string | undefined | quaternion): quaternion | undefi
 Converts a string to a rotation (quaternion), returns nil if invalid
 
 ```ts
-function torotation(val: string | undefined | quaternion): quaternion | undefined
+function torotation(val: string | undefined | Quaternion): Quaternion | undefined
 ```
 
 ### `touuid`
@@ -214,7 +214,7 @@ function torotation(val: string | undefined | quaternion): quaternion | undefine
 Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.
 
 ```ts
-function touuid(val: string | undefined | buffer | uuid): uuid | undefined
+function touuid(val: string | undefined | buffer | UUID): UUID | undefined
 ```
 
 ### `tovector`
@@ -222,5 +222,5 @@ function touuid(val: string | undefined | buffer | uuid): uuid | undefined
 Converts a string to a vector, returns nil if invalid
 
 ```ts
-function tovector(val: string | undefined | vector): vector | undefined
+function tovector(val: string | undefined | Vector): Vector | undefined
 ```

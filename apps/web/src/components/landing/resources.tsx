@@ -76,7 +76,7 @@ export function ResourceCard({
       rel="noopener noreferrer"
       className="group block transition-all duration-300 hover:-translate-y-0.5"
     >
-      <Card className="h-full border-[var(--surface-glass-border)] bg-[var(--surface-glass)] backdrop-blur-sm transition-colors group-hover:border-white/[0.12] group-hover:shadow-lg group-hover:shadow-[var(--highlight)]/5">
+      <Card className="h-full border-[var(--surface-glass-border)] bg-[var(--surface-glass)] backdrop-blur-sm transition-colors group-hover:border-fd-border group-hover:shadow-lg group-hover:shadow-[var(--highlight)]/5">
         <CardHeader>
           <div className="flex items-center gap-2">
             <resource.icon className="size-5 text-fd-muted-foreground group-hover:text-[var(--highlight)] transition-colors" />
@@ -106,7 +106,7 @@ export function Resources() {
   const { ref, inView } = useInView()
 
   return (
-    <section ref={ref} className="py-24 sm:py-32 bg-fd-background">
+    <section ref={ref} className="dark py-24 sm:py-32 bg-fd-background">
       <div
         className={`max-w-5xl mx-auto px-6 ${inView ? "" : "opacity-0 translate-y-6"}`}
         style={inView ? { animation: "fade-in-up 0.6s ease-out forwards" } : undefined}

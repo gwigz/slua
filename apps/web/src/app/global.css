@@ -5,12 +5,36 @@
 @import "@fontsource/fira-code/400.css";
 @import "@fontsource/fira-code/500.css";
 
-/* Landing page custom properties */
+/* Landing page custom properties, light defaults */
 :root {
+  --highlight: #b58900;
+  --surface-glass: rgba(249, 249, 249, 0.6);
+  --surface-glass-border: rgba(229, 229, 229, 0.35);
+}
+
+.dark {
   color-scheme: dark;
-  --highlight: #efb822; /* primary amber accent */
-  --surface-glass: rgba(18, 18, 18, 0.6); /* vitesse bg with alpha */
-  --surface-glass-border: #19191959; /* vitesse border with alpha */
+  --highlight: #efb822;
+  --surface-glass: rgba(18, 18, 18, 0.6);
+  --surface-glass-border: #19191959;
+}
+
+/* Shiki dual-theme: use --shiki-light in light, --shiki-dark in dark */
+.shiki span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+}
+.dark .shiki span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style);
+  font-weight: var(--shiki-dark-font-weight);
+}
+.shiki {
+  background-color: var(--shiki-light-bg) !important;
+}
+.dark .shiki {
+  background-color: var(--shiki-dark-bg) !important;
 }
 
 @theme inline {
@@ -89,15 +113,15 @@
   display: inline-flex;
   flex-direction: column;
   transform: translateY(1.1em);
-  background: #121212;
-  border: 1px solid #191919;
+  background: var(--color-fd-popover);
+  border: 1px solid var(--color-fd-border);
   transition: opacity 0.3s;
   border-radius: 4px;
   pointer-events: none;
   z-index: 10;
   user-select: none;
   text-align: left;
-  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 8px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 8px;
 }
 
 /* Collapse inline popups so they don't affect scroll width.
@@ -121,12 +145,12 @@
 .twoslash-portal .twoslash-popup-container {
   display: inline-flex;
   flex-direction: column;
-  background: #121212;
-  border: 1px solid #191919;
+  background: var(--color-fd-popover);
+  border: 1px solid var(--color-fd-border);
   border-radius: 4px;
   z-index: 10;
   text-align: left;
-  box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 8px;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 8px;
 }
 
 .twoslash .twoslash-popup-arrow,
@@ -134,9 +158,9 @@
   position: absolute;
   top: -4px;
   left: 1em;
-  border-top: 1px solid #191919;
-  border-right: 1px solid #191919;
-  background: #121212;
+  border-top: 1px solid var(--color-fd-border);
+  border-right: 1px solid var(--color-fd-border);
+  background: var(--color-fd-popover);
   transform: rotate(-45deg);
   width: 6px;
   height: 6px;
@@ -158,10 +182,10 @@
 
 .twoslash .twoslash-popup-docs,
 .twoslash-portal .twoslash-popup-docs {
-  color: #888;
+  color: var(--color-fd-muted-foreground);
   font-family: sans-serif;
   font-size: 0.8em;
-  border-top: 1px solid #191919;
+  border-top: 1px solid var(--color-fd-border);
 }
 
 .twoslash .twoslash-query-line .twoslash-popup-container {

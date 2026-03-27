@@ -11,8 +11,8 @@ function CodeBlock({ label, html }: { label: string; html: string }) {
   useTwoslashPortal(contentRef, [html])
 
   return (
-    <div className="overflow-hidden rounded-lg border border-white/6 bg-[#0d0d0d]">
-      <div className="border-b border-white/6 px-4 py-2">
+    <div className="overflow-hidden rounded-lg border border-fd-border bg-fd-card">
+      <div className="border-b border-fd-border px-4 py-2">
         <span className="text-xs font-medium text-fd-muted-foreground">{label}</span>
       </div>
       <div
@@ -68,7 +68,7 @@ export function CodeShowcase({ tsHtml, luaHtml }: { tsHtml: string; luaHtml: str
                 ].map(({ icon: Icon, text }, i) => (
                   <div
                     key={i}
-                    className="flex items-start gap-3 rounded-lg border border-white/[0.04] bg-white/[0.02] px-3.5 py-3"
+                    className="flex items-start gap-3 rounded-lg border border-fd-border bg-fd-muted/30 px-3.5 py-3"
                   >
                     <Icon
                       size={18}

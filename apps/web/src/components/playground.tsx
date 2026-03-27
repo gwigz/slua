@@ -103,7 +103,29 @@ const EDITOR_OPTIONS = {
   automaticLayout: true,
 }
 
+function useMonacoTheme() {
+  const [theme, setTheme] = useState<string>(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+      ? "vitesse-dark"
+      : "vitesse-light",
+  )
+
+  useEffect(() => {
+    const update = () =>
+      setTheme(
+        document.documentElement.classList.contains("dark") ? "vitesse-dark" : "vitesse-light",
+      )
+    const observer = new MutationObserver(update)
+
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+
+    return () => observer.disconnect()
+  }, [])
+  return theme
+}
+
 export default function Playground() {
+  const monacoTheme = useMonacoTheme()
   const [initialCode] = useState(() => localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE)
   const [lua, setLua] = useState("")
   const [diagnostics, setDiagnostics] = useState<WorkerDiagnostic[]>([])
@@ -117,7 +139,9 @@ export default function Playground() {
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 640px)")
     const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches)
+
     mq.addEventListener("change", handler)
+
     return () => mq.removeEventListener("change", handler)
   }, [])
 
@@ -153,6 +177,7 @@ export default function Playground() {
 
   function handleChange(value: string | undefined) {
     const code = value ?? ""
+
     localStorage.setItem(STORAGE_KEY, code)
 
     if (debounceRef.current) {
@@ -166,17 +191,20 @@ export default function Playground() {
 
   function handleReset() {
     localStorage.removeItem(STORAGE_KEY)
+
     if (editorRef.current) {
       editorRef.current.setValue(DEFAULT_CODE)
     }
+
     workerRef.current?.postMessage(DEFAULT_CODE)
+
     setActiveTab("typescript")
     setResetOpen(false)
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-[#121212] text-[#dbd7ca]">
-      <header className="flex items-center justify-between px-4 py-2 border-b border-[#191919] shrink-0">
+    <div className="flex flex-col flex-1 min-h-0 bg-fd-background text-fd-foreground">
+      <header className="flex items-center justify-between px-4 py-2 border-b border-fd-border shrink-0">
         <span className="font-semibold text-sm">TypeScript to SLua Playground</span>
         <TooltipProvider>
           <div className="flex items-center gap-2">
@@ -184,7 +212,7 @@ export default function Playground() {
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <DialogTrigger className="text-[#dbd7ca80] hover:text-[#dbd7ca] transition-colors">
+                    <DialogTrigger className="text-fd-muted-foreground hover:text-fd-foreground transition-colors">
                       <IconRotate size={18} />
                     </DialogTrigger>
                   }
@@ -210,7 +238,7 @@ export default function Playground() {
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <DialogTrigger className="text-[#dbd7ca80] hover:text-[#dbd7ca] transition-colors">
+                    <DialogTrigger className="text-fd-muted-foreground hover:text-fd-foreground transition-colors">
                       <IconInfoCircle size={18} />
                     </DialogTrigger>
                   }
@@ -231,7 +259,7 @@ export default function Playground() {
                         href={credit.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-start gap-3 border border-[#19191980] px-3 py-2 rounded-sm transition-colors hover:bg-[#18181880]"
+                        className="group flex items-start gap-3 border border-fd-border/50 px-3 py-2 rounded-sm transition-colors hover:bg-fd-muted/50"
                       >
                         <span className="flex flex-col gap-0.5 min-w-0">
                           <span className="flex items-center gap-1.5">
@@ -246,7 +274,7 @@ export default function Playground() {
                               className="shrink-0 opacity-0 -translate-y-px transition-all group-hover:opacity-40"
                             />
                           </span>
-                          <span className="text-[11px] leading-snug text-[#dbd7ca80]">
+                          <span className="text-[11px] leading-snug text-fd-muted-foreground">
                             {credit.description}
                           </span>
                         </span>
@@ -263,7 +291,7 @@ export default function Playground() {
                     href="https://github.com/gwigz/slua"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#dbd7ca80] hover:text-[#dbd7ca] transition-colors"
+                    className="text-fd-muted-foreground hover:text-fd-foreground transition-colors"
                   >
                     <IconBrandGithub size={18} />
                   </a>
@@ -278,15 +306,15 @@ export default function Playground() {
       {isDesktop ? (
         <div className="flex flex-1 min-h-0">
           {/* TypeScript input */}
-          <div className="flex flex-col flex-1 min-w-0 border-r border-[#191919]">
-            <div className="px-3 py-1 text-xs text-[#dbd7ca80] border-b border-[#191919]">
+          <div className="flex flex-col flex-1 min-w-0 border-r border-fd-border">
+            <div className="px-3 py-1 text-xs text-fd-muted-foreground border-b border-fd-border">
               TypeScript
             </div>
             <div className="flex-1 min-h-0">
               <Editor
                 defaultLanguage="typescript"
                 defaultValue={initialCode}
-                theme="vitesse-dark"
+                theme={monacoTheme}
                 beforeMount={monacoBeforeMount}
                 onMount={handleMount}
                 onChange={handleChange}
@@ -297,12 +325,14 @@ export default function Playground() {
 
           {/* Lua output */}
           <div className="flex flex-col flex-1 min-w-0">
-            <div className="px-3 py-1 text-xs text-[#dbd7ca80] border-b border-[#191919]">SLua</div>
+            <div className="px-3 py-1 text-xs text-fd-muted-foreground border-b border-fd-border">
+              SLua
+            </div>
             <div className="flex-1 min-h-0">
               <Editor
                 language="lua"
                 value={lua}
-                theme="vitesse-dark"
+                theme={monacoTheme}
                 beforeMount={monacoBeforeMount}
                 options={{ ...EDITOR_OPTIONS, readOnly: true }}
               />
@@ -312,15 +342,15 @@ export default function Playground() {
       ) : (
         <>
           {/* Mobile tab bar */}
-          <div className="flex shrink-0 border-b border-[#191919]">
+          <div className="flex shrink-0 border-b border-fd-border">
             <button
-              className={`flex-1 px-3 py-1.5 text-xs transition-colors ${activeTab === "typescript" ? "text-[#dbd7ca] border-b-2 border-[#dbd7ca] -mb-px" : "text-[#dbd7ca80]"}`}
+              className={`flex-1 px-3 py-1.5 text-xs transition-colors ${activeTab === "typescript" ? "text-fd-foreground border-b-2 border-fd-foreground -mb-px" : "text-fd-muted-foreground"}`}
               onClick={() => setActiveTab("typescript")}
             >
               TypeScript
             </button>
             <button
-              className={`flex-1 px-3 py-1.5 text-xs transition-colors ${activeTab === "lua" ? "text-[#dbd7ca] border-b-2 border-[#dbd7ca] -mb-px" : "text-[#dbd7ca80]"}`}
+              className={`flex-1 px-3 py-1.5 text-xs transition-colors ${activeTab === "lua" ? "text-fd-foreground border-b-2 border-fd-foreground -mb-px" : "text-fd-muted-foreground"}`}
               onClick={() => setActiveTab("lua")}
             >
               SLua
@@ -335,7 +365,7 @@ export default function Playground() {
               <Editor
                 defaultLanguage="typescript"
                 defaultValue={initialCode}
-                theme="vitesse-dark"
+                theme={monacoTheme}
                 beforeMount={monacoBeforeMount}
                 onMount={handleMount}
                 onChange={handleChange}
@@ -348,7 +378,7 @@ export default function Playground() {
               <Editor
                 language="lua"
                 value={lua}
-                theme="vitesse-dark"
+                theme={monacoTheme}
                 beforeMount={monacoBeforeMount}
                 options={{ ...EDITOR_OPTIONS, readOnly: true }}
               />
@@ -359,7 +389,7 @@ export default function Playground() {
 
       {/* Diagnostics */}
       {diagnostics.length > 0 && (
-        <div className="shrink-0 max-h-36 overflow-y-auto border-t border-[#191919] bg-[#18181860]">
+        <div className="shrink-0 max-h-36 overflow-y-auto border-t border-fd-border bg-fd-muted/40">
           {diagnostics.map((d, i) => (
             <div
               key={i}

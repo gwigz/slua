@@ -104,9 +104,9 @@ function Step({
 
 function CodeBlock({ code, html, label }: { code: string; html?: string; label?: string }) {
   return (
-    <div className="relative overflow-hidden rounded-lg border border-white/6 bg-[#0d0d0d]">
+    <div className="relative overflow-hidden rounded-lg border border-fd-border bg-fd-card">
       {label && (
-        <div className="flex items-center justify-between border-b border-white/6 px-4 py-2">
+        <div className="flex items-center justify-between border-b border-fd-border px-4 py-2">
           <span className="text-xs font-medium text-fd-muted-foreground">{label}</span>
           <CopyButton text={code} className="-mr-1.5" />
         </div>

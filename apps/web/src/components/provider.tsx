@@ -8,9 +8,8 @@ export function Provider({ children }: { children: ReactNode }) {
     <RootProvider
       search={{ SearchDialog }}
       theme={{
-        forcedTheme: "dark",
-        enableSystem: false,
-        defaultTheme: "dark",
+        enableSystem: true,
+        defaultTheme: "system",
       }}
     >
       {children}

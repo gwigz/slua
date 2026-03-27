@@ -31,7 +31,7 @@ export function Examples() {
   const { ref, inView } = useInView()
 
   return (
-    <section ref={ref} className="py-24 sm:py-32 bg-fd-background">
+    <section ref={ref} className="dark py-24 sm:py-32 bg-fd-background">
       <div
         className={`max-w-5xl mx-auto px-6 ${inView ? "" : "opacity-0 translate-y-6"}`}
         style={inView ? { animation: "fade-in-up 0.6s ease-out forwards" } : undefined}

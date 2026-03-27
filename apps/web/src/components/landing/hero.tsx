@@ -22,7 +22,7 @@ export function Hero({ tsPreview, luaPreview }: { tsPreview: string; luaPreview:
   useTwoslashPortal(tsRef)
 
   return (
-    <section className="relative flex items-center justify-center overflow-hidden bg-fd-background pt-14 pb-16 sm:pt-20 sm:pb-24">
+    <section className="dark relative flex items-center justify-center overflow-hidden bg-fd-background pt-14 pb-16 sm:pt-20 sm:pb-24">
       {/* Background */}
       <div className="pointer-events-none absolute inset-0">
         {/* Grid + dot pattern */}
@@ -102,6 +102,12 @@ export function Hero({ tsPreview, luaPreview }: { tsPreview: string; luaPreview:
           style={{ "--stagger": 3 } as React.CSSProperties}
         >
           <Link
+            href="/docs/slua"
+            className="inline-flex items-center justify-center rounded-md border border-fd-border bg-fd-muted/30 px-7 py-3 text-sm font-medium text-fd-muted-foreground transition-all duration-200 hover:border-fd-border hover:text-fd-foreground hover:bg-fd-muted/60"
+          >
+            Documentation
+          </Link>
+          <Link
             href="/docs/slua/getting-started"
             className="group inline-flex items-center justify-center rounded-md border border-[var(--highlight)]/40 bg-[var(--highlight)]/10 px-7 py-3 text-sm font-semibold text-[var(--highlight)] transition-all duration-200 hover:bg-[var(--highlight)]/15 hover:border-[var(--highlight)]/60"
           >
@@ -111,12 +117,6 @@ export function Hero({ tsPreview, luaPreview }: { tsPreview: string; luaPreview:
               className="ml-2 transition-transform duration-200 group-hover:translate-x-0.5"
             />
           </Link>
-          <Link
-            href="/docs/slua"
-            className="inline-flex items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.03] px-7 py-3 text-sm font-medium text-fd-muted-foreground transition-all duration-200 hover:border-white/[0.15] hover:text-fd-foreground hover:bg-white/[0.05]"
-          >
-            Documentation
-          </Link>
         </div>
 
         {/* Code preview */}
@@ -124,10 +124,10 @@ export function Hero({ tsPreview, luaPreview }: { tsPreview: string; luaPreview:
           className="hero-stagger mt-16 mx-auto max-w-3xl"
           style={{ "--stagger": 5 } as React.CSSProperties}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 rounded-lg overflow-hidden border border-white/[0.06]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 rounded-lg overflow-hidden border border-fd-border">
             {/* TypeScript panel */}
-            <div className="bg-[#111] sm:border-r border-white/[0.06] flex flex-col">
-              <div className="border-b border-white/[0.06] px-3 py-1.5">
+            <div className="bg-fd-card sm:border-r border-fd-border flex flex-col">
+              <div className="border-b border-fd-border px-3 py-1.5">
                 <span className="text-xs font-medium text-fd-muted-foreground">TypeScript</span>
               </div>
               <div
@@ -141,8 +141,8 @@ export function Hero({ tsPreview, luaPreview }: { tsPreview: string; luaPreview:
             </div>
 
             {/* SLua panel */}
-            <div className="bg-[#111] border-t sm:border-t-0 border-white/[0.06]">
-              <div className="border-b border-white/[0.06] px-3 py-1.5">
+            <div className="bg-fd-card border-t sm:border-t-0 border-fd-border">
+              <div className="border-b border-fd-border px-3 py-1.5">
                 <span className="text-xs font-medium text-fd-muted-foreground">SLua</span>
               </div>
               <div

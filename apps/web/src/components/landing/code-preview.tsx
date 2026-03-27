@@ -86,7 +86,7 @@ async function highlightCode(code: string, lang: string, useTwoslash = false) {
 
   return codeToHtml(code, {
     lang,
-    theme: "vitesse-dark",
+    themes: { light: "vitesse-light", dark: "vitesse-dark" },
     transformers,
   })
 }

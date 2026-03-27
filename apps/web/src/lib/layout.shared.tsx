@@ -21,6 +21,6 @@ export function baseOptions(): BaseLayoutProps {
       { text: "Playground", url: "/playground" },
     ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
-    themeSwitch: { enabled: false },
+    themeSwitch: { enabled: true },
   }
 }

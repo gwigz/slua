@@ -28,7 +28,7 @@ export default defineConfig({
     remarkPlugins: [[remarkAutoTypeTable, { generator }]],
     rehypeCodeOptions: {
       themes: {
-        light: "vitesse-dark",
+        light: "vitesse-light",
         dark: "vitesse-dark",
       },
     },

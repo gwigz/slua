@@ -7,32 +7,220 @@ description: Lua and SLua global functions
 
 Standard Lua functions available in the SLua runtime:
 
-- `pairs(t)` iterate over all key-value pairs
-- `ipairs(t)` iterate over integer keys in order
-- `next(t, key?)` next key-value pair in a table
-- `tonumber(value)` convert to number
-- `tostring(value)` convert to string
-- `type(value)` return type name as string
-- `print(...)` print values to output
-- `select(index, ...)` select from varargs
-- `unpack(t)` unpack table to multiple values
-- `assert(value, message?)` assert a value is truthy
-- `error(message, level?)` throw an error
-- `pcall(fn, ...)` protected call (catches errors)
-- `xpcall(fn, handler, ...)` extended protected call
-- `getmetatable(t)` get a table's metatable
-- `setmetatable(t, mt)` set a table's metatable
-- `rawget(t, key)` get without metamethods
-- `rawset(t, key, value)` set without metamethods
-- `rawlen(t)` length without metamethods
-- `rawequal(a, b)` equality without metamethods
-- `require(module)` import a module
-- `newproxy(useMeta?)` create a new userdata proxy
-- `gcinfo()` garbage collector info
+### `assert`
+
+Checks if the value is truthy; if not, raises an error with the optional message.
+
+```ts
+function assert<T>(value?: T, message?: string): T
+```
+
+### `error`
+
+Raises an error with the specified object and optional call stack level.
+
+```ts
+function error(obj: any, level?: number): never
+```
+
+### `gcinfo`
+
+Returns the total heap size in kilobytes.
+
+```ts
+function gcinfo(): number
+```
+
+### `getmetatable`
+
+Returns the metatable for the specified object.
+
+```ts
+function getmetatable(obj: any): Record<any, any> | undefined
+```
+
+### `ipairs`
+
+Returns an iterator for numeric key-value pairs in the table.
+
+```ts
+function ipairs<V>(
+  t: V[],
+): LuaMultiReturn<
+  [(this: void, arg0: V[], arg1: number) => LuaMultiReturn<[number | undefined, V]>, V[], number]
+>
+```
+
+### `newproxy`
+
+Creates a new untyped userdata object with an optional metatable.
+
+```ts
+function newproxy(mt?: boolean): any
+```
+
+### `next`
+
+Returns the next key-value pair in the table traversal order.
+
+```ts
+function next<K, V>(t: Record<K, V>, i?: K): LuaMultiReturn<[K, V]> | undefined
+```
+
+### `pairs`
+
+Returns an iterator for all key-value pairs in the table.
+
+```ts
+function pairs<K, V>(
+  t: Record<K, V>,
+): LuaMultiReturn<
+  [(this: void, arg0: Record<K, V>, arg1: K) => LuaMultiReturn<[K | undefined, V]>, Record<K, V>, K]
+>
+```
+
+### `pcall`
+
+Calls function f with parameters args, returning success and function results or an error.
+
+```ts
+function pcall(f: (...args: any[]) => any, args?: any[][]): any
+```
+
+### `print`
+
+Prints all arguments to standard output using Tab as a separator.
+
+```ts
+function print(args?: any[]): void
+```
+
+### `rawequal`
+
+Returns true if a and b have the same type and value.
+
+```ts
+function rawequal(a: any, b: any): boolean
+```
+
+### `rawget`
+
+Performs a table lookup bypassing metatables.
+
+```ts
+function rawget<K, V>(t: Record<K, V>, k: K): V | undefined
+```
+
+### `rawlen`
+
+Returns the length of a table or string bypassing metatables.
+
+```ts
+function rawlen<K, V>(t: Record<any, any> | string): number
+```
+
+### `rawset`
+
+Assigns a value to a table field bypassing metatables.
+
+```ts
+function rawset<K, V>(t: Record<K, V>, k: K, v: V): Record<K, V>
+```
+
+### `require`
+
+Execute the named external module.
+
+```ts
+function require(target: string): any
+```
+
+### `select`
+
+Returns a subset of arguments or the number of arguments.
+
+```ts
+function select(i: string | number, args?: any[]): any
+```
+
+### `setmetatable`
+
+Changes the metatable for the given table.
+
+```ts
+function setmetatable(t: Record<any, any>, mt?: Record<any, any>): void
+```
+
+### `tonumber`
+
+Converts the input string to a number in the specified base.
+
+```ts
+function tonumber(s: string, base?: number): number | undefined
+```
+
+### `tostring`
+
+Converts the input object to a string.
+
+```ts
+function tostring(obj: any): string
+```
+
+### `type`
+
+Returns the type of the object as a string.
+
+```ts
+function type(obj: any): string
+```
+
+### `unpack`
+
+Returns values from an array in the specified index range.
+
+```ts
+function unpack<V>(a: V[], f?: number, t?: number): V[]
+```
+
+### `xpcall`
+
+Calls function f with parameters args, handling errors with e if they occur.
+
+```ts
+function xpcall<E>(f: (...args: any[]) => any, e: (...args: any[]) => any, args?: any[][]): any
+```
 
 ## SLua-specific Globals
 
-- `touuid(value)` convert to UUID
-- `tovector(value)` convert to Vector
-- `toquaternion(value)` / `torotation(value)` convert to Quaternion
-- `dangerouslyexecuterequiredmodule(name)` execute a required module unsandboxed
+### `toquaternion`
+
+Converts a string to a quaternion, returns nil if invalid
+
+```ts
+function toquaternion(val: string | undefined | quaternion): quaternion | undefined
+```
+
+### `torotation`
+
+Converts a string to a rotation (quaternion), returns nil if invalid
+
+```ts
+function torotation(val: string | undefined | quaternion): quaternion | undefined
+```
+
+### `touuid`
+
+Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.
+
+```ts
+function touuid(val: string | undefined | buffer | uuid): uuid | undefined
+```
+
+### `tovector`
+
+Converts a string to a vector, returns nil if invalid
+
+```ts
+function tovector(val: string | undefined | vector): vector | undefined
+```

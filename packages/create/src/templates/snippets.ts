@@ -1,5 +1,18 @@
 import type { Extras } from "../prompts.js"
 
+const YIELD_FLAGS = [
+  "YIELD_DATASERVER",
+  "YIELD_KV",
+  "YIELD_DIALOG",
+  "YIELD_HTTP",
+  "YIELD_PERMISSIONS",
+  "YIELD_SENSOR",
+] as const
+
+export function yieldDefine(): Record<string, boolean> {
+  return Object.fromEntries(YIELD_FLAGS.map((flag) => [flag, true]))
+}
+
 export function mainTsContent(): string {
   return `const owner = ll.GetOwner()
 
@@ -24,10 +37,24 @@ export {}
 `
 }
 
-export function flagsDtsContent(): string {
-  return `declare const CONFIG_YAML_PARSER: boolean
-declare const CONFIG_LLJSON_PARSER: boolean
-`
+export function flagsDtsContent(extras: Extras): string {
+  const lines: string[] = []
+
+  if (extras.config) {
+    lines.push("declare const CONFIG_YAML_PARSER: boolean")
+    lines.push("declare const CONFIG_LLJSON_PARSER: boolean")
+  }
+
+  if (extras.yield) {
+    lines.push("declare const YIELD_DATASERVER: boolean")
+    lines.push("declare const YIELD_KV: boolean")
+    lines.push("declare const YIELD_DIALOG: boolean")
+    lines.push("declare const YIELD_HTTP: boolean")
+    lines.push("declare const YIELD_PERMISSIONS: boolean")
+    lines.push("declare const YIELD_SENSOR: boolean")
+  }
+
+  return lines.join("\n") + "\n"
 }
 
 export function oxlintrcContent(): string {
@@ -111,14 +138,22 @@ export function buildTsContent(extras: Extras, packageManager: string): string {
 
   importLines.push('import { resolve } from "node:path"')
 
-  let pluginLine = '    { name: "@gwigz/slua-tstl-plugin", optimize: true'
+  const defineEntries: string[] = []
   if (extras.config) {
-    pluginLine += ", define: { CONFIG_YAML_PARSER: true, CONFIG_LLJSON_PARSER: false }"
+    defineEntries.push("CONFIG_YAML_PARSER: true, CONFIG_LLJSON_PARSER: false")
+  }
+  if (extras.yield) {
+    defineEntries.push(...YIELD_FLAGS.map((flag) => `${flag}: true`))
+  }
+
+  let pluginLine = '    { name: "@gwigz/slua-tstl-plugin", optimize: true'
+  if (defineEntries.length > 0) {
+    pluginLine += `, define: { ${defineEntries.join(", ")} }`
   }
   pluginLine += " },"
 
   const fileLines = [`      resolve(\`src/\${script}/index.${ext}\`),`]
-  if (extras.config) {
+  if (extras.config || extras.yield) {
     fileLines.push('      resolve("flags.d.ts"),')
   }
 

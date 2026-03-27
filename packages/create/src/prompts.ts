@@ -7,6 +7,7 @@ export type Template = "single" | "multi"
 export interface Extras {
   jsx: boolean
   config: boolean
+  yield: boolean
   stylua: boolean
   linting: boolean
   formatting: boolean
@@ -61,6 +62,7 @@ export async function runPrompts(positionalDir?: string): Promise<ProjectOptions
     options: [
       { value: "jsx" as const, label: "JSX templates", hint: "@gwigz/jsx-inline" },
       { value: "config" as const, label: "Config module", hint: "@gwigz/slua-modules/config" },
+      { value: "yield" as const, label: "Yield module", hint: "@gwigz/slua-modules/yield" },
       { value: "stylua" as const, label: "StyLua formatting" },
       { value: "linting" as const, label: "Linting", hint: "oxlint" },
       { value: "formatting" as const, label: "Formatting", hint: "oxfmt" },
@@ -87,6 +89,7 @@ export async function runPrompts(positionalDir?: string): Promise<ProjectOptions
     extras: {
       jsx: selectedExtras.includes("jsx"),
       config: selectedExtras.includes("config"),
+      yield: selectedExtras.includes("yield"),
       stylua: selectedExtras.includes("stylua"),
       linting: selectedExtras.includes("linting"),
       formatting: selectedExtras.includes("formatting"),

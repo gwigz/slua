@@ -24,8 +24,8 @@ bunx @gwigz/slua-create my-project
 
 ## Templates
 
-- **Single script** — one `main.ts`, that outputs a single script
-- **Multi-script** — custom `build.ts` that can build mutiple scripts
+- **Single script** provides one `main.ts`, that outputs a single script
+- **Multi-script** provides a custom `build.ts` that can build mutiple scripts
 
 ## Extras
 
@@ -33,6 +33,11 @@ bunx @gwigz/slua-create my-project
 | ----------------- | -------------------------------------------------------------------------------------- |
 | JSX templates     | [@gwigz/jsx-inline](https://github.com/gwigz/slua/tree/main/packages/jsx-inline)       |
 | Config module     | [@gwigz/slua-modules/config](https://github.com/gwigz/slua/tree/main/packages/modules) |
+| Yield module      | [@gwigz/slua-modules/yield](https://github.com/gwigz/slua/tree/main/packages/modules)  |
 | StyLua formatting | Lua output formatting via [StyLua](https://github.com/JohnnyMorganz/StyLua)            |
 | Linting           | TypeScript linting via [oxlint](https://oxc.rs)                                        |
 | Formatting        | TypeScript formatting via [oxfmt](https://oxc.rs)                                      |
+
+## Documentation
+
+Full API reference and usage examples are available at [slua.gwigz.link/docs/create](https://slua.gwigz.link/docs/create).

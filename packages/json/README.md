@@ -102,3 +102,7 @@ const codec = createCodec({
   },
 })
 ```
+
+## Documentation
+
+Full API reference and usage examples are available at [slua.gwigz.link/docs/json](https://slua.gwigz.link/docs/json).

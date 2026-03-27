@@ -6,6 +6,7 @@ import {
   mainTsContent,
   buildTsContent,
   flagsDtsContent,
+  yieldDefine,
   oxlintrcContent,
   oxfmtrcContent,
 } from "./snippets.js"
@@ -32,7 +33,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
     devDependencies["@gwigz/jsx-inline"] = VERSIONS["@gwigz/jsx-inline"]
   }
 
-  if (extras.config) {
+  if (extras.config || extras.yield) {
     devDependencies["@gwigz/slua-modules"] = VERSIONS["@gwigz/slua-modules"]
   }
 
@@ -101,18 +102,26 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
 
   const includes: string[] = ["src"]
 
-  if (extras.config) {
+  if (extras.config || extras.yield) {
     includes.push("flags.d.ts")
   }
 
+  const pluginEntry: Record<string, unknown> = { name: "@gwigz/slua-tstl-plugin", optimize: true }
+
+  if (extras.config || extras.yield) {
+    const define: Record<string, boolean> = {}
+    if (extras.config) {
+      define.CONFIG_YAML_PARSER = true
+      define.CONFIG_LLJSON_PARSER = false
+    }
+    if (extras.yield) {
+      Object.assign(define, yieldDefine())
+    }
+    pluginEntry.define = define
+  }
+
   const luaPlugins: Record<string, unknown>[] = [
-    extras.config
-      ? {
-          name: "@gwigz/slua-tstl-plugin",
-          optimize: true,
-          define: { CONFIG_YAML_PARSER: true, CONFIG_LLJSON_PARSER: false },
-        }
-      : { name: "@gwigz/slua-tstl-plugin", optimize: true },
+    pluginEntry,
     { name: "@gwigz/tstl-bundle-flatten" },
   ]
 
@@ -138,8 +147,8 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   files["build.ts"] = buildTsContent(extras, packageManager)
   files[`src/new-script/index.${ext}`] = mainTsContent()
 
-  if (extras.config) {
-    files["flags.d.ts"] = flagsDtsContent()
+  if (extras.config || extras.yield) {
+    files["flags.d.ts"] = flagsDtsContent(extras)
   }
 
   if (extras.linting) {

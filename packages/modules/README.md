@@ -20,4 +20,4 @@ bun add @gwigz/slua-modules
 
 ## Documentation
 
-Full API reference and usage examples are available at [slua.dev/docs/modules](https://slua.dev/docs/modules).
+Full API reference and usage examples are available at [slua.gwigz.link/docs/create](https://slua.gwigz.link/docs/modules).

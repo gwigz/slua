@@ -2,7 +2,13 @@ import type { ProjectOptions } from "../prompts.js"
 import { formatJson, sortKeys } from "../utils.js"
 import { VERSIONS } from "./versions.js"
 import { GITIGNORE, EDITORCONFIG, VSCODE_SETTINGS, VSCODE_EXTENSIONS } from "./common.js"
-import { mainTsContent, flagsDtsContent, oxlintrcContent, oxfmtrcContent } from "./snippets.js"
+import {
+  mainTsContent,
+  flagsDtsContent,
+  yieldDefine,
+  oxlintrcContent,
+  oxfmtrcContent,
+} from "./snippets.js"
 
 export function generateSingleTemplate(options: ProjectOptions): Record<string, string> {
   const { extras, projectName } = options
@@ -21,7 +27,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     devDependencies["@gwigz/jsx-inline"] = VERSIONS["@gwigz/jsx-inline"]
   }
 
-  if (extras.config) {
+  if (extras.config || extras.yield) {
     devDependencies["@gwigz/slua-modules"] = VERSIONS["@gwigz/slua-modules"]
   }
 
@@ -85,18 +91,25 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     compilerOptions.jsxFragmentFactory = "Fragment"
   }
 
-  const luaPlugins: Record<string, unknown>[] = [
-    extras.config
-      ? {
-          name: "@gwigz/slua-tstl-plugin",
-          define: { CONFIG_YAML_PARSER: true, CONFIG_LLJSON_PARSER: false },
-        }
-      : { name: "@gwigz/slua-tstl-plugin" },
-  ]
+  const pluginEntry: Record<string, unknown> = { name: "@gwigz/slua-tstl-plugin" }
+
+  if (extras.config || extras.yield) {
+    const define: Record<string, boolean> = {}
+    if (extras.config) {
+      define.CONFIG_YAML_PARSER = true
+      define.CONFIG_LLJSON_PARSER = false
+    }
+    if (extras.yield) {
+      Object.assign(define, yieldDefine())
+    }
+    pluginEntry.define = define
+  }
+
+  const luaPlugins: Record<string, unknown>[] = [pluginEntry]
 
   const includes: string[] = [`new-script.${ext}`]
 
-  if (extras.config) {
+  if (extras.config || extras.yield) {
     includes.push("flags.d.ts")
   }
 
@@ -121,8 +134,8 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
 
   files[`new-script.${ext}`] = mainTsContent()
 
-  if (extras.config) {
-    files["flags.d.ts"] = flagsDtsContent()
+  if (extras.config || extras.yield) {
+    files["flags.d.ts"] = flagsDtsContent(extras)
   }
 
   if (extras.linting) {

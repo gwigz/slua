@@ -1,0 +1,472 @@
+/**
+ * @module yield
+ *
+ * Coroutine-based wrappers that flatten SLua's callback APIs into
+ * sequential code. Call {@link spawn} to start a coroutine, then use
+ * any of the wrapper functions inside it — they yield the coroutine
+ * until the result is ready, then return the value directly.
+ *
+ * Each wrapper category is gated by a compile-time flag so unused
+ * code is stripped from the Lua output:
+ *
+ * - **YIELD_DATASERVER** — {@link requestAgentData}, {@link requestDisplayName},
+ *   {@link requestSimulatorData}, {@link requestInventoryData},
+ *   {@link readNotecardLine}, {@link readNotecard}, {@link findNotecardTextCount}
+ * - **YIELD_KV** — {@link kvRead}, {@link kvCreate}, {@link kvUpdate},
+ *   {@link kvDelete}, {@link kvSize}
+ * - **YIELD_DIALOG** — {@link dialog}, {@link textBox}
+ * - **YIELD_HTTP** — {@link httpRequest}
+ * - **YIELD_PERMISSIONS** — {@link requestPermissions}, {@link transferMoney}
+ * - **YIELD_SENSOR** — {@link sensor}
+ *
+ * @define Set flags via `@gwigz/slua-tstl-plugin` `define` option.
+ * Code guarded by a flag set to `false` is stripped at compile time.
+ *
+ * @example
+ * ```ts
+ * import { spawn, requestAgentData, sleep } from "@gwigz/slua-modules/yield"
+ *
+ * spawn(() => {
+ *   const name = requestAgentData(ll.GetOwner(), DATA_NAME)
+ *   ll.Say(0, `Hello, ${name}!`)
+ *   sleep(2)
+ *   ll.Say(0, "Done waiting.")
+ * })
+ * ```
+ *
+ * @version 0.1.0
+ */
+
+// ---------------------------------------------------------------------------
+// Core runtime (always included)
+// ---------------------------------------------------------------------------
+
+/**
+ * Run `fn` in a new coroutine. The coroutine starts immediately.
+ * Use yield-based wrappers (e.g. {@link sleep}, {@link requestAgentData})
+ * inside `fn` to suspend and resume automatically.
+ */
+export function spawn(fn: (this: void) => void) {
+  const co = coroutine.create(fn as (this: void, ...args: any[]) => any[])
+  coroutine.resume(co)
+  return co
+}
+
+/**
+ * Yield the current coroutine until `event` fires (optionally matching
+ * a filter predicate). Returns the event arguments as a tuple.
+ */
+export function waitFor<E extends keyof LLEventMap>(
+  event: E,
+  filter?: (...args: Parameters<LLEventMap[E]>) => boolean,
+): Parameters<LLEventMap[E]> {
+  const co = coroutine.running()!
+
+  const handler = LLEvents.on(event, ((...args: any[]) => {
+    if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) {
+      return
+    }
+
+    LLEvents.off(event, handler)
+
+    coroutine.resume(co, args)
+  }) as LLEventMap[E])
+
+  return coroutine.yield() as unknown as Parameters<LLEventMap[E]>
+}
+
+/**
+ * Yield the current coroutine for `seconds` seconds.
+ */
+export function sleep(seconds: number) {
+  const co = coroutine.running()!
+
+  LLTimers.once(seconds, () => coroutine.resume(co))
+
+  coroutine.yield()
+}
+
+// ---------------------------------------------------------------------------
+// Internal helpers (DCE'd when all callers are stripped)
+// ---------------------------------------------------------------------------
+
+/**
+ * @internal Shared dataserver yield pattern — registers a handler filtered
+ * by request ID, yields, returns the data string.
+ */
+function yieldDataserver(requestId: UUID): string {
+  const co = coroutine.running()!
+
+  const handler = LLEvents.on("dataserver", (reqId: UUID, data: string) => {
+    if (reqId !== requestId) {
+      return
+    }
+
+    LLEvents.off("dataserver", handler)
+
+    coroutine.resume(co, data)
+  })
+
+  return coroutine.yield() as unknown as string
+}
+
+// ---------------------------------------------------------------------------
+// Dataserver wrappers
+// ---------------------------------------------------------------------------
+
+/**
+ * Request agent data and yield until the result arrives.
+ *
+ * @define YIELD_DATASERVER
+ */
+export function requestAgentData(id: UUID, type: number) {
+  if (YIELD_DATASERVER) {
+    return yieldDataserver(ll.RequestAgentData(id, type))
+  }
+}
+
+/**
+ * Request a display name and yield until the result arrives.
+ *
+ * @define YIELD_DATASERVER
+ */
+export function requestDisplayName(id: UUID) {
+  if (YIELD_DATASERVER) {
+    return yieldDataserver(ll.RequestDisplayName(id))
+  }
+}
+
+/**
+ * Request simulator data and yield until the result arrives.
+ *
+ * @define YIELD_DATASERVER
+ */
+export function requestSimulatorData(region: string, type: number) {
+  if (YIELD_DATASERVER) {
+    return yieldDataserver(ll.RequestSimulatorData(region, type))
+  }
+}
+
+/**
+ * Request inventory data and yield until the result arrives.
+ *
+ * @define YIELD_DATASERVER
+ */
+export function requestInventoryData(item: string) {
+  if (YIELD_DATASERVER) {
+    return yieldDataserver(ll.RequestInventoryData(item))
+  }
+}
+
+/**
+ * Read a single notecard line and yield until the result arrives.
+ *
+ * @define YIELD_DATASERVER
+ */
+export function readNotecardLine(name: string, line: number) {
+  if (YIELD_DATASERVER) {
+    return yieldDataserver(ll.GetNotecardLine(name, line))
+  }
+}
+
+/**
+ * Read an entire notecard by fetching lines until EOF.
+ * Returns an array of lines.
+ *
+ * @define YIELD_DATASERVER
+ */
+export function readNotecard(name: string) {
+  if (YIELD_DATASERVER) {
+    const lines: string[] = []
+    let lineNum = 0
+
+    while (true) {
+      const data = readNotecardLine(name, lineNum)
+
+      if (data === EOF) break
+
+      lines.push(data as string)
+      lineNum++
+    }
+
+    return lines
+  }
+}
+
+/**
+ * Search notecard text for a pattern and yield until the count arrives.
+ *
+ * @define YIELD_DATASERVER
+ */
+export function findNotecardTextCount(name: string, pattern: string, opts: list) {
+  if (YIELD_DATASERVER) {
+    return yieldDataserver(ll.FindNotecardTextCount(name, pattern, opts))
+  }
+}
+
+// ---------------------------------------------------------------------------
+// KV store wrappers
+// ---------------------------------------------------------------------------
+
+/**
+ * Read a key-value pair from the experience KV store.
+ *
+ * @define YIELD_KV
+ */
+export function kvRead(key: string) {
+  if (YIELD_KV) {
+    const raw = yieldDataserver(ll.ReadKeyValue(key))
+    const sep = raw.indexOf(",")
+    const ok = raw.substring(0, sep) === "1"
+    const value = raw.substring(sep + 1)
+
+    return { ok, value }
+  }
+}
+
+/**
+ * Create a key-value pair in the experience KV store.
+ *
+ * @define YIELD_KV
+ */
+export function kvCreate(key: string, value: string) {
+  if (YIELD_KV) {
+    const raw = yieldDataserver(ll.CreateKeyValue(key, value))
+    return raw.substring(0, raw.indexOf(",")) === "1"
+  }
+}
+
+/**
+ * Update a key-value pair in the experience KV store.
+ *
+ * @define YIELD_KV
+ */
+export function kvUpdate(key: string, value: string) {
+  if (YIELD_KV) {
+    const raw = yieldDataserver(ll.UpdateKeyValue(key, value, 0, ""))
+
+    return raw.substring(0, raw.indexOf(",")) === "1"
+  }
+}
+
+/**
+ * Delete a key-value pair from the experience KV store.
+ *
+ * @define YIELD_KV
+ */
+export function kvDelete(key: string) {
+  if (YIELD_KV) {
+    const raw = yieldDataserver(ll.DeleteKeyValue(key))
+
+    return raw.substring(0, raw.indexOf(",")) === "1"
+  }
+}
+
+/**
+ * Get the KV store usage. Returns used and total byte counts.
+ *
+ * @define YIELD_KV
+ */
+export function kvSize() {
+  if (YIELD_KV) {
+    const raw = yieldDataserver(ll.DataSizeKeyValue())
+    const sep = raw.indexOf(",")
+    const used = tonumber(raw.substring(0, sep))!
+    const total = tonumber(raw.substring(sep + 1))!
+
+    return { used, total }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Dialog & TextBox
+// ---------------------------------------------------------------------------
+
+/**
+ * Show a dialog to an avatar and yield until they click a button.
+ * Returns the button text.
+ *
+ * @define YIELD_DIALOG
+ */
+export function dialog(channel: number, avatarId: UUID, text: string, buttons: string[]) {
+  if (YIELD_DIALOG) {
+    const co = coroutine.running()!
+    const handle = ll.Listen(channel, "", avatarId, "")
+
+    ll.Dialog(avatarId, text, buttons, channel)
+
+    const handler = LLEvents.on("listen", (ch: number, _name: string, _id: UUID, msg: string) => {
+      if (ch !== channel) {
+        return
+      }
+
+      LLEvents.off("listen", handler)
+
+      ll.ListenRemove(handle)
+      coroutine.resume(co, msg)
+    })
+
+    return coroutine.yield() as unknown as string
+  }
+}
+
+/**
+ * Show a text box to an avatar and yield until they submit text.
+ * Returns the entered text.
+ *
+ * @define YIELD_DIALOG
+ */
+export function textBox(channel: number, avatarId: UUID, text: string) {
+  if (YIELD_DIALOG) {
+    const co = coroutine.running()!
+    const handle = ll.Listen(channel, "", avatarId, "")
+
+    ll.TextBox(avatarId, text, channel)
+
+    const handler = LLEvents.on("listen", (ch: number, _name: string, _id: UUID, msg: string) => {
+      if (ch !== channel) {
+        return
+      }
+
+      LLEvents.off("listen", handler)
+
+      ll.ListenRemove(handle)
+      coroutine.resume(co, msg)
+    })
+
+    return coroutine.yield() as unknown as string
+  }
+}
+
+// ---------------------------------------------------------------------------
+// HTTP
+// ---------------------------------------------------------------------------
+
+/**
+ * Send an HTTP request and yield until the response arrives.
+ *
+ * @define YIELD_HTTP
+ */
+export function httpRequest(url: string, params: list, body: string) {
+  if (YIELD_HTTP) {
+    const co = coroutine.running()!
+    const requestId = ll.HTTPRequest(url, params, body)
+
+    const handler = LLEvents.on(
+      "http_response",
+      (reqId: UUID, status: number, metadata: list, respBody: string) => {
+        if (reqId !== requestId) {
+          return
+        }
+
+        LLEvents.off("http_response", handler)
+
+        coroutine.resume(co, { status, metadata, body: respBody })
+      },
+    )
+
+    return coroutine.yield() as unknown as { status: number; metadata: list; body: string }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Permissions
+// ---------------------------------------------------------------------------
+
+/**
+ * Request permissions from an avatar and yield until granted/denied.
+ * Returns the granted permission flags.
+ *
+ * @define YIELD_PERMISSIONS
+ */
+export function requestPermissions(avatarId: UUID, mask: number) {
+  if (YIELD_PERMISSIONS) {
+    const co = coroutine.running()!
+
+    ll.RequestPermissions(avatarId, mask)
+
+    const handler = LLEvents.on("run_time_permissions", (flags: number) => {
+      LLEvents.off("run_time_permissions", handler)
+      coroutine.resume(co, flags)
+    })
+
+    return coroutine.yield() as unknown as number
+  }
+}
+
+/**
+ * Transfer Linden dollars to an avatar and yield until the transaction
+ * result arrives.
+ *
+ * @define YIELD_PERMISSIONS
+ */
+export function transferMoney(avatarId: UUID, amount: number) {
+  if (YIELD_PERMISSIONS) {
+    const co = coroutine.running()!
+    const requestId = ll.TransferLindenDollars(avatarId, amount)
+
+    const handler = LLEvents.on(
+      "transaction_result",
+      (reqId: UUID, successInt: number, message: string) => {
+        if (reqId !== requestId) {
+          return
+        }
+
+        LLEvents.off("transaction_result", handler)
+
+        coroutine.resume(co, { success: successInt === 1, message })
+      },
+    )
+
+    return coroutine.yield() as unknown as { success: boolean; message: string }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sensor
+// ---------------------------------------------------------------------------
+
+/**
+ * Perform a sensor sweep and yield until results arrive.
+ * Returns detected objects on success, or `null` if nothing was found.
+ *
+ * @define YIELD_SENSOR
+ */
+export function sensor(name: string, id: UUID, type: number, range: number, arc: number) {
+  if (YIELD_SENSOR) {
+    const co = coroutine.running()!
+    let resolved = false
+
+    ll.Sensor(name, id, type, range, arc)
+
+    const onSensor = LLEvents.on("sensor", (detected: DetectedEvent[]) => {
+      if (resolved) {
+        return
+      }
+
+      resolved = true
+
+      LLEvents.off("sensor", onSensor)
+      LLEvents.off("no_sensor", onNoSensor)
+
+      coroutine.resume(co, detected)
+    })
+
+    const onNoSensor = LLEvents.on("no_sensor", () => {
+      if (resolved) {
+        return
+      }
+
+      resolved = true
+
+      LLEvents.off("sensor", onSensor)
+      LLEvents.off("no_sensor", onNoSensor)
+
+      coroutine.resume(co)
+    })
+
+    return (coroutine.yield() as unknown as DetectedEvent[] | undefined) ?? null
+  }
+
+  return null
+}

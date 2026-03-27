@@ -1,0 +1,71 @@
+---
+title: testing
+description: Mock utilities for unit testing SLua modules
+---
+
+<Callout type="warn" title="Work in Progress">
+  This module is under active development and has not been battle-tested in production. The API may
+  change between releases.
+</Callout>
+
+`@gwigz/slua-modules/testing` provides mock implementations of `ll`,
+`LLEvents`, `LLTimers`, `coroutine`, and all SLua constants so modules can be
+unit-tested in Bun, Vitest, or Jest without a Second Life runtime.
+
+<Callout type="info">
+  This module is for test environments only, it is not compiled to Lua and should never be imported
+  in production SLua scripts.
+</Callout>
+
+## Usage
+
+```ts
+import { describe, it, expect, beforeEach, afterEach } from "bun:test"
+import { setup, teardown, notecard, emit } from "@gwigz/slua-modules/testing"
+import { loadConfig } from "@gwigz/slua-modules/config"
+
+beforeEach(() => setup())
+afterEach(() => teardown())
+
+it("loads config from notecard", () => {
+  notecard("settings.yml", ["CHANNEL: -123", "MESSAGE: Hello"])
+
+  const config = { CHANNEL: 0, MESSAGE: "" }
+
+  loadConfig("settings.yml", { config }, () => {
+    expect(config.CHANNEL).toBe(-123)
+    expect(config.MESSAGE).toBe("Hello")
+  })
+})
+```
+
+## API
+
+<auto-type-table
+  path="../../../../../packages/modules/src/testing/index.ts"
+  name="API"
+  type="{ setup: typeof setup, teardown: typeof teardown, notecard: typeof notecard, emit: typeof emit, tick: typeof tick, setCoroutineYieldValue: typeof setCoroutineYieldValue }"
+/>
+
+## Mock behaviour
+
+### `ll`
+
+The `ll` namespace is a `Proxy`, any function not explicitly mocked returns a
+no-op. Functions that return request IDs (`RequestAgentData`,
+`HTTPRequest`, etc.) return auto-incrementing UUIDs.
+
+### `LLEvents`
+
+Full `on`/`off`/`once` implementation backed by an internal handler map. Use
+`emit()` to trigger events in tests.
+
+### `LLTimers`
+
+`every()` and `once()` register callbacks into a set. Use `tick()` to fire them.
+
+### `coroutine`
+
+A fresh mock coroutine namespace is created per `setup()` call. Provides
+`create`, `resume`, `running`, `yield`, `status`, `isyieldable`, `wrap`, and
+`close`. Use `setCoroutineYieldValue()` to control what `yield()` returns.

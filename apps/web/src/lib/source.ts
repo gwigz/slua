@@ -13,6 +13,7 @@ export const source = loader({
       Code2: "text-blue-400",
       Terminal: "text-green-400",
       Braces: "text-amber-400",
+      Package: "text-purple-400",
     }
 
     if (name && name in LucideIcons) {

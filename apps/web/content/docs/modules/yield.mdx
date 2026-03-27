@@ -1,0 +1,153 @@
+---
+title: yield
+description: Coroutine wrappers that flatten callback APIs into sequential code
+---
+
+<Callout type="warn" title="Work in Progress">
+  This module is under active development and has not been battle-tested in production. The API may
+  change between releases.
+</Callout>
+
+`@gwigz/slua-modules/yield` uses Lua coroutines to flatten SLua's callback-based
+APIs into sequential code. Call `spawn()` to start a coroutine, then use
+the wrapper functions inside it, they yield the coroutine until the result is
+ready, then return the value directly.
+
+```ts
+import { spawn, requestAgentData, sleep } from "@gwigz/slua-modules/yield"
+
+spawn(() => {
+  const name = requestAgentData(ll.GetOwner(), DATA_NAME)
+
+  ll.Say(0, `Hello, ${name}!`)
+
+  // note that this will not pause your script
+  // it will only pause this spawned coroutine
+  sleep(2)
+
+  ll.Say(0, "Done waiting.")
+})
+```
+
+## Compile-time flags
+
+Each wrapper category is gated by a compile-time flag set via the `define`
+option on `@gwigz/slua-tstl-plugin` in your tsconfig. When a flag is `false`
+(or omitted), the wrapper code is stripped from the Lua output via dead code
+elimination.
+
+```jsonc title="tsconfig.json"
+{
+  "tstl": {
+    "luaPlugins": [
+      {
+        "name": "@gwigz/slua-tstl-plugin",
+        "define": {
+          "YIELD_DATASERVER": true,
+          "YIELD_HTTP": true,
+          // omitted flags default to false, code is stripped
+        },
+      },
+    ],
+  },
+}
+```
+
+## API
+
+<auto-type-table path="../../../../../packages/modules/src/yield/index.ts" name="API" type="
+export type API = {
+  /** Run `fn` in a new coroutine. The coroutine starts immediately. */
+  spawn: typeof spawn,
+  /** Yield until `event` fires, optionally matching a filter. Returns the event arguments as a tuple. */
+  waitFor: typeof waitFor,
+  /** Yield the current coroutine for `seconds` seconds. */
+  sleep: typeof sleep,
+  /** Request agent data and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  requestAgentData: typeof requestAgentData,
+  /** Request a display name and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  requestDisplayName: typeof requestDisplayName,
+  /** Request simulator data and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  requestSimulatorData: typeof requestSimulatorData,
+  /** Request inventory data and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  requestInventoryData: typeof requestInventoryData,
+  /** Read a single notecard line and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  readNotecardLine: typeof readNotecardLine,
+  /** Read an entire notecard by fetching lines until EOF. Returns an array of lines. @remarks `YIELD_DATASERVER` */
+  readNotecard: typeof readNotecard,
+  /** Search notecard text for a pattern and yield until the count arrives. @remarks `YIELD_DATASERVER` */
+  findNotecardTextCount: typeof findNotecardTextCount,
+  /** Read a key-value pair from the experience KV store. @remarks `YIELD_KV` */
+  kvRead: typeof kvRead,
+  /** Create a key-value pair in the experience KV store. @remarks `YIELD_KV` */
+  kvCreate: typeof kvCreate,
+  /** Update a key-value pair in the experience KV store. @remarks `YIELD_KV` */
+  kvUpdate: typeof kvUpdate,
+  /** Delete a key-value pair from the experience KV store. @remarks `YIELD_KV` */
+  kvDelete: typeof kvDelete,
+  /** Get the KV store usage. Returns used and total byte counts. @remarks `YIELD_KV` */
+  kvSize: typeof kvSize,
+  /** Show a dialog to an avatar and yield until they click a button. Returns the button text. @remarks `YIELD_DIALOG` */
+  dialog: typeof dialog,
+  /** Show a text box to an avatar and yield until they submit text. Returns the entered text. @remarks `YIELD_DIALOG` */
+  textBox: typeof textBox,
+  /** Send an HTTP request and yield until the response arrives. @remarks `YIELD_HTTP` */
+  httpRequest: typeof httpRequest,
+  /** Request permissions from an avatar and yield until granted/denied. Returns the granted permission flags. @remarks `YIELD_PERMISSIONS` */
+  requestPermissions: typeof requestPermissions,
+  /** Transfer Linden dollars and yield until the transaction result arrives. @remarks `YIELD_PERMISSIONS` */
+  transferMoney: typeof transferMoney,
+  /** Perform a sensor sweep and yield until results arrive. Returns detected objects or `null`. @remarks `YIELD_SENSOR` */
+  sensor: typeof sensor,
+}
+" />
+
+## Examples
+
+### waitFor
+
+```ts
+spawn(() => {
+  const [channel, name, id, message] = waitFor("listen", (ch) => ch === -123)
+
+  ll.Say(0, `${name} said: ${message}`)
+})
+```
+
+### dialog
+
+```ts
+spawn(() => {
+  const choice = dialog(-99001, ll.GetOwner(), "Pick one:", ["Yes", "No"])
+
+  ll.Say(0, `You chose: ${choice}`)
+})
+```
+
+### httpRequest
+
+```ts
+spawn(() => {
+  const res = httpRequest("https://example.com/api", [HTTP_METHOD, "GET"], "")
+
+  if (res.status === 200) {
+    ll.Say(0, res.body)
+  }
+})
+```
+
+### sensor
+
+```ts
+spawn(() => {
+  const detected = sensor("", NULL_KEY, AGENT, 20.0, PI)
+
+  if (detected) {
+    for (const d of detected) {
+      ll.Say(0, `Found: ${d.name}`)
+    }
+  } else {
+    ll.Say(0, "Nobody nearby.")
+  }
+})
+```

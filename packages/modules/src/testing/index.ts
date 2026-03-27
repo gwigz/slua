@@ -4,6 +4,7 @@ const EOF_VALUE = "\x04"
 const CHANGED_INVENTORY_VALUE = 1
 const NULL_KEY_VALUE = "00000000-0000-0000-0000-000000000000"
 const DEBUG_CHANNEL_VALUE = 2147483647
+const COROUTINE_YIELD_VALUE = "~~coroutine.yield~~"
 
 // Internal state
 let notecards: Record<string, string[]> = {}
@@ -121,6 +122,61 @@ const mockLL: Record<string, (...args: any[]) => any> = {
   GetKey() {
     return NULL_KEY_VALUE
   },
+
+  // Dataserver functions
+  RequestAgentData(): string {
+    return nextKey()
+  },
+  RequestDisplayName(): string {
+    return nextKey()
+  },
+  RequestSimulatorData(): string {
+    return nextKey()
+  },
+  RequestInventoryData(): string {
+    return nextKey()
+  },
+  GetNumberOfNotecardLines(): string {
+    return nextKey()
+  },
+  FindNotecardTextCount(): string {
+    return nextKey()
+  },
+
+  // HTTP
+  HTTPRequest(): string {
+    return nextKey()
+  },
+
+  // Permissions
+  RequestPermissions() {},
+  TransferLindenDollars(): string {
+    return nextKey()
+  },
+
+  // KV store
+  CreateKeyValue(): string {
+    return nextKey()
+  },
+  ReadKeyValue(): string {
+    return nextKey()
+  },
+  UpdateKeyValue(): string {
+    return nextKey()
+  },
+  DeleteKeyValue(): string {
+    return nextKey()
+  },
+  DataSizeKeyValue(): string {
+    return nextKey()
+  },
+
+  // Dialog/TextBox
+  Dialog() {},
+  TextBox() {},
+
+  // Sensor
+  Sensor() {},
 }
 
 // ---
@@ -155,6 +211,48 @@ function mockToNumber(s: string, base?: number): number | undefined {
 }
 
 // ---
+// Mock coroutine namespace
+// ---
+
+let coroutineYieldValue: any = undefined
+
+const mockCoroutine = {
+  create(fn: (...args: any[]) => any) {
+    return { __fn: fn, __status: "suspended" } as any
+  },
+
+  resume(co: any, ...args: any[]) {
+    co.__lastResumeArgs = args
+    return [true, ...args]
+  },
+
+  running(): any {
+    return { __mock: true }
+  },
+
+  yield(..._args: any[]): any {
+    return coroutineYieldValue
+  },
+
+  status(co: any): string {
+    return co?.__status ?? "suspended"
+  },
+
+  isyieldable(): boolean {
+    return true
+  },
+
+  wrap(fn: (...args: any[]) => any) {
+    return fn
+  },
+
+  close(co: any) {
+    if (co) co.__status = "dead"
+    return [true, undefined]
+  },
+}
+
+// ---
 // Globals tracking
 // ---
 
@@ -167,10 +265,18 @@ const GLOBAL_KEYS = [
   "CHANGED_INVENTORY",
   "NULL_KEY",
   "DEBUG_CHANNEL",
+  "COROUTINE_YIELD",
   "tonumber",
   "lljson",
+  "coroutine",
   "CONFIG_YAML_PARSER",
   "CONFIG_LLJSON_PARSER",
+  "YIELD_DATASERVER",
+  "YIELD_KV",
+  "YIELD_DIALOG",
+  "YIELD_HTTP",
+  "YIELD_PERMISSIONS",
+  "YIELD_SENSOR",
 ] as const
 
 const savedGlobals: Record<string, any> = {}
@@ -204,8 +310,16 @@ export function setup(): void {
   g.DEBUG_CHANNEL = DEBUG_CHANNEL_VALUE
   g.tonumber = mockToNumber
   g.lljson = mockLljson
+  g.coroutine = { ...mockCoroutine }
+  g.COROUTINE_YIELD = COROUTINE_YIELD_VALUE
   g.CONFIG_YAML_PARSER = true
   g.CONFIG_LLJSON_PARSER = false
+  g.YIELD_DATASERVER = true
+  g.YIELD_KV = true
+  g.YIELD_DIALOG = true
+  g.YIELD_HTTP = true
+  g.YIELD_PERMISSIONS = true
+  g.YIELD_SENSOR = true
 }
 
 /**
@@ -229,6 +343,7 @@ export function teardown(): void {
   eventHandlers = {}
   timerCallbacks = new Set()
   keyCounter = 0
+  coroutineYieldValue = undefined
 }
 
 /**
@@ -269,4 +384,31 @@ export function emit(event: string, ...args: any[]): void {
   for (const handler of [...handlers]) {
     handler(...args)
   }
+}
+
+/**
+ * Fire all pending timer callbacks and clear the set.
+ * Simulates time passing in tests.
+ *
+ * @example
+ * ```ts
+ * LLTimers.once(5, () => { ll.Say(0, "done") })
+ * tick() // fires the callback immediately
+ * ```
+ */
+export function tick(): void {
+  const callbacks = [...timerCallbacks]
+  timerCallbacks.clear()
+
+  for (const callback of callbacks) {
+    callback()
+  }
+}
+
+/**
+ * Set the value that `coroutine.yield()` will return in the mock.
+ * Call this before triggering code that will yield.
+ */
+export function setCoroutineYieldValue(value: any): void {
+  coroutineYieldValue = value
 }

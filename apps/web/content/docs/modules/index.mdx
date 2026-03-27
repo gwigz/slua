@@ -1,0 +1,99 @@
+---
+title: Documentation
+description: Shared runtime modules for SLua projects
+icon: BookOpen
+---
+
+import { Cards, Card } from "fumadocs-ui/components/card"
+import { Settings, FlaskConical, Repeat } from "lucide-react"
+
+<Callout type="warn" title="Work in Progress">
+  These modules are under active development and have not been battle-tested in production. APIs may
+  change between releases.
+</Callout>
+
+`@gwigz/slua-modules` provides reusable runtime modules for
+[SLua](https://github.com/gwigz/slua) projects. Each module is imported via a
+subpath export and compiled to Lua through
+[TypeScript-to-Lua](https://typescripttolua.github.io). Unused code is stripped
+at compile time via `@define` flags.
+
+## Install
+
+```bash tab="npm"
+npm install @gwigz/slua-modules
+```
+
+```bash tab="pnpm"
+pnpm add @gwigz/slua-modules
+```
+
+```bash tab="bun"
+bun add @gwigz/slua-modules
+```
+
+### TSTL configuration
+
+TSTL's `luaBundle` resolver cannot resolve TypeScript source from `node_modules`
+directly. Add `paths` to your tsconfig so TSTL can find the module source:
+
+```jsonc title="tsconfig.json"
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@gwigz/slua-modules/*": ["node_modules/@gwigz/slua-modules/src/*/index.ts"],
+    },
+  },
+}
+```
+
+## Compile-time flags
+
+Some modules use compile-time flags to strip unused code from the Lua output.
+Flags are set via the `define` option on `@gwigz/slua-tstl-plugin` in your
+tsconfig. When a flag is `false` (or omitted), the guarded code is removed
+entirely by dead code elimination.
+
+```jsonc title="tsconfig.json"
+{
+  "tstl": {
+    "luaPlugins": [
+      {
+        "name": "@gwigz/slua-tstl-plugin",
+        "define": {
+          "CONFIG_YAML_PARSER": true,
+          "YIELD_DATASERVER": true,
+          "YIELD_HTTP": true,
+        },
+      },
+    ],
+  },
+}
+```
+
+Only enable the flags you need, omitted flags default to `false` and their
+code is stripped. See each module's documentation for the available flags.
+
+## Modules
+
+<Cards>
+  <Card
+    title="config"
+    href="/docs/modules/config"
+    description="Typed notecard config with YAML and lljson parsers"
+    icon={<Settings />}
+  />
+  <Card
+    title="yield"
+    href="/docs/modules/yield"
+    description="Coroutine wrappers that flatten callback APIs into sequential code"
+    icon={<Repeat />}
+  />
+  <Card
+    title="testing"
+    href="/docs/modules/testing"
+    description="Mock utilities for unit testing SLua modules"
+    icon={<FlaskConical />}
+  />
+</Cards>

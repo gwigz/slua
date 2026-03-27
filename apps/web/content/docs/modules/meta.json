@@ -1,0 +1,7 @@
+{
+  "title": "@gwigz/slua-modules",
+  "description": "Shared runtime modules for SLua projects",
+  "root": true,
+  "icon": "Package",
+  "pages": ["---Introduction---", "index", "---Modules---", "config", "yield", "testing"]
+}

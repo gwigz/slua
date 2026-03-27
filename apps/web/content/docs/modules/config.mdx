@@ -1,0 +1,120 @@
+---
+title: config
+description: Typed notecard config with YAML and lljson parsers
+---
+
+<Callout type="warn" title="Work in Progress">
+  This module is under active development and has not been battle-tested in production. The API may
+  change between releases.
+</Callout>
+
+`@gwigz/slua-modules/config` reads settings notecards and applies parsed values
+to a typed config object in-place. The same reference stays valid across
+reloads.
+
+## How defaults work
+
+The config object you pass in defines **which keys are accepted** and **how
+values are coerced**. The type of each default value determines the parsing
+behaviour:
+
+| Default type | Notecard value   | Result                                                                                   |
+| ------------ | ---------------- | ---------------------------------------------------------------------------------------- |
+| `number`     | `"42"`           | Parsed via `tonumber()`. If parsing fails (e.g. `"abc"`), the default is kept unchanged. |
+| `string[]`   | `"a, b, c"`      | Split on `,` and trimmed → `["a", "b", "c"]`. An empty string produces `[]`.             |
+| `string`     | `"Hello\nWorld"` | Assigned directly. Literal `\n` sequences are replaced with newlines.                    |
+
+Keys in the notecard that **do not exist** in your defaults object are silently
+ignored, this lets you keep comments or unrelated keys in the notecard without
+errors. The lljson parser assigns matching keys directly without type coercion.
+
+## Formats
+
+Both parsers are gated by compile-time flags set via the `define` option on
+`@gwigz/slua-tstl-plugin`. When a flag is `false` (or omitted), the parser code
+is stripped from the Lua output.
+
+| Flag                   | Format          | Description                                  |
+| ---------------------- | --------------- | -------------------------------------------- |
+| `CONFIG_YAML_PARSER`   | `yml` (default) | Simple `key: value` lines with type coercion |
+| `CONFIG_LLJSON_PARSER` | `lljson`        | Full JSON via `lljson.sldecode`              |
+
+```jsonc title="tsconfig.json"
+{
+  "tstl": {
+    "luaPlugins": [
+      {
+        "name": "@gwigz/slua-tstl-plugin",
+        "define": {
+          "CONFIG_YAML_PARSER": true,
+          "CONFIG_LLJSON_PARSER": true,
+        },
+      },
+    ],
+  },
+}
+```
+
+### YAML
+
+```yaml
+# Comment
+PRIVATE_CHANNEL: -1731704569
+WELCOME_MESSAGE: Hello\nWorld
+ADMIN_KEYS: key1, key2, key3
+```
+
+Lines starting with `#` are treated as comments and ignored.
+
+### lljson
+
+Full JSON via `lljson.sldecode`, with native support for vectors, rotations,
+and UUIDs. Provide appropriate defaults (e.g. `Vector.zero`,
+`Quaternion.identity`, `NULL_KEY`).
+
+## Usage
+
+```ts
+import { loadConfig, onConfigChanged } from "@gwigz/slua-modules/config"
+
+const config = {
+  PRIVATE_CHANNEL: -1731704569,
+  WELCOME_MESSAGE: "Welcome",
+  ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000"],
+}
+
+loadConfig("settings.yml", { config }, () => {
+  ll.Say(config.PRIVATE_CHANNEL, config.WELCOME_MESSAGE)
+
+  onConfigChanged("settings.yml", { config }, () => {
+    ll.Say(config.PRIVATE_CHANNEL, "Config reloaded")
+  })
+})
+```
+
+Using lljson (requires `CONFIG_LLJSON_PARSER: true`):
+
+```ts
+const config = {
+  SPAWN_POS: Vector.zero,
+  SPAWN_ROT: Quaternion.identity,
+  OWNER: NULL_KEY,
+  RADIUS: 10,
+}
+
+loadConfig("config.json", { config, type: "lljson" }, () => {
+  ll.SetPos(config.SPAWN_POS)
+})
+```
+
+## API
+
+<auto-type-table
+  path="../../../../../packages/modules/src/config/index.ts"
+  name="API"
+  type="{ loadConfig: typeof loadConfig, onConfigChanged: typeof onConfigChanged }"
+/>
+
+### `ConfigOptions<T>`
+
+<auto-type-table path="../../../../../packages/modules/src/config/index.ts" name="ConfigOptions" />

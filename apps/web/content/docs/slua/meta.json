@@ -1,5 +1,5 @@
 {
-  "title": "@gwigz/slua",
+  "title": "@gwigz/slua-*",
   "description": "TypeScript type definitions and TSTL plugin for SLua",
   "root": true,
   "icon": "Code2",

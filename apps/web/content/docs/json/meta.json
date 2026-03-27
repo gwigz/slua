@@ -3,5 +3,12 @@
   "description": "Tagged JSON codec for exchanging typed data with SLua scripts",
   "root": true,
   "icon": "Braces",
-  "pages": ["---Introduction---", "index", "---Reference---", "api-reference", "tag-format"]
+  "pages": [
+    "---Introduction---",
+    "index",
+    "[Gamepad2][Playground](/playground/json)",
+    "---Reference---",
+    "api-reference",
+    "tag-format"
+  ]
 }

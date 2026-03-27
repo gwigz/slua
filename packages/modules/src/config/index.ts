@@ -249,7 +249,7 @@ export function loadConfig<T extends Record<string, ConfigValue>>(
  *
  * Each time the notecard's inventory key changes, `config` is
  * reset to a snapshot taken at registration time, then re-parsed
- * from the updated notecard — the same object is mutated in-place.
+ * from the updated notecard, the same object is mutated in-place.
  *
  * @typeParam T - Config shape, inferred from `options.config`.
  * @param notecard - Name of the notecard in the object's inventory.

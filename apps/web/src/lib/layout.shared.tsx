@@ -18,7 +18,7 @@ export function baseOptions(): BaseLayoutProps {
     },
     links: [
       { text: "Docs", url: "/docs/slua" },
-      { text: "Playground", url: "/playground" },
+      { text: "Playground", url: "/playground", active: "nested-url" },
     ],
     githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
     themeSwitch: { enabled: true },

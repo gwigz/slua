@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import Editor, { type OnMount } from "@monaco-editor/react"
-import { IconBrandGithub, IconExternalLink, IconInfoCircle, IconRotate } from "@tabler/icons-react"
+import { IconExternalLink, IconInfoCircle, IconRotate } from "@tabler/icons-react"
 import {
   Dialog,
   DialogClose,
@@ -15,7 +15,9 @@ import {
 } from "~/components/ui/dialog"
 import { Button } from "~/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
+import { PlaygroundTabs } from "~/components/playground-tabs"
 import { beforeMount as monacoBeforeMount } from "~/playground/monaco-setup"
+import { EDITOR_OPTIONS, useMonacoTheme } from "~/playground/shared"
 import type { WorkerDiagnostic, WorkerResponse } from "~/playground/types"
 
 const CREDITS = [
@@ -92,37 +94,6 @@ ll.Listen(67, "", owner, "")
 `
 
 const STORAGE_KEY = "slua.playground-code"
-
-const EDITOR_OPTIONS = {
-  minimap: { enabled: false },
-  fontFamily: "'Fira Code', monospace",
-  fontLigatures: true,
-  fontSize: 13,
-  lineNumbers: "on" as const,
-  scrollBeyondLastLine: false,
-  automaticLayout: true,
-}
-
-function useMonacoTheme() {
-  const [theme, setTheme] = useState<string>(() =>
-    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
-      ? "vitesse-dark"
-      : "vitesse-light",
-  )
-
-  useEffect(() => {
-    const update = () =>
-      setTheme(
-        document.documentElement.classList.contains("dark") ? "vitesse-dark" : "vitesse-light",
-      )
-    const observer = new MutationObserver(update)
-
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
-
-    return () => observer.disconnect()
-  }, [])
-  return theme
-}
 
 export default function Playground() {
   const monacoTheme = useMonacoTheme()
@@ -205,7 +176,7 @@ export default function Playground() {
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-fd-background text-fd-foreground">
       <header className="flex items-center justify-between px-4 py-2 border-b border-fd-border shrink-0">
-        <span className="font-semibold text-sm">TypeScript to SLua Playground</span>
+        <PlaygroundTabs activeTab="typescript" />
         <TooltipProvider>
           <div className="flex items-center gap-2">
             <Dialog open={resetOpen} onOpenChange={setResetOpen}>
@@ -284,21 +255,6 @@ export default function Playground() {
                 </ul>
               </DialogContent>
             </Dialog>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <a
-                    href="https://github.com/gwigz/slua"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-fd-muted-foreground hover:text-fd-foreground transition-colors"
-                  >
-                    <IconBrandGithub size={18} />
-                  </a>
-                }
-              />
-              <TooltipContent>View on GitHub</TooltipContent>
-            </Tooltip>
           </div>
         </TooltipProvider>
       </header>

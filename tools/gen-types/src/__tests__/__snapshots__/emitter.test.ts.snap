@@ -20,8 +20,8 @@ exports[`emitBaseClass produces method-style operator overloads on the interface
  */
 declare interface vector {
     readonly x: number;
-    add: LuaAdditionMethod<vector, vector>;
-    neg: LuaNegationMethod<vector>;
+    add: LuaAdditionMethod<Vector, Vector>;
+    neg: LuaNegationMethod<Vector>;
 }
 "
 `;
@@ -29,7 +29,7 @@ declare interface vector {
 exports[`emitBaseClass emits intersected overloads for union operator types 1`] = `
 "/** @noSelf */
 declare interface vector {
-    mul: LuaMultiplicationMethod<number, vector> & LuaMultiplicationMethod<vector, vector> & LuaMultiplicationMethod<quaternion, vector>;
+    mul: LuaMultiplicationMethod<number, Vector> & LuaMultiplicationMethod<Vector, Vector> & LuaMultiplicationMethod<Quaternion, Vector>;
 }
 "
 `;
@@ -58,21 +58,19 @@ declare class Vector {
     readonly x: number;
     readonly y: number;
     readonly z: number;
-    add: LuaAdditionMethod<vector, vector>;
+    add: LuaAdditionMethod<Vector, Vector>;
 }
-
-declare type vector = Vector;
 "
 `;
 
 exports[`emitTypeAlias produces declare type alias 1`] = `
 "/** 'rotation' is an alias for 'quaternion' */
-declare type rotation = quaternion;
+declare type rotation = Quaternion;
 "
 `;
 
 exports[`emitTypeAlias maps complex definitions through mapType 1`] = `
-"declare type list = (string | number | vector | uuid | quaternion | boolean)[];
+"declare type list = (string | number | Vector | UUID | Quaternion | boolean)[];
 "
 `;
 
@@ -96,7 +94,7 @@ exports[`emitGlobalFunction produces declare function with parameters and return
  * Creates a new uuid from a string.
  * @noSelf
  */
-declare function touuid(val: string | undefined | buffer | uuid): uuid | undefined;
+declare function touuid(val: string | undefined | buffer | UUID): UUID | undefined;
 "
 `;
 
@@ -111,24 +109,24 @@ exports[`emitModule produces declare namespace with functions and constants 1`] 
 /** @noSelf */
 declare namespace vector {
     /** Creates a new vector. */
-    export function create(x: number, y: number, z?: number): vector;
+    export function create(x: number, y: number, z?: number): Vector;
 
-    export function magnitude(v: vector): number;
+    export function magnitude(v: Vector): number;
 
     /** Zero vector. */
-    export const zero: vector;
+    export const zero: Vector;
 }
 "
 `;
 
 exports[`emitModule emits callable interface for callable modules 1`] = `
 "declare interface vector {
-    (x: number, y: number, z?: number): vector;
+    (x: number, y: number, z?: number): Vector;
 }
 
 /** @noSelf */
 declare namespace vector {
-    export function create(x: number, y: number, z?: number): vector;
+    export function create(x: number, y: number, z?: number): Vector;
 }
 "
 `;
@@ -136,9 +134,9 @@ declare namespace vector {
 exports[`emitModule uses PascalCase namespace name when className is provided 1`] = `
 "/** @noSelf */
 declare namespace Vector {
-    export function create(x: number, y: number): vector;
+    export function create(x: number, y: number): Vector;
 
-    export const zero: vector;
+    export const zero: Vector;
 }
 "
 `;

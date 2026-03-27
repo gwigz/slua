@@ -119,9 +119,9 @@ const LSL_TYPE_MAP: Record<string, string> = {
   float: "number",
   string: "string",
   void: "void",
-  key: "uuid",
-  rotation: "quaternion",
-  vector: "vector",
+  key: "UUID",
+  rotation: "Quaternion",
+  vector: "Vector",
   list: "list",
 }
 
@@ -416,8 +416,6 @@ function addBaseClass(sf: SourceFile, bc: BaseClass, ctor?: ConstructorInfo) {
     cls.addConstructor({ parameters: buildParams(ctor.params, false) })
 
     addBaseClassMembers(cls, bc)
-
-    sf.addTypeAlias({ name: bc.name, type: ctor.className, hasDeclareKeyword: true })
   } else {
     const comment = buildInterfaceComment(bc.name, bc.comment)
 

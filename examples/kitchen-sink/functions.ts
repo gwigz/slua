@@ -12,8 +12,8 @@ function sayAll(channel: number, ...messages: string[]): void {
   }
 }
 
-/** Higher-order functions -- functions as arguments (uuid is the SLua type for agent/object keys) */
-function withOwnerCheck(action: (owner: uuid) => void): void {
+/** Higher-order functions -- functions as arguments (UUID is the SLua type for agent/object keys) */
+function withOwnerCheck(action: (owner: UUID) => void): void {
   const owner = ll.GetOwner()
 
   action(owner)

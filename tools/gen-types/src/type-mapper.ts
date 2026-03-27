@@ -18,15 +18,21 @@ const PRIMITIVES: Record<string, string> = {
 }
 
 const PASSTHROUGH_TYPES = new Set([
-  "vector",
-  "quaternion",
-  "uuid",
-  "rotation",
+  "Vector",
+  "Quaternion",
+  "UUID",
   "DetectedEvent",
   "LLEvents",
   "LLTimers",
   "LLEventName",
 ])
+
+const LUAU_TYPE_ALIASES: Record<string, string> = {
+  vector: "Vector",
+  quaternion: "Quaternion",
+  uuid: "UUID",
+  rotation: "Quaternion",
+}
 
 /**
  * Check if a string has balanced parentheses and braces.
@@ -337,6 +343,11 @@ export function mapType(luauType: string): string {
   // 5. Primitives map
   if (input in PRIMITIVES) {
     return PRIMITIVES[input]
+  }
+
+  // 5a. Luau type aliases (e.g. vector -> Vector, quaternion -> Quaternion)
+  if (input in LUAU_TYPE_ALIASES) {
+    return LUAU_TYPE_ALIASES[input]
   }
 
   // 6. Passthrough types

@@ -25,7 +25,7 @@ function profileLink(key: string): string {
   return `secondlife:///app/agent/${key}/inspect`
 }
 
-/** Extract a UUID from a raw key or secondlife:///app/agent/<uuid>/... URI */
+/** Extract a UUID from a raw key or secondlife:///app/agent/<UUID>/... URI */
 function extractKey(input: string): string {
   const prefix = "secondlife:///app/agent/"
 
@@ -193,7 +193,7 @@ function relayToOutOfRange(speakerId: UUID, message: string) {
     return
   }
 
-  const speakerPos = speakerDetails[0] as vector
+  const speakerPos = speakerDetails[0] as Vector
   const agents = ll.GetAgentList(AGENT_LIST_REGION, [])
   const speakerKey = tostring(speakerId)
   const relayText = `RELAY|${speakerKey}|${message}`
@@ -229,7 +229,7 @@ function relayToOutOfRange(speakerId: UUID, message: string) {
       continue
     }
 
-    const agentPos = agentDetails[0] as vector
+    const agentPos = agentDetails[0] as Vector
     const distance = ll.VecDist(speakerPos, agentPos)
 
     if (distance <= SAY_RANGE) {
@@ -279,7 +279,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
   }
 
   if (payload.startsWith("CHAT|")) {
-    // Format: "CHAT|<36-char-uuid>|<message>"
+    // Format: "CHAT|<36-char-UUID>|<message>"
     const speakerKey = payload.substring(5, 41)
 
     if (config.IGNORED_AVATARS.includes(speakerKey)) {
@@ -291,7 +291,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
   }
 
   if (payload.startsWith("SAY|")) {
-    // Format: "SAY|<36-char-avatar-uuid>|<36-char-speaker-uuid>|<message>"
+    // Format: "SAY|<36-char-avatar-UUID>|<36-char-speaker-UUID>|<message>"
     const avatar = new UUID(payload.substring(4, 40))
     const speakerId = payload.substring(41, 77)
     const message = payload.substring(78)
@@ -301,7 +301,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
   }
 
   if (payload.startsWith("CMD|")) {
-    // Format: "CMD|<36-char-uuid>|<text>"
+    // Format: "CMD|<36-char-UUID>|<text>"
     const avatarId = new UUID(payload.substring(4, 40))
     const cmdText = payload.substring(41)
 

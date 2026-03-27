@@ -93,7 +93,7 @@ function readNotecardSync(notecard: string, callback: (lines: string[]) => void)
 function forceCache(notecard: string, callback: () => void) {
   const requestId = ll.GetNotecardLine(notecard, 0)
 
-  function handler(id: uuid, _data: string) {
+  function handler(id: UUID, _data: string) {
     if (id !== requestId) {
       return
     }

@@ -11,15 +11,16 @@ describe("mapType", () => {
     expect(mapType("never")).toBe("never")
   })
 
-  it("maps SLua custom types as-is", () => {
-    expect(mapType("vector")).toBe("vector")
-    expect(mapType("quaternion")).toBe("quaternion")
-    expect(mapType("uuid")).toBe("uuid")
+  it("maps SLua custom types to PascalCase", () => {
+    expect(mapType("vector")).toBe("Vector")
+    expect(mapType("quaternion")).toBe("Quaternion")
+    expect(mapType("uuid")).toBe("UUID")
+    expect(mapType("rotation")).toBe("Quaternion")
   })
 
   it("maps optional types", () => {
     expect(mapType("number?")).toBe("number | undefined")
-    expect(mapType("uuid?")).toBe("uuid | undefined")
+    expect(mapType("uuid?")).toBe("UUID | undefined")
     expect(mapType("string?")).toBe("string | undefined")
   })
 
@@ -59,12 +60,12 @@ describe("mapType", () => {
 
   it("maps union types", () => {
     expect(mapType("string | number")).toBe("string | number")
-    expect(mapType("number | vector | quaternion")).toBe("number | vector | quaternion")
+    expect(mapType("number | vector | quaternion")).toBe("number | Vector | Quaternion")
   })
 
   it("maps Luau union array types", () => {
     expect(mapType("{string | number | vector | uuid | quaternion | boolean}")).toBe(
-      "(string | number | vector | uuid | quaternion | boolean)[]",
+      "(string | number | Vector | UUID | Quaternion | boolean)[]",
     )
   })
 

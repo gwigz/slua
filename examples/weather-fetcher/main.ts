@@ -43,7 +43,7 @@ ${weather.temperature} | Humidity ${weather.humidity}
 Wind ${weather.wind}`
 }
 
-function setFloatText(text: string, color: vector, alpha: number) {
+function setFloatText(text: string, color: Vector, alpha: number) {
   ll.SetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXT, text, color, alpha])
 }
 

@@ -15,9 +15,10 @@ describe("generate", () => {
     expect(output).resolves.toContain("declare class Vector")
     expect(output).resolves.toContain("declare class Quaternion")
     expect(output).resolves.toContain("declare class UUID")
-    expect(output).resolves.toContain("declare type vector = Vector")
-    expect(output).resolves.toContain("declare type quaternion = Quaternion")
-    expect(output).resolves.toContain("declare type uuid = UUID")
+    // No redundant lowercase type aliases
+    expect(output).resolves.not.toContain("declare type vector = Vector")
+    expect(output).resolves.not.toContain("declare type quaternion = Quaternion")
+    expect(output).resolves.not.toContain("declare type uuid = UUID")
 
     // Has PascalCase namespaces merged with classes
     expect(output).resolves.toContain("declare namespace Vector")
@@ -29,7 +30,7 @@ describe("generate", () => {
     expect(output).resolves.toContain("function GetOwner(")
 
     // Has type aliases
-    expect(output).resolves.toContain("type rotation = quaternion")
+    expect(output).resolves.toContain("type rotation = Quaternion")
 
     // Has global functions
     expect(output).resolves.toContain("function touuid(")

@@ -11,28 +11,24 @@ declare class Quaternion {
   readonly y: number
   readonly z: number
   readonly s: number
-  add: LuaAdditionMethod<quaternion, quaternion>
-  sub: LuaSubtractionMethod<quaternion, quaternion>
-  mul: LuaMultiplicationMethod<quaternion, quaternion>
-  div: LuaDivisionMethod<quaternion, quaternion>
-  neg: LuaNegationMethod<quaternion>
+  add: LuaAdditionMethod<Quaternion, Quaternion>
+  sub: LuaSubtractionMethod<Quaternion, Quaternion>
+  mul: LuaMultiplicationMethod<Quaternion, Quaternion>
+  div: LuaDivisionMethod<Quaternion, Quaternion>
+  neg: LuaNegationMethod<Quaternion>
 }
-
-declare type quaternion = Quaternion
 
 /**
  * A 128‑bit unique identifier formatted as 36 hexadecimal characters (8‑4‑4‑4‑12), e.g. "A822FF2B-FF02-461D-B45D-DCD10A2DE0C2".
  * @customConstructor uuid.create
  */
 declare class UUID {
-  constructor(value: string | undefined | buffer | uuid)
+  constructor(value: string | undefined | buffer | UUID)
   /** Returns true if the UUID is not the null UUID (all zeros) */
   readonly istruthy: boolean
   /** Returns the raw 16-byte binary string of the UUID, or nil if the UUID is not in a compressed state */
   readonly bytes: string
 }
-
-declare type uuid = UUID
 
 /**
  * A set of three float values. Used to represent colors (RGB), positions, directions, and velocities.
@@ -44,24 +40,22 @@ declare class Vector {
   readonly y: number
   readonly z: number
   /** Native component-wise addition */
-  add: LuaAdditionMethod<vector, vector>
+  add: LuaAdditionMethod<Vector, Vector>
   /** Native component-wise subtraction */
-  sub: LuaSubtractionMethod<vector, vector>
+  sub: LuaSubtractionMethod<Vector, Vector>
   /** Unary negation */
-  neg: LuaNegationMethod<vector>
+  neg: LuaNegationMethod<Vector>
   /** Multiplication: vector * vector / number -> vector (Scale), vector * quaternion -> vector (Rotation) */
-  mul: LuaMultiplicationMethod<number, vector> &
-    LuaMultiplicationMethod<vector, vector> &
-    LuaMultiplicationMethod<quaternion, vector>
+  mul: LuaMultiplicationMethod<number, Vector> &
+    LuaMultiplicationMethod<Vector, Vector> &
+    LuaMultiplicationMethod<Quaternion, Vector>
   /** Division: vector / number -> vector (Scale), vector / quaternion -> vector (Rotation by inverse) */
-  div: LuaDivisionMethod<number, vector> &
-    LuaDivisionMethod<vector, vector> &
-    LuaDivisionMethod<quaternion, vector>
+  div: LuaDivisionMethod<number, Vector> &
+    LuaDivisionMethod<Vector, Vector> &
+    LuaDivisionMethod<Quaternion, Vector>
   /** LSL-style modulo: vector % vector -> vector (Cross Product) */
-  mod: LuaModuloMethod<vector, vector>
+  mod: LuaModuloMethod<Vector, Vector>
 }
-
-declare type vector = Vector
 
 /** Event detection class providing access to detected object/avatar information */
 declare interface DetectedEvent {
@@ -76,7 +70,7 @@ declare interface DetectedEvent {
    * Returns the grab offset of a user touching the object.
    * Returns <0.0, 0.0, 0.0> if Number is not a valid object.
    */
-  getGrab(): vector
+  getGrab(): Vector
   /**
    * Returns TRUE if detected object or agent Number has the same user group active as this object.
    * It will return FALSE if the object or agent is in the group, but the group is not active.
@@ -86,7 +80,7 @@ declare interface DetectedEvent {
    * Returns the key of detected object or avatar number.
    * Returns NULL_KEY if Number is not a valid index.
    */
-  getKey(): uuid
+  getKey(): UUID
   /**
    * Returns the link position of the triggered event for touches and collisions only.
    * 0 for a non-linked object, 1 for the root of a linked object, 2 for the first child, etc.
@@ -102,49 +96,49 @@ declare interface DetectedEvent {
    * Returns the key of detected object's owner.
    * Returns invalid key if Number is not a valid index.
    */
-  getOwner(): uuid
+  getOwner(): UUID
   /**
    * Returns the position of detected object or avatar number.
    * Returns <0.0, 0.0, 0.0> if Number is not a valid index.
    */
-  getPos(): vector
+  getPos(): Vector
   /** Returns the key for the rezzer of the detected object. */
-  getRezzer(): uuid
+  getRezzer(): UUID
   /**
    * Returns the rotation of detected object or avatar number.
    * Returns <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
    */
-  getRot(): quaternion
+  getRot(): Quaternion
   /**
    * Returns the surface bi-normal for a triggered touch event.
    * Returns a vector that is the surface bi-normal (tangent to the surface) where the touch event was triggered.
    */
-  getTouchBinormal(): vector
+  getTouchBinormal(): Vector
   /** Returns the index of the face where the avatar clicked in a triggered touch event. */
   getTouchFace(): number
   /**
    * Returns the surface normal for a triggered touch event.
    * Returns a vector that is the surface normal (perpendicular to the surface) where the touch event was triggered.
    */
-  getTouchNormal(): vector
+  getTouchNormal(): Vector
   /**
    * Returns the position, in region coordinates, where the object was touched in a triggered touch event.
    * Unless it is a HUD, in which case it returns the position relative to the attach point.
    */
-  getTouchPos(): vector
+  getTouchPos(): Vector
   /**
    * Returns a vector that is the surface coordinates where the prim was touched.
    * The X and Y vector positions contain the horizontal (S) and vertical (T) face coordinates respectively.
    * Each component is in the interval [0.0, 1.0].
    * TOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).
    */
-  getTouchST(): vector
+  getTouchST(): Vector
   /**
    * Returns a vector that is the texture coordinates for where the prim was touched.
    * The X and Y vector positions contain the U and V face coordinates respectively.
    * TOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).
    */
-  getTouchUV(): vector
+  getTouchUV(): Vector
   /**
    * Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object.
    * Returns 0 if number is not a valid index.
@@ -159,7 +153,7 @@ declare interface DetectedEvent {
    * Returns the velocity of the detected object Number.
    * Returns<0.0, 0.0, 0.0> if Number is not a valid offset.
    */
-  getVel(): vector
+  getVel(): Vector
 }
 
 /** @noSelf */
@@ -167,13 +161,13 @@ declare interface LLEventMap {
   /** This event is triggered when a script comes within a defined angle of a target rotation. The range and rotation are set by a call to llRotTarget. */
   at_rot_target: (
     targetNumber: number,
-    targetRotation: quaternion,
-    currentRotation: quaternion,
+    targetRotation: Quaternion,
+    currentRotation: Quaternion,
   ) => void
   /** This event is triggered when the scripted object comes within a defined range of the target position, defined by the llTarget function call. */
-  at_target: (targetNumber: number, targetPosition: vector, currentPosition: vector) => void
+  at_target: (targetNumber: number, targetPosition: Vector, currentPosition: Vector) => void
   /** This event is triggered whenever an object is attached or detached from an avatar. If it is attached, the key of the avatar it is attached to is passed in, otherwise NULL_KEY is. */
-  attach: (avatarId: uuid) => void
+  attach: (avatarId: UUID) => void
   /** Triggered when various events change the object. The change argument will be a bit-field of CHANGED_* constants. */
   changed: (changed: number) => void
   /** This event is raised while another object, or avatar, is colliding with the object the script is attached to.The number of detected objects is passed to the script. Information on those objects may be gathered via the llDetected* functions. */
@@ -183,9 +177,9 @@ declare interface LLEventMap {
   /** This event is raised when another object, or avatar, starts colliding with the object the script is attached to.The number of detected objects is passed to the script. Information on those objects may be gathered via the llDetected* library functions. */
   collision_start: (detected: DetectedEvent[]) => void
   /** Once a script has the ability to grab control inputs from the avatar, this event will be used to pass the commands into the script.The levels and edges are bit-fields of control constants. */
-  control: (avatarId: uuid, levels: number, edges: number) => void
+  control: (avatarId: UUID, levels: number, edges: number) => void
   /** This event is triggered when the requested data is returned to the script.Data may be requested by the llRequestAgentData, llRequestInventoryData, and llGetNotecardLine function calls, for example. */
-  dataserver: (requestId: uuid, data: string) => void
+  dataserver: (requestId: UUID, data: string) => void
   /** This event is triggered when an email sent to this script arrives.The number remaining tells how many more emails are known to be still pending. */
   email: (
     time: string,
@@ -195,31 +189,31 @@ declare interface LLEventMap {
     numberRemaining: number,
   ) => void
   /** Triggered when an agent has approved an experience permissions request. */
-  experience_permissions: (agentId: uuid) => void
+  experience_permissions: (agentId: UUID) => void
   /** Describes why the Experience permissions were denied for the agent. */
-  experience_permissions_denied: (agentId: uuid, reason: number) => void
+  experience_permissions_denied: (agentId: UUID, reason: number) => void
   /** Triggered as damage is applied to an avatar or task, after all on_damage events have been processed. */
   final_damage: (detected: DetectedEvent[]) => void
   /** This event is raised when game controller input changes. */
-  game_control: (id: uuid, buttons: number, axes: number[]) => void
+  game_control: (id: UUID, buttons: number, axes: number[]) => void
   /** Triggered when task receives an HTTP request. */
-  http_request: (httpRequestId: uuid, httpMethod: string, body: string) => void
+  http_request: (httpRequestId: UUID, httpMethod: string, body: string) => void
   /** This event handler is invoked when an HTTP response is received for a pending llHTTPRequest request or if a pending request fails or times out. */
-  http_response: (httpRequestId: uuid, status: number, metadata: list, body: string) => void
+  http_response: (httpRequestId: UUID, status: number, metadata: list, body: string) => void
   /** This event is raised when the object the script is attached to is colliding with the ground. */
-  land_collision: (position: vector) => void
+  land_collision: (position: Vector) => void
   /** This event is raised when the object the script is attached to stops colliding with the ground. */
-  land_collision_end: (position: vector) => void
+  land_collision_end: (position: Vector) => void
   /** This event is raised when the object the script is attached to begins to collide with the ground. */
-  land_collision_start: (position: vector) => void
+  land_collision_start: (position: Vector) => void
   /** Triggered when object receives a link message via llMessageLinked function call. */
   link_message: (sendersLink: number, value: number, text: string, id: string) => void
   /** Triggered when a script modifies the linkset datastore. */
   linkset_data: (action: number, name: string, value: string) => void
   /** This event is raised whenever a chat message matching the constraints set in the llListen command is received. The name and ID of the speaker, as well as the message, are passed in as parameters.Channel 0 is the public chat channel that all avatars see as chat text. Channels 1 through 2,147,483,648 are private channels that are not sent to avatars but other scripts can listen on those channels. */
-  listen: (channel: number, name: string, id: uuid, text: string) => void
+  listen: (channel: number, name: string, id: UUID, text: string) => void
   /** This event is triggered when a resident has given an amount of Linden dollars to the object. */
-  money: (payer: uuid, amount: number) => void
+  money: (payer: UUID, amount: number) => void
   /** Triggered whenever an object with this script stops moving. */
   moving_end: () => void
   /** Triggered whenever an object with this script starts moving. */
@@ -231,7 +225,7 @@ declare interface LLEventMap {
   /** When a target is set via the llTarget library call, but the script is outside the specified range this event is raised. */
   not_at_target: () => void
   /** Triggered when an object rezzes another object from its inventory via the llRezObject, or similar, functions. The id is the globally unique key for the object rezzed. */
-  object_rez: (rezzedObjectsId: uuid) => void
+  object_rez: (rezzedObjectsId: UUID) => void
   /** Triggered when an avatar or object receives damage. */
   on_damage: (detected: DetectedEvent[]) => void
   /** Triggered when an avatar reaches 0 health. */
@@ -246,8 +240,8 @@ declare interface LLEventMap {
    */
   remote_data: (
     eventType: number,
-    channelId: uuid,
-    messageId: uuid,
+    channelId: UUID,
+    messageId: UUID,
     sender: string,
     iData: number,
     sData: string,
@@ -268,12 +262,12 @@ declare interface LLEventMap {
   /** This event is raised when a user first touches the object the script is attached to. The number of touches is passed to the script in the parameter.Information on those objects may be gathered via the llDetected() library functions. */
   touch_start: (detected: DetectedEvent[]) => void
   /** Triggered by llTransferLindenDollars() function. */
-  transaction_result: (requestId: uuid, success: number, message: string) => void
+  transaction_result: (requestId: UUID, success: number, message: string) => void
 }
 
 /** 'rotation' is an alias for 'quaternion' */
-declare type rotation = quaternion
-declare type list = (string | number | vector | uuid | quaternion | boolean)[]
+declare type rotation = Quaternion
+declare type list = (string | number | Vector | UUID | Quaternion | boolean)[]
 declare type LLDetectedEventName =
   | "collision"
   | "collision_end"
@@ -408,22 +402,22 @@ declare function dangerouslyexecuterequiredmodule(f: (this: void, ...args: any[]
  * Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.
  * @noSelf
  */
-declare function touuid(val: string | undefined | buffer | uuid): uuid | undefined
+declare function touuid(val: string | undefined | buffer | UUID): UUID | undefined
 /**
  * Converts a string to a vector, returns nil if invalid
  * @noSelf
  */
-declare function tovector(val: string | undefined | vector): vector | undefined
+declare function tovector(val: string | undefined | Vector): Vector | undefined
 /**
  * Converts a string to a quaternion, returns nil if invalid
  * @noSelf
  */
-declare function toquaternion(val: string | undefined | quaternion): quaternion | undefined
+declare function toquaternion(val: string | undefined | Quaternion): Quaternion | undefined
 /**
  * Converts a string to a rotation (quaternion), returns nil if invalid
  * @noSelf
  */
-declare function torotation(val: string | undefined | quaternion): quaternion | undefined
+declare function torotation(val: string | undefined | Quaternion): Quaternion | undefined
 /**
  * Checks if the value is truthy; if not, raises an error with the optional message.
  * @noSelf
@@ -954,34 +948,34 @@ declare namespace os {
 /** @noSelf */
 declare namespace Quaternion {
   /** Creates a new quaternion with the given component values. */
-  export function create(x: number, y: number, z: number, s: number): quaternion
+  export function create(x: number, y: number, z: number, s: number): Quaternion
 
   /** Computes the normalized version (unit quaternion) of the quaternion. */
-  export function normalize(q: quaternion): quaternion
+  export function normalize(q: Quaternion): Quaternion
 
   /** Computes the magnitude of the quaternion. */
-  export function magnitude(q: quaternion): number
+  export function magnitude(q: Quaternion): number
 
   /** Computes the dot product of two quaternions. */
-  export function dot(a: quaternion, b: quaternion): number
+  export function dot(a: Quaternion, b: Quaternion): number
 
   /** Spherical linear interpolation from a to b using factor t. */
-  export function slerp(a: quaternion, b: quaternion, t: number): quaternion
+  export function slerp(a: Quaternion, b: Quaternion, t: number): Quaternion
 
   /** Computes the conjugate of the quaternion. */
-  export function conjugate(q: quaternion): quaternion
+  export function conjugate(q: Quaternion): Quaternion
 
   /** Computes the forward vector from the quaternion. */
-  export function tofwd(q: quaternion): vector
+  export function tofwd(q: Quaternion): Vector
 
   /** Computes the left vector from the quaternion. */
-  export function toleft(q: quaternion): vector
+  export function toleft(q: Quaternion): Vector
 
   /** Computes the up vector from the quaternion. */
-  export function toup(q: quaternion): vector
+  export function toup(q: Quaternion): Vector
 
   /** Identity quaternion constant. */
-  export const identity: quaternion
+  export const identity: Quaternion
 }
 
 /** String manipulation library. */
@@ -1166,58 +1160,58 @@ declare namespace utf8 {
 /** @noSelf */
 declare namespace UUID {
   /** Creates a new uuid from a string, buffer, or existing uuid. Throws an error if the string is not a valid UUID, or the the buffer is shorter than 16 bytes. */
-  export function create(value: string | undefined | buffer | uuid): uuid
+  export function create(value: string | undefined | buffer | UUID): UUID
 }
 
 /** Vector manipuluation library. */
 /** @noSelf */
 declare namespace Vector {
   /** Creates a new vector with the given component values. */
-  export function create(x: number, y: number, z?: number): vector
+  export function create(x: number, y: number, z?: number): Vector
 
   /** Computes the magnitude of the vector. */
-  export function magnitude(v: vector): number
+  export function magnitude(v: Vector): number
 
   /** Computes the normalized version (unit vector) of the vector. */
-  export function normalize(v: vector): vector
+  export function normalize(v: Vector): Vector
 
   /** Computes the cross product of two vectors. */
-  export function cross(a: vector, b: vector): vector
+  export function cross(a: Vector, b: Vector): Vector
 
   /** Computes the dot product of two vectors. */
-  export function dot(a: vector, b: vector): number
+  export function dot(a: Vector, b: Vector): number
 
   /** Computes the angle between two vectors in radians. The axis, if specified, is used to determine the sign of the angle. */
-  export function angle(a: vector, b: vector, axis?: vector): number
+  export function angle(a: Vector, b: Vector, axis?: Vector): number
 
   /** Applies math.floor to each component of the vector. */
-  export function floor(v: vector): vector
+  export function floor(v: Vector): Vector
 
   /** Applies math.ceil to each component of the vector. */
-  export function ceil(v: vector): vector
+  export function ceil(v: Vector): Vector
 
   /** Applies math.abs to each component of the vector. */
-  export function abs(v: vector): vector
+  export function abs(v: Vector): Vector
 
   /** Applies math.sign to each component of the vector. */
-  export function sign(v: vector): vector
+  export function sign(v: Vector): Vector
 
   /** Clamps each component of the vector between min and max values. */
-  export function clamp(v: vector, min: vector, max: vector): vector
+  export function clamp(v: Vector, min: Vector, max: Vector): Vector
 
   /** Applies math.max to each component of the vectors. */
-  export function max(v: vector, ...args: vector[]): vector
+  export function max(v: Vector, ...args: Vector[]): Vector
 
   /** Applies math.max to each component of the vectors. */
-  export function min(v: vector, ...args: vector[]): vector
+  export function min(v: Vector, ...args: Vector[]): Vector
 
   /** Linearly interpolates between a and b using factor t. */
-  export function lerp(a: vector, b: vector, t: number): vector
+  export function lerp(a: Vector, b: Vector, t: number): Vector
 
   /** Constant vector with all components set to 0. */
-  export const zero: vector
+  export const zero: Vector
   /** Constant vector with all components set to 1. */
-  export const one: vector
+  export const one: Vector
 }
 
 /** @noSelf */
@@ -1241,10 +1235,10 @@ declare namespace ll {
    * When values that small are used, it seems the function bans in approximately 30 second increments (Probably 36 second increments, as 0.01 of an hour is 36 seconds).
    * Residents teleporting to a parcel where they are banned will be redirected to a neighbouring parcel.
    */
-  export function AddToLandBanList(id: uuid, hours: number): void
+  export function AddToLandBanList(id: UUID, hours: number): void
 
   /** Add avatar ID to the land pass list, for a duration of Hours. */
-  export function AddToLandPassList(id: uuid, hours: number): void
+  export function AddToLandPassList(id: UUID, hours: number): void
 
   /**
    * Changes the amount of damage to be delivered by this damage event.
@@ -1259,27 +1253,27 @@ declare namespace ll {
   export function AdjustSoundVolume(volume: number): void
 
   /** Returns TRUE if the agent is in the Experience and the Experience can run in the current location. */
-  export function AgentInExperience(agentId: uuid): number
+  export function AgentInExperience(agentId: UUID): number
 
   /** If Flag == TRUE, users without object modify permissions can still drop inventory items into the object. */
   export function AllowInventoryDrop(flag: number): void
 
   /** Returns the angle, in radians, between rotations Rot1 and Rot2. */
-  export function AngleBetween(rot1: quaternion, rot2: quaternion): number
+  export function AngleBetween(rot1: Quaternion, rot2: Quaternion): number
 
   /**
    * Applies impulse to the object.
    * If Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.
    * This function only works on physical objects.
    */
-  export function ApplyImpulse(force: vector, local: number): void
+  export function ApplyImpulse(force: Vector, local: number): void
 
   /**
    * Applies rotational impulse to the object.
    * If Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.
    * This function only works on physical objects.
    */
-  export function ApplyRotationalImpulse(force: vector, local: number): void
+  export function ApplyRotationalImpulse(force: Vector, local: number): void
 
   /**
    * Returns the arc-sine, in radians, of Value.
@@ -1309,19 +1303,19 @@ declare namespace ll {
    * If an avatar is sitting on the link's sit target, return the avatar's key, NULL_KEY otherwise.
    * Returns a key that is the UUID of the user seated on the specified link's prim.
    */
-  export function AvatarOnLinkSitTarget(linkNumber: number): uuid
+  export function AvatarOnLinkSitTarget(linkNumber: number): UUID
 
   /**
    * If an avatar is seated on the sit target, returns the avatar's key, otherwise NULL_KEY.
    * This only will detect avatars sitting on sit targets defined with llSitTarget.
    */
-  export function AvatarOnSitTarget(): uuid
+  export function AvatarOnSitTarget(): UUID
 
   /** Returns the rotation represented by coordinate axes Forward, Left, and Up. */
-  export function Axes2Rot(forward: vector, left: vector, up: vector): quaternion
+  export function Axes2Rot(forward: Vector, left: Vector, up: Vector): Quaternion
 
   /** Returns the rotation that is a generated Angle about Axis. */
-  export function AxisAngle2Rot(axis: vector, angle: number): quaternion
+  export function AxisAngle2Rot(axis: Vector, angle: number): Quaternion
 
   /**
    * Returns an integer that is the Text, Base64 decoded as a big endian integer.
@@ -1357,7 +1351,7 @@ declare namespace ll {
    * Reports collision data for intersections with objects.
    * Return value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1}, UUID_2, {link_number_2}, hit_position_2, {hit_normal_2}, ... , status_code] where {} indicates optional data.
    */
-  export function CastRay(start: vector, end: vector, options: list): list
+  export function CastRay(start: Vector, end: Vector, options: list): list
 
   /**
    * Returns smallest integer value >= Value.
@@ -1375,10 +1369,10 @@ declare namespace ll {
   export function ClearCameraParams(): void
 
   /** @deprecated */
-  export function ClearExperience(agentId: uuid, experienceId: uuid): void
+  export function ClearExperience(agentId: UUID, experienceId: UUID): void
 
   /** @deprecated */
-  export function ClearExperiencePermissions(agentId: uuid): void
+  export function ClearExperiencePermissions(agentId: UUID): void
 
   /**
    * Clears (deletes) the media and all parameters from the given Face on the linked prim.
@@ -1396,16 +1390,16 @@ declare namespace ll {
    * This function is deprecated.
    * @deprecated
    */
-  export function CloseRemoteDataChannel(channelId: uuid): void
+  export function CloseRemoteDataChannel(channelId: UUID): void
 
   /**
    * Returns the cloud density at the object's position + Offset.
    * @deprecated
    */
-  export function Cloud(offset: vector): number
+  export function Cloud(offset: Vector): number
 
   /** Specify an empty string or NULL_KEY for Accept, to not filter on the corresponding parameter. */
-  export function CollisionFilter(objectName: string, objectId: uuid, accept: number): void
+  export function CollisionFilter(objectName: string, objectId: UUID, accept: number): void
 
   /**
    * Suppress default collision sounds, replace default impact sounds with ImpactSound.
@@ -1437,19 +1431,19 @@ declare namespace ll {
   export function CreateCharacter(options: list): void
 
   /** Starts an asychronous transaction to create a key-value pair. Will fail with XP_ERROR_STORAGE_EXCEPTION if the key already exists. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value passed to the function. */
-  export function CreateKeyValue(key: string, value: string): uuid
+  export function CreateKeyValue(key: string, value: string): UUID
 
   /**
    * Attempt to link the object the script is in, to target.
    * Requires the PERMISSION_CHANGE_LINKS runtime permission.
    */
-  export function CreateLink(targetPrim: uuid, parent: number): void
+  export function CreateLink(targetPrim: UUID, parent: number): void
 
   /** Generates a damage event on the targeted agent or task. */
-  export function Damage(target: uuid, damage: number, type: number): void
+  export function Damage(target: UUID, damage: number, type: number): void
 
   /** Starts an asychronous transaction the request the used and total amount of data allocated for the Experience. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the the amount in use and the third item will be the total available. */
-  export function DataSizeKeyValue(): uuid
+  export function DataSizeKeyValue(): UUID
 
   /**
    * Convert link-set from AI/Physics character to Physics object.
@@ -1458,7 +1452,7 @@ declare namespace ll {
   export function DeleteCharacter(): void
 
   /** Starts an asychronous transaction to delete a key-value pair. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. */
-  export function DeleteKeyValue(key: string): uuid
+  export function DeleteKeyValue(key: string): UUID
 
   /**
    * Removes the slice from start to end and returns the remainder of the list.
@@ -1481,7 +1475,7 @@ declare namespace ll {
   export function DeleteSubString(source: string, start: number, end: number): string
 
   /** Derezzes an object previously rezzed by a script in this region. Returns TRUE on success or FALSE if the object could not be derezzed. */
-  export function DerezObject(id: uuid, flags: number): number
+  export function DerezObject(id: UUID, flags: number): number
 
   /**
    * Remove the object containing the script from the avatar.
@@ -1500,7 +1494,7 @@ declare namespace ll {
    * Returns <0.0, 0.0, 0.0> if Number is not a valid object.
    * @indexArg number
    */
-  export function DetectedGrab(number: number): vector
+  export function DetectedGrab(number: number): Vector
 
   /**
    * Returns TRUE if detected object or agent Number has the same user group active as this object.
@@ -1514,7 +1508,7 @@ declare namespace ll {
    * Returns NULL_KEY if Number is not a valid index.
    * @indexArg number
    */
-  export function DetectedKey(number: number): uuid
+  export function DetectedKey(number: number): UUID
 
   /**
    * Returns the link position of the triggered event for touches and collisions only.
@@ -1536,34 +1530,34 @@ declare namespace ll {
    * Returns invalid key if Number is not a valid index.
    * @indexArg number
    */
-  export function DetectedOwner(number: number): uuid
+  export function DetectedOwner(number: number): UUID
 
   /**
    * Returns the position of detected object or avatar number.
    * Returns <0.0, 0.0, 0.0> if Number is not a valid index.
    * @indexArg number
    */
-  export function DetectedPos(number: number): vector
+  export function DetectedPos(number: number): Vector
 
   /**
    * Returns the key for the rezzer of the detected object.
    * @indexArg number
    */
-  export function DetectedRezzer(number: number): uuid
+  export function DetectedRezzer(number: number): UUID
 
   /**
    * Returns the rotation of detected object or avatar number.
    * Returns <0.0, 0.0, 0.0, 1.0> if Number is not a valid offset.
    * @indexArg number
    */
-  export function DetectedRot(number: number): quaternion
+  export function DetectedRot(number: number): Quaternion
 
   /**
    * Returns the surface bi-normal for a triggered touch event.
    * Returns a vector that is the surface bi-normal (tangent to the surface) where the touch event was triggered.
    * @indexArg index
    */
-  export function DetectedTouchBinormal(index: number): vector
+  export function DetectedTouchBinormal(index: number): Vector
 
   /**
    * Returns the index of the face where the avatar clicked in a triggered touch event.
@@ -1576,14 +1570,14 @@ declare namespace ll {
    * Returns a vector that is the surface normal (perpendicular to the surface) where the touch event was triggered.
    * @indexArg index
    */
-  export function DetectedTouchNormal(index: number): vector
+  export function DetectedTouchNormal(index: number): Vector
 
   /**
    * Returns the position, in region coordinates, where the object was touched in a triggered touch event.
    * Unless it is a HUD, in which case it returns the position relative to the attach point.
    * @indexArg index
    */
-  export function DetectedTouchPos(index: number): vector
+  export function DetectedTouchPos(index: number): Vector
 
   /**
    * Returns a vector that is the surface coordinates where the prim was touched.
@@ -1592,7 +1586,7 @@ declare namespace ll {
    * TOUCH_INVALID_TEXCOORD is returned if the surface coordinates cannot be determined (e.g. when the viewer does not support this function).
    * @indexArg index
    */
-  export function DetectedTouchST(index: number): vector
+  export function DetectedTouchST(index: number): Vector
 
   /**
    * Returns a vector that is the texture coordinates for where the prim was touched.
@@ -1600,7 +1594,7 @@ declare namespace ll {
    * TOUCH_INVALID_TEXCOORD is returned if the touch UV coordinates cannot be determined (e.g. when the viewer does not support this function).
    * @indexArg index
    */
-  export function DetectedTouchUV(index: number): vector
+  export function DetectedTouchUV(index: number): Vector
 
   /**
    * Returns the type (AGENT, ACTIVE, PASSIVE, SCRIPTED) of detected object.
@@ -1619,7 +1613,7 @@ declare namespace ll {
    * Returns<0.0, 0.0, 0.0> if Number is not a valid offset.
    * @indexArg number
    */
-  export function DetectedVel(number: number): vector
+  export function DetectedVel(number: number): Vector
 
   /**
    * Shows a dialog box on the avatar's screen with the message.
@@ -1634,7 +1628,7 @@ declare namespace ll {
    * llDialog(who, "This shows only an OK button.", [], -192);
    * llDialog(who, "This chats so you can 'hear' it.", ["Hooray"], 0);
    */
-  export function Dialog(avatarId: uuid, text: string, buttons: string[], channel: number): void
+  export function Dialog(avatarId: UUID, text: string, buttons: string[], channel: number): void
 
   /** Delete the object which holds the script. */
   export function Die(): void
@@ -1649,13 +1643,13 @@ declare namespace ll {
    * Checks to see whether the border hit by Direction from Position is the edge of the world (has no neighboring region).
    * Returns TRUE if the line along Direction from Position hits the edge of the world in the current simulator, returns FALSE if that edge crosses into another simulator.
    */
-  export function EdgeOfWorld(position: vector, direction: vector): number
+  export function EdgeOfWorld(position: Vector, direction: Vector): number
 
   /**
    * Ejects AvatarID from land that you own.
    * Ejects AvatarID from land that the object owner (group or resident) owns.
    */
-  export function EjectFromLand(avatarId: uuid): void
+  export function EjectFromLand(avatarId: UUID): void
 
   /**
    * Sends email to Address with Subject and Message.
@@ -1674,13 +1668,13 @@ declare namespace ll {
    * Returns the rotation representation of the Euler angles.
    * Returns the rotation represented by the Euler Angle.
    */
-  export function Euler2Rot(vector: vector): quaternion
+  export function Euler2Rot(vector: Vector): Quaternion
 
   /**
    * Evade a specified target.
    * Characters will (roughly) try to hide from their pursuers if there is a good hiding spot along their fleeing path. Hiding means no direct line of sight from the head of the character (centre of the top of its physics bounding box) to the head of its pursuer and no direct path between the two on the navigation-mesh.
    */
-  export function Evade(targetId: uuid, options: list): void
+  export function Evade(targetId: UUID, options: list): void
 
   /**
    * Execute a character command.
@@ -1697,7 +1691,7 @@ declare namespace ll {
   export function Fabs(value: number): number
 
   /** Searches the text of a cached notecard for lines containing the given pattern and returns the number of matches found through a dataserver event. */
-  export function FindNotecardTextCount(notecardName: string, pattern: string, options: list): uuid
+  export function FindNotecardTextCount(notecardName: string, pattern: string, options: list): UUID
 
   /**
    * Searches the text of a cached notecard for lines containing the given pattern. Returns a list of line numbers and column where a match is found. If the notecard is not inthe cache it returns a list containing a single entry of NAK. If no matches are found anempty list is returned.
@@ -1716,7 +1710,7 @@ declare namespace ll {
    * Flee from a point.
    * Directs a character (llCreateCharacter) to keep away from a defined position in the region or adjacent regions.
    */
-  export function FleeFrom(source: vector, distance: number, options: list): void
+  export function FleeFrom(source: Vector, distance: number, options: list): void
 
   /**
    * Returns largest integer value <= Value.
@@ -1742,38 +1736,38 @@ declare namespace ll {
    * As the UUID produced is versioned, it should never return a value of NULL_KEY.
    * The specific UUID version is an implementation detail that has changed in the past and may change again in the future. Do not depend upon the UUID that is returned to be version 5 SHA-1 hash.
    */
-  export function GenerateKey(): uuid
+  export function GenerateKey(): UUID
 
   /**
    * Returns the acceleration of the object relative to the region's axes.
    * Gets the acceleration of the object.
    */
-  export function GetAccel(): vector
+  export function GetAccel(): Vector
 
   /**
    * Returns an integer bit-field containing the agent information about id.
    * Returns AGENT_FLYING, AGENT_ATTACHMENTS, AGENT_SCRIPTED, AGENT_SITTING, AGENT_ON_OBJECT, AGENT_MOUSELOOK, AGENT_AWAY, AGENT_BUSY, AGENT_TYPING, AGENT_CROUCHING, AGENT_ALWAYS_RUN, AGENT_WALKING, AGENT_IN_AIR and/or AGENT_FLOATING_VIA_SCRIPTED_ATTACHMENT.
    * Returns information about the given agent ID as a bit-field of agent info constants.
    */
-  export function GetAgentInfo(avatarId: uuid): number
+  export function GetAgentInfo(avatarId: UUID): number
 
   /**
    * Returns the language code of the preferred interface language of the avatar.
    * Returns a string that is the language code of the preferred interface language of the resident.
    */
-  export function GetAgentLanguage(avatarId: uuid): string
+  export function GetAgentLanguage(avatarId: UUID): string
 
   /**
    * Requests a list of agents currently in the region, limited by the scope parameter.
    * Returns a list [key UUID-0, key UUID-1, ..., key UUID-n] or [string error_msg] - returns avatar keys for all agents in the region limited to the area(s) specified by scope
    */
-  export function GetAgentList(scope: number, options: list): uuid[]
+  export function GetAgentList(scope: number, options: list): UUID[]
 
   /**
    * If the avatar is in the same region, returns the size of the bounding box of the requested avatar by id, otherwise returns ZERO_VECTOR.
    * If the agent is in the same region as the object, returns the size of the avatar.
    */
-  export function GetAgentSize(avatarId: uuid): vector
+  export function GetAgentSize(avatarId: UUID): Vector
 
   /**
    * Returns the alpha value of Face.
@@ -1785,13 +1779,13 @@ declare namespace ll {
    * Returns the name of the currently playing locomotion animation for the avatar id.
    * Returns the currently playing animation for the specified avatar ID.
    */
-  export function GetAnimation(avatarId: uuid): string
+  export function GetAnimation(avatarId: UUID): string
 
   /**
    * Returns a list of keys of playing animations for an avatar.
    * Returns a list of keys of all playing animations for the specified avatar ID.
    */
-  export function GetAnimationList(avatarId: uuid): uuid[]
+  export function GetAnimationList(avatarId: UUID): UUID[]
 
   /**
    * Returns a string that is the name of the animation that is used for the specified animation state.
@@ -1803,13 +1797,13 @@ declare namespace ll {
   export function GetAttached(): number
 
   /** Returns a list of keys of all visible (not HUD) attachments on the avatar identified by the ID argument */
-  export function GetAttachedList(id: uuid): uuid[]
+  export function GetAttachedList(id: UUID): UUID[]
 
   /** Retrieves a list of attachments on an avatar. */
-  export function GetAttachedListFiltered(agentId: uuid, options: list): uuid[]
+  export function GetAttachedListFiltered(agentId: UUID, options: list): UUID[]
 
   /** Returns the bounding box around the object (including any linked prims) relative to its root prim, as a list in the format [ (vector) min_corner, (vector) max_corner ]. */
-  export function GetBoundingBox(id: uuid): vector[]
+  export function GetBoundingBox(id: UUID): Vector[]
 
   /** Returns the current camera aspect ratio (width / height) of the agent who has granted the scripted object PERMISSION_TRACK_CAMERA permissions. If no permissions have been granted: it returns zero. */
   export function GetCameraAspect(): number
@@ -1821,31 +1815,31 @@ declare namespace ll {
    * Returns the current camera position for the agent the task has permissions for.
    * Returns the position of the camera, of the user that granted the script PERMISSION_TRACK_CAMERA. If no user has granted the permission, it returns ZERO_VECTOR.
    */
-  export function GetCameraPos(): vector
+  export function GetCameraPos(): Vector
 
   /** Returns the current camera orientation for the agent the task has permissions for. If no user has granted the PERMISSION_TRACK_CAMERA permission, returns ZERO_ROTATION. */
-  export function GetCameraRot(): quaternion
+  export function GetCameraRot(): Quaternion
 
   /** Returns the prim's centre of mass (unless called from the root prim, where it returns the object's centre of mass). */
-  export function GetCenterOfMass(): vector
+  export function GetCenterOfMass(): Vector
 
   /**
    * Get the closest navigable point to the point provided.
    * The function accepts a point in region-local space (like all the other path-finding methods) and returns either an empty list or a list containing a single vector which is the closest point on the navigation-mesh to the point provided.
    */
-  export function GetClosestNavPoint(point: vector, options: list): vector[]
+  export function GetClosestNavPoint(point: Vector, options: list): Vector[]
 
   /**
    * Returns the color on Face.
    * Returns the color of Face as a vector of red, green, and blue values between 0 and 1. If face is ALL_SIDES the color returned is the mean average of each channel.
    */
-  export function GetColor(face: number): vector
+  export function GetColor(face: number): Vector
 
   /**
    * Returns a key for the creator of the prim.
    * Returns the key of the object's original creator. Similar to llGetOwner.
    */
-  export function GetCreator(): uuid
+  export function GetCreator(): UUID
 
   /**
    * Returns the current date in the UTC time zone in the format YYYY-MM-DD.
@@ -1860,7 +1854,7 @@ declare namespace ll {
   export function GetDayOffset(): number
 
   /** Returns the display name of an avatar, if the avatar is connected to the current region, or if the name has been cached.  Otherwise, returns an empty string. Use llRequestDisplayName if the avatar may be absent from the region. */
-  export function GetDisplayName(avatarId: uuid): string
+  export function GetDisplayName(avatarId: UUID): string
 
   /** Returns how much energy is in the object as a percentage of maximum. */
   export function GetEnergy(): number
@@ -1869,22 +1863,22 @@ declare namespace ll {
   export function GetEnv(dataRequest: string): string
 
   /** Returns a string with the requested data about the region. */
-  export function GetEnvironment(position: vector, envParams: number[]): list
+  export function GetEnvironment(position: Vector, envParams: number[]): list
 
   /** Returns a list with the following Experience properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State Message]. State is an integer corresponding to one of the constants XP_ERROR_... and State Message is the string returned by llGetExperienceErrorMessage for that integer. */
-  export function GetExperienceDetails(experienceId: uuid): list
+  export function GetExperienceDetails(experienceId: UUID): list
 
   /** Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code. */
   export function GetExperienceErrorMessage(error: number): string
 
   /** @deprecated */
-  export function GetExperienceList(agentId: uuid): uuid[]
+  export function GetExperienceList(agentId: UUID): UUID[]
 
   /**
    * Returns the force (if the script is physical).
    * Returns the current force if the script is physical.
    */
-  export function GetForce(): vector
+  export function GetForce(): Vector
 
   /**
    * Returns the number of free bytes of memory the script can use.
@@ -1905,16 +1899,16 @@ declare namespace ll {
   export function GetGMTclock(): number
 
   /** Returns the vector that is the geometric center of the object relative to the root prim. */
-  export function GetGeometricCenter(): vector
+  export function GetGeometricCenter(): Vector
 
   /**
    * Returns the value for header for request_id.
    * Returns a string that is the value of the Header for HTTPRequestID.
    */
-  export function GetHTTPHeader(httpRequestId: uuid, header: string): string
+  export function GetHTTPHeader(httpRequestId: UUID, header: string): string
 
   /** Returns the current health of an avatar or object in the region. */
-  export function GetHealth(id: uuid): number
+  export function GetHealth(id: UUID): number
 
   /** Returns the time at which the item was placed into this prim's inventory as a timestamp. */
   export function GetInventoryAcquireTime(inventoryItem: string): string
@@ -1923,7 +1917,7 @@ declare namespace ll {
    * Returns a key for the creator of the inventory item.
    * This function returns the UUID of the creator of item. If item is not found in inventory, the object says "No item named 'name'".
    */
-  export function GetInventoryCreator(inventoryItem: string): uuid
+  export function GetInventoryCreator(inventoryItem: string): UUID
 
   /** Returns the item description of the item in inventory. If item is not found in inventory, the object says "No item named 'name'" to the debug channel and returns an empty string. */
   export function GetInventoryDesc(inventoryItem: string): string
@@ -1932,7 +1926,7 @@ declare namespace ll {
    * Returns the key that is the UUID of the inventory named.
    * Returns the key of the inventory named.
    */
-  export function GetInventoryKey(inventoryItem: string): uuid
+  export function GetInventoryKey(inventoryItem: string): UUID
 
   /**
    * Returns the name of the inventory item of a given type, specified by index number.
@@ -1963,19 +1957,19 @@ declare namespace ll {
    * Returns the key of the prim the script is attached to.
    * Get the key for the object which has this script.
    */
-  export function GetKey(): uuid
+  export function GetKey(): UUID
 
   /**
    * Returns the key of the land owner, returns NULL_KEY if public.
    * Returns the key of the land owner at Position, or NULL_KEY if public.
    */
-  export function GetLandOwnerAt(position: vector): uuid
+  export function GetLandOwnerAt(position: Vector): UUID
 
   /**
    * Returns the key of the linked prim LinkNumber.
    * Returns the key of LinkNumber in the link set.
    */
-  export function GetLinkKey(linkNumber: number): uuid
+  export function GetLinkKey(linkNumber: number): UUID
 
   /** Get the media parameters for a particular face on linked prim, given the desired list of parameter names. Returns a list of values in the order requested.	Returns an empty list if no media exists on the face. */
   export function GetLinkMedia(linkNumber: number, face: number, parameters: number[]): list
@@ -2028,13 +2022,13 @@ declare namespace ll {
    * Returns the position relative to the root.
    * Returns the local position of a child object relative to the root.
    */
-  export function GetLocalPos(): vector
+  export function GetLocalPos(): Vector
 
   /**
    * Returns the rotation local to the root.
    * Returns the local rotation of a child object relative to the root.
    */
-  export function GetLocalRot(): quaternion
+  export function GetLocalRot(): Quaternion
 
   /**
    * Returns the mass of object that the script is attached to.
@@ -2058,10 +2052,10 @@ declare namespace ll {
    * Returns a normalized vector of the direction of the moon in the parcel.
    * Returns the moon's direction on the simulator in the parcel.
    */
-  export function GetMoonDirection(): vector
+  export function GetMoonDirection(): Vector
 
   /** Returns the rotation applied to the moon in the parcel. */
-  export function GetMoonRotation(): quaternion
+  export function GetMoonRotation(): Quaternion
 
   /**
    * Fetch the next queued email with that matches the given address and/or subject, via the email event.
@@ -2075,7 +2069,7 @@ declare namespace ll {
    * The key returned by this function is a unique identifier which will be supplied to the dataserver event in the requested parameter.
    * @indexArg lineNumber
    */
-  export function GetNotecardLine(notecardName: string, lineNumber: number): uuid
+  export function GetNotecardLine(notecardName: string, lineNumber: number): UUID
 
   /**
    * Returns LineNumber from NotecardName. The line index starts at zero in LSL, one in Lua.
@@ -2089,7 +2083,7 @@ declare namespace ll {
    * Returns the number of lines contained within a notecard via the dataserver event.
    * The key returned by this function is a query ID for identifying the dataserver reply.
    */
-  export function GetNumberOfNotecardLines(notecardName: string): uuid
+  export function GetNumberOfNotecardLines(notecardName: string): UUID
 
   /**
    * Returns the number of prims in a link set the script is attached to.
@@ -2119,19 +2113,19 @@ declare namespace ll {
    * Returns a list of object details specified in the Parameters list for the object or avatar in the region with key ID.
    * Parameters are specified by the OBJECT_* constants.
    */
-  export function GetObjectDetails(id: uuid, parameters: number[]): list
+  export function GetObjectDetails(id: UUID, parameters: number[]): list
 
   /**
    * Returns the key of the linked prim link_no in a linkset.
    * Returns the key of link_no in the link set specified by id.
    */
-  export function GetObjectLinkKey(id: uuid, linkNo: number): uuid
+  export function GetObjectLinkKey(id: UUID, linkNo: number): UUID
 
   /**
    * Returns the mass of the avatar or object in the region.
    * Gets the mass of the object or avatar corresponding to ID.
    */
-  export function GetObjectMass(id: uuid): number
+  export function GetObjectMass(id: UUID): number
 
   /**
    * Returns the name of the prim which the script is attached to.
@@ -2146,44 +2140,44 @@ declare namespace ll {
    * Returns the total number of prims for an object in the region.
    * Returns the prim count for any object id in the same region.
    */
-  export function GetObjectPrimCount(objectId: uuid): number
+  export function GetObjectPrimCount(objectId: UUID): number
 
   /**
    * Returns the rotation velocity in radians per second.
    * Returns a vector that is the rotation velocity of the object in radians per second.
    */
-  export function GetOmega(): vector
+  export function GetOmega(): Vector
 
   /**
    * Returns the object owner's UUID.
    * Returns the key for the owner of the object.
    */
-  export function GetOwner(): uuid
+  export function GetOwner(): UUID
 
   /**
    * Returns the owner of ObjectID.
    * Returns the key for the owner of object ObjectID.
    */
-  export function GetOwnerKey(objectId: uuid): uuid
+  export function GetOwnerKey(objectId: UUID): UUID
 
   /**
    * Returns a list of parcel details specified in the ParcelDetails list for the parcel at Position.
    * Parameters is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS.
    * Returns a list that is the parcel details specified in ParcelDetails (in the same order) for the parcel at Position.
    */
-  export function GetParcelDetails(position: vector, parcelDetails: number[]): list
+  export function GetParcelDetails(position: Vector, parcelDetails: number[]): list
 
   /**
    * Returns a mask of the parcel flags (PARCEL_FLAG_*) for the parcel that includes the point Position.
    * Returns a bit-field specifying the parcel flags (PARCEL_FLAG_*) for the parcel at Position.
    */
-  export function GetParcelFlags(position: vector): number
+  export function GetParcelFlags(position: Vector): number
 
   /**
    * Returns the maximum number of prims allowed on the parcel at Position for a given scope.
    * The scope may be set to an individual parcel or the combined resources of all parcels with the same ownership in the region.
    */
-  export function GetParcelMaxPrims(position: vector, simWide: number): number
+  export function GetParcelMaxPrims(position: Vector, simWide: number): number
 
   /**
    * Gets the streaming audio URL for the parcel object is on.
@@ -2198,7 +2192,7 @@ declare namespace ll {
    * If SimWide is TRUE, it returns the total number of objects for all parcels with matching ownership in the category specified.
    * If SimWide is FALSE, it returns the number of objects on this specific parcel in the category specified
    */
-  export function GetParcelPrimCount(position: vector, category: number, simWide: number): number
+  export function GetParcelPrimCount(position: Vector, category: number, simWide: number): number
 
   /**
    * Returns a list of up to 100 residents who own objects on the parcel at Position, with per-owner land impact totals.
@@ -2206,7 +2200,7 @@ declare namespace ll {
    * The list is formatted as [ key agentKey1, integer agentLI1, key agentKey2, integer agentLI2, ... ], sorted by agent key.
    * The integers are the combined land impacts of the objects owned by the corresponding agents.
    */
-  export function GetParcelPrimOwners(position: vector): list
+  export function GetParcelPrimOwners(position: Vector): list
 
   /** Returns an integer bitmask of the permissions that have been granted to the script.  Individual permissions can be determined using a bit-wise "and" operation against the PERMISSION_* constants */
   export function GetPermissions(): number
@@ -2215,7 +2209,7 @@ declare namespace ll {
    * Returns the key of the avatar that last granted or declined permissions to the script.
    * Returns NULL_KEY if permissions were never granted or declined.
    */
-  export function GetPermissionsKey(): uuid
+  export function GetPermissionsKey(): UUID
 
   /** Returns a list of the form [float gravity_multiplier, float restitution, float friction, float density]. */
   export function GetPhysicsMaterial(): number[]
@@ -2224,7 +2218,7 @@ declare namespace ll {
    * Returns the position of the task in region coordinates.
    * Returns the vector position of the task in region coordinates.
    */
-  export function GetPos(): vector
+  export function GetPos(): Vector
 
   /** Returns the media parameters for a particular face on an object, given the desired list of parameter names, in the order requested. Returns an empty list if no media exists on the face. */
   export function GetPrimMediaParams(face: number, parameters: number[]): list
@@ -2245,7 +2239,7 @@ declare namespace ll {
    * Returns a vector, in meters, that is the global location of the south-west corner of the region which the object is in.
    * Returns the Region-Corner of the simulator containing the task. The region-corner is a vector (values in meters) representing distance from the first region.
    */
-  export function GetRegionCorner(): vector
+  export function GetRegionCorner(): Vector
 
   /** Returns the number of seconds in a day in this region. */
   export function GetRegionDayLength(): number
@@ -2266,10 +2260,10 @@ declare namespace ll {
    * Returns a normalized vector of the direction of the moon in the region.
    * Returns the moon's direction on the simulator.
    */
-  export function GetRegionMoonDirection(): vector
+  export function GetRegionMoonDirection(): Vector
 
   /** Returns the rotation applied to the moon in the region. */
-  export function GetRegionMoonRotation(): quaternion
+  export function GetRegionMoonRotation(): Quaternion
 
   /** Returns the current region name. */
   export function GetRegionName(): string
@@ -2278,10 +2272,10 @@ declare namespace ll {
    * Returns a normalized vector of the direction of the sun in the region.
    * Returns the sun's direction on the simulator.
    */
-  export function GetRegionSunDirection(): vector
+  export function GetRegionSunDirection(): Vector
 
   /** Returns the rotation applied to the sun in the region. */
-  export function GetRegionSunRotation(): quaternion
+  export function GetRegionSunRotation(): Quaternion
 
   /**
    * Returns the current time dilation as a float between 0.0 (full dilation) and 1.0 (no dilation).
@@ -2302,19 +2296,19 @@ declare namespace ll {
    * Returns the position (in region coordinates) of the root prim of the object which the script is attached to.
    * This is used to allow a child prim to determine where the root is.
    */
-  export function GetRootPosition(): vector
+  export function GetRootPosition(): Vector
 
   /**
    * Returns the rotation (relative to the region) of the root prim of the object which the script is attached to.
    * Gets the global rotation of the root object of the object script is attached to.
    */
-  export function GetRootRotation(): quaternion
+  export function GetRootRotation(): Quaternion
 
   /**
    * Returns the rotation relative to the region's axes.
    * Returns the rotation.
    */
-  export function GetRot(): quaternion
+  export function GetRot(): Quaternion
 
   /**
    * Returns the maximum used memory for the current script. Only valid after using PROFILE_SCRIPT_MEMORY. Non-mono scripts always use 16k.
@@ -2326,7 +2320,7 @@ declare namespace ll {
    * Returns the scale of the prim.
    * Returns a vector that is the scale (dimensions) of the prim.
    */
-  export function GetScale(): vector
+  export function GetScale(): Vector
 
   /**
    * Returns the name of the script that this function is used in.
@@ -2361,7 +2355,7 @@ declare namespace ll {
    */
   export function GetStartString(): string
 
-  export function GetStaticPath(start: vector, end: vector, radius: number, parameters: list): list
+  export function GetStaticPath(start: Vector, end: Vector, radius: number, parameters: list): list
 
   /** Returns boolean value of the specified status (e.g. STATUS_PHANTOM) of the object the script is attached to. */
   export function GetStatus(statusFlag: number): number
@@ -2379,10 +2373,10 @@ declare namespace ll {
    * Returns a normalized vector of the direction of the sun in the parcel.
    * Returns the sun's direction on the simulator in the parcel.
    */
-  export function GetSunDirection(): vector
+  export function GetSunDirection(): Vector
 
   /** Returns the rotation applied to the sun in the parcel. */
-  export function GetSunRotation(): quaternion
+  export function GetSunRotation(): Quaternion
 
   /**
    * Returns a string that is the texture on face (the inventory name if it is a texture in the prim's inventory, otherwise the key).
@@ -2391,7 +2385,7 @@ declare namespace ll {
   export function GetTexture(face: number): string
 
   /** Returns the texture offset of face in the x and y components of a vector. */
-  export function GetTextureOffset(face: number): vector
+  export function GetTextureOffset(face: number): Vector
 
   /** Returns the texture rotation of side. */
   export function GetTextureRot(face: number): number
@@ -2400,7 +2394,7 @@ declare namespace ll {
    * Returns the texture scale of side in the x and y components of a vector.
    * Returns the texture scale of a side in the x and y components of a vector.
    */
-  export function GetTextureScale(face: number): vector
+  export function GetTextureScale(face: number): Vector
 
   /** Returns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime. */
   export function GetTime(): number
@@ -2415,7 +2409,7 @@ declare namespace ll {
    * Returns the torque (if the script is physical).
    * Returns a vector that is the torque (if the script is physical).
    */
-  export function GetTorque(): vector
+  export function GetTorque(): Vector
 
   /** Returns the number of seconds elapsed since 00:00 hours, Jan 1, 1970 UTC from the system clock. */
   export function GetUnixTime(): number
@@ -2427,16 +2421,16 @@ declare namespace ll {
   export function GetUsedMemory(): number
 
   /** Returns the username of an avatar, if the avatar is connected to the current region, or if the name has been cached.  Otherwise, returns an empty string. Use llRequestUsername if the avatar may be absent from the region. */
-  export function GetUsername(avatarId: uuid): string
+  export function GetUsername(avatarId: UUID): string
 
   /**
    * Returns the velocity of the object.
    * Returns a vector that is the velocity of the object.
    */
-  export function GetVel(): vector
+  export function GetVel(): Vector
 
   /** Returns a list of the current value for each requested visual parameter. */
-  export function GetVisualParams(id: uuid, parameters: (number | string)[]): (number | "")[]
+  export function GetVisualParams(id: UUID, parameters: (number | string)[]): (number | "")[]
 
   /**
    * Returns the time in seconds since midnight California Pacific time (PST/PDT).
@@ -2446,7 +2440,7 @@ declare namespace ll {
 
   /** Give InventoryItems to the specified agent as a new folder of items, as permitted by the permissions system. The target must be an agent. */
   export function GiveAgentInventory(
-    agentId: uuid,
+    agentId: UUID,
     folderName: string,
     inventoryItems: string[],
     options: list,
@@ -2456,14 +2450,14 @@ declare namespace ll {
    * Give InventoryItem to destination represented by TargetID, as permitted by the permissions system.
    * TargetID may be any agent or an object in the same region.
    */
-  export function GiveInventory(targetId: uuid, inventoryItem: string): void
+  export function GiveInventory(targetId: UUID, inventoryItem: string): void
 
   /**
    * Give InventoryItems to destination (represented by TargetID) as a new folder of items, as permitted by the permissions system.
    * TargetID may be any agent or an object in the same region. If TargetID is an object, the items are passed directly to the object inventory (no folder is created).
    */
   export function GiveInventoryList(
-    targetId: uuid,
+    targetId: UUID,
     folderName: string,
     inventoryItems: string[],
   ): void
@@ -2472,28 +2466,28 @@ declare namespace ll {
    * Transfers Amount of L$ from script owner to AvatarID.
    * This call will silently fail if PERMISSION_DEBIT has not been granted.
    */
-  export function GiveMoney(avatarId: uuid, amount: number): number
+  export function GiveMoney(avatarId: UUID, amount: number): number
 
   /** Rez directly off of a UUID if owner has god-bit set. */
-  export function GodLikeRezObject(inventoryItemId: uuid, position: vector): void
+  export function GodLikeRezObject(inventoryItemId: UUID, position: Vector): void
 
   /**
    * Returns the ground height at the object position + offset.
    * Returns the ground height at the object's position + Offset.
    */
-  export function Ground(offset: vector): number
+  export function Ground(offset: Vector): number
 
   /**
    * Returns the ground contour direction below the object position + Offset.
    * Returns the ground contour at the object's position + Offset.
    */
-  export function GroundContour(offset: vector): vector
+  export function GroundContour(offset: Vector): Vector
 
   /**
    * Returns the ground normal below the object position + offset.
    * Returns the ground contour at the object's position + Offset.
    */
-  export function GroundNormal(offset: vector): vector
+  export function GroundNormal(offset: Vector): Vector
 
   /**
    * Critically damps to height if within height * 0.5 of level (either above ground level or above the higher of land and water if water == TRUE).
@@ -2507,7 +2501,7 @@ declare namespace ll {
    * Returns the ground slope below the object position + Offset.
    * Returns the ground slope at the object position + Offset.
    */
-  export function GroundSlope(offset: vector): vector
+  export function GroundSlope(offset: Vector): Vector
 
   /** Returns the base64-encoded hashed message authentication code (HMAC), of Message using PEM-formatted Key and digest Algorithm (md5, sha1, sha224, sha256, sha384, sha512). */
   export function HMAC(key: string, message: string, algorithm: string): string
@@ -2516,10 +2510,10 @@ declare namespace ll {
    * Sends an HTTP request to the specified URL with the Body of the request and Parameters.
    * Returns a key that is a handle identifying the HTTP request made.
    */
-  export function HTTPRequest(url: string, parameters: list, body: string): uuid
+  export function HTTPRequest(url: string, parameters: list, body: string): UUID
 
   /** Responds to an incoming HTTP request which was triggerd by an http_request event within the script. HTTPRequestID specifies the request to respond to (this ID is supplied in the http_request event handler).  Status and Body specify the status code and message to respond with. */
-  export function HTTPResponse(httpRequestId: uuid, status: number, body: string): void
+  export function HTTPResponse(httpRequestId: UUID, status: number, body: string): void
 
   /** Calculates the 32bit hash value for the provided string. */
   export function Hash(value: string): number
@@ -2539,7 +2533,7 @@ declare namespace ll {
    * IMs Text to the user identified.
    * Send Text to the user as an instant message.
    */
-  export function InstantMessage(avatarId: uuid, text: string): void
+  export function InstantMessage(avatarId: UUID, text: string): void
 
   /**
    * Returns a string that is a Base64 big endian encode of Value.
@@ -2548,7 +2542,7 @@ declare namespace ll {
   export function IntegerToBase64(value: number): string
 
   /** Returns TRUE if avatar ID is a friend of the script owner. */
-  export function IsFriend(agentId: uuid): number
+  export function IsFriend(agentId: UUID): number
 
   /** Checks the face for a PBR render material. */
   export function IsLinkGLTFMaterial(link: number, face: number): number
@@ -2581,19 +2575,19 @@ declare namespace ll {
    * Returns the name of the prim or avatar specified by ID. The ID must be a valid rezzed prim or avatar key in the current simulator, otherwise an empty string is returned.
    * For avatars, the returned name is the legacy name
    */
-  export function Key2Name(id: uuid): string
+  export function Key2Name(id: UUID): string
 
   /** Starts an asychronous transaction the request the number of keys in the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will the the number of keys in the system. */
-  export function KeyCountKeyValue(): uuid
+  export function KeyCountKeyValue(): UUID
 
   /**
    * Starts an asychronous transaction the request a number of keys from the data store. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. The error XP_ERROR_KEY_NOT_FOUND is returned if First is greater than or equal to the number of keys in the data store. In the success case the subsequent items will be the keys requested. The number of keys returned may be less than requested if the return value is too large or if there is not enough keys remaining. The order keys are returned is not guaranteed but is stable between subsequent calls as long as no keys are added or removed. Because the keys are returned in a comma-delimited list it is not recommended to use commas in key names if this function is used.
    * @indexArg first
    */
-  export function KeysKeyValue(first: number, count: number): uuid
+  export function KeysKeyValue(first: number, count: number): UUID
 
   /** Converts a color from the linear colorspace to sRGB. */
-  export function Linear2sRGB(color: vector): vector
+  export function Linear2sRGB(color: Vector): Vector
 
   /**
    * Adjusts the volume (0.0 - 1.0) of the currently playing sound attached to the link.
@@ -2629,7 +2623,7 @@ declare namespace ll {
    * Set the sit location for the linked prim(s). If Offset == <0,0,0> clear it.
    * Set the sit location for the linked prim(s). The sit location is relative to the prim's position and rotation.
    */
-  export function LinkSitTarget(linkNumber: number, offset: vector, rotation: quaternion): void
+  export function LinkSitTarget(linkNumber: number, offset: Vector, rotation: Quaternion): void
 
   /** Stops playback of the currently attached sound on a link. */
   export function LinkStopSound(linkNumber: number): void
@@ -2713,7 +2707,7 @@ declare namespace ll {
    * @deprecated Use '[]' and 'touuid' instead.
    * @indexArg index
    */
-  export function List2Key(listVariable: list, index: number): uuid
+  export function List2Key(listVariable: list, index: number): UUID
 
   /**
    * Returns a subset of entries from ListVariable, in a range specified by the Start and End indicies (inclusive).
@@ -2760,7 +2754,7 @@ declare namespace ll {
    * @deprecated Use '[]' instead.
    * @indexArg index
    */
-  export function List2Rot(listVariable: list, index: number): quaternion
+  export function List2Rot(listVariable: list, index: number): Quaternion
 
   /**
    * Copies the string at Index in the list.
@@ -2776,7 +2770,7 @@ declare namespace ll {
    * @deprecated Use '[]' instead.
    * @indexArg index
    */
-  export function List2Vector(listVariable: list, index: number): vector
+  export function List2Vector(listVariable: list, index: number): Vector
 
   /**
    * Returns the first index where Find appears in ListVariable. Returns -1 if not found.
@@ -2858,7 +2852,7 @@ declare namespace ll {
   export function Listen(
     channel: number,
     speakersName: string,
-    speakersId: uuid,
+    speakersId: UUID,
     text: string,
   ): number
 
@@ -2875,7 +2869,7 @@ declare namespace ll {
    * Shows dialog to avatar AvatarID offering to load web page at URL.	If user clicks yes, launches their web browser.
    * llLoadURL displays a dialogue box to the user, offering to load the specified web page using the default web browser.
    */
-  export function LoadURL(avatarId: uuid, text: string, url: string): void
+  export function LoadURL(avatarId: UUID, text: string, url: string): void
 
   /**
    * Returns the natural logarithm of Value. Returns zero if Value <= 0.
@@ -2896,7 +2890,7 @@ declare namespace ll {
    * Good Strength values are around half the mass of the object and good Damping values are less than 1/10th of the Strength.
    * Asymmetrical shapes require smaller Damping. A Strength of 0.0 cancels the look at.
    */
-  export function LookAt(target: vector, strength: number, damping: number): void
+  export function LookAt(target: Vector, strength: number, damping: number): void
 
   /**
    * Plays specified Sound, looping indefinitely, at Volume (0.0 - 1.0).
@@ -2940,7 +2934,7 @@ declare namespace ll {
     lifetime: number,
     arc: number,
     texture: string,
-    offset: vector,
+    offset: Vector,
   ): void
 
   /**
@@ -2955,7 +2949,7 @@ declare namespace ll {
     lifetime: number,
     arc: number,
     texture: string,
-    offset: vector,
+    offset: Vector,
   ): void
 
   /**
@@ -2971,7 +2965,7 @@ declare namespace ll {
     arc: number,
     bounce: number,
     texture: string,
-    offset: vector,
+    offset: Vector,
     bounceOffset: number,
   ): void
 
@@ -2987,7 +2981,7 @@ declare namespace ll {
     lifetime: number,
     arc: number,
     texture: string,
-    offset: vector,
+    offset: Vector,
   ): void
 
   /**
@@ -2995,16 +2989,16 @@ declare namespace ll {
    * Returns an integer representing a boolean, TRUE if the call was successful; FALSE if throttled, invalid action, invalid or null id or object owner is not allowed to manage the estate.
    * The object owner is notified of any changes, unless PERMISSION_SILENT_ESTATE_MANAGEMENT has been granted to the script.
    */
-  export function ManageEstateAccess(action: number, avatarId: uuid): number
+  export function ManageEstateAccess(action: number, avatarId: UUID): number
 
   /** Displays an in world beacon and optionally opens world map for avatar who touched the object or is wearing the script, centered on RegionName with Position highlighted. Only works for scripts attached to avatar, or during touch events. */
-  export function MapBeacon(regionName: string, position: vector, options: list): void
+  export function MapBeacon(regionName: string, position: Vector, options: list): void
 
   /**
    * Opens world map for avatar who touched it or is wearing the script, centred on RegionName with Position highlighted. Only works for scripts attached to avatar, or during touch events.
    * Direction currently has no effect.
    */
-  export function MapDestination(regionName: string, position: vector, direction: vector): void
+  export function MapDestination(regionName: string, position: Vector, direction: Vector): void
 
   /**
    * Sends Number, Text, and ID to members of the link set identified by LinkNumber.
@@ -3013,8 +3007,8 @@ declare namespace ll {
   export function MessageLinked(
     linkNumber: number,
     number: number,
-    text: string | uuid,
-    id: string | uuid,
+    text: string | UUID,
+    id: string | UUID,
   ): void
 
   /** Set the minimum time between events being handled. */
@@ -3033,16 +3027,16 @@ declare namespace ll {
    * Critically damp to Target in Tau seconds (if the script is physical).
    * Critically damp to position target in tau-seconds if the script is physical. Good tau-values are greater than 0.2. A tau of 0.0 stops the critical damping.
    */
-  export function MoveToTarget(target: vector, tau: number): void
+  export function MoveToTarget(target: Vector, tau: number): void
 
   /** Look up Agent ID for the named agent in the region. */
-  export function Name2Key(name: string): uuid
+  export function Name2Key(name: string): UUID
 
   /**
    * Navigate to destination.
    * Directs an object to travel to a defined position in the region or adjacent regions.
    */
-  export function NavigateTo(location: vector, options: list): void
+  export function NavigateTo(location: Vector, options: list): void
 
   /**
    * Sets the texture S and T offsets for the chosen Face.
@@ -3072,7 +3066,7 @@ declare namespace ll {
    * Returns TRUE if id ID over land owned by the script owner, otherwise FALSE.
    * Returns TRUE if key ID is over land owned by the object owner, FALSE otherwise.
    */
-  export function OverMyLand(id: uuid): number
+  export function OverMyLand(id: UUID): number
 
   /**
    * says Text to owner only (if owner is in region).
@@ -3128,7 +3122,7 @@ declare namespace ll {
    * Patrol a list of points.
    * Sets the points for a character (llCreateCharacter) to patrol along.
    */
-  export function PatrolPoints(points: vector[], options: list): void
+  export function PatrolPoints(points: Vector[], options: list): void
 
   /**
    * Plays Sound once, at Volume (0.0 - 1.0) and attached to the object.
@@ -3146,7 +3140,7 @@ declare namespace ll {
   export function PlaySoundSlave(sound: string, volume: number): void
 
   /** @deprecated */
-  export function PointAt(point: vector): void
+  export function PointAt(point: Vector): void
 
   /**
    * Returns the Value raised to the power Exponent, or returns 0 and triggers Math Error for imaginary results.
@@ -3165,21 +3159,21 @@ declare namespace ll {
    * Chase after a target.
    * Causes the character (llCharacter) to pursue the target defined by TargetID.
    */
-  export function Pursue(targetId: uuid, options: list): void
+  export function Pursue(targetId: UUID, options: list): void
 
   /**
    * Applies Impulse and AngularImpulse to ObjectID.
    * Applies the supplied impulse and angular impulse to the object specified.
    */
   export function PushObject(
-    objectId: uuid,
-    impulse: vector,
-    angularImpulse: vector,
+    objectId: UUID,
+    impulse: Vector,
+    angularImpulse: Vector,
     local: number,
   ): void
 
   /** Starts an asychronous transaction to retrieve the value associated with the key given. Will fail with XP_ERROR_KEY_NOT_FOUND if the key does not exist. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. */
-  export function ReadKeyValue(key: string): uuid
+  export function ReadKeyValue(key: string): UUID
 
   /**
    * Reloads the web page shown on the sides of the object.
@@ -3194,14 +3188,14 @@ declare namespace ll {
    * Says Text, on Channel, to avatar or object indicated by TargetID (if within region).
    * If TargetID is an avatar and Channel is nonzero, Text can be heard by any attachment on the avatar.
    */
-  export function RegionSayTo(targetId: uuid, channel: number, text: string): void
+  export function RegionSayTo(targetId: UUID, channel: number, text: string): void
 
   /**
    * Return camera to agent.
    * Deprecated: Use llClearCameraParams instead.
    * @deprecated Use 'll.ClearCameraParams' instead.
    */
-  export function ReleaseCamera(avatarId: uuid): void
+  export function ReleaseCamera(avatarId: UUID): void
 
   /**
    * Stop taking inputs.
@@ -3217,8 +3211,8 @@ declare namespace ll {
    * @deprecated
    */
   export function RemoteDataReply(
-    channelId: uuid,
-    messageId: uuid,
+    channelId: UUID,
+    messageId: UUID,
     sData: string,
     iData: number,
   ): void
@@ -3231,7 +3225,7 @@ declare namespace ll {
 
   /** @deprecated */
   export function RemoteLoadScript(
-    target: uuid,
+    target: UUID,
     scriptName: string,
     unknown1: number,
     unknown2: number,
@@ -3239,7 +3233,7 @@ declare namespace ll {
 
   /** If the owner of the object containing this script can modify the object identified by the specified object key, and if the PIN matches the PIN previously set using llSetRemoteScriptAccessPin (on the target prim), then the script will be copied into target. Running is a boolean specifying whether the script should be enabled once copied into the target object. */
   export function RemoteLoadScriptPin(
-    objectId: uuid,
+    objectId: UUID,
     scriptName: string,
     pin: number,
     running: number,
@@ -3250,13 +3244,13 @@ declare namespace ll {
    * Remove avatar from the land ban list.
    * Remove specified avatar from the land parcel ban list.
    */
-  export function RemoveFromLandBanList(avatarId: uuid): void
+  export function RemoveFromLandBanList(avatarId: UUID): void
 
   /**
    * Remove avatar from the land pass list.
    * Remove specified avatar from the land parcel pass list.
    */
-  export function RemoveFromLandPassList(avatarId: uuid): void
+  export function RemoveFromLandPassList(avatarId: UUID): void
 
   /**
    * Remove the named inventory item.
@@ -3272,14 +3266,14 @@ declare namespace ll {
 
   /** Replaces the entire environment for an agent. Must be used as part of an experience. */
   export function ReplaceAgentEnvironment(
-    agentId: uuid,
+    agentId: UUID,
     transition: number,
     environment: string,
   ): number
 
   /** Replaces the environment for a parcel or region. */
   export function ReplaceEnvironment(
-    position: vector,
+    position: Vector,
     environment: string,
     trackNo: number,
     dayLength: number,
@@ -3298,52 +3292,52 @@ declare namespace ll {
    * Requests data about AvatarID. When data is available the dataserver event will be raised.
    * This function requests data about an avatar. If and when the information is collected, the dataserver event is triggered with the key returned from this function passed in the requested parameter. See the agent data constants (DATA_*) for details about valid values of data and what each will return in the dataserver event.
    */
-  export function RequestAgentData(avatarId: uuid, data: number): uuid
+  export function RequestAgentData(avatarId: UUID, data: number): UUID
 
   /**
    * Requests the display name of the agent. When the display name is available the dataserver event will be raised.
    * The avatar identified does not need to be in the same region or online at the time of the request.
    * Returns a key that is used to identify the dataserver event when it is raised.
    */
-  export function RequestDisplayName(avatarId: uuid): uuid
+  export function RequestDisplayName(avatarId: UUID): UUID
 
   /** Ask the agent for permission to participate in an experience. This request is similar to llRequestPermissions with the following permissions: PERMISSION_TAKE_CONTROLS, PERMISSION_TRIGGER_ANIMATION, PERMISSION_ATTACH, PERMISSION_TRACK_CAMERA, PERMISSION_CONTROL_CAMERA and PERMISSION_TELEPORT. However, unlike llRequestPermissions the decision to allow or block the request is persistent and applies to all scripts using the experience grid wide. Subsequent calls to llRequestExperiencePermissions from scripts in the experience will receive the same response automatically with no user interaction. One of experience_permissions or experience_permissions_denied will be generated in response to this call. Outstanding permission requests will be lost if the script is derezzed, moved to another region or reset. */
-  export function RequestExperiencePermissions(agentId: uuid, unused: string): void
+  export function RequestExperiencePermissions(agentId: UUID, unused: string): void
 
   /**
    * Requests data for the named InventoryItem.
    * When data is available, the dataserver event will be raised with the key returned from this function in the requested parameter.
    * The only request currently implemented is to request data from landmarks, where the data returned is in the form "<float, float, float>" which can be cast to a vector. This position is in region local coordinates.
    */
-  export function RequestInventoryData(inventoryItem: string): uuid
+  export function RequestInventoryData(inventoryItem: string): UUID
 
   /**
    * Ask AvatarID to allow the script to perform certain actions, specified in the PermissionMask bitmask. PermissionMask should be one or more PERMISSION_* constants. Multiple permissions can be requested simultaneously by ORing the constants together. Many of the permissions requests can only go to object owner.
    * This call will not stop script execution. If the avatar grants the requested permissions, the run_time_permissions event will be called.
    */
-  export function RequestPermissions(avatarId: uuid, permissionMask: number): void
+  export function RequestPermissions(avatarId: UUID, permissionMask: number): void
 
   /**
    * Requests one HTTPS:// (SSL) URL for use by this object. The http_request event is triggered with results.
    * Returns a key that is the handle used for identifying the request in the http_request event.
    */
-  export function RequestSecureURL(): uuid
+  export function RequestSecureURL(): UUID
 
   /**
    * Requests the specified Data about RegionName. When the specified data is available, the dataserver event is raised.
    * Data should use one of the DATA_SIM_* constants.
    * Returns a dataserver query ID and triggers the dataserver event when data is found.
    */
-  export function RequestSimulatorData(regionName: string, data: number): uuid
+  export function RequestSimulatorData(regionName: string, data: number): UUID
 
   /**
    * Requests one HTTP:// URL for use by this script. The http_request event is triggered with the result of the request.
    * Returns a key that is the handle used for identifying the result in the http_request event.
    */
-  export function RequestURL(): uuid
+  export function RequestURL(): UUID
 
   /** Look up Agent ID for the named agent using a historical name. */
-  export function RequestUserKey(name: string): uuid
+  export function RequestUserKey(name: string): UUID
 
   /**
    * Requests single-word user-name of an avatar. When data is available the dataserver event will be raised.
@@ -3351,7 +3345,7 @@ declare namespace ll {
    * The agent identified does not need to be in the same region or online at the time of the request.
    * Returns a key that is used to identify the dataserver event when it is raised.
    */
-  export function RequestUsername(avatarId: uuid): uuid
+  export function RequestUsername(avatarId: UUID): UUID
 
   /**
    * Resets the animation of the specified animation state to the default value.
@@ -3376,13 +3370,13 @@ declare namespace ll {
    * Return objects using their UUIDs.
    * Requires the PERMISSION_RETURN_OBJECTS permission and that the script owner owns the parcel the returned objects are in, or is an estate manager or region owner.
    */
-  export function ReturnObjectsByID(objectIDs: uuid[]): number
+  export function ReturnObjectsByID(objectIDs: UUID[]): number
 
   /**
    * Return objects based upon their owner and a scope of parcel, parcel owner, or region.
    * Requires the PERMISSION_RETURN_OBJECTS permission and that the script owner owns the parcel the returned objects are in, or is an estate manager or region owner.
    */
-  export function ReturnObjectsByOwner(id: uuid, scope: number): number
+  export function ReturnObjectsByOwner(id: UUID, scope: number): number
 
   /**
    * Instantiate owner's InventoryItem at Position with Velocity, Rotation and with StartParameter. The last selected root object's location will be set to Position.
@@ -3390,9 +3384,9 @@ declare namespace ll {
    */
   export function RezAtRoot(
     inventoryItem: string,
-    position: vector,
-    velocity: vector,
-    rotation: quaternion,
+    position: Vector,
+    velocity: Vector,
+    rotation: Quaternion,
     startParameter: number,
   ): void
 
@@ -3403,69 +3397,69 @@ declare namespace ll {
    */
   export function RezObject(
     inventoryItem: string,
-    position: vector,
-    velocity: vector,
-    rotation: quaternion,
+    position: Vector,
+    velocity: Vector,
+    rotation: Quaternion,
     startParameter: number,
   ): void
 
   /** Instantiate owner's InventoryItem with the given parameters. */
-  export function RezObjectWithParams(inventoryItem: string, params: list): uuid
+  export function RezObjectWithParams(inventoryItem: string, params: list): UUID
 
   /**
    * Returns the rotation angle represented by Rotation.
    * Returns the angle represented by the Rotation.
    */
-  export function Rot2Angle(rotation: quaternion): number
+  export function Rot2Angle(rotation: Quaternion): number
 
   /**
    * Returns the rotation axis represented by Rotation.
    * Returns the axis represented by the Rotation.
    */
-  export function Rot2Axis(rotation: quaternion): vector
+  export function Rot2Axis(rotation: Quaternion): Vector
 
   /**
    * Returns the Euler representation (roll, pitch, yaw) of Rotation.
    * Returns the Euler Angle representation of the Rotation.
    */
-  export function Rot2Euler(rotation: quaternion): vector
+  export function Rot2Euler(rotation: Quaternion): Vector
 
   /**
    * Returns the forward vector defined by Rotation.
    * Returns the forward axis represented by the Rotation.
    */
-  export function Rot2Fwd(rotation: quaternion): vector
+  export function Rot2Fwd(rotation: Quaternion): Vector
 
   /**
    * Returns the left vector defined by Rotation.
    * Returns the left axis represented by the Rotation.
    */
-  export function Rot2Left(rotation: quaternion): vector
+  export function Rot2Left(rotation: Quaternion): Vector
 
   /**
    * Returns the up vector defined by Rotation.
    * Returns the up axis represented by the Rotation.
    */
-  export function Rot2Up(rotation: quaternion): vector
+  export function Rot2Up(rotation: Quaternion): Vector
 
   /**
    * Returns the rotation to rotate Vector1 to Vector2.
    * Returns the rotation needed to rotate Vector1 to Vector2.
    */
-  export function RotBetween(vector1: vector, vector2: vector): quaternion
+  export function RotBetween(vector1: Vector, vector2: Vector): Quaternion
 
   /**
    * Cause object to rotate to Rotation, with a force function defined by Strength and Damping parameters. Good strength values are around half the mass of the object and good damping values are less than 1/10th of the strength.
    * Asymmetrical shapes require smaller damping.
    * A strength of 0.0 cancels the look at.
    */
-  export function RotLookAt(rotation: quaternion, strength: number, damping: number): void
+  export function RotLookAt(rotation: Quaternion, strength: number, damping: number): void
 
   /**
    * Set rotations with error of LeeWay radians as a rotational target, and return an ID for the rotational target.
    * The returned number is a handle that can be used in at_rot_target and llRotTargetRemove.
    */
-  export function RotTarget(rotation: quaternion, leeWay: number): number
+  export function RotTarget(rotation: Quaternion, leeWay: number): number
 
   /**
    * Removes rotational target number.
@@ -3496,7 +3490,7 @@ declare namespace ll {
    * Returns TRUE if avatar ID is in the same region and has the same active group, otherwise FALSE.
    * Returns TRUE if the object or agent identified is in the same simulator and has the same active group as this object. Otherwise, returns FALSE.
    */
-  export function SameGroup(id: uuid): number
+  export function SameGroup(id: UUID): number
 
   /**
    * Says Text on Channel.
@@ -3524,7 +3518,7 @@ declare namespace ll {
    * Returns TRUE if Position is over public land, sandbox land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.
    * Returns true if the position is over public land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.
    */
-  export function ScriptDanger(position: vector): number
+  export function ScriptDanger(position: Vector): number
 
   /**
    * Enables or disables script profiling options. Currently only supports PROFILE_SCRIPT_MEMORY (Mono only) and PROFILE_NONE.
@@ -3537,18 +3531,18 @@ declare namespace ll {
    * @deprecated
    */
   export function SendRemoteData(
-    channelId: uuid,
+    channelId: UUID,
     destination: string,
     value: number,
     text: string,
-  ): uuid
+  ): UUID
 
   /**
    * Performs a single scan for Name and ID with Type (AGENT, ACTIVE, PASSIVE, and/or SCRIPTED) within Range meters and Arc radians of forward vector.
    * Specifying a blank Name, 0 Type, or NULL_KEY ID will prevent filtering results based on that parameter. A range of 0.0 does not perform a scan.
    * Results are returned in the sensor and no_sensor events.
    */
-  export function Sensor(name: string, id: uuid, type: number, range: number, arc: number): void
+  export function Sensor(name: string, id: UUID, type: number, range: number, arc: number): void
 
   /**
    * removes sensor.
@@ -3563,7 +3557,7 @@ declare namespace ll {
    */
   export function SensorRepeat(
     name: string,
-    id: uuid,
+    id: UUID,
     type: number,
     range: number,
     arc: number,
@@ -3571,10 +3565,10 @@ declare namespace ll {
   ): void
 
   /** Sets an agent's environmental values to the specified values. Must be used as part of an experience. */
-  export function SetAgentEnvironment(agentId: uuid, transition: number, settings: list): number
+  export function SetAgentEnvironment(agentId: UUID, transition: number, settings: list): number
 
   /** Sets the avatar rotation to the given value. */
-  export function SetAgentRot(rot: quaternion, flags: number): void
+  export function SetAgentRot(rot: Quaternion, flags: number): void
 
   /**
    * Sets the alpha (opacity) of Face.
@@ -3586,7 +3580,7 @@ declare namespace ll {
    * Sets an object's angular velocity to AngVel, in local coordinates if Local == TRUE (if the script is physical).
    * Has no effect on non-physical objects.
    */
-  export function SetAngularVelocity(angVel: vector, local: number): void
+  export function SetAngularVelocity(angVel: Vector, local: number): void
 
   /**
    * Sets the animation (in object inventory) that will play for the given animation state.
@@ -3604,10 +3598,10 @@ declare namespace ll {
    * Sets the camera used in this object, at offset, if an avatar sits on it.
    * Sets the offset that an avatar's camera will be moved to if the avatar sits on the object.
    */
-  export function SetCameraAtOffset(offset: vector): void
+  export function SetCameraAtOffset(offset: Vector): void
 
   /** Sets the camera eye offset used in this object if an avatar sits on it. */
-  export function SetCameraEyeOffset(offset: vector): void
+  export function SetCameraEyeOffset(offset: Vector): void
 
   /**
    * Sets multiple camera parameters at once. List format is [ rule-1, data-1, rule-2, data-2 . . . rule-n, data-n ].
@@ -3622,13 +3616,13 @@ declare namespace ll {
    * Sets the color, for the face.
    * Sets the color of the side specified. If Face is ALL_SIDES, sets the color on all faces.
    */
-  export function SetColor(color: vector, face: number): void
+  export function SetColor(color: Vector, face: number): void
 
   /**
    * Set the media type of an LSL HTTP server response to ContentType.
    * HTTPRequestID must be a valid http_request ID. ContentType must be one of the CONTENT_TYPE_* constants.
    */
-  export function SetContentType(httpRequestId: uuid, contentType: number): void
+  export function SetContentType(httpRequestId: UUID, contentType: number): void
 
   /**
    * Sets the amount of damage that will be done to an avatar that this task hits.	Task will be killed.
@@ -3637,22 +3631,22 @@ declare namespace ll {
   export function SetDamage(damage: number): void
 
   /** Returns a string with the requested data about the region. */
-  export function SetEnvironment(position: vector, envParams: list): number
+  export function SetEnvironment(position: Vector, envParams: list): number
 
   /** @deprecated */
-  export function SetExperienceKey(experienceId: uuid): number
+  export function SetExperienceKey(experienceId: UUID): number
 
   /**
    * Sets Force on object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetForce(force: vector, local: number): void
+  export function SetForce(force: Vector, local: number): void
 
   /**
    * Sets the Force and Torque of object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetForceAndTorque(force: vector, torque: vector, local: number): void
+  export function SetForceAndTorque(force: Vector, torque: Vector, local: number): void
 
   /** Changes terrain texture properties in the region. */
   export function SetGroundTexture(changes: list): number
@@ -3684,13 +3678,13 @@ declare namespace ll {
   export function SetLinkAlpha(linkNumber: number, opacity: number, face: number): void
 
   /** Sets the camera eye offset, and the offset that camera is looking at, for avatars that sit on the linked prim. */
-  export function SetLinkCamera(linkNumber: number, eyeOffset: vector, lookOffset: vector): void
+  export function SetLinkCamera(linkNumber: number, eyeOffset: Vector, lookOffset: Vector): void
 
   /**
    * If a task exists in the link chain at LinkNumber, set the Face to color.
    * Sets the color of the linked child's side, specified by LinkNumber.
    */
-  export function SetLinkColor(linkNumber: number, color: vector, face: number): void
+  export function SetLinkColor(linkNumber: number, color: Vector, face: number): void
 
   /** Sets or changes GLTF Overrides set on the selected faces. */
   export function SetLinkGLTFOverrides(link: number, face: number, options: list): void
@@ -3746,7 +3740,7 @@ declare namespace ll {
   ): void
 
   /** Sets the rotation of a child prim relative to the root prim. */
-  export function SetLocalRot(rotation: quaternion): void
+  export function SetLocalRot(rotation: Quaternion): void
 
   /**
    * Sets the description of the prim to Description.
@@ -3798,7 +3792,7 @@ declare namespace ll {
    * If the script is in a child prim, Position is treated as root relative and the link-set is adjusted.
    * If the prim is the root prim, the entire object is moved (up to 10m) to Position in region coordinates.
    */
-  export function SetPos(position: vector): void
+  export function SetPos(position: Vector): void
 
   /**
    * Sets the MediaParameters for a particular Face on the prim. Returns an integer that is a STATUS_* flag which details the success/failure of the operation(s).
@@ -3824,7 +3818,7 @@ declare namespace ll {
    * Position may be any location within the region or up to 10m across a region border.
    * If the position is below ground, it will be set to the ground level at that x,y location.
    */
-  export function SetRegionPos(position: vector): number
+  export function SetRegionPos(position: Vector): number
 
   /** If PIN is set to a non-zero number, the task will accept remote script loads via llRemoteLoadScriptPin() if it passes in the correct PIN. Othersise, llRemoteLoadScriptPin() is ignored. */
   export function SetRemoteScriptAccessPin(pin: number): void
@@ -3841,10 +3835,10 @@ declare namespace ll {
    * If the script is in a child prim, Rotation is treated as root relative and the link-set is adjusted.
    * If the prim is the root prim, the entire object is rotated to Rotation in the global reference frame.
    */
-  export function SetRot(rotation: quaternion): void
+  export function SetRot(rotation: Quaternion): void
 
   /** Sets the prim's scale (size) to Scale. */
-  export function SetScale(scale: vector): void
+  export function SetScale(scale: Vector): void
 
   /** Enable or disable the script Running state of Script in the prim. */
   export function SetScriptState(scriptName: string, running: number): void
@@ -3868,7 +3862,7 @@ declare namespace ll {
   export function SetStatus(status: number, value: number): void
 
   /** Causes Text to float above the prim, using the specified Color and Opacity. */
-  export function SetText(text: string, color: vector, opacity: number): void
+  export function SetText(text: string, color: Vector, opacity: number): void
 
   /**
    * Applies Texture to Face of prim.
@@ -3899,7 +3893,7 @@ declare namespace ll {
    * Sets the Torque acting on the script's object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetTorque(torque: vector, local: number): void
+  export function SetTorque(torque: Vector, local: number): void
 
   /** Displays Text in the viewer context menu that acts on a touch. */
   export function SetTouchText(text: string): void
@@ -3920,7 +3914,7 @@ declare namespace ll {
    * Sets a vehicle rotation parameter.
    * Valid parameters can be found in the wiki documentation.
    */
-  export function SetVehicleRotationParam(parameterName: number, parameterValue: quaternion): void
+  export function SetVehicleRotationParam(parameterName: number, parameterValue: Quaternion): void
 
   /**
    * Activates the vehicle action on the object with vehicle preset Type.
@@ -3932,13 +3926,13 @@ declare namespace ll {
    * Sets a vehicle vector parameter.
    * Valid parameters can be found in the wiki documentation.
    */
-  export function SetVehicleVectorParam(parameterName: number, parameterValue: vector): void
+  export function SetVehicleVectorParam(parameterName: number, parameterValue: Vector): void
 
   /**
    * If the object is physics-enabled, sets the object's linear velocity to Velocity.
    * If Local==TRUE, Velocity is treated as a local directional vector; otherwise, Velocity is treated as a global directional vector.
    */
-  export function SetVelocity(velocity: vector, local: number): void
+  export function SetVelocity(velocity: Vector, local: number): void
 
   /**
    * Shouts Text on Channel.
@@ -3957,10 +3951,10 @@ declare namespace ll {
   export function Sin(theta: number): number
 
   /** If agent identified by AvatarID is participating in the experience, sit them on the specified link's sit target. */
-  export function SitOnLink(avatarId: uuid, linkId: number): number
+  export function SitOnLink(avatarId: UUID, linkId: number): number
 
   /** Set the sit location for this object. If offset == ZERO_VECTOR, clears the sit target. */
-  export function SitTarget(offset: vector, rotation: quaternion): void
+  export function SitTarget(offset: Vector, rotation: Quaternion): void
 
   /** Put script to sleep for Time seconds. */
   export function Sleep(time: number): void
@@ -4058,7 +4052,7 @@ declare namespace ll {
    * Deprecated: Use llSetCameraParams instead.
    * @deprecated Use 'll.SetCameraParams' instead.
    */
-  export function TakeCamera(avatarId: uuid): void
+  export function TakeCamera(avatarId: UUID): void
 
   /**
    * Take controls from the agent the script has permissions for.
@@ -4077,13 +4071,13 @@ declare namespace ll {
    * This function is to have the script know when it has reached a position.
    * It registers a Position with a Range that triggers at_target and not_at_target events continuously until unregistered.
    */
-  export function Target(position: vector, range: number): number
+  export function Target(position: Vector, range: number): number
 
   /**
    * Attempt to spin at SpinRate with strength Gain on Axis.
    * A spin rate of 0.0 cancels the spin. This function always works in object-local coordinates.
    */
-  export function TargetOmega(axis: vector, spinRate: number, gain: number): void
+  export function TargetOmega(axis: Vector, spinRate: number, gain: number): void
 
   /** Removes positional target Handle registered with llTarget. */
   export function TargetRemove(target: number): void
@@ -4097,10 +4091,10 @@ declare namespace ll {
    * This function can only teleport the owner of the object.
    */
   export function TeleportAgent(
-    avatarId: uuid,
+    avatarId: UUID,
     landmarkName: string,
-    position: vector,
-    lookAtPoint: vector,
+    position: Vector,
+    lookAtPoint: Vector,
   ): void
 
   /**
@@ -4109,17 +4103,17 @@ declare namespace ll {
    * This function can only teleport the owner of the object.
    */
   export function TeleportAgentGlobalCoords(
-    avatarId: uuid,
-    globalPosition: vector,
-    regionPosition: vector,
-    lookAtPoint: vector,
+    avatarId: UUID,
+    globalPosition: Vector,
+    regionPosition: Vector,
+    lookAtPoint: Vector,
   ): void
 
   /** Teleport agent over the owner's land to agent's home location. */
-  export function TeleportAgentHome(avatarId: uuid): void
+  export function TeleportAgentHome(avatarId: UUID): void
 
   /** Opens a dialog for the specified avatar with message Text, which contains a text box for input. Any text that is entered is said on the specified Channel (as if by the avatar) when the "OK" button is clicked. */
-  export function TextBox(avatarId: uuid, text: string, channel: number): void
+  export function TextBox(avatarId: UUID, text: string, channel: number): void
 
   /** Returns a string that is Text with all lower-case characters. */
   export function ToLower(text: string): string
@@ -4131,10 +4125,10 @@ declare namespace ll {
    * Transfer Amount of linden dollars (L$) from script owner to AvatarID. Returns a key to a corresponding transaction_result event for the success of the transfer.
    * Attempts to send the amount of money to the specified avatar, and trigger a transaction_result event identified by the returned key. Requires the PERMISSION_DEBIT runtime permission.
    */
-  export function TransferLindenDollars(avatarId: uuid, amount: number): uuid
+  export function TransferLindenDollars(avatarId: UUID, amount: number): UUID
 
   /** Transfers ownership of an object, or a copy of the object to a new agent. */
-  export function TransferOwnership(agentId: uuid, flags: number, params: list): number
+  export function TransferOwnership(agentId: UUID, flags: number, params: list): number
 
   /**
    * Plays Sound at Volume (0.0 - 1.0), centered at but not attached to object.
@@ -4146,10 +4140,10 @@ declare namespace ll {
    * Plays Sound at Volume (0.0 - 1.0), centered at but not attached to object, limited to axis-aligned bounding box defined by vectors top-north-east (TNE) and bottom-south-west (BSW).
    * There is no limit to the number of triggered sounds which can be generated by an object, and calling llTriggerSound does not affect the attached sounds created by llPlaySound and llLoopSound. This is very useful for things like collision noises, explosions, etc. There is no way to stop or alter the volume of a sound triggered by this function.
    */
-  export function TriggerSoundLimited(sound: string, volume: number, tne: vector, bsw: vector): void
+  export function TriggerSoundLimited(sound: string, volume: number, tne: Vector, bsw: Vector): void
 
   /** If agent identified by AvatarID is sitting on the object the script is attached to or is over land owned by the object's owner, the agent is forced to stand up. */
-  export function UnSit(avatarId: uuid): void
+  export function UnSit(avatarId: UUID): void
 
   /**
    * Returns the string that is the URL unescaped, replacing "%20" with spaces, etc., version of URL.
@@ -4166,16 +4160,16 @@ declare namespace ll {
     value: string,
     checked: number,
     originalValue: string,
-  ): uuid
+  ): UUID
 
   /** Returns the distance between Location1 and Location2. */
-  export function VecDist(location1: vector, location2: vector): number
+  export function VecDist(location1: Vector, location2: Vector): number
 
   /** Returns the magnitude of the vector. */
-  export function VecMag(vector: vector): number
+  export function VecMag(vector: Vector): number
 
   /** Returns normalized vector. */
-  export function VecNorm(vector: vector): vector
+  export function VecNorm(vector: Vector): Vector
 
   /** Returns TRUE if PublicKey, Message, and Algorithm produce the same base64-formatted Signature. */
   export function VerifyRSA(
@@ -4196,10 +4190,10 @@ declare namespace ll {
    * Wander within a specified volume.
    * Sets a character to wander about a central spot within a specified area.
    */
-  export function WanderWithin(origin: vector, area: vector, options: list): void
+  export function WanderWithin(origin: Vector, area: Vector, options: list): void
 
   /** Returns the water height below the object position + Offset. */
-  export function Water(offset: vector): number
+  export function Water(offset: Vector): number
 
   /**
    * Whispers Text on Channel.
@@ -4209,10 +4203,10 @@ declare namespace ll {
   export function Whisper(channel: number, text: string): void
 
   /** Returns the wind velocity at the object position + Offset. */
-  export function Wind(offset: vector): vector
+  export function Wind(offset: Vector): Vector
 
   /** Returns the local position that would put the origin of a HUD object directly over world_pos as viewed by the current camera. Requires the PERMISSION_TRACK_CAMERA runtime permission (else will return zero vector). */
-  export function WorldPosToHUD(worldPos: vector): vector
+  export function WorldPosToHUD(worldPos: Vector): Vector
 
   /** Performs an exclusive OR on two Base64 strings and returns a Base64 string. Text2 repeats if it is shorter than Text1. */
   export function XorBase64(text1: string, text2: string): string
@@ -4234,7 +4228,7 @@ declare namespace ll {
   export function XorBase64StringsCorrect(text1: string, text2: string): string
 
   /** Converts a color from the sRGB to the linear colorspace. */
-  export function sRGB2Linear(srgb: vector): vector
+  export function sRGB2Linear(srgb: Vector): Vector
 }
 
 /** Objects in world that are running a script or currently physically moving. */
@@ -4498,7 +4492,7 @@ declare const COMBAT_CHANNEL: number
  * Messages from the region to the COMBAT_CHANNEL will all be from this ID.
  *  Scripts may filter llListen calls on this ID to receive only system generated combat log messages.
  */
-declare const COMBAT_LOG_ID: uuid
+declare const COMBAT_LOG_ID: UUID
 /** "application/atom+xml" */
 declare const CONTENT_TYPE_ATOM: number
 /** "application/x-www-form-urlencoded" */
@@ -4697,17 +4691,17 @@ declare const HTTP_PRAGMA_NO_CACHE: number
 declare const HTTP_USER_AGENT: number
 declare const HTTP_VERBOSE_THROTTLE: number
 declare const HTTP_VERIFY_CERT: number
-declare const IMG_USE_BAKED_AUX1: uuid
-declare const IMG_USE_BAKED_AUX2: uuid
-declare const IMG_USE_BAKED_AUX3: uuid
-declare const IMG_USE_BAKED_EYES: uuid
-declare const IMG_USE_BAKED_HAIR: uuid
-declare const IMG_USE_BAKED_HEAD: uuid
-declare const IMG_USE_BAKED_LEFTARM: uuid
-declare const IMG_USE_BAKED_LEFTLEG: uuid
-declare const IMG_USE_BAKED_LOWER: uuid
-declare const IMG_USE_BAKED_SKIRT: uuid
-declare const IMG_USE_BAKED_UPPER: uuid
+declare const IMG_USE_BAKED_AUX1: UUID
+declare const IMG_USE_BAKED_AUX2: UUID
+declare const IMG_USE_BAKED_AUX3: UUID
+declare const IMG_USE_BAKED_EYES: UUID
+declare const IMG_USE_BAKED_HAIR: UUID
+declare const IMG_USE_BAKED_HEAD: UUID
+declare const IMG_USE_BAKED_LEFTARM: UUID
+declare const IMG_USE_BAKED_LEFTLEG: UUID
+declare const IMG_USE_BAKED_LOWER: UUID
+declare const IMG_USE_BAKED_SKIRT: UUID
+declare const IMG_USE_BAKED_UPPER: UUID
 declare const INVENTORY_ALL: number
 declare const INVENTORY_ANIMATION: number
 declare const INVENTORY_BODYPART: number
@@ -4840,7 +4834,7 @@ declare const MASK_OWNER: number
 /** Indicates a notecard read was attempted and the notecard was not yet cached on the server. */
 declare const NAK: string
 declare const NAVIGATE_TO_GOAL_REACHED_DIST: number
-declare const NULL_KEY: uuid
+declare const NULL_KEY: UUID
 /**
  * Retrieves the account level of an avatar.
  * Returns 0 when the avatar has a basic account,
@@ -5811,14 +5805,14 @@ declare const TERRAIN_PBR_SCALE_1: number
 declare const TERRAIN_PBR_SCALE_2: number
 declare const TERRAIN_PBR_SCALE_3: number
 declare const TERRAIN_PBR_SCALE_4: number
-declare const TEXTURE_BLANK: uuid
-declare const TEXTURE_DEFAULT: uuid
-declare const TEXTURE_MEDIA: uuid
-declare const TEXTURE_PLYWOOD: uuid
-declare const TEXTURE_TRANSPARENT: uuid
+declare const TEXTURE_BLANK: UUID
+declare const TEXTURE_DEFAULT: UUID
+declare const TEXTURE_MEDIA: UUID
+declare const TEXTURE_PLYWOOD: UUID
+declare const TEXTURE_TRANSPARENT: UUID
 declare const TOUCH_INVALID_FACE: number
-declare const TOUCH_INVALID_TEXCOORD: vector
-declare const TOUCH_INVALID_VECTOR: vector
+declare const TOUCH_INVALID_TEXCOORD: Vector
+declare const TOUCH_INVALID_VECTOR: Vector
 /** Direct teleporting is blocked on this parcel. */
 declare const TP_ROUTING_BLOCKED: number
 /** Teleports are unrestricted on this parcel. */
@@ -6046,5 +6040,5 @@ declare const XP_ERROR_STORE_DISABLED: number
 declare const XP_ERROR_THROTTLED: number
 /** Other unknown error. */
 declare const XP_ERROR_UNKNOWN_ERROR: number
-declare const ZERO_ROTATION: quaternion
-declare const ZERO_VECTOR: vector
+declare const ZERO_ROTATION: Quaternion
+declare const ZERO_VECTOR: Vector

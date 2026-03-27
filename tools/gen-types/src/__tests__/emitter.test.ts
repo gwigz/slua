@@ -419,9 +419,10 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("declare class Vector {")
     expect(output).toContain("declare class Quaternion {")
     expect(output).toContain("declare class UUID {")
-    expect(output).toContain("declare type vector = Vector;")
-    expect(output).toContain("declare type quaternion = Quaternion;")
-    expect(output).toContain("declare type uuid = UUID;")
+    // No redundant lowercase type aliases
+    expect(output).not.toContain("declare type vector = Vector;")
+    expect(output).not.toContain("declare type quaternion = Quaternion;")
+    expect(output).not.toContain("declare type uuid = UUID;")
     // DetectedEvent has no constructor, remains an interface
     expect(output).toContain("declare interface DetectedEvent {")
   })
@@ -442,13 +443,13 @@ describe("emitAll (end-to-end)", () => {
   })
 
   it("contains vector operator overloads (method-style)", () => {
-    expect(output).toContain("LuaAdditionMethod<vector, vector>")
-    expect(output).toContain("LuaNegationMethod<vector>")
-    expect(output).toContain("LuaMultiplicationMethod<number, vector>")
+    expect(output).toContain("LuaAdditionMethod<Vector, Vector>")
+    expect(output).toContain("LuaNegationMethod<Vector>")
+    expect(output).toContain("LuaMultiplicationMethod<number, Vector>")
   })
 
   it("contains type aliases", () => {
-    expect(output).toContain("declare type rotation = quaternion;")
+    expect(output).toContain("declare type rotation = Quaternion;")
     expect(output).toContain("declare type list = ")
   })
 
@@ -459,14 +460,14 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("touch_start: (detected: DetectedEvent[]) => void")
     // Non-detected events have typed params (camelCase)
     expect(output).toContain(
-      "listen: (channel: number, name: string, id: uuid, text: string) => void",
+      "listen: (channel: number, name: string, id: UUID, text: string) => void",
     )
     expect(output).toContain("timer: () => void")
     expect(output).toContain(
       "email: (time: string, address: string, subject: string, body: string, numberRemaining: number) => void",
     )
     // slua-type overrides are respected
-    expect(output).toContain("game_control: (id: uuid, buttons: number, axes: number[]) => void")
+    expect(output).toContain("game_control: (id: UUID, buttons: number, axes: number[]) => void")
     expect(output).toContain(
       "link_message: (sendersLink: number, value: number, text: string, id: string) => void",
     )

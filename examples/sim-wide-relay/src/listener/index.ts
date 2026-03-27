@@ -26,7 +26,7 @@ let hearHandle: number | undefined
 let commandHandle: number | undefined
 let privateHandle: number | undefined
 let followTimer: LLTimerCallback | undefined
-let lastPosition: vector | undefined
+let lastPosition: Vector | undefined
 
 function startListening() {
   if (privateHandle !== undefined) {
@@ -196,7 +196,7 @@ function stopFollowTimer() {
   }
 }
 
-function moveTo(targetPos: vector) {
+function moveTo(targetPos: Vector) {
   const myPos = ll.GetPos()
   const distance = ll.VecDist(myPos, targetPos)
 
@@ -222,7 +222,7 @@ function followAvatar() {
     return
   }
 
-  const avatarPos = details[0] as vector
+  const avatarPos = details[0] as Vector
 
   if (lastPosition !== undefined && ll.VecDist(lastPosition, avatarPos) < 0.01) {
     return
@@ -240,7 +240,7 @@ function returnToObject(objectId: UUID) {
     return
   }
 
-  moveTo(details[0] as vector)
+  moveTo(details[0] as Vector)
 }
 
 // Receiving relay messages from sender
@@ -251,7 +251,7 @@ function handleRelayedMessage(text: string) {
     return
   }
 
-  // "RELAY|<36-char-uuid>|<message>"
+  // "RELAY|<36-char-UUID>|<message>"
   const speakerId = text.substring(6, 42)
   const message = text.substring(43)
   const hash = speakerId + "|" + message

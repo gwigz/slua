@@ -3,21 +3,21 @@
  *
  * Coroutine-based wrappers that flatten SLua's callback APIs into
  * sequential code. Call {@link spawn} to start a coroutine, then use
- * any of the wrapper functions inside it — they yield the coroutine
+ * any of the wrapper functions inside it, they yield the coroutine
  * until the result is ready, then return the value directly.
  *
  * Each wrapper category is gated by a compile-time flag so unused
  * code is stripped from the Lua output:
  *
- * - **YIELD_DATASERVER** — {@link requestAgentData}, {@link requestDisplayName},
+ * - **YIELD_DATASERVER** {@link requestAgentData}, {@link requestDisplayName},
  *   {@link requestSimulatorData}, {@link requestInventoryData},
  *   {@link readNotecardLine}, {@link readNotecard}, {@link findNotecardTextCount}
- * - **YIELD_KV** — {@link kvRead}, {@link kvCreate}, {@link kvUpdate},
+ * - **YIELD_KV** {@link kvRead}, {@link kvCreate}, {@link kvUpdate},
  *   {@link kvDelete}, {@link kvSize}
- * - **YIELD_DIALOG** — {@link dialog}, {@link textBox}
- * - **YIELD_HTTP** — {@link httpRequest}
- * - **YIELD_PERMISSIONS** — {@link requestPermissions}, {@link transferMoney}
- * - **YIELD_SENSOR** — {@link sensor}
+ * - **YIELD_DIALOG** {@link dialog}, {@link textBox}
+ * - **YIELD_HTTP** {@link httpRequest}
+ * - **YIELD_PERMISSIONS** {@link requestPermissions}, {@link transferMoney}
+ * - **YIELD_SENSOR** {@link sensor}
  *
  * @define Set flags via `@gwigz/slua-tstl-plugin` `define` option.
  * Code guarded by a flag set to `false` is stripped at compile time.
@@ -90,25 +90,7 @@ export function sleep(seconds: number) {
 // Internal helpers (DCE'd when all callers are stripped)
 // ---------------------------------------------------------------------------
 
-/**
- * @internal Shared dataserver yield pattern — registers a handler filtered
- * by request ID, yields, returns the data string.
- */
-function yieldDataserver(requestId: UUID): string {
-  const co = coroutine.running()!
-
-  const handler = LLEvents.on("dataserver", (reqId: UUID, data: string) => {
-    if (reqId !== requestId) {
-      return
-    }
-
-    LLEvents.off("dataserver", handler)
-
-    coroutine.resume(co, data)
-  })
-
-  return coroutine.yield() as unknown as string
-}
+import { yieldDataserver } from "../internal/yield-dataserver"
 
 // ---------------------------------------------------------------------------
 // Dataserver wrappers

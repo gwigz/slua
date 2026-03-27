@@ -28,6 +28,28 @@ local config = {
 	DEDUP_MAX = 50,
 }
 
+---
+-- @internal Shared dataserver yield pattern, registers a handler filtered
+-- by request ID, yields, returns the data string.
+--
+-- Used by both `config` and `yield` modules to avoid duplicating the
+-- dataserver handler logic in the Lua output.
+local function yieldDataserver(requestId)
+	local co = coroutine.running()
+	local handler
+
+	handler = LLEvents:on("dataserver", function(reqId, data)
+		if reqId ~= requestId then
+			return
+		end
+
+		LLEvents:off("dataserver", handler)
+		coroutine.resume(co, data)
+	end)
+
+	return coroutine.yield()
+end
+
 -- Lua Library inline imports
 local function __TS__ArrayIsArray(value)
 	return type(value) == "table" and (value[1] ~= nil or next(value) == nil)
@@ -58,24 +80,11 @@ local function __TS__ObjectAssign(target, ...)
 end
 
 -- End of Lua Library inline imports
-local function forceCache(notecard, callback)
-	local requestId = ll.GetNotecardLine(notecard, 1)
-
-	local function handler(id, _data)
-		if id ~= requestId then
-			return
-		end
-
-		LLEvents:off("dataserver", handler)
-		callback()
-	end
-
-	LLEvents:on("dataserver", handler)
-end
-
 ---
--- @internal Read a notecard line-by-line, force-caching if needed.
-local function readNotecardSync(notecard, callback)
+-- @internal Read a notecard line-by-line. If the notecard is not cached
+-- (NAK), yields via {@link yieldDataserver } to force it into cache, then
+-- retries. Must be called from within a coroutine.
+local function readNotecardLines(notecard)
 	local lines = {}
 	local lineNum = 0
 
@@ -83,11 +92,10 @@ local function readNotecardSync(notecard, callback)
 		local line = ll.GetNotecardLineSync(notecard, lineNum + 1)
 
 		if line == NAK then
-			forceCache(notecard, function()
-				return readNotecardSync(notecard, callback)
-			end)
-
-			return
+			yieldDataserver(ll.GetNotecardLine(notecard, 1))
+			lineNum = 0
+			lines = {}
+			continue
 		end
 
 		if line == EOF then
@@ -98,7 +106,7 @@ local function readNotecardSync(notecard, callback)
 		lineNum = lineNum + 1
 	end
 
-	callback(lines)
+	return lines
 end
 
 ---
@@ -198,18 +206,20 @@ end
 local function loadConfig(notecard, options, callback)
 	local config = options.config
 	local ____type = options.type or "yml"
+	local co = coroutine.create(function()
+		local lines = readNotecardLines(notecard)
 
-	readNotecardSync(notecard, function(lines)
 		applyFromLines(config, lines, ____type)
 		callback()
 	end)
+	coroutine.resume(co)
 end
 
 --- Watch for changes to a settings notecard and re-parse on update.
 --
 -- Each time the notecard's inventory key changes, `config` is
 -- reset to a snapshot taken at registration time, then re-parsed
--- from the updated notecard — the same object is mutated in-place.
+-- from the updated notecard, the same object is mutated in-place.
 --
 -- @typeParam T - Config shape, inferred from `options.config`.
 -- @param notecard - Name of the notecard in the object's inventory.
@@ -244,14 +254,17 @@ local function onConfigChanged(notecard, options, callback)
 
 		lastKey = currentKey
 
-		readNotecardSync(notecard, function(lines)
+		local co = coroutine.create(function()
 			for key in pairs(snapshot) do
 				config[key] = snapshot[key]
 			end
 
+			local lines = readNotecardLines(notecard)
+
 			applyFromLines(config, lines, ____type)
 			callback()
 		end)
+		coroutine.resume(co)
 	end)
 end
 

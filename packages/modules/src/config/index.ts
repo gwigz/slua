@@ -64,18 +64,28 @@ export interface ConfigOptions<T extends Record<string, ConfigValue>> {
   type?: "yml" | "lljson"
 }
 
-/** @internal Read a notecard line-by-line, force-caching if needed. */
-function readNotecardSync(notecard: string, callback: (lines: string[]) => void) {
-  const lines: string[] = []
+import { yieldDataserver } from "../internal/yield-dataserver"
+
+/**
+ * @internal Read a notecard line-by-line. If the notecard is not cached
+ * (NAK), yields via {@link yieldDataserver} to force it into cache, then
+ * retries. Must be called from within a coroutine.
+ */
+function readNotecardLines(notecard: string): string[] {
+  let lines: string[] = []
   let lineNum = 0
 
   while (true) {
     const line = ll.GetNotecardLineSync(notecard, lineNum)
 
     if (line === NAK) {
-      // Not cached, force cache then retry
-      forceCache(notecard, () => readNotecardSync(notecard, callback))
-      return
+      // Not cached, yield to force cache, then restart
+      yieldDataserver(ll.GetNotecardLine(notecard, 0))
+
+      lineNum = 0
+      lines = []
+
+      continue
     }
 
     if (line === EOF) {
@@ -86,24 +96,7 @@ function readNotecardSync(notecard: string, callback: (lines: string[]) => void)
     lineNum++
   }
 
-  callback(lines)
-}
-
-/** @internal Trigger a dataserver read to force the notecard into cache. */
-function forceCache(notecard: string, callback: () => void) {
-  const requestId = ll.GetNotecardLine(notecard, 0)
-
-  function handler(id: UUID, _data: string) {
-    if (id !== requestId) {
-      return
-    }
-
-    LLEvents.off("dataserver", handler)
-
-    callback()
-  }
-
-  LLEvents.on("dataserver", handler)
+  return lines
 }
 
 /**
@@ -238,10 +231,13 @@ export function loadConfig<T extends Record<string, ConfigValue>>(
   const config = options.config
   const type = options.type ?? "yml"
 
-  readNotecardSync(notecard, (lines) => {
+  const co = coroutine.create((() => {
+    const lines = readNotecardLines(notecard)
     applyFromLines(config, lines, type)
     callback()
-  })
+  }) as (this: void, ...args: any[]) => any[])
+
+  coroutine.resume(co)
 }
 
 /**
@@ -292,14 +288,17 @@ export function onConfigChanged<T extends Record<string, ConfigValue>>(
 
     lastKey = currentKey
 
-    readNotecardSync(notecard, (lines) => {
+    const co = coroutine.create((() => {
       // Reset to snapshot then re-apply
       for (const key in snapshot) {
         config[key] = snapshot[key]
       }
 
+      const lines = readNotecardLines(notecard)
       applyFromLines(config, lines, type)
       callback()
-    })
+    }) as (this: void, ...args: any[]) => any[])
+
+    coroutine.resume(co)
   })
 }

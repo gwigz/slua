@@ -10,13 +10,14 @@ If TypeScript is where you're productive, you don't need to learn a new language
 
 ## Packages
 
-| Package                                           | Description                                                   |
-| ------------------------------------------------- | ------------------------------------------------------------- |
-| [`@gwigz/slua-types`](packages/types)             | Auto-generated TypeScript declarations for all SLua/LSL APIs  |
-| [`@gwigz/slua-tstl-plugin`](packages/tstl-plugin) | TSTL plugin enforcing SLua constraints                        |
-| [`@gwigz/slua-modules`](packages/modules)         | Shared runtime modules (config helpers, testing utilities)    |
-| [`@gwigz/slua-create`](packages/create)           | CLI scaffolding tool for new SLua projects                    |
-| [`@gwigz/slua-json`](packages/json)               | Tagged JSON codec for exchanging typed data with SLua scripts |
+| Package                                               | Description                                                   |
+| ----------------------------------------------------- | ------------------------------------------------------------- |
+| [`@gwigz/slua-types`](packages/types)                 | Auto-generated TypeScript declarations for all SLua/LSL APIs  |
+| [`@gwigz/slua-tstl-plugin`](packages/tstl-plugin)     | TSTL plugin enforcing SLua constraints                        |
+| [`@gwigz/slua-modules`](packages/modules)             | Shared runtime modules (config helpers, testing utilities)    |
+| [`@gwigz/slua-oxlint-config`](packages/oxlint-config) | Shared oxlint config catching SLua-incompatible patterns      |
+| [`@gwigz/slua-create`](packages/create)               | CLI scaffolding tool for new SLua projects                    |
+| [`@gwigz/slua-json`](packages/json)                   | Tagged JSON codec for exchanging typed data with SLua scripts |
 
 ## Examples
 

@@ -70,8 +70,11 @@ Adds a `.stylua.toml` config to your project so you can auto-format compiled
 
 ### Linting (`oxlint`)
 
-Adds an `oxlint` config and lint script to your project for fast TypeScript
-linting.
+Adds [oxlint](https://oxc.rs) with the
+[`@gwigz/slua-oxlint-config`](/docs/slua/transpiler-plugin#keeping-output-small)
+shared config, which catches TypeScript patterns that don't work in SLua or
+pull in large TSTL runtime helpers (`delete`, `Map`/`Set`, `.splice()`,
+`async`/`await`, browser/Node APIs, and more).
 
 ### Formatting (`oxfmt`)
 

@@ -324,6 +324,11 @@ Safe for string and number defaults (both truthy in Lua). Not applied to `false`
 
 Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommendations for keeping output lean.
 
+<Callout type="info" title="Enforce with oxlint">
+  Install `@gwigz/slua-oxlint-config` to catch these patterns automatically at lint time. See the
+  [README](https://github.com/gwigz/slua/tree/main/packages/oxlint-config) for setup instructions.
+</Callout>
+
 ### Avoid `delete` on objects
 
 The `delete` operator pulls in `__TS__Delete`, which depends on the entire Error class hierarchy, `__TS__Class`, `__TS__ClassExtends`, `__TS__New`, and `__TS__ObjectGetOwnPropertyDescriptors`, roughly **150 lines** of runtime code.

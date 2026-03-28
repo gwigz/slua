@@ -354,7 +354,10 @@ Safe for string and number defaults (both truthy in Lua). Not applied to `false`
 
 ## Keeping output small
 
-Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommendations for keeping output lean:
+Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommendations for keeping output lean.
+
+> [!TIP]
+> Install [`@gwigz/slua-oxlint-config`](../oxlint-config) to enforce these recommendations at lint time.
 
 ### Avoid `delete` on objects
 

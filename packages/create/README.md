@@ -33,14 +33,14 @@ bunx @gwigz/slua-create my-project
 
 ## Extras
 
-| Extra             | Description                                                                            |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| JSX templates     | [@gwigz/jsx-inline](https://github.com/gwigz/jsx-inline)                               |
-| Config module     | [@gwigz/slua-modules/config](https://github.com/gwigz/slua/tree/main/packages/modules) |
-| Yield module      | [@gwigz/slua-modules/yield](https://github.com/gwigz/slua/tree/main/packages/modules)  |
-| StyLua formatting | Lua output formatting via [StyLua](https://github.com/JohnnyMorganz/StyLua)            |
-| Linting           | TypeScript linting via [oxlint](https://oxc.rs)                                        |
-| Formatting        | TypeScript formatting via [oxfmt](https://oxc.rs)                                      |
+| Extra             | Description                                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| JSX templates     | [@gwigz/jsx-inline](https://github.com/gwigz/jsx-inline)                                                                                         |
+| Config module     | [@gwigz/slua-modules/config](https://github.com/gwigz/slua/tree/main/packages/modules)                                                           |
+| Yield module      | [@gwigz/slua-modules/yield](https://github.com/gwigz/slua/tree/main/packages/modules)                                                            |
+| StyLua formatting | Lua output formatting via [StyLua](https://github.com/JohnnyMorganz/StyLua)                                                                      |
+| Linting           | TypeScript linting via [oxlint](https://oxc.rs) with [@gwigz/slua-oxlint-config](https://github.com/gwigz/slua/tree/main/packages/oxlint-config) |
+| Formatting        | TypeScript formatting via [oxfmt](https://oxc.rs)                                                                                                |
 
 ## Documentation
 

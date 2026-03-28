@@ -34,8 +34,8 @@ function startListening() {
 function cleanupStale() {
   const now = ll.GetUnixTime()
 
-  for (const [key, entry] of Object.entries(pending)) {
-    if (now - entry.timestamp > config.PENDING_TIMEOUT) {
+  for (const key in pending) {
+    if (now - pending[key].timestamp > config.PENDING_TIMEOUT) {
       pending[key] = undefined!
     }
   }

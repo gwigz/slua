@@ -73,6 +73,7 @@ export function oxlintrcContent(): string {
       {
         $schema:
           "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+        extends: ["./node_modules/@gwigz/slua-oxlint-config/.oxlintrc.json"],
         rules: {
           "no-unused-vars": "off",
           "typescript/no-extraneous-class": "off",

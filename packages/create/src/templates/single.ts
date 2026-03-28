@@ -36,7 +36,9 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   }
 
   if (extras.linting) {
+    devDependencies["@gwigz/slua-oxlint-config"] = VERSIONS["@gwigz/slua-oxlint-config"]
     devDependencies["oxlint"] = VERSIONS["oxlint"]
+    devDependencies["oxlint-plugin-eslint"] = VERSIONS["oxlint-plugin-eslint"]
   }
 
   if (extras.formatting) {

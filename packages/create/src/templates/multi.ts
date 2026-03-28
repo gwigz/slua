@@ -42,7 +42,9 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   }
 
   if (extras.linting) {
+    devDependencies["@gwigz/slua-oxlint-config"] = VERSIONS["@gwigz/slua-oxlint-config"]
     devDependencies["oxlint"] = VERSIONS["oxlint"]
+    devDependencies["oxlint-plugin-eslint"] = VERSIONS["oxlint-plugin-eslint"]
   }
 
   if (extras.formatting) {

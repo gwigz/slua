@@ -268,20 +268,6 @@ local function onConfigChanged(notecard, options, callback)
 	end)
 end
 
--- Lua Library inline imports
-local function __TS__ObjectEntries(obj)
-	local result = {}
-	local len = 0
-
-	for key in pairs(obj) do
-		len = len + 1
-		result[len] = { key, obj[key] }
-	end
-
-	return result
-end
-
--- End of Lua Library inline imports
 local pending = {}
 local lastRequest = {}
 local dialogListenHandle
@@ -297,11 +283,8 @@ end
 local function cleanupStale()
 	local now = ll.GetUnixTime()
 
-	for ____, ____value in ipairs(__TS__ObjectEntries(pending)) do
-		local key = ____value[1]
-		local entry = ____value[2]
-
-		if now - entry.timestamp > config.PENDING_TIMEOUT then
+	for key in pairs(pending) do
+		if now - pending[key].timestamp > config.PENDING_TIMEOUT then
 			pending[key] = nil
 		end
 	end

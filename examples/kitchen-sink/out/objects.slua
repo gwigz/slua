@@ -30,16 +30,6 @@ local function __TS__ObjectValues(obj)
     end
     return result
 end
-
-local function __TS__ObjectEntries(obj)
-    local result = {}
-    local len = 0
-    for key in pairs(obj) do
-        len = len + 1
-        result[len] = {key, obj[key]}
-    end
-    return result
-end
 -- End of Lua Library inline imports
 local ____exports = {}
 --- Object destructuring -- pull properties into variables
@@ -52,12 +42,10 @@ local updated = __TS__ObjectAssign({}, config, {range = 20})
 --- Object.keys / Object.values / Object.entries
 local keys = __TS__ObjectKeys(config)
 local values = __TS__ObjectValues(config)
-for ____, ____value in ipairs(__TS__ObjectEntries(config)) do
-    local key = ____value[1]
-    local value = ____value[2]
+for ____, key in ipairs(__TS__ObjectKeys(config)) do
     ll.Say(
         0,
-        (key .. " = ") .. tostring(value)
+        (key .. " = ") .. tostring(config[key])
     )
 end
 --- Computed property names

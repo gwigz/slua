@@ -1,0 +1,117 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "jsPlugins": ["oxlint-plugin-eslint"],
+  "rules": {
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "Map",
+        "message": "Map pulls in ~400 lines of TSTL runtime, use a plain object instead"
+      },
+      {
+        "name": "Set",
+        "message": "Set pulls in ~400 lines of TSTL runtime, use a plain object instead"
+      },
+      {
+        "name": "WeakMap",
+        "message": "WeakMap is not supported in SLua"
+      },
+      {
+        "name": "WeakSet",
+        "message": "WeakSet is not supported in SLua"
+      },
+      {
+        "name": "Promise",
+        "message": "Use @gwigz/slua-modules/yield instead"
+      },
+      {
+        "name": "fetch",
+        "message": "fetch is not available in SLua, use ll.HTTPRequest()"
+      },
+      {
+        "name": "document",
+        "message": "DOM APIs are not available in SLua"
+      },
+      {
+        "name": "window",
+        "message": "Browser APIs are not available in SLua"
+      },
+      {
+        "name": "XMLHttpRequest",
+        "message": "XMLHttpRequest is not available in SLua, use ll.HTTPRequest()"
+      },
+      {
+        "name": "setTimeout",
+        "message": "setTimeout is not available in SLua, use LLTimers:setTimer()"
+      },
+      {
+        "name": "setInterval",
+        "message": "setInterval is not available in SLua, use LLTimers:setTimer()"
+      },
+      {
+        "name": "clearTimeout",
+        "message": "clearTimeout is not available in SLua"
+      },
+      {
+        "name": "clearInterval",
+        "message": "clearInterval is not available in SLua"
+      },
+      {
+        "name": "require",
+        "message": "require is not available in SLua, use ES module imports"
+      },
+      {
+        "name": "process",
+        "message": "Node.js APIs are not available in SLua"
+      },
+      {
+        "name": "Buffer",
+        "message": "Node.js APIs are not available in SLua"
+      },
+      {
+        "name": "__dirname",
+        "message": "Node.js APIs are not available in SLua"
+      },
+      {
+        "name": "__filename",
+        "message": "Node.js APIs are not available in SLua"
+      }
+    ],
+    "oxc/no-async-await": "error",
+    "eslint-js/no-restricted-syntax": [
+      "error",
+      {
+        "selector": "UnaryExpression[operator=\"delete\"]",
+        "message": "Assign undefined instead, delete pulls in ~150 lines of TSTL runtime"
+      },
+      {
+        "selector": "CallExpression[callee.property.name=\"splice\"]",
+        "message": "Rebuild with filter instead, .splice() pulls in ~75 lines of runtime"
+      },
+      {
+        "selector": "CallExpression[callee.object.name=\"Object\"][callee.property.name=\"entries\"]",
+        "message": "Use for...in or Object.keys() instead"
+      },
+      {
+        "selector": "AssignmentExpression[left.property.name=\"length\"]",
+        "message": "Reassign to a new array instead"
+      },
+      {
+        "selector": "FunctionDeclaration[generator=true]",
+        "message": "Generators are not supported in SLua"
+      },
+      {
+        "selector": "FunctionExpression[generator=true]",
+        "message": "Generators are not supported in SLua"
+      },
+      {
+        "selector": "YieldExpression",
+        "message": "Use @gwigz/slua-modules/yield instead"
+      },
+      {
+        "selector": "NewExpression[callee.name=\"Promise\"]",
+        "message": "Use @gwigz/slua-modules/yield instead"
+      }
+    ]
+  }
+}

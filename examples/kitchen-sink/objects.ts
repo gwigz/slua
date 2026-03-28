@@ -11,8 +11,8 @@ const updated = { ...config, range: 20.0 }
 const keys = Object.keys(config)
 const values = Object.values(config)
 
-for (const [key, value] of Object.entries(config)) {
-  ll.Say(0, `${key} = ${tostring(value)}`)
+for (const key of Object.keys(config)) {
+  ll.Say(0, `${key} = ${tostring((config as Record<string, unknown>)[key])}`)
 }
 
 /** Computed property names */

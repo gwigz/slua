@@ -1,6 +1,6 @@
 # `@gwigz/slua-modules`
 
-Shared runtime modules for [SLua](https://github.com/gwigz/slua) projects.
+Shared runtime modules for [TSTL-SLua](https://github.com/gwigz/slua) projects.
 
 ## Installation
 

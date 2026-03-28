@@ -1,0 +1,23 @@
+{
+  "name": "@gwigz/slua-oxlint-config",
+  "version": "0.1.0",
+  "description": "Oxlint config for SLua (TypeScript-to-Lua) projects",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gwigz/slua.git",
+    "directory": "packages/oxlint-config"
+  },
+  "files": [
+    ".oxlintrc.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "oxlint-plugin-eslint": "^1.57.0"
+  },
+  "peerDependencies": {
+    "oxlint": ">=1.57.0"
+  }
+}

@@ -164,10 +164,13 @@ function handleCommand(avatarId: UUID, text: string) {
       return
     }
 
-    blocks.splice(index, 1)
-    setBlockList(avatarKey, blocks)
+    setBlockList(
+      avatarKey,
+      blocks.filter((_, i) => i !== index),
+    )
 
     sendCommandResponse(avatarId, `Unblocked ${profileLink(unblockTarget)}`)
+
     return
   }
 

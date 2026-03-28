@@ -43,7 +43,7 @@ elimination.
       {
         "name": "@gwigz/slua-tstl-plugin",
         "define": {
-          "YIELD_DATASERVER": true,
+          "YIELD_DATASERVER_AGENT": true,
           "YIELD_HTTP": true,
           // omitted flags default to false, code is stripped
         },
@@ -63,19 +63,19 @@ export type API = {
   waitFor: typeof waitFor,
   /** Yield the current coroutine for `seconds` seconds. */
   sleep: typeof sleep,
-  /** Request agent data and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  /** Request agent data and yield until the result arrives. @remarks `YIELD_DATASERVER_AGENT` */
   requestAgentData: typeof requestAgentData,
-  /** Request a display name and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  /** Request a display name and yield until the result arrives. @remarks `YIELD_DATASERVER_DISPLAY_NAME` */
   requestDisplayName: typeof requestDisplayName,
-  /** Request simulator data and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  /** Request simulator data and yield until the result arrives. @remarks `YIELD_DATASERVER_SIM` */
   requestSimulatorData: typeof requestSimulatorData,
-  /** Request inventory data and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  /** Request inventory data and yield until the result arrives. @remarks `YIELD_DATASERVER_INVENTORY` */
   requestInventoryData: typeof requestInventoryData,
-  /** Read a single notecard line and yield until the result arrives. @remarks `YIELD_DATASERVER` */
+  /** Read a single notecard line and yield until the result arrives. @remarks `YIELD_DATASERVER_NOTECARD` */
   readNotecardLine: typeof readNotecardLine,
-  /** Read an entire notecard by fetching lines until EOF. Returns an array of lines. @remarks `YIELD_DATASERVER` */
+  /** Read an entire notecard by fetching lines until EOF. Returns an array of lines. @remarks `YIELD_DATASERVER_NOTECARD` */
   readNotecard: typeof readNotecard,
-  /** Search notecard text for a pattern and yield until the count arrives. @remarks `YIELD_DATASERVER` */
+  /** Search notecard text for a pattern and yield until the count arrives. @remarks `YIELD_DATASERVER_TEXT_COUNT` */
   findNotecardTextCount: typeof findNotecardTextCount,
   /** Read a key-value pair from the experience KV store. @remarks `YIELD_KV` */
   kvRead: typeof kvRead,

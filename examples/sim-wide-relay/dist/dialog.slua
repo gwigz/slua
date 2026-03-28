@@ -18,6 +18,19 @@ local NOTECARD_NAME = "settings.yml"
 local config = { DIALOG_CHANNEL = -1731704570, RATE_LIMIT = 5, PENDING_TIMEOUT = 30 }
 
 ---
+-- @internal Run `fn` in a new coroutine. The coroutine starts immediately.
+--
+-- Shared by `config` and `yield` modules so the create + resume
+-- boilerplate isn't duplicated in the Lua output.
+local function spawn(fn)
+	local co = coroutine.create(fn)
+
+	coroutine.resume(co)
+
+	return co
+end
+
+---
 -- @internal Shared dataserver yield pattern, registers a handler filtered
 -- by request ID, yields, returns the data string.
 --
@@ -195,13 +208,13 @@ end
 local function loadConfig(notecard, options, callback)
 	local config = options.config
 	local ____type = options.type or "yml"
-	local co = coroutine.create(function()
+
+	spawn(function()
 		local lines = readNotecardLines(notecard)
 
 		applyFromLines(config, lines, ____type)
 		callback()
 	end)
-	coroutine.resume(co)
 end
 
 --- Watch for changes to a settings notecard and re-parse on update.
@@ -242,8 +255,7 @@ local function onConfigChanged(notecard, options, callback)
 		end
 
 		lastKey = currentKey
-
-		local co = coroutine.create(function()
+		spawn(function()
 			for key in pairs(snapshot) do
 				config[key] = snapshot[key]
 			end
@@ -253,7 +265,6 @@ local function onConfigChanged(notecard, options, callback)
 			applyFromLines(config, lines, ____type)
 			callback()
 		end)
-		coroutine.resume(co)
 	end)
 end
 

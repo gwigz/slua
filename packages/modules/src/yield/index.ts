@@ -9,9 +9,12 @@
  * Each wrapper category is gated by a compile-time flag so unused
  * code is stripped from the Lua output:
  *
- * - **YIELD_DATASERVER** {@link requestAgentData}, {@link requestDisplayName},
- *   {@link requestSimulatorData}, {@link requestInventoryData},
- *   {@link readNotecardLine}, {@link readNotecard}, {@link findNotecardTextCount}
+ * - **YIELD_DATASERVER_AGENT** {@link requestAgentData}
+ * - **YIELD_DATASERVER_DISPLAY_NAME** {@link requestDisplayName}
+ * - **YIELD_DATASERVER_SIM** {@link requestSimulatorData}
+ * - **YIELD_DATASERVER_INVENTORY** {@link requestInventoryData}
+ * - **YIELD_DATASERVER_NOTECARD** {@link readNotecardLine}, {@link readNotecard}
+ * - **YIELD_DATASERVER_TEXT_COUNT** {@link findNotecardTextCount}
  * - **YIELD_KV** {@link kvRead}, {@link kvCreate}, {@link kvUpdate},
  *   {@link kvDelete}, {@link kvSize}
  * - **YIELD_DIALOG** {@link dialog}, {@link textBox}
@@ -97,91 +100,77 @@ import { yieldDataserver } from "../internal/yield-dataserver"
 /**
  * Request agent data and yield until the result arrives.
  *
- * @define YIELD_DATASERVER
+ * @define YIELD_DATASERVER_AGENT
  */
 export function requestAgentData(id: UUID, type: number) {
-  if (YIELD_DATASERVER) {
-    return yieldDataserver(ll.RequestAgentData(id, type))
-  }
+  return yieldDataserver(ll.RequestAgentData(id, type))
 }
 
 /**
  * Request a display name and yield until the result arrives.
  *
- * @define YIELD_DATASERVER
+ * @define YIELD_DATASERVER_DISPLAY_NAME
  */
 export function requestDisplayName(id: UUID) {
-  if (YIELD_DATASERVER) {
-    return yieldDataserver(ll.RequestDisplayName(id))
-  }
+  return yieldDataserver(ll.RequestDisplayName(id))
 }
 
 /**
  * Request simulator data and yield until the result arrives.
  *
- * @define YIELD_DATASERVER
+ * @define YIELD_DATASERVER_SIM
  */
 export function requestSimulatorData(region: string, type: number) {
-  if (YIELD_DATASERVER) {
-    return yieldDataserver(ll.RequestSimulatorData(region, type))
-  }
+  return yieldDataserver(ll.RequestSimulatorData(region, type))
 }
 
 /**
  * Request inventory data and yield until the result arrives.
  *
- * @define YIELD_DATASERVER
+ * @define YIELD_DATASERVER_INVENTORY
  */
 export function requestInventoryData(item: string) {
-  if (YIELD_DATASERVER) {
-    return yieldDataserver(ll.RequestInventoryData(item))
-  }
+  return yieldDataserver(ll.RequestInventoryData(item))
 }
 
 /**
  * Read a single notecard line and yield until the result arrives.
  *
- * @define YIELD_DATASERVER
+ * @define YIELD_DATASERVER_NOTECARD
  */
 export function readNotecardLine(name: string, line: number) {
-  if (YIELD_DATASERVER) {
-    return yieldDataserver(ll.GetNotecardLine(name, line))
-  }
+  return yieldDataserver(ll.GetNotecardLine(name, line))
 }
 
 /**
  * Read an entire notecard by fetching lines until EOF.
  * Returns an array of lines.
  *
- * @define YIELD_DATASERVER
+ * @define YIELD_DATASERVER_NOTECARD
  */
 export function readNotecard(name: string) {
-  if (YIELD_DATASERVER) {
-    const lines: string[] = []
-    let lineNum = 0
+  const lines: string[] = []
+  let lineNum = 0
 
-    while (true) {
-      const data = readNotecardLine(name, lineNum)
+  while (true) {
+    const data = readNotecardLine(name, lineNum)
 
-      if (data === EOF) break
+    if (data === EOF) break
 
-      lines.push(data as string)
-      lineNum++
-    }
-
-    return lines
+    lines.push(data as string)
+    lineNum++
   }
+
+  return lines
 }
 
 /**
  * Search notecard text for a pattern and yield until the count arrives.
  *
- * @define YIELD_DATASERVER
+ * @define YIELD_DATASERVER_TEXT_COUNT
  */
 export function findNotecardTextCount(name: string, pattern: string, opts: list) {
-  if (YIELD_DATASERVER) {
-    return yieldDataserver(ll.FindNotecardTextCount(name, pattern, opts))
-  }
+  return yieldDataserver(ll.FindNotecardTextCount(name, pattern, opts))
 }
 
 // ---------------------------------------------------------------------------
@@ -194,14 +183,12 @@ export function findNotecardTextCount(name: string, pattern: string, opts: list)
  * @define YIELD_KV
  */
 export function kvRead(key: string) {
-  if (YIELD_KV) {
-    const raw = yieldDataserver(ll.ReadKeyValue(key))
-    const sep = raw.indexOf(",")
-    const ok = raw.substring(0, sep) === "1"
-    const value = raw.substring(sep + 1)
+  const raw = yieldDataserver(ll.ReadKeyValue(key))
+  const sep = raw.indexOf(",")
+  const ok = raw.substring(0, sep) === "1"
+  const value = raw.substring(sep + 1)
 
-    return { ok, value }
-  }
+  return { ok, value }
 }
 
 /**
@@ -210,10 +197,8 @@ export function kvRead(key: string) {
  * @define YIELD_KV
  */
 export function kvCreate(key: string, value: string) {
-  if (YIELD_KV) {
-    const raw = yieldDataserver(ll.CreateKeyValue(key, value))
-    return raw.substring(0, raw.indexOf(",")) === "1"
-  }
+  const raw = yieldDataserver(ll.CreateKeyValue(key, value))
+  return raw.substring(0, raw.indexOf(",")) === "1"
 }
 
 /**
@@ -222,11 +207,9 @@ export function kvCreate(key: string, value: string) {
  * @define YIELD_KV
  */
 export function kvUpdate(key: string, value: string) {
-  if (YIELD_KV) {
-    const raw = yieldDataserver(ll.UpdateKeyValue(key, value, 0, ""))
+  const raw = yieldDataserver(ll.UpdateKeyValue(key, value, 0, ""))
 
-    return raw.substring(0, raw.indexOf(",")) === "1"
-  }
+  return raw.substring(0, raw.indexOf(",")) === "1"
 }
 
 /**
@@ -235,11 +218,9 @@ export function kvUpdate(key: string, value: string) {
  * @define YIELD_KV
  */
 export function kvDelete(key: string) {
-  if (YIELD_KV) {
-    const raw = yieldDataserver(ll.DeleteKeyValue(key))
+  const raw = yieldDataserver(ll.DeleteKeyValue(key))
 
-    return raw.substring(0, raw.indexOf(",")) === "1"
-  }
+  return raw.substring(0, raw.indexOf(",")) === "1"
 }
 
 /**
@@ -248,14 +229,12 @@ export function kvDelete(key: string) {
  * @define YIELD_KV
  */
 export function kvSize() {
-  if (YIELD_KV) {
-    const raw = yieldDataserver(ll.DataSizeKeyValue())
-    const sep = raw.indexOf(",")
-    const used = tonumber(raw.substring(0, sep))!
-    const total = tonumber(raw.substring(sep + 1))!
+  const raw = yieldDataserver(ll.DataSizeKeyValue())
+  const sep = raw.indexOf(",")
+  const used = tonumber(raw.substring(0, sep))!
+  const total = tonumber(raw.substring(sep + 1))!
 
-    return { used, total }
-  }
+  return { used, total }
 }
 
 // ---------------------------------------------------------------------------
@@ -288,10 +267,9 @@ function yieldListen(channel: number, avatarId: UUID): string {
  * @define YIELD_DIALOG
  */
 export function dialog(channel: number, avatarId: UUID, text: string, buttons: string[]) {
-  if (YIELD_DIALOG) {
-    ll.Dialog(avatarId, text, buttons, channel)
-    return yieldListen(channel, avatarId)
-  }
+  ll.Dialog(avatarId, text, buttons, channel)
+
+  return yieldListen(channel, avatarId)
 }
 
 /**
@@ -301,10 +279,9 @@ export function dialog(channel: number, avatarId: UUID, text: string, buttons: s
  * @define YIELD_DIALOG
  */
 export function textBox(channel: number, avatarId: UUID, text: string) {
-  if (YIELD_DIALOG) {
-    ll.TextBox(avatarId, text, channel)
-    return yieldListen(channel, avatarId)
-  }
+  ll.TextBox(avatarId, text, channel)
+
+  return yieldListen(channel, avatarId)
 }
 
 // ---------------------------------------------------------------------------
@@ -317,25 +294,23 @@ export function textBox(channel: number, avatarId: UUID, text: string) {
  * @define YIELD_HTTP
  */
 export function httpRequest(url: string, params: list, body: string) {
-  if (YIELD_HTTP) {
-    const co = coroutine.running()!
-    const requestId = ll.HTTPRequest(url, params, body)
+  const co = coroutine.running()!
+  const requestId = ll.HTTPRequest(url, params, body)
 
-    const handler = LLEvents.on(
-      "http_response",
-      (reqId: UUID, status: number, metadata: list, respBody: string) => {
-        if (reqId !== requestId) {
-          return
-        }
+  const handler = LLEvents.on(
+    "http_response",
+    (reqId: UUID, status: number, metadata: list, respBody: string) => {
+      if (reqId !== requestId) {
+        return
+      }
 
-        LLEvents.off("http_response", handler)
+      LLEvents.off("http_response", handler)
 
-        coroutine.resume(co, { status, metadata, body: respBody })
-      },
-    )
+      coroutine.resume(co, { status, metadata, body: respBody })
+    },
+  )
 
-    return coroutine.yield() as unknown as { status: number; metadata: list; body: string }
-  }
+  return coroutine.yield() as unknown as { status: number; metadata: list; body: string }
 }
 
 // ---------------------------------------------------------------------------
@@ -349,18 +324,16 @@ export function httpRequest(url: string, params: list, body: string) {
  * @define YIELD_PERMISSIONS
  */
 export function requestPermissions(avatarId: UUID, mask: number) {
-  if (YIELD_PERMISSIONS) {
-    const co = coroutine.running()!
+  const co = coroutine.running()!
 
-    ll.RequestPermissions(avatarId, mask)
+  ll.RequestPermissions(avatarId, mask)
 
-    const handler = LLEvents.on("run_time_permissions", (flags: number) => {
-      LLEvents.off("run_time_permissions", handler)
-      coroutine.resume(co, flags)
-    })
+  const handler = LLEvents.on("run_time_permissions", (flags: number) => {
+    LLEvents.off("run_time_permissions", handler)
+    coroutine.resume(co, flags)
+  })
 
-    return coroutine.yield() as unknown as number
-  }
+  return coroutine.yield() as unknown as number
 }
 
 /**
@@ -370,25 +343,23 @@ export function requestPermissions(avatarId: UUID, mask: number) {
  * @define YIELD_PERMISSIONS
  */
 export function transferMoney(avatarId: UUID, amount: number) {
-  if (YIELD_PERMISSIONS) {
-    const co = coroutine.running()!
-    const requestId = ll.TransferLindenDollars(avatarId, amount)
+  const co = coroutine.running()!
+  const requestId = ll.TransferLindenDollars(avatarId, amount)
 
-    const handler = LLEvents.on(
-      "transaction_result",
-      (reqId: UUID, successInt: number, message: string) => {
-        if (reqId !== requestId) {
-          return
-        }
+  const handler = LLEvents.on(
+    "transaction_result",
+    (reqId: UUID, successInt: number, message: string) => {
+      if (reqId !== requestId) {
+        return
+      }
 
-        LLEvents.off("transaction_result", handler)
+      LLEvents.off("transaction_result", handler)
 
-        coroutine.resume(co, { success: successInt === 1, message })
-      },
-    )
+      coroutine.resume(co, { success: successInt === 1, message })
+    },
+  )
 
-    return coroutine.yield() as unknown as { success: boolean; message: string }
-  }
+  return coroutine.yield() as unknown as { success: boolean; message: string }
 }
 
 // ---------------------------------------------------------------------------
@@ -402,40 +373,36 @@ export function transferMoney(avatarId: UUID, amount: number) {
  * @define YIELD_SENSOR
  */
 export function sensor(name: string, id: UUID, type: number, range: number, arc: number) {
-  if (YIELD_SENSOR) {
-    const co = coroutine.running()!
-    let resolved = false
+  const co = coroutine.running()!
+  let resolved = false
 
-    ll.Sensor(name, id, type, range, arc)
+  ll.Sensor(name, id, type, range, arc)
 
-    const onSensor = LLEvents.on("sensor", (detected: DetectedEvent[]) => {
-      if (resolved) {
-        return
-      }
+  const onSensor = LLEvents.on("sensor", (detected: DetectedEvent[]) => {
+    if (resolved) {
+      return
+    }
 
-      resolved = true
+    resolved = true
 
-      LLEvents.off("sensor", onSensor)
-      LLEvents.off("no_sensor", onNoSensor)
+    LLEvents.off("sensor", onSensor)
+    LLEvents.off("no_sensor", onNoSensor)
 
-      coroutine.resume(co, detected)
-    })
+    coroutine.resume(co, detected)
+  })
 
-    const onNoSensor = LLEvents.on("no_sensor", () => {
-      if (resolved) {
-        return
-      }
+  const onNoSensor = LLEvents.on("no_sensor", () => {
+    if (resolved) {
+      return
+    }
 
-      resolved = true
+    resolved = true
 
-      LLEvents.off("sensor", onSensor)
-      LLEvents.off("no_sensor", onNoSensor)
+    LLEvents.off("sensor", onSensor)
+    LLEvents.off("no_sensor", onNoSensor)
 
-      coroutine.resume(co)
-    })
+    coroutine.resume(co)
+  })
 
-    return (coroutine.yield() as unknown as DetectedEvent[] | undefined) ?? null
-  }
-
-  return null
+  return (coroutine.yield() as unknown as DetectedEvent[] | undefined) ?? null
 }

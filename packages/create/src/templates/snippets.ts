@@ -1,7 +1,12 @@
 import type { Extras } from "../prompts.js"
 
 const YIELD_FLAGS = [
-  "YIELD_DATASERVER",
+  "YIELD_DATASERVER_AGENT",
+  "YIELD_DATASERVER_DISPLAY_NAME",
+  "YIELD_DATASERVER_SIM",
+  "YIELD_DATASERVER_INVENTORY",
+  "YIELD_DATASERVER_NOTECARD",
+  "YIELD_DATASERVER_TEXT_COUNT",
   "YIELD_KV",
   "YIELD_DIALOG",
   "YIELD_HTTP",
@@ -46,7 +51,12 @@ export function flagsDtsContent(extras: Extras): string {
   }
 
   if (extras.yield) {
-    lines.push("declare const YIELD_DATASERVER: boolean")
+    lines.push("declare const YIELD_DATASERVER_AGENT: boolean")
+    lines.push("declare const YIELD_DATASERVER_DISPLAY_NAME: boolean")
+    lines.push("declare const YIELD_DATASERVER_SIM: boolean")
+    lines.push("declare const YIELD_DATASERVER_INVENTORY: boolean")
+    lines.push("declare const YIELD_DATASERVER_NOTECARD: boolean")
+    lines.push("declare const YIELD_DATASERVER_TEXT_COUNT: boolean")
     lines.push("declare const YIELD_KV: boolean")
     lines.push("declare const YIELD_DIALOG: boolean")
     lines.push("declare const YIELD_HTTP: boolean")

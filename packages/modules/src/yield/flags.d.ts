@@ -1,14 +1,50 @@
 /**
- * Compile-time flag: enable dataserver yield wrappers.
- *
- * Guards: {@link requestAgentData}, {@link requestDisplayName},
- * {@link requestSimulatorData}, {@link requestInventoryData},
- * {@link readNotecardLine}, {@link readNotecard}, {@link findNotecardTextCount}.
+ * Compile-time flag: enable {@link requestAgentData}.
  *
  * @define Set via `@gwigz/slua-tstl-plugin` `define` option. Code guarded
  * by this flag is stripped from the Lua output when set to `false`.
  */
-declare const YIELD_DATASERVER: boolean
+declare const YIELD_DATASERVER_AGENT: boolean
+
+/**
+ * Compile-time flag: enable {@link requestDisplayName}.
+ *
+ * @define Set via `@gwigz/slua-tstl-plugin` `define` option. Code guarded
+ * by this flag is stripped from the Lua output when set to `false`.
+ */
+declare const YIELD_DATASERVER_DISPLAY_NAME: boolean
+
+/**
+ * Compile-time flag: enable {@link requestSimulatorData}.
+ *
+ * @define Set via `@gwigz/slua-tstl-plugin` `define` option. Code guarded
+ * by this flag is stripped from the Lua output when set to `false`.
+ */
+declare const YIELD_DATASERVER_SIM: boolean
+
+/**
+ * Compile-time flag: enable {@link requestInventoryData}.
+ *
+ * @define Set via `@gwigz/slua-tstl-plugin` `define` option. Code guarded
+ * by this flag is stripped from the Lua output when set to `false`.
+ */
+declare const YIELD_DATASERVER_INVENTORY: boolean
+
+/**
+ * Compile-time flag: enable {@link readNotecardLine}, {@link readNotecard}.
+ *
+ * @define Set via `@gwigz/slua-tstl-plugin` `define` option. Code guarded
+ * by this flag is stripped from the Lua output when set to `false`.
+ */
+declare const YIELD_DATASERVER_NOTECARD: boolean
+
+/**
+ * Compile-time flag: enable {@link findNotecardTextCount}.
+ *
+ * @define Set via `@gwigz/slua-tstl-plugin` `define` option. Code guarded
+ * by this flag is stripped from the Lua output when set to `false`.
+ */
+declare const YIELD_DATASERVER_TEXT_COUNT: boolean
 
 /**
  * Compile-time flag: enable experience KV store yield wrappers.

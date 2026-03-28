@@ -4,8 +4,6 @@ const EOF_VALUE = "\x04"
 const CHANGED_INVENTORY_VALUE = 1
 const NULL_KEY_VALUE = "00000000-0000-0000-0000-000000000000"
 const DEBUG_CHANNEL_VALUE = 2147483647
-const COROUTINE_YIELD_VALUE = "~~coroutine.yield~~"
-
 // Internal state
 let notecards: Record<string, string[]> = {}
 let inventoryKeys: Record<string, string> = {}
@@ -265,7 +263,6 @@ const GLOBAL_KEYS = [
   "CHANGED_INVENTORY",
   "NULL_KEY",
   "DEBUG_CHANNEL",
-  "COROUTINE_YIELD",
   "tonumber",
   "lljson",
   "coroutine",
@@ -311,7 +308,6 @@ export function setup(): void {
   g.tonumber = mockToNumber
   g.lljson = mockLljson
   g.coroutine = { ...mockCoroutine }
-  g.COROUTINE_YIELD = COROUTINE_YIELD_VALUE
   g.CONFIG_YAML_PARSER = true
   g.CONFIG_LLJSON_PARSER = false
   g.YIELD_DATASERVER = true

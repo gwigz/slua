@@ -64,6 +64,7 @@ export interface ConfigOptions<T extends Record<string, ConfigValue>> {
   type?: "yml" | "lljson"
 }
 
+import { spawn } from "../internal/spawn"
 import { yieldDataserver } from "../internal/yield-dataserver"
 
 /**
@@ -231,13 +232,11 @@ export function loadConfig<T extends Record<string, ConfigValue>>(
   const config = options.config
   const type = options.type ?? "yml"
 
-  const co = coroutine.create((() => {
+  spawn(() => {
     const lines = readNotecardLines(notecard)
     applyFromLines(config, lines, type)
     callback()
-  }) as (this: void, ...args: any[]) => any[])
-
-  coroutine.resume(co)
+  })
 }
 
 /**
@@ -288,7 +287,7 @@ export function onConfigChanged<T extends Record<string, ConfigValue>>(
 
     lastKey = currentKey
 
-    const co = coroutine.create((() => {
+    spawn(() => {
       // Reset to snapshot then re-apply
       for (const key in snapshot) {
         config[key] = snapshot[key]
@@ -297,8 +296,6 @@ export function onConfigChanged<T extends Record<string, ConfigValue>>(
       const lines = readNotecardLines(notecard)
       applyFromLines(config, lines, type)
       callback()
-    }) as (this: void, ...args: any[]) => any[])
-
-    coroutine.resume(co)
+    })
   })
 }

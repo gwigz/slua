@@ -41,16 +41,14 @@
 // Core runtime (always included)
 // ---------------------------------------------------------------------------
 
+import { spawn } from "../internal/spawn"
+
 /**
  * Run `fn` in a new coroutine. The coroutine starts immediately.
  * Use yield-based wrappers (e.g. {@link sleep}, {@link requestAgentData})
  * inside `fn` to suspend and resume automatically.
  */
-export function spawn(fn: (this: void) => void) {
-  const co = coroutine.create(fn as (this: void, ...args: any[]) => any[])
-  coroutine.resume(co)
-  return co
-}
+export { spawn }
 
 /**
  * Yield the current coroutine until `event` fires (optionally matching
@@ -264,6 +262,25 @@ export function kvSize() {
 // Dialog & TextBox
 // ---------------------------------------------------------------------------
 
+/** @internal Open a filtered listener, yield until a message arrives, then clean up. */
+function yieldListen(channel: number, avatarId: UUID): string {
+  const co = coroutine.running()!
+  const handle = ll.Listen(channel, "", avatarId, "")
+
+  const handler = LLEvents.on("listen", (ch: number, _name: string, _id: UUID, msg: string) => {
+    if (ch !== channel) {
+      return
+    }
+
+    LLEvents.off("listen", handler)
+
+    ll.ListenRemove(handle)
+    coroutine.resume(co, msg)
+  })
+
+  return coroutine.yield() as unknown as string
+}
+
 /**
  * Show a dialog to an avatar and yield until they click a button.
  * Returns the button text.
@@ -272,23 +289,8 @@ export function kvSize() {
  */
 export function dialog(channel: number, avatarId: UUID, text: string, buttons: string[]) {
   if (YIELD_DIALOG) {
-    const co = coroutine.running()!
-    const handle = ll.Listen(channel, "", avatarId, "")
-
     ll.Dialog(avatarId, text, buttons, channel)
-
-    const handler = LLEvents.on("listen", (ch: number, _name: string, _id: UUID, msg: string) => {
-      if (ch !== channel) {
-        return
-      }
-
-      LLEvents.off("listen", handler)
-
-      ll.ListenRemove(handle)
-      coroutine.resume(co, msg)
-    })
-
-    return coroutine.yield() as unknown as string
+    return yieldListen(channel, avatarId)
   }
 }
 
@@ -300,23 +302,8 @@ export function dialog(channel: number, avatarId: UUID, text: string, buttons: s
  */
 export function textBox(channel: number, avatarId: UUID, text: string) {
   if (YIELD_DIALOG) {
-    const co = coroutine.running()!
-    const handle = ll.Listen(channel, "", avatarId, "")
-
     ll.TextBox(avatarId, text, channel)
-
-    const handler = LLEvents.on("listen", (ch: number, _name: string, _id: UUID, msg: string) => {
-      if (ch !== channel) {
-        return
-      }
-
-      LLEvents.off("listen", handler)
-
-      ll.ListenRemove(handle)
-      coroutine.resume(co, msg)
-    })
-
-    return coroutine.yield() as unknown as string
+    return yieldListen(channel, avatarId)
   }
 }
 

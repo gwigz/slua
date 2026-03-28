@@ -120,7 +120,8 @@ describe("requestAgentData", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue("Agent Name")
-    const result = requestAgentData("avatar-id", 3)
+
+    const result = requestAgentData("avatar-id" as unknown as UUID, 3)
 
     expect(result).toBe("Agent Name")
     expect(g.LLEvents.handlers("dataserver").length).toBeGreaterThanOrEqual(1)
@@ -135,7 +136,7 @@ describe("requestAgentData", () => {
     g.ll.RequestAgentData = () => "req-123"
 
     setCoroutineYieldValue("data")
-    requestAgentData("avatar-id", 3)
+    requestAgentData("avatar-id" as unknown as UUID, 3)
 
     // Non-matching request ID
     emit("dataserver", "req-999", "wrong data")
@@ -153,7 +154,7 @@ describe("requestAgentData", () => {
     g.ll.RequestAgentData = () => "req-123"
 
     setCoroutineYieldValue("data")
-    requestAgentData("avatar-id", 3)
+    requestAgentData("avatar-id" as unknown as UUID, 3)
 
     emit("dataserver", "req-123", "first")
     emit("dataserver", "req-123", "second")
@@ -166,7 +167,7 @@ describe("requestDisplayName", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue("Display Name")
-    const result = requestDisplayName("avatar-id")
+    const result = requestDisplayName("avatar-id" as unknown as UUID)
 
     expect(result).toBe("Display Name")
   })
@@ -356,7 +357,7 @@ describe("dialog", () => {
     }
 
     setCoroutineYieldValue("Yes")
-    dialog(-99001, "avatar-id", "Choose:", ["Yes", "No"])
+    dialog(-99001, "avatar-id" as unknown as UUID, "Choose:", ["Yes", "No"])
 
     expect(listenChannel).toBe(-99001)
   })
@@ -373,7 +374,7 @@ describe("dialog", () => {
     }
 
     setCoroutineYieldValue("Yes")
-    dialog(-99001, "avatar-id", "Choose:", ["Yes", "No"])
+    dialog(-99001, "avatar-id" as unknown as UUID, "Choose:", ["Yes", "No"])
 
     emit("listen", -99001, "Avatar", "avatar-id", "Yes")
 
@@ -388,7 +389,7 @@ describe("dialog", () => {
     g.ll.Listen = () => 42
 
     setCoroutineYieldValue("Yes")
-    dialog(-99001, "avatar-id", "Choose:", ["Yes", "No"])
+    dialog(-99001, "avatar-id" as unknown as UUID, "Choose:", ["Yes", "No"])
 
     emit("listen", -99002, "Avatar", "avatar-id", "Wrong")
     expect(resumeSpy).not.toHaveBeenCalled()
@@ -406,7 +407,7 @@ describe("textBox", () => {
     }
 
     setCoroutineYieldValue("User input")
-    const result = textBox(-99001, "avatar-id", "Enter text:")
+    const result = textBox(-99001, "avatar-id" as unknown as UUID, "Enter text:")
 
     expect(listenChannel).toBe(-99001)
     expect(result).toBe("User input")
@@ -456,7 +457,7 @@ describe("requestPermissions", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue(0x2004)
-    const result = requestPermissions("avatar-id", 0x2004)
+    const result = requestPermissions("avatar-id" as unknown as UUID, 0x2004)
 
     expect(result).toBe(0x2004)
   })
@@ -467,7 +468,7 @@ describe("requestPermissions", () => {
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue(0x04)
-    requestPermissions("avatar-id", 0x04)
+    requestPermissions("avatar-id" as unknown as UUID, 0x04)
 
     emit("run_time_permissions", 0x04)
     expect(resumeSpy).toHaveBeenCalledWith(co, 0x04)
@@ -482,7 +483,7 @@ describe("transferMoney", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue({ success: true, message: "Transfer complete" })
-    const result = transferMoney("avatar-id", 100)
+    const result = transferMoney("avatar-id" as unknown as UUID, 100)
 
     expect(result).toEqual({ success: true, message: "Transfer complete" })
   })
@@ -495,7 +496,7 @@ describe("transferMoney", () => {
     g.ll.TransferLindenDollars = () => "req-tx"
 
     setCoroutineYieldValue({ success: false, message: "Insufficient funds" })
-    transferMoney("avatar-id", 100)
+    transferMoney("avatar-id" as unknown as UUID, 100)
 
     // Simulate transaction result with failure
     emit("transaction_result", "req-tx", 0, "Insufficient funds")
@@ -515,7 +516,9 @@ describe("sensor", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     const mockDetected = [{ index: 0, valid: true }] as any
+
     setCoroutineYieldValue(mockDetected)
+
     const result = sensor("", NULL_KEY, 1, 20.0, 3.14)
 
     expect(result).toEqual(mockDetected)

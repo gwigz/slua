@@ -11,6 +11,8 @@ Scaffold new TSTL-powered SLua projects.
 ```bash
 npx @gwigz/slua-create
 # or
+pnpm dlx @gwigz/slua-create
+# or
 bunx @gwigz/slua-create
 ```
 
@@ -18,6 +20,8 @@ You can also pass a directory as the first argument:
 
 ```bash
 npx @gwigz/slua-create my-project
+# or
+pnpm dlx @gwigz/slua-create my-project
 # or
 bunx @gwigz/slua-create my-project
 ```
@@ -31,7 +35,7 @@ bunx @gwigz/slua-create my-project
 
 | Extra             | Description                                                                            |
 | ----------------- | -------------------------------------------------------------------------------------- |
-| JSX templates     | [@gwigz/jsx-inline](https://github.com/gwigz/slua/tree/main/packages/jsx-inline)       |
+| JSX templates     | [@gwigz/jsx-inline](https://github.com/gwigz/jsx-inline)                               |
 | Config module     | [@gwigz/slua-modules/config](https://github.com/gwigz/slua/tree/main/packages/modules) |
 | Yield module      | [@gwigz/slua-modules/yield](https://github.com/gwigz/slua/tree/main/packages/modules)  |
 | StyLua formatting | Lua output formatting via [StyLua](https://github.com/JohnnyMorganz/StyLua)            |

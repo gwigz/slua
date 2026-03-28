@@ -9,6 +9,8 @@ This is not for use with TSTL pipelines, use this for your projects that interac
 ```bash
 npm install @gwigz/slua-json
 # or
+pnpm add @gwigz/slua-json
+# or
 bun add @gwigz/slua-json
 ```
 

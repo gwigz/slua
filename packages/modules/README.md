@@ -7,6 +7,8 @@ Shared runtime modules for [SLua](https://github.com/gwigz/slua) projects.
 ```sh
 npm install @gwigz/slua-modules
 # or
+pnpm add @gwigz/slua-modules
+# or
 bun add @gwigz/slua-modules
 ```
 
@@ -20,4 +22,4 @@ bun add @gwigz/slua-modules
 
 ## Documentation
 
-Full API reference and usage examples are available at [slua.gwigz.link/docs/create](https://slua.gwigz.link/docs/modules).
+Full API reference and usage examples are available at [slua.gwigz.link/docs/modules](https://slua.gwigz.link/docs/modules).

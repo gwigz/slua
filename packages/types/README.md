@@ -35,3 +35,7 @@ Types are generated from `refs/lsl-definitions/*.yaml` by the `gen-types` tool:
 ```bash
 bun run generate
 ```
+
+## Documentation
+
+Full API reference and usage examples are available at [slua.gwigz.link/docs/slua](https://slua.gwigz.link/docs/slua).

@@ -444,3 +444,7 @@ const seen: Record<string, boolean> = {}
 ```bash
 bun run build
 ```
+
+## Documentation
+
+Full API reference and usage examples are available at [slua.gwigz.link/docs/slua](https://slua.gwigz.link/docs/slua).

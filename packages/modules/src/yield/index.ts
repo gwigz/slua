@@ -31,10 +31,12 @@
  *
  * spawn(() => {
  *   const [ok, name] = requestAgentData(ll.GetOwner(), DATA_NAME, 10)
- *   if (!ok) return
- *   ll.Say(0, `Hello, ${name}!`)
- *   sleep(2)
- *   ll.Say(0, "Done waiting.")
+ *
+ *   if (ok) {
+ *     ll.Say(0, `Hello, ${name}!`)
+ *     sleep(2)
+ *     ll.Say(0, "Done waiting.")
+ *   }
  * })
  * ```
  *

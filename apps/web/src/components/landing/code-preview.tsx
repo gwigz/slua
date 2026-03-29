@@ -2,45 +2,7 @@ import { codeToHtml } from "shiki"
 import { transformerTwoslash, rendererRich } from "@shikijs/twoslash"
 import fs from "node:fs"
 import path from "node:path"
-
-const HERO_TS = `\
-const isValidCommand = (command: string) =>
-  ["bite", "scratch", "pounce"].includes(command)`
-
-const HERO_LUA = `\
-local function isValidCommand(command)
-  return table.find({"bite", "scratch", "pounce"}, command) ~= nil
-end`
-
-const SHOWCASE_TS = `\
-let owner = ll.GetOwner()
-
-LLEvents.on("changed", (changed) => {
-  if ((changed & CHANGED_OWNER) !== 0) {
-    owner = ll.GetOwner()
-  }
-})
-
-LLEvents.on("touch_start", (events) => {
-  for (const event of events) {
-    ll.Say(0, \`\${event.getName()} touched at \${event.getTouchPos()}\`)
-  }
-})`
-
-const SHOWCASE_LUA = `\
-local owner = ll.GetOwner()
-
-LLEvents:on("changed", function(changed)
-  if bit32.btest(changed, CHANGED_OWNER) then
-    owner = ll.GetOwner()
-  end
-end)
-
-LLEvents:on("touch_start", function(events)
-  for ____, event in ipairs(events) do
-    ll.Say(0, (event:getName() .. " touched at ") .. tostring(event:getTouchPos()))
-  end
-end)`
+import { examples } from "./generated/examples"
 
 function loadExtraFiles(): Record<string, string> {
   try {
@@ -65,9 +27,18 @@ function loadExtraFiles(): Record<string, string> {
       }
     }
 
+    // Module type signatures for Twoslash hover hints
+    const modulesDir = path.resolve(process.cwd(), "../../packages/modules/src")
+    let yieldTypes = ""
+
+    try {
+      yieldTypes = fs.readFileSync(path.join(modulesDir, "yield/index.ts"), "utf-8")
+    } catch {}
+
     return {
       "language-extensions.d.ts": langExtTypes,
       "globals.d.ts": sluaTypes,
+      "@gwigz/slua-modules/yield.d.ts": yieldTypes,
     }
   } catch {
     return {}
@@ -91,93 +62,33 @@ async function highlightCode(code: string, lang: string, useTwoslash = false) {
   })
 }
 
-export async function HeroPreview() {
-  const [tsHtml, luaHtml] = await Promise.all([
-    highlightCode(HERO_TS, "tsx", true),
-    highlightCode(HERO_LUA, "lua"),
-  ])
-
-  return { tsHtml, luaHtml }
+export type CodeGalleryTab = {
+  id: string
+  label: string
+  tsHtml: string
+  luaHtml: string
 }
 
-export async function ShowcasePreview() {
-  const [tsHtml, luaHtml] = await Promise.all([
-    highlightCode(SHOWCASE_TS, "tsx", true),
-    highlightCode(SHOWCASE_LUA, "lua"),
-  ])
-
-  return { tsHtml, luaHtml }
+// Twoslash directives prepended to specific examples to suppress expected errors.
+// Vector + Vector uses TSTL operator overloading which TypeScript doesn't natively support.
+const TWOSLASH_DIRECTIVES: Record<string, string> = {
+  "type-safety": "// @errors: 2365\n",
 }
 
-/* ── QuickStart code blocks ─────────────────────────────────── */
+export async function CodeGalleryPreview(): Promise<CodeGalleryTab[]> {
+  const entries = Object.values(examples)
 
-const PACKAGES = ["typescript", "typescript-to-lua", "@gwigz/slua-types", "@gwigz/slua-tstl-plugin"]
+  const tabs = await Promise.all(
+    entries.map(async (ex) => {
+      const directives = TWOSLASH_DIRECTIVES[ex.id] ?? ""
+      const [tsHtml, luaHtml] = await Promise.all([
+        highlightCode(directives + ex.ts, "tsx", true),
+        highlightCode(ex.lua, "lua"),
+      ])
 
-const MANAGERS = [
-  { label: "npm", install: `npm install --save-dev \\\n  ${PACKAGES.join(" \\\n  ")}`, run: "npx" },
-  { label: "pnpm", install: `pnpm add -D \\\n  ${PACKAGES.join(" \\\n  ")}`, run: "pnpm" },
-  { label: "bun", install: `bun add --dev \\\n  ${PACKAGES.join(" \\\n  ")}`, run: "bunx" },
-  {
-    label: "deno",
-    install: `deno add --dev \\\n  ${PACKAGES.map((p) => `npm:${p}`).join(" \\\n  ")}`,
-    run: "deno run",
-  },
-] as const
+      return { id: ex.id, label: ex.label, tsHtml, luaHtml }
+    }),
+  )
 
-const TSCONFIG_CODE = `{
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "strict": true,
-    "moduleDetection": "force",
-    "types": [
-      "@typescript-to-lua/language-extensions",
-      "@gwigz/slua-types"
-    ]
-  },
-  "tstl": {
-    "luaTarget": "Luau",
-    "luaLibImport": "inline",
-    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin" }],
-    "extension": "slua"
-  }
-}`
-
-const VSCODE_SETTINGS_CODE = `{
-  "files.associations": {
-    "*.slua": "lua"
-  }
-}`
-
-const GITATTRIBUTES_CODE = `*.slua linguist-language=Lua`
-
-export type QuickStartBlocks = {
-  install: Record<string, string>
-  tsconfig: string
-  compile: Record<string, string>
-  vscodeSettings: string
-  gitattributes: string
-}
-
-export async function QuickStartPreview(): Promise<QuickStartBlocks> {
-  const [installEntries, tsconfig, compileEntries, vscodeSettings, gitattributes] =
-    await Promise.all([
-      Promise.all(
-        MANAGERS.map(async (m) => [m.label, await highlightCode(m.install, "bash")] as const),
-      ),
-      highlightCode(TSCONFIG_CODE, "jsonc"),
-      Promise.all(
-        MANAGERS.map(async (m) => [m.label, await highlightCode(`${m.run} tstl`, "bash")] as const),
-      ),
-      highlightCode(VSCODE_SETTINGS_CODE, "jsonc"),
-      highlightCode(GITATTRIBUTES_CODE, "ini"),
-    ])
-
-  return {
-    install: Object.fromEntries(installEntries),
-    tsconfig,
-    compile: Object.fromEntries(compileEntries),
-    vscodeSettings,
-    gitattributes,
-  }
+  return tabs
 }

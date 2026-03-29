@@ -6,6 +6,7 @@
 /lib/slua-types.d.ts
 /content/docs/slua/api/ll.mdx
 /src/playground/generated/
+/src/components/landing/generated/
 /public/playground-worker.js
 
 # test & build

@@ -2,7 +2,7 @@
   "name": "@gwigz/slua-web",
   "private": true,
   "scripts": {
-    "prebuild": "mkdir -p lib && tsc -p ../../packages/json && tsc -p ../../packages/tstl-plugin && sed 's/^declare /export declare /' ../../packages/types/index.d.ts > lib/slua-types.d.ts && bun ../../tools/gen-api-docs/generate-ll.ts && bun ../../tools/gen-api-docs/generate-globals.ts && bun scripts/generate-playground-libs.ts && bun x vite build -c vite.worker.config.ts",
+    "prebuild": "mkdir -p lib && tsc -p ../../packages/json && tsc -p ../../packages/tstl-plugin && sed 's/^declare /export declare /' ../../packages/types/index.d.ts > lib/slua-types.d.ts && bun ../../tools/gen-api-docs/generate-ll.ts && bun ../../tools/gen-api-docs/generate-globals.ts && bun scripts/generate-playground-libs.ts && bun scripts/generate-landing-examples.ts && bun x vite build -c vite.worker.config.ts",
     "build": "next build",
     "dev": "next dev",
     "start": "serve out",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@gwigz/slua-tstl-plugin": "workspace:*",
+    "@gwigz/tstl-bundle-flatten": "^1.0.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/mdx": "^2.0.13",
     "@types/node": "^25.5.0",

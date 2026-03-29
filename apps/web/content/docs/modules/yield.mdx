@@ -18,15 +18,16 @@ import { spawn, requestAgentData, sleep } from "@gwigz/slua-modules/yield"
 
 spawn(() => {
   const [ok, name] = requestAgentData(ll.GetOwner(), DATA_NAME, 10)
-  if (!ok) return
 
-  ll.Say(0, `Hello, ${name}!`)
+  if (ok) {
+    ll.Say(0, `Hello, ${name}!`)
 
-  // note that this will not pause your script
-  // it will only pause this spawned coroutine
-  sleep(2)
+    // note that this will not pause your script
+    // it will only pause this spawned coroutine
+    sleep(2)
 
-  ll.Say(0, "Done waiting.")
+    ll.Say(0, "Done waiting.")
+  }
 })
 ```
 
@@ -120,9 +121,10 @@ spawn(() => {
 ```ts
 spawn(() => {
   const [ok, choice] = dialog(-99001, ll.GetOwner(), "Pick one:", ["Yes", "No"], 60)
-  if (!ok) return
 
-  ll.Say(0, `You chose: ${choice}`)
+  if (ok) {
+    ll.Say(0, `You chose: ${choice}`)
+  }
 })
 ```
 
@@ -131,10 +133,11 @@ spawn(() => {
 ```ts
 spawn(() => {
   const [ok, res] = httpRequest("https://example.com/api", [HTTP_METHOD, "GET"], "", 30)
-  if (!ok) return
 
-  if (res.status === 200) {
-    ll.Say(0, res.body)
+  if (ok) {
+    if (res.status === 200) {
+      ll.Say(0, res.body)
+    }
   }
 })
 ```
@@ -144,14 +147,15 @@ spawn(() => {
 ```ts
 spawn(() => {
   const [ok, detected] = sensor("", NULL_KEY, AGENT, 20.0, PI, 10)
-  if (!ok) return
 
-  if (detected) {
-    for (const d of detected) {
-      ll.Say(0, `Found: ${d.name}`)
+  if (ok) {
+    if (detected) {
+      for (const d of detected) {
+        ll.Say(0, `Found: ${d.name}`)
+      }
+    } else {
+      ll.Say(0, "Nobody nearby.")
     }
-  } else {
-    ll.Say(0, "Nobody nearby.")
   }
 })
 ```

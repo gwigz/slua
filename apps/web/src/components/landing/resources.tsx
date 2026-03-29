@@ -9,7 +9,6 @@ import {
   IconBrandGithub,
 } from "@tabler/icons-react"
 import { Badge } from "~/components/ui/badge"
-import { Card, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
 import { useInView } from "~/lib/use-in-view"
 
 const OFFICIAL = [
@@ -57,47 +56,34 @@ const COMMUNITY = [
   },
 ]
 
-export function ResourceCard({
-  resource,
-}: {
-  resource: {
-    title: string
-    author?: string
-    description: string
-    url: string
-    icon: React.ComponentType<{ className?: string }>
-    wip?: boolean
-  }
-}) {
+type Resource = (typeof OFFICIAL)[number] & { author?: string }
+
+function ResourceCard({ resource }: { resource: Resource }) {
   return (
     <a
       href={resource.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block transition-all duration-300 hover:-translate-y-0.5"
+      className="group rounded-lg border border-fd-border bg-fd-card/50 p-5 transition-all duration-200 hover:border-[var(--highlight)]/40 hover:bg-fd-card/80"
     >
-      <Card className="h-full border-[var(--surface-glass-border)] bg-[var(--surface-glass)] backdrop-blur-sm transition-colors group-hover:border-fd-border group-hover:shadow-lg group-hover:shadow-[var(--highlight)]/5">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <resource.icon className="size-5 text-fd-muted-foreground group-hover:text-[var(--highlight)] transition-colors" />
-            {resource.wip && (
-              <Badge
-                variant="outline"
-                className="ml-auto rounded-full text-[10px] uppercase text-fd-muted-foreground/60"
-              >
-                Work in progress
-              </Badge>
-            )}
-          </div>
-          <CardTitle className="mt-2">{resource.title}</CardTitle>
-          {resource.author && (
-            <p className="text-xs" style={{ color: "var(--highlight)" }}>
-              by {resource.author}
-            </p>
-          )}
-          <CardDescription>{resource.description}</CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="flex items-center gap-2 mb-3">
+        <resource.icon size={22} className="text-[var(--highlight)]" stroke={1.5} />
+        {resource.wip && (
+          <Badge
+            variant="outline"
+            className="ml-auto rounded-full text-[10px] uppercase text-fd-muted-foreground/60"
+          >
+            Work in progress
+          </Badge>
+        )}
+      </div>
+      <h3 className="text-sm font-semibold text-fd-foreground mb-1">{resource.title}</h3>
+      {resource.author && (
+        <p className="text-xs mb-1" style={{ color: "var(--highlight)" }}>
+          by {resource.author}
+        </p>
+      )}
+      <p className="text-xs text-fd-muted-foreground leading-relaxed">{resource.description}</p>
     </a>
   )
 }
@@ -106,21 +92,24 @@ export function Resources() {
   const { ref, inView } = useInView()
 
   return (
-    <section ref={ref} className="dark py-24 sm:py-32 bg-fd-background">
+    <section ref={ref} className="dark py-20 sm:py-28 bg-fd-background">
       <div
         className={`max-w-5xl mx-auto px-6 ${inView ? "" : "opacity-0 translate-y-6"}`}
         style={inView ? { animation: "fade-in-up 0.6s ease-out forwards" } : undefined}
       >
-        <h2 className="font-display text-3xl sm:text-4xl font-bold text-fd-foreground text-center">
-          Resources
-        </h2>
-        <p className="text-fd-muted-foreground text-center max-w-2xl mx-auto mt-4">
-          Tools, documentation, and community projects for SLua development
-        </p>
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold text-fd-foreground">
+            Resources
+          </h2>
+          <p className="text-fd-muted-foreground max-w-2xl mx-auto mt-3 text-sm sm:text-base">
+            Tools, documentation, and community projects for SLua development
+          </p>
+        </div>
 
-        <div className="mt-12 sm:mt-16 space-y-10">
+        <div className="space-y-8">
           <div>
-            <h3 className="text-xs font-medium uppercase tracking-widest text-fd-muted-foreground mb-4">
+            <h3 className="text-xs font-medium uppercase tracking-widest text-fd-muted-foreground mb-3">
               Official
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -131,7 +120,7 @@ export function Resources() {
           </div>
 
           <div>
-            <h3 className="text-xs font-medium uppercase tracking-widest text-fd-muted-foreground mb-4">
+            <h3 className="text-xs font-medium uppercase tracking-widest text-fd-muted-foreground mb-3">
               Community
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -142,7 +131,7 @@ export function Resources() {
           </div>
         </div>
 
-        <p className="text-xs text-fd-muted-foreground/50 text-center mt-10">
+        <p className="text-xs text-fd-muted-foreground/50 text-center mt-8">
           Function descriptions and API data sourced from{" "}
           <a
             href="https://github.com/secondlife/lsl-definitions"

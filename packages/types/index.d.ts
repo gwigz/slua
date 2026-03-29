@@ -1112,7 +1112,7 @@ declare namespace table {
   export function clear(t: any[]): void
 
   /** Reduces the memory usage of the table to the minimum necessary. */
-  export function shrink<V>(t: V[], reorder?: boolean): V[]
+  export function shrink<V>(t: V[], shrinkSparse?: boolean): V[]
 
   /** Freezes a table, making it read-only. */
   export function freeze<table>(t: table): table

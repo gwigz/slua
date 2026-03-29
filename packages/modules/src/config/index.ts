@@ -81,7 +81,8 @@ function readNotecardLines(notecard: string): string[] {
 
     if (line === NAK) {
       // Not cached, yield to force cache, then restart
-      yieldDataserver(ll.GetNotecardLine(notecard, 0))
+      const [ok] = yieldDataserver(ll.GetNotecardLine(notecard, 0), 30)
+      if (!ok) return []
 
       lineNum = 0
       lines = []

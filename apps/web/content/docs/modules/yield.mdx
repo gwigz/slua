@@ -11,13 +11,14 @@ description: Coroutine wrappers that flatten callback APIs into sequential code
 `@gwigz/slua-modules/yield` uses Lua coroutines to flatten SLua's callback-based
 APIs into sequential code. Call `spawn()` to start a coroutine, then use
 the wrapper functions inside it, they yield the coroutine until the result is
-ready, then return the value directly.
+ready, then return `[ok, value]` where `ok` is `false` if the request timed out.
 
 ```ts
 import { spawn, requestAgentData, sleep } from "@gwigz/slua-modules/yield"
 
 spawn(() => {
-  const name = requestAgentData(ll.GetOwner(), DATA_NAME)
+  const [ok, name] = requestAgentData(ll.GetOwner(), DATA_NAME, 10)
+  if (!ok) return
 
   ll.Say(0, `Hello, ${name}!`)
 
@@ -118,7 +119,8 @@ spawn(() => {
 
 ```ts
 spawn(() => {
-  const choice = dialog(-99001, ll.GetOwner(), "Pick one:", ["Yes", "No"])
+  const [ok, choice] = dialog(-99001, ll.GetOwner(), "Pick one:", ["Yes", "No"], 60)
+  if (!ok) return
 
   ll.Say(0, `You chose: ${choice}`)
 })
@@ -128,7 +130,8 @@ spawn(() => {
 
 ```ts
 spawn(() => {
-  const res = httpRequest("https://example.com/api", [HTTP_METHOD, "GET"], "")
+  const [ok, res] = httpRequest("https://example.com/api", [HTTP_METHOD, "GET"], "", 30)
+  if (!ok) return
 
   if (res.status === 200) {
     ll.Say(0, res.body)
@@ -140,7 +143,8 @@ spawn(() => {
 
 ```ts
 spawn(() => {
-  const detected = sensor("", NULL_KEY, AGENT, 20.0, PI)
+  const [ok, detected] = sensor("", NULL_KEY, AGENT, 20.0, PI, 10)
+  if (!ok) return
 
   if (detected) {
     for (const d of detected) {

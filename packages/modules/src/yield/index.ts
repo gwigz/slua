@@ -30,7 +30,8 @@
  * import { spawn, requestAgentData, sleep } from "@gwigz/slua-modules/yield"
  *
  * spawn(() => {
- *   const name = requestAgentData(ll.GetOwner(), DATA_NAME)
+ *   const [ok, name] = requestAgentData(ll.GetOwner(), DATA_NAME, 10)
+ *   if (!ok) return
  *   ll.Say(0, `Hello, ${name}!`)
  *   sleep(2)
  *   ll.Say(0, "Done waiting.")
@@ -45,6 +46,7 @@
 // ---------------------------------------------------------------------------
 
 import { spawn } from "../internal/spawn"
+import type { YieldResult } from "../internal/with-timeout"
 
 /**
  * Run `fn` in a new coroutine. The coroutine starts immediately.
@@ -60,13 +62,40 @@ export { spawn }
 export function waitFor<E extends keyof LLEventMap>(
   event: E,
   filter?: (...args: Parameters<LLEventMap[E]>) => boolean,
-): Parameters<LLEventMap[E]> {
+  timeout?: number,
+): YieldResult<Parameters<LLEventMap[E]>> | Parameters<LLEventMap[E]> {
   const co = coroutine.running()!
 
+  if (timeout !== undefined) {
+    let resolved = false
+
+    const handler = LLEvents.on(event, ((...args: any[]) => {
+      if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) return
+      if (resolved) return
+
+      resolved = true
+
+      LLEvents.off(event, handler)
+      LLTimers.off(timer)
+
+      coroutine.resume(co, true, args)
+    }) as LLEventMap[E])
+
+    const timer = LLTimers.once(timeout, () => {
+      if (resolved) return
+
+      resolved = true
+
+      LLEvents.off(event, handler)
+
+      coroutine.resume(co, false, "timeout")
+    })
+
+    return coroutine.yield() as unknown as YieldResult<Parameters<LLEventMap[E]>>
+  }
+
   const handler = LLEvents.on(event, ((...args: any[]) => {
-    if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) {
-      return
-    }
+    if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) return
 
     LLEvents.off(event, handler)
 
@@ -102,8 +131,8 @@ import { yieldDataserver } from "../internal/yield-dataserver"
  *
  * @define YIELD_DATASERVER_AGENT
  */
-export function requestAgentData(id: UUID, type: number) {
-  return yieldDataserver(ll.RequestAgentData(id, type))
+export function requestAgentData(id: UUID, type: number, timeout: number) {
+  return yieldDataserver(ll.RequestAgentData(id, type), timeout)
 }
 
 /**
@@ -111,8 +140,8 @@ export function requestAgentData(id: UUID, type: number) {
  *
  * @define YIELD_DATASERVER_DISPLAY_NAME
  */
-export function requestDisplayName(id: UUID) {
-  return yieldDataserver(ll.RequestDisplayName(id))
+export function requestDisplayName(id: UUID, timeout: number) {
+  return yieldDataserver(ll.RequestDisplayName(id), timeout)
 }
 
 /**
@@ -120,8 +149,8 @@ export function requestDisplayName(id: UUID) {
  *
  * @define YIELD_DATASERVER_SIM
  */
-export function requestSimulatorData(region: string, type: number) {
-  return yieldDataserver(ll.RequestSimulatorData(region, type))
+export function requestSimulatorData(region: string, type: number, timeout: number) {
+  return yieldDataserver(ll.RequestSimulatorData(region, type), timeout)
 }
 
 /**
@@ -129,8 +158,8 @@ export function requestSimulatorData(region: string, type: number) {
  *
  * @define YIELD_DATASERVER_INVENTORY
  */
-export function requestInventoryData(item: string) {
-  return yieldDataserver(ll.RequestInventoryData(item))
+export function requestInventoryData(item: string, timeout: number) {
+  return yieldDataserver(ll.RequestInventoryData(item), timeout)
 }
 
 /**
@@ -138,8 +167,8 @@ export function requestInventoryData(item: string) {
  *
  * @define YIELD_DATASERVER_NOTECARD
  */
-export function readNotecardLine(name: string, line: number) {
-  return yieldDataserver(ll.GetNotecardLine(name, line))
+export function readNotecardLine(name: string, line: number, timeout: number) {
+  return yieldDataserver(ll.GetNotecardLine(name, line), timeout)
 }
 
 /**
@@ -148,20 +177,21 @@ export function readNotecardLine(name: string, line: number) {
  *
  * @define YIELD_DATASERVER_NOTECARD
  */
-export function readNotecard(name: string) {
+export function readNotecard(name: string, timeout: number): YieldResult<string[]> {
   const lines: string[] = []
   let lineNum = 0
 
   while (true) {
-    const data = readNotecardLine(name, lineNum)
+    const [ok, data] = readNotecardLine(name, lineNum, timeout)
 
+    if (!ok) return $multi(false, "timeout") as YieldResult<string[]>
     if (data === EOF) break
 
     lines.push(data as string)
     lineNum++
   }
 
-  return lines
+  return $multi(true, lines) as YieldResult<string[]>
 }
 
 /**
@@ -169,8 +199,8 @@ export function readNotecard(name: string) {
  *
  * @define YIELD_DATASERVER_TEXT_COUNT
  */
-export function findNotecardTextCount(name: string, pattern: string, opts: list) {
-  return yieldDataserver(ll.FindNotecardTextCount(name, pattern, opts))
+export function findNotecardTextCount(name: string, pattern: string, opts: list, timeout: number) {
+  return yieldDataserver(ll.FindNotecardTextCount(name, pattern, opts), timeout)
 }
 
 // ---------------------------------------------------------------------------
@@ -182,13 +212,15 @@ export function findNotecardTextCount(name: string, pattern: string, opts: list)
  *
  * @define YIELD_KV
  */
-export function kvRead(key: string) {
-  const raw = yieldDataserver(ll.ReadKeyValue(key))
+export function kvRead(key: string, timeout: number): YieldResult<{ ok: boolean; value: string }> {
+  const [ok, raw] = yieldDataserver(ll.ReadKeyValue(key), timeout)
+  if (!ok) return $multi(false, "timeout") as YieldResult<{ ok: boolean; value: string }>
+
   const sep = raw.indexOf(",")
-  const ok = raw.substring(0, sep) === "1"
+  const success = raw.substring(0, sep) === "1"
   const value = raw.substring(sep + 1)
 
-  return { ok, value }
+  return $multi(true, { ok: success, value }) as YieldResult<{ ok: boolean; value: string }>
 }
 
 /**
@@ -196,9 +228,11 @@ export function kvRead(key: string) {
  *
  * @define YIELD_KV
  */
-export function kvCreate(key: string, value: string) {
-  const raw = yieldDataserver(ll.CreateKeyValue(key, value))
-  return raw.substring(0, raw.indexOf(",")) === "1"
+export function kvCreate(key: string, value: string, timeout: number): YieldResult<boolean> {
+  const [ok, raw] = yieldDataserver(ll.CreateKeyValue(key, value), timeout)
+  if (!ok) return $multi(false, "timeout") as YieldResult<boolean>
+
+  return $multi(true, raw.substring(0, raw.indexOf(",")) === "1") as YieldResult<boolean>
 }
 
 /**
@@ -206,10 +240,11 @@ export function kvCreate(key: string, value: string) {
  *
  * @define YIELD_KV
  */
-export function kvUpdate(key: string, value: string) {
-  const raw = yieldDataserver(ll.UpdateKeyValue(key, value, 0, ""))
+export function kvUpdate(key: string, value: string, timeout: number): YieldResult<boolean> {
+  const [ok, raw] = yieldDataserver(ll.UpdateKeyValue(key, value, 0, ""), timeout)
+  if (!ok) return $multi(false, "timeout") as YieldResult<boolean>
 
-  return raw.substring(0, raw.indexOf(",")) === "1"
+  return $multi(true, raw.substring(0, raw.indexOf(",")) === "1") as YieldResult<boolean>
 }
 
 /**
@@ -217,10 +252,11 @@ export function kvUpdate(key: string, value: string) {
  *
  * @define YIELD_KV
  */
-export function kvDelete(key: string) {
-  const raw = yieldDataserver(ll.DeleteKeyValue(key))
+export function kvDelete(key: string, timeout: number): YieldResult<boolean> {
+  const [ok, raw] = yieldDataserver(ll.DeleteKeyValue(key), timeout)
+  if (!ok) return $multi(false, "timeout") as YieldResult<boolean>
 
-  return raw.substring(0, raw.indexOf(",")) === "1"
+  return $multi(true, raw.substring(0, raw.indexOf(",")) === "1") as YieldResult<boolean>
 }
 
 /**
@@ -228,13 +264,15 @@ export function kvDelete(key: string) {
  *
  * @define YIELD_KV
  */
-export function kvSize() {
-  const raw = yieldDataserver(ll.DataSizeKeyValue())
+export function kvSize(timeout: number): YieldResult<{ used: number; total: number }> {
+  const [ok, raw] = yieldDataserver(ll.DataSizeKeyValue(), timeout)
+  if (!ok) return $multi(false, "timeout") as YieldResult<{ used: number; total: number }>
+
   const sep = raw.indexOf(",")
   const used = tonumber(raw.substring(0, sep))!
   const total = tonumber(raw.substring(sep + 1))!
 
-  return { used, total }
+  return $multi(true, { used, total }) as YieldResult<{ used: number; total: number }>
 }
 
 // ---------------------------------------------------------------------------
@@ -242,22 +280,36 @@ export function kvSize() {
 // ---------------------------------------------------------------------------
 
 /** @internal Open a filtered listener, yield until a message arrives, then clean up. */
-function yieldListen(channel: number, avatarId: UUID): string {
+function yieldListen(channel: number, avatarId: UUID, timeout: number): YieldResult<string> {
   const co = coroutine.running()!
+  let resolved = false
+
   const handle = ll.Listen(channel, "", avatarId, "")
 
   const handler = LLEvents.on("listen", (ch: number, _name: string, _id: UUID, msg: string) => {
-    if (ch !== channel) {
-      return
-    }
+    if (ch !== channel || resolved) return
+
+    resolved = true
 
     LLEvents.off("listen", handler)
+    LLTimers.off(timer)
 
     ll.ListenRemove(handle)
-    coroutine.resume(co, msg)
+    coroutine.resume(co, true, msg)
   })
 
-  return coroutine.yield() as unknown as string
+  const timer = LLTimers.once(timeout, () => {
+    if (resolved) return
+
+    resolved = true
+
+    LLEvents.off("listen", handler)
+    ll.ListenRemove(handle)
+
+    coroutine.resume(co, false, "timeout")
+  })
+
+  return coroutine.yield() as unknown as YieldResult<string>
 }
 
 /**
@@ -266,10 +318,16 @@ function yieldListen(channel: number, avatarId: UUID): string {
  *
  * @define YIELD_DIALOG
  */
-export function dialog(channel: number, avatarId: UUID, text: string, buttons: string[]) {
+export function dialog(
+  channel: number,
+  avatarId: UUID,
+  text: string,
+  buttons: string[],
+  timeout: number,
+) {
   ll.Dialog(avatarId, text, buttons, channel)
 
-  return yieldListen(channel, avatarId)
+  return yieldListen(channel, avatarId, timeout)
 }
 
 /**
@@ -278,10 +336,10 @@ export function dialog(channel: number, avatarId: UUID, text: string, buttons: s
  *
  * @define YIELD_DIALOG
  */
-export function textBox(channel: number, avatarId: UUID, text: string) {
+export function textBox(channel: number, avatarId: UUID, text: string, timeout: number) {
   ll.TextBox(avatarId, text, channel)
 
-  return yieldListen(channel, avatarId)
+  return yieldListen(channel, avatarId, timeout)
 }
 
 // ---------------------------------------------------------------------------
@@ -293,24 +351,46 @@ export function textBox(channel: number, avatarId: UUID, text: string) {
  *
  * @define YIELD_HTTP
  */
-export function httpRequest(url: string, params: list, body: string) {
+export function httpRequest(
+  url: string,
+  params: list,
+  body: string,
+  timeout: number,
+): YieldResult<{ status: number; metadata: list; body: string }> {
   const co = coroutine.running()!
+  let resolved = false
+
   const requestId = ll.HTTPRequest(url, params, body)
 
   const handler = LLEvents.on(
     "http_response",
     (reqId: UUID, status: number, metadata: list, respBody: string) => {
-      if (reqId !== requestId) {
-        return
-      }
+      if (reqId !== requestId || resolved) return
+
+      resolved = true
 
       LLEvents.off("http_response", handler)
+      LLTimers.off(timer)
 
-      coroutine.resume(co, { status, metadata, body: respBody })
+      coroutine.resume(co, true, { status, metadata, body: respBody })
     },
   )
 
-  return coroutine.yield() as unknown as { status: number; metadata: list; body: string }
+  const timer = LLTimers.once(timeout, () => {
+    if (resolved) return
+
+    resolved = true
+
+    LLEvents.off("http_response", handler)
+
+    coroutine.resume(co, false, "timeout")
+  })
+
+  return coroutine.yield() as unknown as YieldResult<{
+    status: number
+    metadata: list
+    body: string
+  }>
 }
 
 // ---------------------------------------------------------------------------
@@ -323,17 +403,38 @@ export function httpRequest(url: string, params: list, body: string) {
  *
  * @define YIELD_PERMISSIONS
  */
-export function requestPermissions(avatarId: UUID, mask: number) {
+export function requestPermissions(
+  avatarId: UUID,
+  mask: number,
+  timeout: number,
+): YieldResult<number> {
   const co = coroutine.running()!
+  let resolved = false
 
   ll.RequestPermissions(avatarId, mask)
 
   const handler = LLEvents.on("run_time_permissions", (flags: number) => {
+    if (resolved) return
+
+    resolved = true
+
     LLEvents.off("run_time_permissions", handler)
-    coroutine.resume(co, flags)
+    LLTimers.off(timer)
+
+    coroutine.resume(co, true, flags)
   })
 
-  return coroutine.yield() as unknown as number
+  const timer = LLTimers.once(timeout, () => {
+    if (resolved) return
+
+    resolved = true
+
+    LLEvents.off("run_time_permissions", handler)
+
+    coroutine.resume(co, false, "timeout")
+  })
+
+  return coroutine.yield() as unknown as YieldResult<number>
 }
 
 /**
@@ -342,24 +443,41 @@ export function requestPermissions(avatarId: UUID, mask: number) {
  *
  * @define YIELD_PERMISSIONS
  */
-export function transferMoney(avatarId: UUID, amount: number) {
+export function transferMoney(
+  avatarId: UUID,
+  amount: number,
+  timeout: number,
+): YieldResult<{ success: boolean; message: string }> {
   const co = coroutine.running()!
+  let resolved = false
+
   const requestId = ll.TransferLindenDollars(avatarId, amount)
 
   const handler = LLEvents.on(
     "transaction_result",
     (reqId: UUID, successInt: number, message: string) => {
-      if (reqId !== requestId) {
-        return
-      }
+      if (reqId !== requestId || resolved) return
+
+      resolved = true
 
       LLEvents.off("transaction_result", handler)
+      LLTimers.off(timer)
 
-      coroutine.resume(co, { success: successInt === 1, message })
+      coroutine.resume(co, true, { success: successInt === 1, message })
     },
   )
 
-  return coroutine.yield() as unknown as { success: boolean; message: string }
+  const timer = LLTimers.once(timeout, () => {
+    if (resolved) return
+
+    resolved = true
+
+    LLEvents.off("transaction_result", handler)
+
+    coroutine.resume(co, false, "timeout")
+  })
+
+  return coroutine.yield() as unknown as YieldResult<{ success: boolean; message: string }>
 }
 
 // ---------------------------------------------------------------------------
@@ -372,37 +490,53 @@ export function transferMoney(avatarId: UUID, amount: number) {
  *
  * @define YIELD_SENSOR
  */
-export function sensor(name: string, id: UUID, type: number, range: number, arc: number) {
+export function sensor(
+  name: string,
+  id: UUID,
+  type: number,
+  range: number,
+  arc: number,
+  timeout: number,
+): YieldResult<DetectedEvent[] | null> {
   const co = coroutine.running()!
   let resolved = false
 
   ll.Sensor(name, id, type, range, arc)
 
   const onSensor = LLEvents.on("sensor", (detected: DetectedEvent[]) => {
-    if (resolved) {
-      return
-    }
+    if (resolved) return
 
     resolved = true
 
     LLEvents.off("sensor", onSensor)
     LLEvents.off("no_sensor", onNoSensor)
+    LLTimers.off(timer)
 
-    coroutine.resume(co, detected)
+    coroutine.resume(co, true, detected)
   })
 
   const onNoSensor = LLEvents.on("no_sensor", () => {
-    if (resolved) {
-      return
-    }
+    if (resolved) return
+
+    resolved = true
+
+    LLEvents.off("sensor", onSensor)
+    LLEvents.off("no_sensor", onNoSensor)
+    LLTimers.off(timer)
+
+    coroutine.resume(co, true, null)
+  })
+
+  const timer = LLTimers.once(timeout, () => {
+    if (resolved) return
 
     resolved = true
 
     LLEvents.off("sensor", onSensor)
     LLEvents.off("no_sensor", onNoSensor)
 
-    coroutine.resume(co)
+    coroutine.resume(co, false, "timeout")
   })
 
-  return (coroutine.yield() as unknown as DetectedEvent[] | undefined) ?? null
+  return coroutine.yield() as unknown as YieldResult<DetectedEvent[] | null>
 }

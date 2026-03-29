@@ -266,6 +266,7 @@ const GLOBAL_KEYS = [
   "tonumber",
   "lljson",
   "coroutine",
+  "$multi",
   "CONFIG_YAML_PARSER",
   "CONFIG_LLJSON_PARSER",
   "YIELD_DATASERVER_AGENT",
@@ -313,6 +314,7 @@ export function setup(): void {
   g.tonumber = mockToNumber
   g.lljson = mockLljson
   g.coroutine = { ...mockCoroutine }
+  g.$multi = (...args: any[]) => args
   g.CONFIG_YAML_PARSER = true
   g.CONFIG_LLJSON_PARSER = false
   g.YIELD_DATASERVER_AGENT = true

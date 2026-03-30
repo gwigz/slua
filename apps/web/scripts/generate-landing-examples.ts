@@ -335,7 +335,7 @@ function flattenBundle(code: string): string {
     body = body.replace(/____exports\.(\w+)\s*=/g, "local $1 =")
     body = body.replace(/____exports\./g, "")
     body = body.replace(/local ____exports = \{\}\n/, "")
-    body = body.replace(/\nreturn (?:____exports|\{[^}]*\})$/, "")
+    body = body.replace(/(?:^|\n)return (?:____exports|\{[^}]*\})$/, "")
     body = body.replace(/^local ____\w+ = require\("[^"]+"\)\n/gm, "")
 
     body = body.replace(/^local (\w+) = ____\w+\.(\w+)\n/gm, (_m, localName, exportName) =>

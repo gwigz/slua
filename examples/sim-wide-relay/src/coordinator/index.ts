@@ -50,7 +50,7 @@ function rezBatched(count: number) {
     const startString = `${config.PRIVATE_CHANNEL}|${config.SIGN_NONCE}|${config.SIGN_WINDOW}`
     const batch = math.min(config.REZ_BATCH_SIZE, remaining)
 
-    for (let i = 0; i < batch; i++) {
+    for (const _ of $range(1, batch)) {
       ll.RezObjectWithParams(config.LISTENER_OBJECT, [
         REZ_POS,
         pos,
@@ -307,7 +307,12 @@ function startPool() {
   activeTimers.push(LLTimers.every(1, rezCheck))
 }
 
-loadConfig(NOTECARD_NAME, { config }, () => {
+loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
+  if (!ok) {
+    console.log(`Config load failed: ${error}`)
+    return
+  }
+
   startPool()
 
   // Snapshot signing params so we can kill old listeners with their expected credentials
@@ -317,7 +322,12 @@ loadConfig(NOTECARD_NAME, { config }, () => {
     channel: config.PRIVATE_CHANNEL,
   }
 
-  onConfigChanged(NOTECARD_NAME, { config }, () => {
+  onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
+    if (!ok) {
+      console.log(`Config reload failed: ${error}`)
+      return
+    }
+
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
 
     // Kill old listeners using the credentials they recognize

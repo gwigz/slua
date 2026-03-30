@@ -35,7 +35,7 @@ function CodePanel({
           }
         }}
         onScroll={onScroll}
-        className="not-fumadocs-codeblock flex-1 overflow-x-auto py-3 pl-4 text-[13px] leading-relaxed font-mono [&_pre]:bg-transparent! [&_pre]:m-0 [&_pre]:p-0 [&_pre]:pr-4 [&_pre]:w-fit [&_pre]:min-w-full [&_code]:text-[13px]"
+        className="not-fumadocs-codeblock flex-1 overflow-x-auto overflow-y-auto max-h-[490px] py-3 pl-4 text-[13px] leading-relaxed font-mono [&_pre]:bg-transparent! [&_pre]:m-0 [&_pre]:p-0 [&_pre]:pr-4 [&_pre]:w-fit [&_pre]:min-w-full [&_code]:text-[13px]"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

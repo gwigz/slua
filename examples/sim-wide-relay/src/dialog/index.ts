@@ -91,10 +91,20 @@ LLEvents.on("listen", (channel, _name, id, text) => {
 // Periodic cleanup of stale pending actions
 LLTimers.every(config.PENDING_TIMEOUT, cleanupStale)
 
-loadConfig(NOTECARD_NAME, { config }, () => {
+loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
+  if (!ok) {
+    console.log(`Config load failed: ${error}`)
+    return
+  }
+
   startListening()
 
-  onConfigChanged(NOTECARD_NAME, { config }, () => {
+  onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
+    if (!ok) {
+      console.log(`Config reload failed: ${error}`)
+      return
+    }
+
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
     startListening()
   })

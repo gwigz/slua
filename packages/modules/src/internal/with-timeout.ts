@@ -4,4 +4,4 @@
  * On success: `[true, T]` where T is the function's return value.
  * On timeout: `[false, "timeout"]`.
  */
-export type YieldResult<T> = LuaMultiReturn<[true, T] | [false, string]>
+export type YieldResult<T> = LuaMultiReturn<[ok: true, value: T] | [ok: false, error: string]>

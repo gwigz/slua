@@ -13,7 +13,9 @@ export function yieldDataserver(requestId: UUID, timeout: number): YieldResult<s
   let resolved = false
 
   const handler = LLEvents.on("dataserver", (reqId: UUID, data: string) => {
-    if (reqId !== requestId || resolved) return
+    if (reqId !== requestId || resolved) {
+      return
+    }
 
     resolved = true
 
@@ -24,7 +26,9 @@ export function yieldDataserver(requestId: UUID, timeout: number): YieldResult<s
   })
 
   const timer = LLTimers.once(timeout, () => {
-    if (resolved) return
+    if (resolved) {
+      return
+    }
 
     resolved = true
 

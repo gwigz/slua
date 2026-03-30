@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "bun:test"
-import { setup, teardown, notecard, emit } from "../testing"
+import { setup, teardown, notecard, emit, setCoroutineYieldValue } from "../testing"
 import { loadConfig, onConfigChanged } from "."
 
 beforeEach(() => setup())
@@ -11,7 +11,8 @@ describe("loadConfig", () => {
 
     const config = { MESSAGE: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.MESSAGE).toBe("Hello world")
     })
   })
@@ -21,7 +22,8 @@ describe("loadConfig", () => {
 
     const config = { CHANNEL: 0 }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.CHANNEL).toBe(-1731704569)
     })
   })
@@ -31,7 +33,8 @@ describe("loadConfig", () => {
 
     const config = { KEYS: ["default"] }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEYS).toEqual(["aaa", "bbb", "ccc"])
     })
   })
@@ -41,7 +44,8 @@ describe("loadConfig", () => {
 
     const config = { ITEMS: [] as string[] }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.ITEMS).toEqual(["foo", "bar"])
     })
   })
@@ -51,7 +55,8 @@ describe("loadConfig", () => {
 
     const config = { ITEMS: ["existing"] }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.ITEMS).toEqual([])
     })
   })
@@ -61,7 +66,8 @@ describe("loadConfig", () => {
 
     const config = { MSG: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.MSG).toBe("Hello\nWorld")
     })
   })
@@ -71,7 +77,8 @@ describe("loadConfig", () => {
 
     const config = { KNOWN: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KNOWN).toBe("value")
       expect((config as any).UNKNOWN).toBeUndefined()
     })
@@ -82,7 +89,8 @@ describe("loadConfig", () => {
 
     const config = { KEY: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEY).toBe("value")
     })
   })
@@ -92,7 +100,8 @@ describe("loadConfig", () => {
 
     const config = { KEY: "", NOCOLON: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEY).toBe("value")
       expect(config.NOCOLON).toBe("")
     })
@@ -107,7 +116,8 @@ describe("loadConfig", () => {
       ADMINS: [] as string[],
     }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.CHANNEL).toBe(-123)
       expect(config.MESSAGE).toBe("Hello")
       expect(config.ADMINS).toEqual(["alice", "bob"])
@@ -119,7 +129,8 @@ describe("loadConfig", () => {
 
     const config = { A: 0, B: 42, C: "default" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.A).toBe(1)
       expect(config.B).toBe(42)
       expect(config.C).toBe("default")
@@ -131,7 +142,8 @@ describe("loadConfig", () => {
 
     const config = { NUM: 42 }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.NUM).toBe(42)
     })
   })
@@ -141,7 +153,8 @@ describe("loadConfig", () => {
 
     const config = { KEY: "" }
 
-    loadConfig("custom.yml", { config }, () => {
+    loadConfig("custom.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEY).toBe("custom")
     })
   })
@@ -151,7 +164,8 @@ describe("loadConfig", () => {
 
     const config = { URL: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.URL).toBe("https://example.com")
     })
   })
@@ -161,8 +175,23 @@ describe("loadConfig", () => {
 
     const config = { KEY: "original" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEY).toBe("updated")
+    })
+  })
+
+  it("calls callback with ok=false and error on timeout", () => {
+    // No notecard registered — GetNotecardLineSync returns NAK,
+    // triggering the yieldDataserver path which will time out
+    setCoroutineYieldValue([false, "timeout"])
+
+    const config = { KEY: "default" }
+
+    loadConfig("missing.yml", { config, timeout: 5 }, (ok, error) => {
+      expect(ok).toBe(false)
+      expect(error).toBe("timeout")
+      expect(config.KEY).toBe("default")
     })
   })
 })
@@ -174,10 +203,12 @@ describe("onConfigChanged", () => {
 
     const config = { KEY: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEY).toBe("original")
 
-      onConfigChanged("settings.yml", { config }, () => {
+      onConfigChanged("settings.yml", { config }, (ok) => {
+        expect(ok).toBe(true)
         callCount++
         expect(config.KEY).toBe("updated")
       })
@@ -233,11 +264,13 @@ describe("onConfigChanged", () => {
 
     const config = { A: 0, B: 0 }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.A).toBe(1)
       expect(config.B).toBe(2)
 
-      onConfigChanged("settings.yml", { config }, () => {
+      onConfigChanged("settings.yml", { config }, (ok) => {
+        expect(ok).toBe(true)
         // A was removed from notecard, should reset to snapshot value (1)
         expect(config.A).toBe(1)
         expect(config.B).toBe(99)
@@ -260,7 +293,8 @@ describe("loadConfig with lljson", () => {
 
     const config = { CHANNEL: 0, MESSAGE: "" }
 
-    loadConfig("config.json", { config, type: "lljson" }, () => {
+    loadConfig("config.json", { config, type: "lljson" }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.CHANNEL).toBe(-123)
       expect(config.MESSAGE).toBe("Hello")
     })
@@ -271,7 +305,8 @@ describe("loadConfig with lljson", () => {
 
     const config = { KNOWN: "" }
 
-    loadConfig("config.json", { config, type: "lljson" }, () => {
+    loadConfig("config.json", { config, type: "lljson" }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KNOWN).toBe("value")
       expect((config as any).UNKNOWN).toBeUndefined()
     })
@@ -282,7 +317,8 @@ describe("loadConfig with lljson", () => {
 
     const config = { ITEMS: [] as string[] }
 
-    loadConfig("config.json", { config, type: "lljson" }, () => {
+    loadConfig("config.json", { config, type: "lljson" }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.ITEMS).toEqual(["a", "b", "c"])
     })
   })
@@ -292,7 +328,8 @@ describe("loadConfig with lljson", () => {
 
     const config = { KEY: "" }
 
-    loadConfig("settings.yml", { config, type: "yml" }, () => {
+    loadConfig("settings.yml", { config, type: "yml" }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEY).toBe("value")
     })
   })
@@ -302,7 +339,8 @@ describe("loadConfig with lljson", () => {
 
     const config = { KEY: "" }
 
-    loadConfig("settings.yml", { config }, () => {
+    loadConfig("settings.yml", { config }, (ok) => {
+      expect(ok).toBe(true)
       expect(config.KEY).toBe("value")
     })
   })

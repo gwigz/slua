@@ -83,14 +83,28 @@ const config = {
   ADMIN_KEYS: ["00000000-0000-0000-0000-000000000000"],
 }
 
-loadConfig("settings.yml", { config }, () => {
+loadConfig("settings.yml", { config }, (ok, error) => {
+  if (!ok) {
+    console.log(`Config load failed: ${error}`)
+    return
+  }
+
   ll.Say(config.PRIVATE_CHANNEL, config.WELCOME_MESSAGE)
 
-  onConfigChanged("settings.yml", { config }, () => {
+  onConfigChanged("settings.yml", { config }, (ok, error) => {
+    if (!ok) {
+      console.log(`Config reload failed: ${error}`)
+      return
+    }
+
     ll.Say(config.PRIVATE_CHANNEL, "Config reloaded")
   })
 })
 ```
+
+The callback receives `ok` (whether the notecard was read successfully) and an
+optional `error` string. On timeout, `ok` is `false` and `error` is `"timeout"`.
+When loading fails, the config object retains its default values.
 
 Using lljson (requires `CONFIG_LLJSON_PARSER: true`):
 
@@ -102,7 +116,8 @@ const config = {
   RADIUS: 10,
 }
 
-loadConfig("config.json", { config, type: "lljson" }, () => {
+loadConfig("config.json", { config, type: "lljson" }, (ok) => {
+  if (!ok) return
   ll.SetPos(config.SPAWN_POS)
 })
 ```
@@ -118,3 +133,7 @@ loadConfig("config.json", { config, type: "lljson" }, () => {
 ### `ConfigOptions<T>`
 
 <auto-type-table path="../../../../../packages/modules/src/config/index.ts" name="ConfigOptions" />
+
+### `ConfigCallback`
+
+<auto-type-table path="../../../../../packages/modules/src/config/index.ts" name="ConfigCallback" />

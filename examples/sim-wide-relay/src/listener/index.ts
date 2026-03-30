@@ -294,10 +294,20 @@ function handleRelayedMessage(text: string) {
   })
 }
 
-loadConfig(NOTECARD_NAME, { config }, () => {
+loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
+  if (!ok) {
+    console.log(`Config load failed: ${error}`)
+    return
+  }
+
   startListening()
 
-  onConfigChanged(NOTECARD_NAME, { config }, () => {
+  onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
+    if (!ok) {
+      console.log(`Config reload failed: ${error}`)
+      return
+    }
+
     ll.Say(DEBUG_CHANNEL, "Settings notecard changed, re-registering listener...")
     startListening()
   })

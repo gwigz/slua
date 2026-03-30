@@ -50,22 +50,36 @@ local function spawn(fn)
 end
 
 ---
--- @internal Shared dataserver yield pattern, registers a handler filtered
--- by request ID, yields, returns the data string.
+-- @internal Shared dataserver yield pattern with timeout.
 --
--- Used by both `config` and `yield` modules to avoid duplicating the
--- dataserver handler logic in the Lua output.
-local function yieldDataserver(requestId)
+-- Registers a handler filtered by request ID, yields, returns
+-- `[true, data]` on success or `[false, "timeout"]` on timeout.
+--
+-- Used by both `config` and `yield` modules.
+local function yieldDataserver(requestId, timeout)
+	local timer
 	local co = coroutine.running()
+	local resolved = false
 	local handler
 
 	handler = LLEvents:on("dataserver", function(reqId, data)
-		if reqId ~= requestId then
+		if reqId ~= requestId or resolved then
 			return
 		end
 
+		resolved = true
 		LLEvents:off("dataserver", handler)
-		coroutine.resume(co, data)
+		LLTimers:off(timer)
+		coroutine.resume(co, true, data)
+	end)
+	timer = LLTimers:once(timeout, function()
+		if resolved then
+			return
+		end
+
+		resolved = true
+		LLEvents:off("dataserver", handler)
+		coroutine.resume(co, false, "timeout")
 	end)
 
 	return coroutine.yield()
@@ -105,7 +119,7 @@ end
 -- @internal Read a notecard line-by-line. If the notecard is not cached
 -- (NAK), yields via {@link yieldDataserver } to force it into cache, then
 -- retries. Must be called from within a coroutine.
-local function readNotecardLines(notecard)
+local function readNotecardLines(notecard, timeout)
 	local lines = {}
 	local lineNum = 0
 
@@ -113,7 +127,12 @@ local function readNotecardLines(notecard)
 		local line = ll.GetNotecardLineSync(notecard, lineNum + 1)
 
 		if line == NAK then
-			yieldDataserver(ll.GetNotecardLine(notecard, 1))
+			local ok = yieldDataserver(ll.GetNotecardLine(notecard, 1), timeout)
+
+			if not ok then
+				return { false, {} }
+			end
+
 			lineNum = 0
 			lines = {}
 			continue
@@ -127,7 +146,7 @@ local function readNotecardLines(notecard)
 		lineNum = lineNum + 1
 	end
 
-	return lines
+	return { true, lines }
 end
 
 ---
@@ -227,12 +246,17 @@ end
 local function loadConfig(notecard, options, callback)
 	local config = options.config
 	local ____type = options.type or "yml"
+	local timeout = options.timeout or 30
 
 	spawn(function()
-		local lines = readNotecardLines(notecard)
-
+		local ok, lines = table.unpack(readNotecardLines(notecard, timeout), 1, 2)
 		applyFromLines(config, lines, ____type)
-		callback()
+
+		if ok then
+			callback(true)
+		else
+			callback(false, "timeout")
+		end
 	end)
 end
 
@@ -261,6 +285,7 @@ local function onConfigChanged(notecard, options, callback)
 	local config = options.config
 	local snapshot = __TS__ObjectAssign({}, config)
 	local ____type = options.type or "yml"
+	local timeout = options.timeout or 30
 
 	LLEvents:on("changed", function(changed)
 		if not bit32.btest(changed, CHANGED_INVENTORY) then
@@ -279,10 +304,14 @@ local function onConfigChanged(notecard, options, callback)
 				config[key] = snapshot[key]
 			end
 
-			local lines = readNotecardLines(notecard)
-
+			local ok, lines = table.unpack(readNotecardLines(notecard, timeout), 1, 2)
 			applyFromLines(config, lines, ____type)
-			callback()
+
+			if ok then
+				callback(true)
+			else
+				callback(false, "timeout")
+			end
 		end)
 	end)
 end
@@ -331,23 +360,18 @@ local function rezBatched(count)
 		local startString = (((config.PRIVATE_CHANNEL .. "|") .. config.SIGN_NONCE) .. "|") .. config.SIGN_WINDOW
 		local batch = math.min(config.REZ_BATCH_SIZE, remaining)
 
-		do
-			local i = 0
-
-			while i < batch do
-				ll.RezObjectWithParams(config.LISTENER_OBJECT, {
-					REZ_POS,
-					pos,
-					0,
-					0,
-					REZ_ROT,
-					rot,
-					0,
-					REZ_PARAM_STRING,
-					startString,
-				})
-				i = i + 1
-			end
+		for _ = 1, batch do
+			ll.RezObjectWithParams(config.LISTENER_OBJECT, {
+				REZ_POS,
+				pos,
+				0,
+				0,
+				REZ_ROT,
+				rot,
+				0,
+				REZ_PARAM_STRING,
+				startString,
+			})
 		end
 
 		remaining = remaining - batch
@@ -569,12 +593,24 @@ local function startPool()
 	activeTimers[#activeTimers + 1] = LLTimers:every(1, rezCheck)
 end
 
-loadConfig(NOTECARD_NAME, { config = config }, function()
+loadConfig(NOTECARD_NAME, { config = config }, function(ok, ____error)
+	if not ok then
+		print("Config load failed: " .. tostring(____error))
+
+		return
+	end
+
 	startPool()
 
 	local prev = { nonce = config.SIGN_NONCE, window = config.SIGN_WINDOW, channel = config.PRIVATE_CHANNEL }
 
-	onConfigChanged(NOTECARD_NAME, { config = config }, function()
+	onConfigChanged(NOTECARD_NAME, { config = config }, function(ok, ____error)
+		if not ok then
+			print("Config reload failed: " .. tostring(____error))
+
+			return
+		end
+
 		ll.Say(DEBUG_CHANNEL, "Settings notecard changed, restarting pool...")
 
 		ll.RegionSay(prev.channel, sign("KILL", prev.nonce, prev.window))

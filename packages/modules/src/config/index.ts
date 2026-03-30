@@ -62,7 +62,19 @@ export interface ConfigOptions<T extends Record<string, ConfigValue>> {
    * @default "yml"
    */
   type?: "yml" | "lljson"
+
+  /**
+   * Timeout in seconds for notecard reads. If the notecard is not
+   * cached and the dataserver does not respond within this time,
+   * the callback receives `ok = false`.
+   *
+   * @default 30
+   */
+  timeout?: number
 }
+
+/** Callback for config operations. `ok` is false if the notecard read timed out. */
+export type ConfigCallback = (ok: boolean, error?: string) => void
 
 import { spawn } from "../internal/spawn"
 import { yieldDataserver } from "../internal/yield-dataserver"
@@ -72,7 +84,7 @@ import { yieldDataserver } from "../internal/yield-dataserver"
  * (NAK), yields via {@link yieldDataserver} to force it into cache, then
  * retries. Must be called from within a coroutine.
  */
-function readNotecardLines(notecard: string): string[] {
+function readNotecardLines(notecard: string, timeout: number): [boolean, string[]] {
   let lines: string[] = []
   let lineNum = 0
 
@@ -81,8 +93,11 @@ function readNotecardLines(notecard: string): string[] {
 
     if (line === NAK) {
       // Not cached, yield to force cache, then restart
-      const [ok] = yieldDataserver(ll.GetNotecardLine(notecard, 0), 30)
-      if (!ok) return []
+      const [ok] = yieldDataserver(ll.GetNotecardLine(notecard, 0), timeout)
+
+      if (!ok) {
+        return [false, []]
+      }
 
       lineNum = 0
       lines = []
@@ -98,7 +113,7 @@ function readNotecardLines(notecard: string): string[] {
     lineNum++
   }
 
-  return lines
+  return [true, lines]
 }
 
 /**
@@ -228,15 +243,21 @@ function applyFromLines(config: ConfigObject, lines: string[], type: "yml" | "ll
 export function loadConfig<T extends Record<string, ConfigValue>>(
   notecard: string,
   options: ConfigOptions<T>,
-  callback: () => void,
+  callback: ConfigCallback,
 ) {
   const config = options.config
   const type = options.type ?? "yml"
+  const timeout = options.timeout ?? 30
 
   spawn(() => {
-    const lines = readNotecardLines(notecard)
+    const [ok, lines] = readNotecardLines(notecard, timeout)
     applyFromLines(config, lines, type)
-    callback()
+
+    if (ok) {
+      callback(true)
+    } else {
+      callback(false, "timeout")
+    }
   })
 }
 
@@ -268,12 +289,13 @@ export function loadConfig<T extends Record<string, ConfigValue>>(
 export function onConfigChanged<T extends Record<string, ConfigValue>>(
   notecard: string,
   options: ConfigOptions<T>,
-  callback: () => void,
+  callback: ConfigCallback,
 ) {
   let lastKey = ll.GetInventoryKey(notecard)
   const config = options.config
   const snapshot = { ...config } as T
   const type = options.type ?? "yml"
+  const timeout = options.timeout ?? 30
 
   LLEvents.on("changed", (changed) => {
     if ((changed & CHANGED_INVENTORY) === 0) {
@@ -294,9 +316,14 @@ export function onConfigChanged<T extends Record<string, ConfigValue>>(
         config[key] = snapshot[key]
       }
 
-      const lines = readNotecardLines(notecard)
+      const [ok, lines] = readNotecardLines(notecard, timeout)
       applyFromLines(config, lines, type)
-      callback()
+
+      if (ok) {
+        callback(true)
+      } else {
+        callback(false, "timeout")
+      }
     })
   })
 }

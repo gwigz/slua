@@ -72,8 +72,13 @@ export function waitFor<E extends keyof LLEventMap>(
     let resolved = false
 
     const handler = LLEvents.on(event, ((...args: any[]) => {
-      if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) return
-      if (resolved) return
+      if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) {
+        return
+      }
+
+      if (resolved) {
+        return
+      }
 
       resolved = true
 
@@ -84,7 +89,9 @@ export function waitFor<E extends keyof LLEventMap>(
     }) as LLEventMap[E])
 
     const timer = LLTimers.once(timeout, () => {
-      if (resolved) return
+      if (resolved) {
+        return
+      }
 
       resolved = true
 
@@ -97,7 +104,9 @@ export function waitFor<E extends keyof LLEventMap>(
   }
 
   const handler = LLEvents.on(event, ((...args: any[]) => {
-    if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) return
+    if (filter && !filter(...(args as Parameters<LLEventMap[E]>))) {
+      return
+    }
 
     LLEvents.off(event, handler)
 
@@ -177,17 +186,24 @@ export function readNotecardLine(name: string, line: number, timeout: number) {
  * Read an entire notecard by fetching lines until EOF.
  * Returns an array of lines.
  *
+ * The timeout applies per line, not for the entire read.
+ *
  * @define YIELD_DATASERVER_NOTECARD
  */
-export function readNotecard(name: string, timeout: number): YieldResult<string[]> {
+export function readNotecard(name: string, lineTimeout: number): YieldResult<string[]> {
   const lines: string[] = []
   let lineNum = 0
 
   while (true) {
-    const [ok, data] = readNotecardLine(name, lineNum, timeout)
+    const [ok, data] = readNotecardLine(name, lineNum, lineTimeout)
 
-    if (!ok) return $multi(false, "timeout") as YieldResult<string[]>
-    if (data === EOF) break
+    if (!ok) {
+      return $multi(false, "timeout") as YieldResult<string[]>
+    }
+
+    if (data === EOF) {
+      break
+    }
 
     lines.push(data as string)
     lineNum++
@@ -216,7 +232,10 @@ export function findNotecardTextCount(name: string, pattern: string, opts: list,
  */
 export function kvRead(key: string, timeout: number): YieldResult<{ ok: boolean; value: string }> {
   const [ok, raw] = yieldDataserver(ll.ReadKeyValue(key), timeout)
-  if (!ok) return $multi(false, "timeout") as YieldResult<{ ok: boolean; value: string }>
+
+  if (!ok) {
+    return $multi(false, "timeout") as YieldResult<{ ok: boolean; value: string }>
+  }
 
   const sep = raw.indexOf(",")
   const success = raw.substring(0, sep) === "1"
@@ -232,7 +251,10 @@ export function kvRead(key: string, timeout: number): YieldResult<{ ok: boolean;
  */
 export function kvCreate(key: string, value: string, timeout: number): YieldResult<boolean> {
   const [ok, raw] = yieldDataserver(ll.CreateKeyValue(key, value), timeout)
-  if (!ok) return $multi(false, "timeout") as YieldResult<boolean>
+
+  if (!ok) {
+    return $multi(false, "timeout") as YieldResult<boolean>
+  }
 
   return $multi(true, raw.substring(0, raw.indexOf(",")) === "1") as YieldResult<boolean>
 }
@@ -244,7 +266,10 @@ export function kvCreate(key: string, value: string, timeout: number): YieldResu
  */
 export function kvUpdate(key: string, value: string, timeout: number): YieldResult<boolean> {
   const [ok, raw] = yieldDataserver(ll.UpdateKeyValue(key, value, 0, ""), timeout)
-  if (!ok) return $multi(false, "timeout") as YieldResult<boolean>
+
+  if (!ok) {
+    return $multi(false, "timeout") as YieldResult<boolean>
+  }
 
   return $multi(true, raw.substring(0, raw.indexOf(",")) === "1") as YieldResult<boolean>
 }
@@ -256,7 +281,10 @@ export function kvUpdate(key: string, value: string, timeout: number): YieldResu
  */
 export function kvDelete(key: string, timeout: number): YieldResult<boolean> {
   const [ok, raw] = yieldDataserver(ll.DeleteKeyValue(key), timeout)
-  if (!ok) return $multi(false, "timeout") as YieldResult<boolean>
+
+  if (!ok) {
+    return $multi(false, "timeout") as YieldResult<boolean>
+  }
 
   return $multi(true, raw.substring(0, raw.indexOf(",")) === "1") as YieldResult<boolean>
 }
@@ -268,7 +296,10 @@ export function kvDelete(key: string, timeout: number): YieldResult<boolean> {
  */
 export function kvSize(timeout: number): YieldResult<{ used: number; total: number }> {
   const [ok, raw] = yieldDataserver(ll.DataSizeKeyValue(), timeout)
-  if (!ok) return $multi(false, "timeout") as YieldResult<{ used: number; total: number }>
+
+  if (!ok) {
+    return $multi(false, "timeout") as YieldResult<{ used: number; total: number }>
+  }
 
   const sep = raw.indexOf(",")
   const used = tonumber(raw.substring(0, sep))!
@@ -289,7 +320,9 @@ function yieldListen(channel: number, avatarId: UUID, timeout: number): YieldRes
   const handle = ll.Listen(channel, "", avatarId, "")
 
   const handler = LLEvents.on("listen", (ch: number, _name: string, _id: UUID, msg: string) => {
-    if (ch !== channel || resolved) return
+    if (ch !== channel || resolved) {
+      return
+    }
 
     resolved = true
 
@@ -301,13 +334,15 @@ function yieldListen(channel: number, avatarId: UUID, timeout: number): YieldRes
   })
 
   const timer = LLTimers.once(timeout, () => {
-    if (resolved) return
+    if (resolved) {
+      return
+    }
 
     resolved = true
 
     LLEvents.off("listen", handler)
-    ll.ListenRemove(handle)
 
+    ll.ListenRemove(handle)
     coroutine.resume(co, false, "timeout")
   })
 
@@ -367,7 +402,9 @@ export function httpRequest(
   const handler = LLEvents.on(
     "http_response",
     (reqId: UUID, status: number, metadata: list, respBody: string) => {
-      if (reqId !== requestId || resolved) return
+      if (reqId !== requestId || resolved) {
+        return
+      }
 
       resolved = true
 
@@ -379,7 +416,9 @@ export function httpRequest(
   )
 
   const timer = LLTimers.once(timeout, () => {
-    if (resolved) return
+    if (resolved) {
+      return
+    }
 
     resolved = true
 
@@ -403,6 +442,9 @@ export function httpRequest(
  * Request permissions from an avatar and yield until granted/denied.
  * Returns the granted permission flags.
  *
+ * Must not be called concurrently — `run_time_permissions` carries
+ * no request ID, so overlapping calls will race.
+ *
  * @define YIELD_PERMISSIONS
  */
 export function requestPermissions(
@@ -416,7 +458,9 @@ export function requestPermissions(
   ll.RequestPermissions(avatarId, mask)
 
   const handler = LLEvents.on("run_time_permissions", (flags: number) => {
-    if (resolved) return
+    if (resolved) {
+      return
+    }
 
     resolved = true
 
@@ -427,7 +471,9 @@ export function requestPermissions(
   })
 
   const timer = LLTimers.once(timeout, () => {
-    if (resolved) return
+    if (resolved) {
+      return
+    }
 
     resolved = true
 
@@ -458,7 +504,9 @@ export function transferMoney(
   const handler = LLEvents.on(
     "transaction_result",
     (reqId: UUID, successInt: number, message: string) => {
-      if (reqId !== requestId || resolved) return
+      if (reqId !== requestId || resolved) {
+        return
+      }
 
       resolved = true
 
@@ -470,7 +518,9 @@ export function transferMoney(
   )
 
   const timer = LLTimers.once(timeout, () => {
-    if (resolved) return
+    if (resolved) {
+      return
+    }
 
     resolved = true
 
@@ -505,38 +555,41 @@ export function sensor(
 
   ll.Sensor(name, id, type, range, arc)
 
-  const onSensor = LLEvents.on("sensor", (detected: DetectedEvent[]) => {
-    if (resolved) return
+  let timer: LLTimerCallback
 
-    resolved = true
-
+  const cleanup = () => {
     LLEvents.off("sensor", onSensor)
     LLEvents.off("no_sensor", onNoSensor)
     LLTimers.off(timer)
+  }
 
+  const onSensor = LLEvents.on("sensor", (detected: DetectedEvent[]) => {
+    if (resolved) {
+      return
+    }
+
+    resolved = true
+    cleanup()
     coroutine.resume(co, true, detected)
   })
 
   const onNoSensor = LLEvents.on("no_sensor", () => {
-    if (resolved) return
+    if (resolved) {
+      return
+    }
 
     resolved = true
-
-    LLEvents.off("sensor", onSensor)
-    LLEvents.off("no_sensor", onNoSensor)
-    LLTimers.off(timer)
-
+    cleanup()
     coroutine.resume(co, true, null)
   })
 
-  const timer = LLTimers.once(timeout, () => {
-    if (resolved) return
+  timer = LLTimers.once(timeout, () => {
+    if (resolved) {
+      return
+    }
 
     resolved = true
-
-    LLEvents.off("sensor", onSensor)
-    LLEvents.off("no_sensor", onNoSensor)
-
+    cleanup()
     coroutine.resume(co, false, "timeout")
   })
 

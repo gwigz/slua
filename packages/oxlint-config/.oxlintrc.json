@@ -77,6 +77,7 @@
         "message": "Node.js APIs are not available in SLua"
       }
     ],
+    "no-shadow": ["warn", { "allow": ["ok", "error", "value"] }],
     "oxc/no-async-await": "error",
     "eslint-js/no-restricted-syntax": [
       "error",

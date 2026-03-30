@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback } from "react"
 import { useInView } from "~/lib/use-in-view"
 import { useTwoslashPortal } from "~/lib/use-twoslash-portal"
+import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import type { CodeGalleryTab } from "./code-preview"
 
 function CodePanel({
@@ -76,21 +77,15 @@ export function CodeGallery({ tabs }: { tabs: CodeGalleryTab[] }) {
 
         {/* Tabs */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex gap-1 rounded-lg border border-fd-border bg-fd-card/50 p-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`rounded-md px-4 py-1.5 text-xs font-medium transition-all cursor-pointer ${
-                  activeTab === tab.id
-                    ? "bg-fd-muted text-fd-foreground border border-fd-border"
-                    : "text-fd-muted-foreground hover:text-fd-foreground border border-transparent"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList>
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab.id} value={tab.id} className="px-3.5 py-2.5 text-sm">
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
 
         {/* Code panels */}

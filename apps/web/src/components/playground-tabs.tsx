@@ -22,11 +22,7 @@ export function PlaygroundTabs({ activeTab }: { activeTab: "typescript" | "json"
     >
       <TabsList>
         {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.value}
-            value={tab.value}
-            className="data-active:!bg-background data-active:!text-foreground data-active:!shadow-sm dark:data-active:!bg-background dark:data-active:!text-foreground"
-          >
+          <TabsTrigger key={tab.value} value={tab.value} className="">
             <tab.icon className="size-4" />
             {tab.label}
           </TabsTrigger>

@@ -1,5 +1,11 @@
 # @gwigz/slua-create
 
+## 0.1.1
+
+### Patch Changes
+
+- [`67eed54`](https://github.com/gwigz/slua/commit/67eed54755e36b1b9c522e321bb1d84652d13d86) Thanks [@gwigz](https://github.com/gwigz)! - fix published package missing `dist/` by adding `prepack` script
+
 ## 0.1.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-oxlint-config",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Oxlint config for SLua (TypeScript-to-Lua) projects",
   "license": "MIT",
   "repository": {

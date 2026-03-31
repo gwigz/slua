@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-create",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Scaffold new TSTL-powered SLua projects",
   "license": "MIT",
   "repository": {

@@ -309,7 +309,7 @@ function startPool() {
 
 loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   if (!ok) {
-    console.log(`Config load failed: ${error}`)
+    print(`Config load failed: ${error}`)
     return
   }
 
@@ -324,7 +324,7 @@ loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
 
   onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
     if (!ok) {
-      console.log(`Config reload failed: ${error}`)
+      print(`Config reload failed: ${error}`)
       return
     }
 

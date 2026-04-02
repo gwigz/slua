@@ -542,6 +542,32 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("export function GetOwner(")
   })
 
+  it("maps bool-semantics integer params to boolean", () => {
+    // llAllowInventoryDrop(Flag) has bool-semantics on its integer param
+    expect(output).toContain("export function AllowInventoryDrop(flag: boolean): void")
+    // llTakeControls has two bool-semantics params
+    expect(output).toContain("accept: boolean")
+    expect(output).toContain("passOn: boolean")
+  })
+
+  it("maps bool-semantics integer returns to boolean", () => {
+    // llGetScriptState returns integer with bool-semantics
+    expect(output).toContain("export function GetScriptState(scriptName: string): boolean")
+    // llScaleByFactor returns integer with bool-semantics
+    expect(output).toContain("export function ScaleByFactor(scalingFactor: number): boolean")
+  })
+
+  it("does not map bool-semantics list returns to boolean", () => {
+    // llGetPrimitiveParams returns list with bool-semantics (has bool-like entries)
+    // but should stay as its list type, not become boolean
+    expect(output).not.toMatch(/GetPrimitiveParams\([^)]*\): boolean/)
+  })
+
+  it("maps bool-semantics on event arguments to boolean", () => {
+    // transaction_result has Success: integer with bool-semantics
+    expect(output).toContain("transaction_result: (requestId: UUID, success: boolean")
+  })
+
   it("contains LSL constants", () => {
     expect(output).toContain("declare const AGENT: number;")
     expect(output).toContain("declare const ACTIVE: number;")

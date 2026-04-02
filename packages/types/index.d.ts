@@ -262,7 +262,7 @@ declare interface LLEventMap {
   /** This event is raised when a user first touches the object the script is attached to. The number of touches is passed to the script in the parameter.Information on those objects may be gathered via the llDetected() library functions. */
   touch_start: (detected: DetectedEvent[]) => void
   /** Triggered by llTransferLindenDollars() function. */
-  transaction_result: (requestId: UUID, success: number, message: string) => void
+  transaction_result: (requestId: UUID, success: boolean, message: string) => void
 }
 
 /** 'rotation' is an alias for 'quaternion' */
@@ -1253,10 +1253,10 @@ declare namespace ll {
   export function AdjustSoundVolume(volume: number): void
 
   /** Returns TRUE if the agent is in the Experience and the Experience can run in the current location. */
-  export function AgentInExperience(agentId: UUID): number
+  export function AgentInExperience(agentId: UUID): boolean
 
   /** If Flag == TRUE, users without object modify permissions can still drop inventory items into the object. */
-  export function AllowInventoryDrop(flag: number): void
+  export function AllowInventoryDrop(flag: boolean): void
 
   /** Returns the angle, in radians, between rotations Rot1 and Rot2. */
   export function AngleBetween(rot1: Quaternion, rot2: Quaternion): number
@@ -1266,14 +1266,14 @@ declare namespace ll {
    * If Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.
    * This function only works on physical objects.
    */
-  export function ApplyImpulse(force: Vector, local: number): void
+  export function ApplyImpulse(force: Vector, local: boolean): void
 
   /**
    * Applies rotational impulse to the object.
    * If Local == TRUE, apply the Force in local coordinates; otherwise, apply the Force in global coordinates.
    * This function only works on physical objects.
    */
-  export function ApplyRotationalImpulse(force: Vector, local: number): void
+  export function ApplyRotationalImpulse(force: Vector, local: boolean): void
 
   /**
    * Returns the arc-sine, in radians, of Value.
@@ -1399,7 +1399,7 @@ declare namespace ll {
   export function Cloud(offset: Vector): number
 
   /** Specify an empty string or NULL_KEY for Accept, to not filter on the corresponding parameter. */
-  export function CollisionFilter(objectName: string, objectId: UUID, accept: number): void
+  export function CollisionFilter(objectName: string, objectId: UUID, accept: boolean): void
 
   /**
    * Suppress default collision sounds, replace default impact sounds with ImpactSound.
@@ -1437,7 +1437,7 @@ declare namespace ll {
    * Attempt to link the object the script is in, to target.
    * Requires the PERMISSION_CHANGE_LINKS runtime permission.
    */
-  export function CreateLink(targetPrim: UUID, parent: number): void
+  export function CreateLink(targetPrim: UUID, parent: boolean): void
 
   /** Generates a damage event on the targeted agent or task. */
   export function Damage(target: UUID, damage: number, type: number): void
@@ -1475,7 +1475,7 @@ declare namespace ll {
   export function DeleteSubString(source: string, start: number, end: number): string
 
   /** Derezzes an object previously rezzed by a script in this region. Returns TRUE on success or FALSE if the object could not be derezzed. */
-  export function DerezObject(id: UUID, flags: number): number
+  export function DerezObject(id: UUID, flags: number): boolean
 
   /**
    * Remove the object containing the script from the avatar.
@@ -1501,7 +1501,7 @@ declare namespace ll {
    * It will return FALSE if the object or agent is in the group, but the group is not active.
    * @indexArg number
    */
-  export function DetectedGroup(number: number): number
+  export function DetectedGroup(number: number): boolean
 
   /**
    * Returns the key of detected object or avatar number.
@@ -1643,7 +1643,7 @@ declare namespace ll {
    * Checks to see whether the border hit by Direction from Position is the edge of the world (has no neighboring region).
    * Returns TRUE if the line along Direction from Position hits the edge of the world in the current simulator, returns FALSE if that edge crosses into another simulator.
    */
-  export function EdgeOfWorld(position: Vector, direction: Vector): number
+  export function EdgeOfWorld(position: Vector, direction: Vector): boolean
 
   /**
    * Ejects AvatarID from land that you own.
@@ -1723,7 +1723,7 @@ declare namespace ll {
    * After calling this function with Enable set to TRUE, any agent sitting down on the prim will be forced into mouse-look.
    * Just like llSitTarget, this changes a permanent property of the prim (not the object) and needs to be reset by calling this function with Enable set to FALSE in order to disable it.
    */
-  export function ForceMouselook(enable: number): void
+  export function ForceMouselook(enable: boolean): void
 
   /**
    * Returns a pseudo random number in the range [0, Magnitude] or [Magnitude, 0].
@@ -2177,7 +2177,7 @@ declare namespace ll {
    * Returns the maximum number of prims allowed on the parcel at Position for a given scope.
    * The scope may be set to an individual parcel or the combined resources of all parcels with the same ownership in the region.
    */
-  export function GetParcelMaxPrims(position: Vector, simWide: number): number
+  export function GetParcelMaxPrims(position: Vector, simWide: boolean): number
 
   /**
    * Gets the streaming audio URL for the parcel object is on.
@@ -2192,7 +2192,7 @@ declare namespace ll {
    * If SimWide is TRUE, it returns the total number of objects for all parcels with matching ownership in the category specified.
    * If SimWide is FALSE, it returns the number of objects on this specific parcel in the category specified
    */
-  export function GetParcelPrimCount(position: Vector, category: number, simWide: number): number
+  export function GetParcelPrimCount(position: Vector, category: number, simWide: boolean): number
 
   /**
    * Returns a list of up to 100 residents who own objects on the parcel at Position, with per-owner land impact totals.
@@ -2332,7 +2332,7 @@ declare namespace ll {
    * Returns TRUE if the script named is running.
    * Returns TRUE if ScriptName is running.
    */
-  export function GetScriptState(scriptName: string): number
+  export function GetScriptState(scriptName: string): boolean
 
   /** Returns a float that is the requested statistic. */
   export function GetSimStats(statType: number): number
@@ -2358,7 +2358,7 @@ declare namespace ll {
   export function GetStaticPath(start: Vector, end: Vector, radius: number, parameters: list): list
 
   /** Returns boolean value of the specified status (e.g. STATUS_PHANTOM) of the object the script is attached to. */
-  export function GetStatus(statusFlag: number): number
+  export function GetStatus(statusFlag: number): boolean
 
   /**
    * Returns a sub-string from String, in a range specified by the Start and End indices (inclusive).
@@ -2495,7 +2495,7 @@ declare namespace ll {
    * The height is above ground level if iWater is FALSE or above the higher of land and water if iWater is TRUE.
    * Do not use with vehicles. Only works in physics-enabled objects.
    */
-  export function GroundRepel(height: number, water: number, tau: number): void
+  export function GroundRepel(height: number, water: boolean, tau: number): void
 
   /**
    * Returns the ground slope below the object position + Offset.
@@ -2542,10 +2542,10 @@ declare namespace ll {
   export function IntegerToBase64(value: number): string
 
   /** Returns TRUE if avatar ID is a friend of the script owner. */
-  export function IsFriend(agentId: UUID): number
+  export function IsFriend(agentId: UUID): boolean
 
   /** Checks the face for a PBR render material. */
-  export function IsLinkGLTFMaterial(link: number, face: number): number
+  export function IsLinkGLTFMaterial(link: number, face: number): boolean
 
   /**
    * Converts the top level of the JSON string to a list.
@@ -2614,7 +2614,7 @@ declare namespace ll {
   ): void
 
   /** Limits radius for audibility of scripted sounds (both attached and triggered) to distance Radius around the link. */
-  export function LinkSetSoundQueueing(linkNumber: number, queueEnable: number): void
+  export function LinkSetSoundQueueing(linkNumber: number, queueEnable: boolean): void
 
   /** Limits radius for audibility of scripted sounds (both attached and triggered) to distance Radius around the link. */
   export function LinkSetSoundRadius(linkNumber: number, radius: number): void
@@ -2825,7 +2825,7 @@ declare namespace ll {
   export function ListReplaceList(target: T[], listVariable: T[], start: number, end: number): T[]
 
   /** Returns the specified list, sorted into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype. */
-  export function ListSort(listVariable: T[], stride: number, ascending: number): T[]
+  export function ListSort(listVariable: T[], stride: number, ascending: boolean): T[]
 
   /**
    * Returns the specified list, sorted by the specified element into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype.
@@ -2835,7 +2835,7 @@ declare namespace ll {
     listVariable: T[],
     stride: number,
     sortkey: number,
-    ascending: number,
+    ascending: boolean,
   ): T[]
 
   /**
@@ -2860,7 +2860,7 @@ declare namespace ll {
    * Makes a listen event callback active or inactive. Pass in the value returned from llListen to the iChannelHandle parameter to specify which listener you are controlling.
    * Use boolean values to specify Active
    */
-  export function ListenControl(channelHandle: number, active: number): void
+  export function ListenControl(channelHandle: number, active: boolean): void
 
   /** Removes a listen event callback. Pass in the value returned from llListen to the iChannelHandle parameter to specify which listener to remove. */
   export function ListenRemove(channelHandle: number): void
@@ -2989,7 +2989,7 @@ declare namespace ll {
    * Returns an integer representing a boolean, TRUE if the call was successful; FALSE if throttled, invalid action, invalid or null id or object owner is not allowed to manage the estate.
    * The object owner is notified of any changes, unless PERMISSION_SILENT_ESTATE_MANAGEMENT has been granted to the script.
    */
-  export function ManageEstateAccess(action: number, avatarId: UUID): number
+  export function ManageEstateAccess(action: number, avatarId: UUID): boolean
 
   /** Displays an in world beacon and optionally opens world map for avatar who touched the object or is wearing the script, centered on RegionName with Position highlighted. Only works for scripts attached to avatar, or during touch events. */
   export function MapBeacon(regionName: string, position: Vector, options: list): void
@@ -3066,7 +3066,7 @@ declare namespace ll {
    * Returns TRUE if id ID over land owned by the script owner, otherwise FALSE.
    * Returns TRUE if key ID is over land owned by the object owner, FALSE otherwise.
    */
-  export function OverMyLand(id: UUID): number
+  export function OverMyLand(id: UUID): boolean
 
   /**
    * says Text to owner only (if owner is in region).
@@ -3110,13 +3110,13 @@ declare namespace ll {
    * Configures how collision events are passed to scripts in the linkset.
    * If Pass == TRUE, collisions involving collision-handling scripted child prims are also passed on to the root prim. If Pass == FALSE (default behavior), such collisions will only trigger events in the affected child prim.
    */
-  export function PassCollisions(pass: number): void
+  export function PassCollisions(pass: boolean): void
 
   /**
    * Configures how touch events are passed to scripts in the linkset.
    * If Pass == TRUE, touches involving touch-handling scripted child prims are also passed on to the root prim. If Pass == FALSE (default behavior), such touches will only trigger events in the affected child prim.
    */
-  export function PassTouches(pass: number): void
+  export function PassTouches(pass: boolean): void
 
   /**
    * Patrol a list of points.
@@ -3169,7 +3169,7 @@ declare namespace ll {
     objectId: UUID,
     impulse: Vector,
     angularImpulse: Vector,
-    local: number,
+    local: boolean,
   ): void
 
   /** Starts an asychronous transaction to retrieve the value associated with the key given. Will fail with XP_ERROR_KEY_NOT_FOUND if the key does not exist. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. */
@@ -3236,7 +3236,7 @@ declare namespace ll {
     objectId: UUID,
     scriptName: string,
     pin: number,
-    running: number,
+    running: boolean,
     startParameter: number,
   ): void
 
@@ -3490,7 +3490,7 @@ declare namespace ll {
    * Returns TRUE if avatar ID is in the same region and has the same active group, otherwise FALSE.
    * Returns TRUE if the object or agent identified is in the same simulator and has the same active group as this object. Otherwise, returns FALSE.
    */
-  export function SameGroup(id: UUID): number
+  export function SameGroup(id: UUID): boolean
 
   /**
    * Says Text on Channel.
@@ -3505,7 +3505,7 @@ declare namespace ll {
    * Resizing is subject to prim scale limits and linkability limits. This function can not resize the object if the linkset is physical, a pathfinding character, in a keyframed motion, or if resizing would cause the parcel to overflow.
    * Returns a boolean (an integer) TRUE if it succeeds, FALSE if it fails.
    */
-  export function ScaleByFactor(scalingFactor: number): number
+  export function ScaleByFactor(scalingFactor: number): boolean
 
   /**
    * Sets the diffuse texture Horizontal and Vertical repeats on Face of the prim the script is attached to.
@@ -3518,7 +3518,7 @@ declare namespace ll {
    * Returns TRUE if Position is over public land, sandbox land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.
    * Returns true if the position is over public land, land that doesn't allow everyone to edit and build, or land that doesn't allow outside scripts.
    */
-  export function ScriptDanger(position: Vector): number
+  export function ScriptDanger(position: Vector): boolean
 
   /**
    * Enables or disables script profiling options. Currently only supports PROFILE_SCRIPT_MEMORY (Mono only) and PROFILE_NONE.
@@ -3580,7 +3580,7 @@ declare namespace ll {
    * Sets an object's angular velocity to AngVel, in local coordinates if Local == TRUE (if the script is physical).
    * Has no effect on non-physical objects.
    */
-  export function SetAngularVelocity(angVel: Vector, local: number): void
+  export function SetAngularVelocity(angVel: Vector, local: boolean): void
 
   /**
    * Sets the animation (in object inventory) that will play for the given animation state.
@@ -3640,13 +3640,13 @@ declare namespace ll {
    * Sets Force on object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetForce(force: Vector, local: number): void
+  export function SetForce(force: Vector, local: boolean): void
 
   /**
    * Sets the Force and Torque of object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetForceAndTorque(force: Vector, torque: Vector, local: number): void
+  export function SetForceAndTorque(force: Vector, torque: Vector, local: boolean): void
 
   /** Changes terrain texture properties in the region. */
   export function SetGroundTexture(changes: list): number
@@ -3655,7 +3655,7 @@ declare namespace ll {
    * Critically damps a physical object to a Height (either above ground level or above the higher of land and water if water == TRUE).
    * Do not use with vehicles. Use llStopHover to stop hovering.
    */
-  export function SetHoverHeight(height: number, water: number, tau: number): void
+  export function SetHoverHeight(height: number, water: boolean, tau: number): void
 
   /** Sets the given permission mask to the new value on the inventory item. */
   export function SetInventoryPermMask(
@@ -3760,7 +3760,7 @@ declare namespace ll {
    *  Setting ForSale to FALSE will remove the parcel from sale and clear any options that were set.
    * Requires the PERMISSION_PRIVILEGED_LAND_ACCESS permission.
    */
-  export function SetParcelForSale(forSale: number, options: list): number
+  export function SetParcelForSale(forSale: boolean, options: list): number
 
   /**
    * Sets the streaming audio URL for the parcel the object is on.
@@ -3818,7 +3818,7 @@ declare namespace ll {
    * Position may be any location within the region or up to 10m across a region border.
    * If the position is below ground, it will be set to the ground level at that x,y location.
    */
-  export function SetRegionPos(position: Vector): number
+  export function SetRegionPos(position: Vector): boolean
 
   /** If PIN is set to a non-zero number, the task will accept remote script loads via llRemoteLoadScriptPin() if it passes in the correct PIN. Othersise, llRemoteLoadScriptPin() is ignored. */
   export function SetRemoteScriptAccessPin(pin: number): void
@@ -3841,7 +3841,7 @@ declare namespace ll {
   export function SetScale(scale: Vector): void
 
   /** Enable or disable the script Running state of Script in the prim. */
-  export function SetScriptState(scriptName: string, running: number): void
+  export function SetScriptState(scriptName: string, running: boolean): void
 
   /** Displays Text rather than 'Sit' in the viewer's context menu. */
   export function SetSitText(text: string): void
@@ -3850,7 +3850,7 @@ declare namespace ll {
    * Sets whether successive calls to llPlaySound, llLoopSound, etc., (attached sounds) interrupt the currently playing sound.
    * The default for objects is FALSE. Setting this value to TRUE will make the sound wait until the current playing sound reaches its end. The queue is one level deep.
    */
-  export function SetSoundQueueing(queueEnable: number): void
+  export function SetSoundQueueing(queueEnable: boolean): void
 
   /** Limits radius for audibility of scripted sounds (both attached and triggered) to distance Radius. */
   export function SetSoundRadius(radius: number): void
@@ -3859,7 +3859,7 @@ declare namespace ll {
    * Sets object status specified in Status bitmask (e.g. STATUS_PHYSICS|STATUS_PHANTOM) to boolean Value.
    * For a full list of STATUS_* constants, see wiki documentation.
    */
-  export function SetStatus(status: number, value: number): void
+  export function SetStatus(status: number, value: boolean): void
 
   /** Causes Text to float above the prim, using the specified Color and Opacity. */
   export function SetText(text: string, color: Vector, opacity: number): void
@@ -3893,7 +3893,7 @@ declare namespace ll {
    * Sets the Torque acting on the script's object, in object-local coordinates if Local == TRUE (otherwise, the region reference frame is used).
    * Only works on physical objects.
    */
-  export function SetTorque(torque: Vector, local: number): void
+  export function SetTorque(torque: Vector, local: boolean): void
 
   /** Displays Text in the viewer context menu that acts on a touch. */
   export function SetTouchText(text: string): void
@@ -3932,7 +3932,7 @@ declare namespace ll {
    * If the object is physics-enabled, sets the object's linear velocity to Velocity.
    * If Local==TRUE, Velocity is treated as a local directional vector; otherwise, Velocity is treated as a global directional vector.
    */
-  export function SetVelocity(velocity: Vector, local: number): void
+  export function SetVelocity(velocity: Vector, local: boolean): void
 
   /**
    * Shouts Text on Channel.
@@ -3964,7 +3964,7 @@ declare namespace ll {
    * Plays Sound at Volume and specifies whether the sound should loop and/or be enqueued.
    * @deprecated Use 'll.PlaySound' instead.
    */
-  export function Sound(sound: string, volume: number, queue: number, loop: number): void
+  export function Sound(sound: string, volume: number, queue: boolean, loop: boolean): void
 
   /**
    * Deprecated: Use llPreloadSound instead.
@@ -4059,7 +4059,7 @@ declare namespace ll {
    * If (Accept == (Controls & input)), send input to the script.  PassOn determines whether Controls also perform their normal functions.
    * Requires the PERMISSION_TAKE_CONTROLS runtime permission (automatically granted to attached or sat on objects).
    */
-  export function TakeControls(controls: number, accept: number, passOn: number): void
+  export function TakeControls(controls: number, accept: boolean, passOn: boolean): void
 
   /**
    * Returns the tangent of Theta (Theta in radians).
@@ -4158,7 +4158,7 @@ declare namespace ll {
   export function UpdateKeyValue(
     key: string,
     value: string,
-    checked: number,
+    checked: boolean,
     originalValue: string,
   ): UUID
 
@@ -4177,14 +4177,14 @@ declare namespace ll {
     message: string,
     signature: string,
     algorithm: string,
-  ): number
+  ): boolean
 
   /**
    * If DetectEnabled = TRUE, object becomes phantom but triggers collision_start and collision_end events when other objects start and stop interpenetrating.
    * If another object (including avatars) interpenetrates it, it will get a collision_start event.
    * When an object stops interpenetrating, a collision_end event is generated. While the other is inter-penetrating, collision events are NOT generated.
    */
-  export function VolumeDetect(detectEnabled: number): void
+  export function VolumeDetect(detectEnabled: boolean): void
 
   /**
    * Wander within a specified volume.

@@ -452,7 +452,8 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
         const argName = Object.keys(argObj)[0]
         const argDef = argObj[argName]
         const sluaType = (argDef as any)["slua-type"]
-        const tsType = sluaType ? mapType(sluaType) : mapLslType(argDef.type)
+        const useBool = argDef["bool-semantics"] && argDef.type === "integer"
+        const tsType = useBool ? "boolean" : sluaType ? mapType(sluaType) : mapLslType(argDef.type)
 
         return `${sanitizeParamName(argName)}: ${tsType}`
       })
@@ -970,7 +971,8 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
         const argName = Object.keys(argObj)[0]
         const argDef = argObj[argName]
         const sluaType = (argDef as any)["slua-type"]
-        const tsType = sluaType ? mapType(sluaType) : mapLslType(argDef.type)
+        const useBool = argDef["bool-semantics"] && argDef.type === "integer"
+        const tsType = useBool ? "boolean" : sluaType ? mapType(sluaType) : mapLslType(argDef.type)
         const paramName = sanitizeParamName(argName)
 
         if (argDef["index-semantics"]) {
@@ -988,14 +990,19 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
 
       // For index-return functions returning integer, widen to number | undefined
       // (nil means not-found in Lua, which maps to undefined in TS)
+      // For bool-semantics functions returning integer, use boolean
+      // (skip list returns -- "some bool-like entries" doesn't make the list itself boolean)
       const rawReturn = fn["slua-return"] ?? fn.return ?? "void"
       const isIntegerReturn = rawReturn === "integer"
+      const hasBoolReturn = !!fn["bool-semantics"] && isIntegerReturn
       const returnType =
         hasIndexReturn && isIntegerReturn
           ? "number | undefined"
-          : fn["slua-return"]
-            ? mapLslReturnType(rawReturn)
-            : mapLslType(rawReturn)
+          : hasBoolReturn
+            ? "boolean"
+            : fn["slua-return"]
+              ? mapLslReturnType(rawReturn)
+              : mapLslType(rawReturn)
 
       // Merge index tags into docs
       if (indexTags.length > 0) {

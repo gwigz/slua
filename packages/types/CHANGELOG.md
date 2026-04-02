@@ -1,5 +1,11 @@
 # @gwigz/slua-types
 
+## 1.1.2
+
+### Patch Changes
+
+- [`e2a2951`](https://github.com/gwigz/slua/commit/e2a2951667387bd9b3f72de602d4ab1ad0fb78a3) Thanks [@gwigz](https://github.com/gwigz)! - map bool-semantics to boolean types
+
 ## 1.1.1
 
 ### Patch Changes

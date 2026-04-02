@@ -18,6 +18,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./shake": {
+      "types": "./dist/shake.d.ts",
+      "default": "./dist/shake.js"
     }
   },
   "publishConfig": {
@@ -32,6 +36,12 @@
     "typescript-to-lua": "^1.33.0"
   },
   "peerDependencies": {
+    "rollup": "^4.0.0",
     "typescript": "~5.9.3"
+  },
+  "peerDependenciesMeta": {
+    "rollup": {
+      "optional": true
+    }
   }
 }

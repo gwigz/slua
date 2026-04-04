@@ -1,5 +1,11 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.3.0
+
+### Minor Changes
+
+- [`5b1619b`](https://github.com/gwigz/slua/commit/5b1619b1ccccf8e6e3166a34882fc512e4463fea) Thanks [@gwigz](https://github.com/gwigz)! - add opt-in tree-shaking via `./shake` export
+
 ## 1.2.0
 
 ### Minor Changes

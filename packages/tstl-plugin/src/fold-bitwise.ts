@@ -1,5 +1,4 @@
 import * as ts from "typescript"
-import { BINARY_BITWISE_OPS } from "./constants.js"
 
 const BITWISE_JS_OPS: Record<number, (a: number, b: number) => number> = {
   [ts.SyntaxKind.BarToken]: (a, b) => (a | b) >>> 0,
@@ -79,35 +78,16 @@ function evaluate(node: ts.Expression, checker: ts.TypeChecker | undefined): num
  * When a `checker` is provided, identifiers with numeric literal types
  * (e.g. `declare const MASK: 256`) are resolved to their values.
  *
- * Only returns a result when the expression actually involves at least
- * one bitwise operation (bare numeric literals are not "folded").
+ * Callers must ensure the node actually involves a bitwise operation
+ * (the BinaryExpression and PrefixUnaryExpression visitors already
+ * check this before calling).
  */
 export function tryFoldBitwise(
   node: ts.Expression,
   checker?: ts.TypeChecker,
 ): { value: number; source: string } | null {
-  // Must involve at least one bitwise operation to be worth folding
-  if (!hasBitwiseOp(node)) return null
-
   const value = evaluate(node, checker)
   if (value === null) return null
 
   return { value, source: node.getText() }
-}
-
-/** Returns true when the expression tree contains at least one bitwise op. */
-function hasBitwiseOp(node: ts.Expression): boolean {
-  if (ts.isParenthesizedExpression(node)) return hasBitwiseOp(node.expression)
-  if (ts.isAsExpression(node)) return hasBitwiseOp(node.expression)
-  if (ts.isTypeAssertionExpression(node)) return hasBitwiseOp(node.expression)
-
-  if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.TildeToken) {
-    return true
-  }
-
-  if (ts.isBinaryExpression(node) && BINARY_BITWISE_OPS[node.operatorToken.kind]) {
-    return true
-  }
-
-  return false
 }

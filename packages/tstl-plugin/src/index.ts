@@ -58,6 +58,12 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
   const defineMap: DefineMap = new Map(options.define ? Object.entries(options.define) : [])
   const foldedBitwiseComments = new Map<string, { value: number; source: string }[]>()
 
+  function recordFoldedComment(fileName: string, folded: { value: number; source: string }) {
+    const arr = foldedBitwiseComments.get(fileName)
+    if (arr) arr.push(folded)
+    else foldedBitwiseComments.set(fileName, [folded])
+  }
+
   const plugin: tstl.Plugin = {
     visitors: {
       [ts.SyntaxKind.Identifier]:
@@ -219,10 +225,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           const folded = tryFoldBitwise(node, context.checker)
 
           if (folded) {
-            const fileName = node.getSourceFile().fileName
-            const arr = foldedBitwiseComments.get(fileName)
-            if (arr) arr.push(folded)
-            else foldedBitwiseComments.set(fileName, [folded])
+            recordFoldedComment(node.getSourceFile().fileName, folded)
             return tstl.createNumericLiteral(folded.value, node)
           }
         }
@@ -395,10 +398,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           const folded = tryFoldBitwise(node, context.checker)
 
           if (folded) {
-            const fileName = node.getSourceFile().fileName
-            const arr = foldedBitwiseComments.get(fileName)
-            if (arr) arr.push(folded)
-            else foldedBitwiseComments.set(fileName, [folded])
+            recordFoldedComment(node.getSourceFile().fileName, folded)
             return tstl.createNumericLiteral(folded.value, node)
           }
         }
@@ -482,6 +482,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
     },
 
     beforeTransform(program, compilerOptions) {
+      foldedBitwiseComments.clear()
       const diagnostics: ts.Diagnostic[] = []
 
       if (compilerOptions.luaTarget !== tstl.LuaTarget.Luau) {

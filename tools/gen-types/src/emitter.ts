@@ -48,6 +48,17 @@ const CONSTRUCTOR_CLASS_NAMES: Record<string, string> = {
 }
 
 // ---------------------------------------------------------------------------
+// Disabled functions -- these exist in the YAML definitions but are not
+// available at runtime in SLua. They are still emitted in the types (so users
+// can see them in autocomplete with a deprecation notice) but all parameters
+// are typed as `never` to produce a type error on use.
+//
+// Format: "module.function" (e.g. "math.randomseed")
+// ---------------------------------------------------------------------------
+
+const DISABLED_FUNCTIONS = new Set(["math.randomseed"])
+
+// ---------------------------------------------------------------------------
 // Operator overload mapping (TSTL language extensions)
 // ---------------------------------------------------------------------------
 
@@ -808,12 +819,15 @@ function addModuleMembers(ns: ModuleDeclaration, mod: ModuleDef) {
         continue
       }
 
+      const disabled = DISABLED_FUNCTIONS.has(`${mod.name}.${fn.name}`)
       const docs = buildDocs(fn.comment, fn.deprecated)
 
       ns.addFunction({
         name: fn.name,
         isExported: true,
-        parameters: buildParams(fn.parameters, false),
+        parameters: disabled
+          ? [{ name: "args", isRestParameter: true, type: "never[]" }]
+          : buildParams(fn.parameters, false),
         returnType: mapReturnType(fn.returnType ?? "void"),
         typeParameters: cleanTypeParams(fn.typeParameters),
         ...(docs.length > 0 ? { docs } : {}),

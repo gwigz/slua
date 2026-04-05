@@ -887,7 +887,7 @@ declare namespace math {
   export function random(min?: number, max?: number): number
 
   /** Sets the seed for the random number generator. */
-  export function randomseed(seed: number): void
+  export function randomseed(...args: never[]): void
 
   /** Rounds n to the nearest integer. */
   export function round(n: number): number

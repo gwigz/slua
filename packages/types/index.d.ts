@@ -6080,6 +6080,9 @@ declare const XP_ERROR_UNKNOWN_ERROR: number
 declare const ZERO_ROTATION: Quaternion
 declare const ZERO_VECTOR: Vector
 
+/** Branded error type that surfaces a human-readable message in diagnostics. */
+type TypedListError<Msg extends string> = { [K in `__error: ${Msg}`]: never }
+
 /** Maps each constant to the tuple of arguments that follow it. */
 interface PrimParamMap {
   [PRIM_NAME]: [name: string]
@@ -6193,6 +6196,52 @@ interface PrimParamMap {
   [PRIM_HEALTH]: [health: number]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface PrimParamNameMap {
+  27: "PRIM_NAME"
+  28: "PRIM_DESC"
+  35: "PRIM_SLICE"
+  30: "PRIM_PHYSICS_SHAPE_TYPE"
+  2: "PRIM_MATERIAL"
+  3: "PRIM_PHYSICS"
+  4: "PRIM_TEMP_ON_REZ"
+  5: "PRIM_PHANTOM"
+  6: "PRIM_POSITION"
+  33: "PRIM_POS_LOCAL"
+  8: "PRIM_ROTATION"
+  29: "PRIM_ROT_LOCAL"
+  7: "PRIM_SIZE"
+  17: "PRIM_TEXTURE"
+  49: "PRIM_RENDER_MATERIAL"
+  26: "PRIM_TEXT"
+  18: "PRIM_COLOR"
+  19: "PRIM_BUMP_SHINY"
+  23: "PRIM_POINT_LIGHT"
+  44: "PRIM_REFLECTION_PROBE"
+  20: "PRIM_FULLBRIGHT"
+  21: "PRIM_FLEXIBLE"
+  22: "PRIM_TEXGEN"
+  25: "PRIM_GLOW"
+  32: "PRIM_OMEGA"
+  37: "PRIM_NORMAL"
+  36: "PRIM_SPECULAR"
+  38: "PRIM_ALPHA_MODE"
+  34: "PRIM_LINK_TARGET"
+  24: "PRIM_CAST_SHADOWS"
+  39: "PRIM_ALLOW_UNSIT"
+  40: "PRIM_SCRIPTED_SIT_ONLY"
+  41: "PRIM_SIT_TARGET"
+  42: "PRIM_PROJECTOR"
+  43: "PRIM_CLICK_ACTION"
+  48: "PRIM_GLTF_BASE_COLOR"
+  45: "PRIM_GLTF_NORMAL"
+  47: "PRIM_GLTF_METALLIC_ROUGHNESS"
+  46: "PRIM_GLTF_EMISSIVE"
+  50: "PRIM_SIT_FLAGS"
+  51: "PRIM_DAMAGE"
+  52: "PRIM_HEALTH"
+}
+
 /** Maps each sub-dispatch constant to the tuple of arguments that follow it. */
 interface PrimTypeShapeMap {
   [PRIM_TYPE_BOX]: [
@@ -6268,6 +6317,18 @@ interface PrimTypeShapeMap {
   [PRIM_TYPE_SCULPT]: [map: string, type: number]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface PrimTypeShapeNameMap {
+  0: "PRIM_TYPE_BOX"
+  1: "PRIM_TYPE_CYLINDER"
+  2: "PRIM_TYPE_PRISM"
+  3: "PRIM_TYPE_SPHERE"
+  4: "PRIM_TYPE_TORUS"
+  5: "PRIM_TYPE_TUBE"
+  6: "PRIM_TYPE_RING"
+  7: "PRIM_TYPE_SCULPT"
+}
+
 /** Recursive type that validates a flat parameter list for PrimParam constants. */
 type ParsePrimParams<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6277,14 +6338,14 @@ type ParsePrimParams<T extends readonly unknown[]> = T extends readonly []
         ? S extends keyof PrimTypeShapeMap
           ? ShapeRest extends readonly [...PrimTypeShapeMap[S], ...infer Remaining]
             ? [flag: K, shape: S, ...PrimTypeShapeMap[S], ...ParsePrimParams<Remaining>]
-            : never
-          : never
+            : TypedListError<`invalid arguments after ${PrimTypeShapeNameMap[S & keyof PrimTypeShapeNameMap]}`>
+          : TypedListError<`unknown shape type ${S & (string | number)}`>
         : never
       : K extends keyof PrimParamMap
         ? Rest extends readonly [...PrimParamMap[K], ...infer Remaining]
           ? [flag: K, ...PrimParamMap[K], ...ParsePrimParams<Remaining>]
-          : never
-        : never
+          : TypedListError<`invalid arguments after ${PrimParamNameMap[K & keyof PrimParamNameMap]}`>
+        : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
@@ -6333,6 +6394,52 @@ interface PrimParamGetMap {
   [PRIM_HEALTH]: []
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface PrimParamGetNameMap {
+  27: "PRIM_NAME"
+  28: "PRIM_DESC"
+  35: "PRIM_SLICE"
+  30: "PRIM_PHYSICS_SHAPE_TYPE"
+  2: "PRIM_MATERIAL"
+  3: "PRIM_PHYSICS"
+  4: "PRIM_TEMP_ON_REZ"
+  5: "PRIM_PHANTOM"
+  6: "PRIM_POSITION"
+  33: "PRIM_POS_LOCAL"
+  8: "PRIM_ROTATION"
+  29: "PRIM_ROT_LOCAL"
+  7: "PRIM_SIZE"
+  17: "PRIM_TEXTURE"
+  49: "PRIM_RENDER_MATERIAL"
+  26: "PRIM_TEXT"
+  18: "PRIM_COLOR"
+  19: "PRIM_BUMP_SHINY"
+  20: "PRIM_FULLBRIGHT"
+  21: "PRIM_FLEXIBLE"
+  22: "PRIM_TEXGEN"
+  23: "PRIM_POINT_LIGHT"
+  44: "PRIM_REFLECTION_PROBE"
+  25: "PRIM_GLOW"
+  32: "PRIM_OMEGA"
+  37: "PRIM_NORMAL"
+  36: "PRIM_SPECULAR"
+  38: "PRIM_ALPHA_MODE"
+  34: "PRIM_LINK_TARGET"
+  24: "PRIM_CAST_SHADOWS"
+  39: "PRIM_ALLOW_UNSIT"
+  40: "PRIM_SCRIPTED_SIT_ONLY"
+  41: "PRIM_SIT_TARGET"
+  42: "PRIM_PROJECTOR"
+  43: "PRIM_CLICK_ACTION"
+  48: "PRIM_GLTF_BASE_COLOR"
+  45: "PRIM_GLTF_NORMAL"
+  47: "PRIM_GLTF_METALLIC_ROUGHNESS"
+  46: "PRIM_GLTF_EMISSIVE"
+  50: "PRIM_SIT_FLAGS"
+  51: "PRIM_DAMAGE"
+  52: "PRIM_HEALTH"
+}
+
 /** Recursive type that validates a flat parameter list for PrimParamGet constants. */
 type ParsePrimParamGets<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6340,8 +6447,8 @@ type ParsePrimParamGets<T extends readonly unknown[]> = T extends readonly []
     ? K extends keyof PrimParamGetMap
       ? Rest extends readonly [...PrimParamGetMap[K], ...infer Remaining]
         ? [flag: K, ...PrimParamGetMap[K], ...ParsePrimParamGets<Remaining>]
-        : never
-      : never
+        : TypedListError<`invalid arguments after ${PrimParamGetNameMap[K & keyof PrimParamGetNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
@@ -6358,6 +6465,20 @@ interface HttpParamMap {
   [HTTP_EXTENDED_ERROR]: [extended: number]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface HttpParamNameMap {
+  0: "HTTP_METHOD"
+  1: "HTTP_MIMETYPE"
+  2: "HTTP_BODY_MAXLENGTH"
+  3: "HTTP_VERIFY_CERT"
+  4: "HTTP_VERBOSE_THROTTLE"
+  5: "HTTP_CUSTOM_HEADER"
+  6: "HTTP_PRAGMA_NO_CACHE"
+  7: "HTTP_USER_AGENT"
+  8: "HTTP_ACCEPT"
+  9: "HTTP_EXTENDED_ERROR"
+}
+
 /** Recursive type that validates a flat parameter list for HttpParam constants. */
 type ParseHttpParams<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6365,8 +6486,8 @@ type ParseHttpParams<T extends readonly unknown[]> = T extends readonly []
     ? K extends keyof HttpParamMap
       ? Rest extends readonly [...HttpParamMap[K], ...infer Remaining]
         ? [flag: K, ...HttpParamMap[K], ...ParseHttpParams<Remaining>]
-        : never
-      : never
+        : TypedListError<`invalid arguments after ${HttpParamNameMap[K & keyof HttpParamNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
@@ -6400,6 +6521,37 @@ interface ParticleSystemParamMap {
   [PSYS_SRC_BURST_SPEED_MAX]: [speedMax: number]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface ParticleSystemParamNameMap {
+  0: "PSYS_PART_FLAGS"
+  9: "PSYS_SRC_PATTERN"
+  16: "PSYS_SRC_BURST_RADIUS"
+  22: "PSYS_SRC_ANGLE_BEGIN"
+  23: "PSYS_SRC_ANGLE_END"
+  10: "PSYS_SRC_INNERANGLE"
+  11: "PSYS_SRC_OUTERANGLE"
+  20: "PSYS_SRC_TARGET_KEY"
+  1: "PSYS_PART_START_COLOR"
+  3: "PSYS_PART_END_COLOR"
+  2: "PSYS_PART_START_ALPHA"
+  4: "PSYS_PART_END_ALPHA"
+  5: "PSYS_PART_START_SCALE"
+  6: "PSYS_PART_END_SCALE"
+  12: "PSYS_SRC_TEXTURE"
+  26: "PSYS_PART_START_GLOW"
+  27: "PSYS_PART_END_GLOW"
+  24: "PSYS_PART_BLEND_FUNC_SOURCE"
+  25: "PSYS_PART_BLEND_FUNC_DEST"
+  19: "PSYS_SRC_MAX_AGE"
+  7: "PSYS_PART_MAX_AGE"
+  13: "PSYS_SRC_BURST_RATE"
+  15: "PSYS_SRC_BURST_PART_COUNT"
+  8: "PSYS_SRC_ACCEL"
+  21: "PSYS_SRC_OMEGA"
+  17: "PSYS_SRC_BURST_SPEED_MIN"
+  18: "PSYS_SRC_BURST_SPEED_MAX"
+}
+
 /** Recursive type that validates a flat parameter list for ParticleSystemParam constants. */
 type ParseParticleSystemParams<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6407,8 +6559,8 @@ type ParseParticleSystemParams<T extends readonly unknown[]> = T extends readonl
     ? K extends keyof ParticleSystemParamMap
       ? Rest extends readonly [...ParticleSystemParamMap[K], ...infer Remaining]
         ? [flag: K, ...ParticleSystemParamMap[K], ...ParseParticleSystemParams<Remaining>]
-        : never
-      : never
+        : TypedListError<`invalid arguments after ${ParticleSystemParamNameMap[K & keyof ParticleSystemParamNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
@@ -6429,6 +6581,24 @@ interface CameraParamMap {
   [CAMERA_POSITION_THRESHOLD]: [meters: number]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface CameraParamNameMap {
+  12: "CAMERA_ACTIVE"
+  8: "CAMERA_BEHINDNESS_ANGLE"
+  9: "CAMERA_BEHINDNESS_LAG"
+  7: "CAMERA_DISTANCE"
+  17: "CAMERA_FOCUS"
+  6: "CAMERA_FOCUS_LAG"
+  22: "CAMERA_FOCUS_LOCKED"
+  1: "CAMERA_FOCUS_OFFSET"
+  11: "CAMERA_FOCUS_THRESHOLD"
+  0: "CAMERA_PITCH"
+  13: "CAMERA_POSITION"
+  5: "CAMERA_POSITION_LAG"
+  21: "CAMERA_POSITION_LOCKED"
+  10: "CAMERA_POSITION_THRESHOLD"
+}
+
 /** Recursive type that validates a flat parameter list for CameraParam constants. */
 type ParseCameraParams<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6436,8 +6606,8 @@ type ParseCameraParams<T extends readonly unknown[]> = T extends readonly []
     ? K extends keyof CameraParamMap
       ? Rest extends readonly [...CameraParamMap[K], ...infer Remaining]
         ? [flag: K, ...CameraParamMap[K], ...ParseCameraParams<Remaining>]
-        : never
-      : never
+        : TypedListError<`invalid arguments after ${CameraParamNameMap[K & keyof CameraParamNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
@@ -6448,6 +6618,14 @@ interface CastRayParamMap {
   [RC_DETECT_PHANTOM]: [detectPhantom: number]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface CastRayParamNameMap {
+  0: "RC_REJECT_TYPES"
+  2: "RC_DATA_FLAGS"
+  3: "RC_MAX_HITS"
+  1: "RC_DETECT_PHANTOM"
+}
+
 /** Recursive type that validates a flat parameter list for CastRayParam constants. */
 type ParseCastRayParams<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6455,8 +6633,8 @@ type ParseCastRayParams<T extends readonly unknown[]> = T extends readonly []
     ? K extends keyof CastRayParamMap
       ? Rest extends readonly [...CastRayParamMap[K], ...infer Remaining]
         ? [flag: K, ...CastRayParamMap[K], ...ParseCastRayParams<Remaining>]
-        : never
-      : never
+        : TypedListError<`invalid arguments after ${CastRayParamNameMap[K & keyof CastRayParamNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
@@ -6476,6 +6654,23 @@ interface CharacterParamMap {
   [CHARACTER_STAY_WITHIN_PARCEL]: [stayWithinParcel: number]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface CharacterParamNameMap {
+  1: "CHARACTER_DESIRED_SPEED"
+  2: "CHARACTER_RADIUS"
+  3: "CHARACTER_LENGTH"
+  4: "CHARACTER_ORIENTATION"
+  6: "CHARACTER_TYPE"
+  5: "CHARACTER_AVOIDANCE_MODE"
+  8: "CHARACTER_MAX_ACCEL"
+  9: "CHARACTER_MAX_DECEL"
+  12: "CHARACTER_DESIRED_TURN_SPEED"
+  10: "CHARACTER_MAX_TURN_RADIUS"
+  13: "CHARACTER_MAX_SPEED"
+  14: "CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES"
+  15: "CHARACTER_STAY_WITHIN_PARCEL"
+}
+
 /** Recursive type that validates a flat parameter list for CharacterParam constants. */
 type ParseCharacterParams<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6483,8 +6678,8 @@ type ParseCharacterParams<T extends readonly unknown[]> = T extends readonly []
     ? K extends keyof CharacterParamMap
       ? Rest extends readonly [...CharacterParamMap[K], ...infer Remaining]
         ? [flag: K, ...CharacterParamMap[K], ...ParseCharacterParams<Remaining>]
-        : never
-      : never
+        : TypedListError<`invalid arguments after ${CharacterParamNameMap[K & keyof CharacterParamNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
@@ -6504,6 +6699,23 @@ interface RezParamMap {
   [REZ_PARAM_STRING]: [startParam: string]
 }
 
+/** Reverse map from numeric value to constant name for error messages. */
+interface RezParamNameMap {
+  0: "REZ_PARAM"
+  1: "REZ_FLAGS"
+  2: "REZ_POS"
+  3: "REZ_ROT"
+  4: "REZ_VEL"
+  5: "REZ_ACCEL"
+  7: "REZ_OMEGA"
+  8: "REZ_DAMAGE"
+  9: "REZ_SOUND"
+  10: "REZ_SOUND_COLLIDE"
+  11: "REZ_LOCK_AXES"
+  12: "REZ_DAMAGE_TYPE"
+  13: "REZ_PARAM_STRING"
+}
+
 /** Recursive type that validates a flat parameter list for RezParam constants. */
 type ParseRezParams<T extends readonly unknown[]> = T extends readonly []
   ? []
@@ -6511,8 +6723,8 @@ type ParseRezParams<T extends readonly unknown[]> = T extends readonly []
     ? K extends keyof RezParamMap
       ? Rest extends readonly [...RezParamMap[K], ...infer Remaining]
         ? [flag: K, ...RezParamMap[K], ...ParseRezParams<Remaining>]
-        : never
-      : never
+        : TypedListError<`invalid arguments after ${RezParamNameMap[K & keyof RezParamNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
 /** Valid constants for ObjectDetail functions. */

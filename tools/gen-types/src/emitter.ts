@@ -1135,7 +1135,11 @@ export function emitAll(
 
   // Emit typed list param maps and parser types for each param set
   if (typedListParams) {
-    const lines: string[] = []
+    const lines: string[] = [
+      "",
+      "/** Branded error type that surfaces a human-readable message in diagnostics. */",
+      "type TypedListError<Msg extends string> = { [K in `__error: ${Msg}`]: never }",
+    ]
 
     const emitParamMap = (mapName: string, comment: string, rules: TypedListRule[]) => {
       lines.push("")
@@ -1146,6 +1150,16 @@ export function emitAll(
           .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
           .join(", ")
         lines.push(`  [${rule.name}]: [${namedArgs}]`)
+      }
+      lines.push("}")
+    }
+
+    const emitNameMap = (nameMapName: string, rules: TypedListRule[]) => {
+      lines.push("")
+      lines.push(`/** Reverse map from numeric value to constant name for error messages. */`)
+      lines.push(`interface ${nameMapName} {`)
+      for (const rule of rules) {
+        lines.push(`  ${rule.value}: "${rule.name}"`)
       }
       lines.push("}")
     }
@@ -1161,6 +1175,7 @@ export function emitAll(
       }
 
       const mapName = `${set.name}Map`
+      const nameMapName = `${set.name}NameMap`
       const parseName = `Parse${set.name}s`
 
       emitParamMap(
@@ -1168,13 +1183,16 @@ export function emitAll(
         "Maps each constant to the tuple of arguments that follow it.",
         set.params,
       )
+      emitNameMap(nameMapName, set.params)
 
       if (set.subDispatch) {
+        const subNameMapName = `${set.subDispatch.name}NameMap`
         emitParamMap(
           `${set.subDispatch.name}Map`,
           "Maps each sub-dispatch constant to the tuple of arguments that follow it.",
           set.subDispatch.params,
         )
+        emitNameMap(subNameMapName, set.subDispatch.params)
       }
 
       // Recursive parser type
@@ -1188,6 +1206,7 @@ export function emitAll(
 
       if (set.subDispatch) {
         const subMapName = `${set.subDispatch.name}Map`
+        const subNameMapName = `${set.subDispatch.name}NameMap`
         lines.push(`    ? K extends typeof ${set.subDispatch.constant}`)
         lines.push("      ? Rest extends readonly [infer S, ...infer ShapeRest]")
         lines.push(`        ? S extends keyof ${subMapName}`)
@@ -1197,8 +1216,10 @@ export function emitAll(
         lines.push(
           `            ? [flag: K, shape: S, ...${subMapName}[S], ...${parseName}<Remaining>]`,
         )
-        lines.push("            : never")
-        lines.push("          : never")
+        lines.push(
+          `            : TypedListError<\`invalid arguments after \${${subNameMapName}[S & keyof ${subNameMapName}]}\`>`,
+        )
+        lines.push(`          : TypedListError<\`unknown shape type \${S & (string | number)}\`>`)
         lines.push("        : never")
         lines.push(`      : K extends keyof ${mapName}`)
       } else {
@@ -1207,8 +1228,10 @@ export function emitAll(
 
       lines.push(`        ? Rest extends readonly [...${mapName}[K], ...infer Remaining]`)
       lines.push(`          ? [flag: K, ...${mapName}[K], ...${parseName}<Remaining>]`)
-      lines.push("          : never")
-      lines.push("        : never")
+      lines.push(
+        `          : TypedListError<\`invalid arguments after \${${nameMapName}[K & keyof ${nameMapName}]}\`>`,
+      )
+      lines.push(`        : TypedListError<\`unknown parameter flag \${K & (string | number)}\`>`)
       lines.push("    : never")
     }
 

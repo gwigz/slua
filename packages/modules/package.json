@@ -33,7 +33,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gwigz/slua-types": "workspace:^"
+    "@gwigz/slua-types": "^1.2.0"
   },
   "peerDependencies": {
     "@typescript-to-lua/language-extensions": "^1.0.0"

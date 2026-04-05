@@ -208,7 +208,7 @@ function moveTo(targetPos: Vector) {
     ll.SetRegionPos(targetPos)
   }
 
-  ll.SetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_POSITION, targetPos])
+  setPrimParams(LINK_THIS).position(targetPos)
 }
 
 function followAvatar() {

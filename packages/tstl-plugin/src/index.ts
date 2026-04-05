@@ -22,6 +22,7 @@ import {
   createStringFindCall,
 } from "./utils.js"
 import { CALL_TRANSFORMS } from "./transforms.js"
+import { matchBuilderChain, emitBuilderChain } from "./builder-transform.js"
 import { createOptimizeTransforms, countFilterCalls, ALL_OPTIMIZE } from "./optimize.js"
 import { tryEvaluateCondition, shouldStripDefineGuard } from "./define.js"
 import {
@@ -275,6 +276,14 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
             const call = emitChainedExtend(target, args, node)
 
             return [tstl.createExpressionStatement(call, node)]
+          }
+        }
+
+        // Builder chain detection (e.g. setPrimParams(LINK_THIS).color(0, v, 1))
+        if (ts.isCallExpression(node.expression)) {
+          const chain = matchBuilderChain(node.expression)
+          if (chain) {
+            return [emitBuilderChain(chain, context, node)]
           }
         }
 

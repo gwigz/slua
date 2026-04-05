@@ -222,7 +222,7 @@ const mockCoroutine = {
   resume(co: any, ...args: any[]) {
     co.__lastResumeArgs = args
 
-    // Initial spawn resume — actually run the function
+    // Initial spawn resume, actually run the function
     if (co.__fn && co.__status === "suspended") {
       co.__status = "running"
       co.__fn(...args)

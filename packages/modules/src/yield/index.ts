@@ -442,7 +442,7 @@ export function httpRequest(
  * Request permissions from an avatar and yield until granted/denied.
  * Returns the granted permission flags.
  *
- * Must not be called concurrently — `run_time_permissions` carries
+ * Must not be called concurrently, `run_time_permissions` carries
  * no request ID, so overlapping calls will race.
  *
  * @define YIELD_PERMISSIONS

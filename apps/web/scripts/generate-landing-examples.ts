@@ -172,6 +172,7 @@ interface ExampleDef {
 const EXAMPLES: ExampleDef[] = [
   { id: "events", label: "Events", file: "events.ts" },
   { id: "type-safety", label: "Type Safety", file: "type-safety.ts" },
+  { id: "builders", label: "Builders", file: "builders.ts" },
   {
     id: "dialog",
     label: "Dialog",

@@ -113,6 +113,106 @@ const TS_RESERVED_WORDS = new Set([
 ])
 
 // ---------------------------------------------------------------------------
+// Builder chain configuration
+// ---------------------------------------------------------------------------
+
+interface BuilderRootConfig {
+  /** Name of the wrapper function (e.g. "setPrimParams") */
+  name: string
+  /** LSL function name without the "ll" prefix (e.g. "SetLinkPrimitiveParamsFast") */
+  llFunction: string
+  /** Parameter declarations for args that come before the list */
+  preListArgs: string[]
+  /** Parameter declarations for args that come after the list */
+  postListArgs?: string[]
+}
+
+interface BuilderSetConfig {
+  /** Name of the param set in typed-list-params.json */
+  setName: string
+  /** Prefix to strip from constant names to derive method names */
+  prefix: string
+  /** Root function configurations */
+  roots: BuilderRootConfig[]
+  /** Constant that acts as a link-target scoping mechanism (e.g. "PRIM_LINK_TARGET") */
+  linkConstant?: string
+}
+
+const BUILDER_CONFIGS: BuilderSetConfig[] = [
+  {
+    setName: "PrimParam",
+    prefix: "PRIM_",
+    roots: [
+      {
+        name: "setPrimParams",
+        llFunction: "SetLinkPrimitiveParamsFast",
+        preListArgs: ["linkNumber: number"],
+      },
+    ],
+    linkConstant: "PRIM_LINK_TARGET",
+  },
+  {
+    setName: "ParticleSystemParam",
+    prefix: "PSYS_",
+    roots: [
+      { name: "particleSystem", llFunction: "ParticleSystem", preListArgs: [] },
+      {
+        name: "linkParticleSystem",
+        llFunction: "LinkParticleSystem",
+        preListArgs: ["linkNumber: number"],
+      },
+    ],
+  },
+  {
+    setName: "CameraParam",
+    prefix: "CAMERA_",
+    roots: [{ name: "setCameraParams", llFunction: "SetCameraParams", preListArgs: [] }],
+  },
+  {
+    setName: "HttpParam",
+    prefix: "HTTP_",
+    roots: [
+      {
+        name: "httpRequest",
+        llFunction: "HTTPRequest",
+        preListArgs: ["url: string"],
+        postListArgs: ["body: string"],
+      },
+    ],
+  },
+  {
+    setName: "CastRayParam",
+    prefix: "RC_",
+    roots: [
+      {
+        name: "castRay",
+        llFunction: "CastRay",
+        preListArgs: ["start: Vector", "end: Vector"],
+      },
+    ],
+  },
+  {
+    setName: "CharacterParam",
+    prefix: "CHARACTER_",
+    roots: [
+      { name: "createCharacter", llFunction: "CreateCharacter", preListArgs: [] },
+      { name: "updateCharacter", llFunction: "UpdateCharacter", preListArgs: [] },
+    ],
+  },
+  {
+    setName: "RezParam",
+    prefix: "REZ_",
+    roots: [
+      {
+        name: "rezObjectWithParams",
+        llFunction: "RezObjectWithParams",
+        preListArgs: ["inventoryItem: string"],
+      },
+    ],
+  },
+]
+
+// ---------------------------------------------------------------------------
 // LSL type -> TS type
 // ---------------------------------------------------------------------------
 
@@ -1239,5 +1339,182 @@ export function emitAll(
     sf.insertText(sf.getFullText().length, lines.join("\n"))
   }
 
+  // Emit builder interfaces and root function declarations
+  if (typedListParams) {
+    const builderLines: string[] = []
+
+    for (const config of BUILDER_CONFIGS) {
+      const set = typedListParams.sets.find((s) => s.name === config.setName)
+      if (!set) continue
+
+      const interfaceName = `${set.name}Builder`
+
+      // Collect builder methods from params
+      const methods: string[] = []
+      for (const rule of set.params) {
+        // Skip the link constant, it becomes .link() with a callback
+        if (config.linkConstant && rule.name === config.linkConstant) continue
+
+        const methodName = constantToMethodName(rule.name, config.prefix)
+        const args = rule.args
+          .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
+          .join(", ")
+        methods.push(`  ${methodName}(${args}): ${interfaceName}`)
+      }
+
+      // Add per-shape methods for sub-dispatch (e.g. .typeBox(), .typeCylinder())
+      if (set.subDispatch) {
+        for (const shape of set.subDispatch.params) {
+          const shapeName = constantToMethodName(shape.name, config.prefix)
+          const args = shape.args
+            .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
+            .join(", ")
+          methods.push(`  ${shapeName}(${args}): ${interfaceName}`)
+        }
+      }
+
+      // Add .link() method with callback if this set has a link constant
+      if (config.linkConstant) {
+        methods.push(
+          `  link(linkTarget: number, cb: (link: ${interfaceName}) => ${interfaceName}): ${interfaceName}`,
+        )
+      }
+
+      // Emit the interface
+      builderLines.push("")
+      builderLines.push(
+        `/** Fluent builder for ${set.name} lists. Compiles to a flat parameter list at build time. */`,
+      )
+      builderLines.push(`interface ${interfaceName} {`)
+      builderLines.push(...methods)
+      builderLines.push("}")
+
+      // Emit root function declarations
+      for (const root of config.roots) {
+        const args = root.preListArgs.concat(root.postListArgs ?? []).join(", ")
+        builderLines.push("")
+        builderLines.push(`declare function ${root.name}(${args}): ${interfaceName}`)
+      }
+    }
+
+    sf.insertText(sf.getFullText().length, builderLines.join("\n") + "\n")
+  }
+
   return sf.getFullText()
+}
+
+/**
+ * Convert a constant name to a builder method name by stripping the set prefix
+ * and converting to camelCase.
+ *
+ * PRIM_COLOR -> color
+ * PRIM_TYPE_BOX -> typeBox
+ * PSYS_SRC_BURST_RATE -> srcBurstRate
+ * CAMERA_FOCUS_LOCKED -> focusLocked
+ */
+function constantToMethodName(name: string, prefix: string): string {
+  const stripped = name.startsWith(prefix) ? name.slice(prefix.length) : name
+  return toCamelCase(stripped)
+}
+
+/**
+ * Generate the builder data module for the TSTL plugin.
+ * This provides the method-to-constant mapping and root function configs
+ * so the plugin can transform builder chains into flat Lua tables.
+ */
+export function emitBuilderData(typedListParams: TypedListParams): string {
+  const lines: string[] = [
+    "// Auto-generated by gen-types, do not edit manually.",
+    "",
+    "export interface BuilderRootDef {",
+    "  llFunction: string",
+    "  paramSet: string",
+    "  preListArgs: number",
+    "  postListArgs: number",
+    "}",
+    "",
+    "export interface BuilderMethodDef {",
+    "  constant: string",
+    "  argCount: number",
+    "}",
+    "",
+    "export interface BuilderSubDispatchDef {",
+    "  dispatchConstant: string",
+    "  shapeConstant: string",
+    "  argCount: number",
+    "  methodName: string",
+    "}",
+    "",
+    "export interface BuilderSetDef {",
+    "  methods: Record<string, BuilderMethodDef>",
+    "  subDispatch?: BuilderSubDispatchDef[]",
+    "  linkConstant?: string",
+    "  linkMethod?: string",
+    "}",
+    "",
+  ]
+
+  // Emit root function map
+  const rootEntries: string[] = []
+  for (const config of BUILDER_CONFIGS) {
+    const set = typedListParams.sets.find((s) => s.name === config.setName)
+    if (!set) continue
+    for (const root of config.roots) {
+      rootEntries.push(
+        `  ${root.name}: { llFunction: "${root.llFunction}", paramSet: "${set.name}", preListArgs: ${root.preListArgs.length}, postListArgs: ${root.postListArgs?.length ?? 0} },`,
+      )
+    }
+  }
+  lines.push("export const BUILDER_ROOTS: Record<string, BuilderRootDef> = {")
+  lines.push(...rootEntries)
+  lines.push("}")
+  lines.push("")
+
+  // Emit per-set method maps
+  const setEntries: string[] = []
+  for (const config of BUILDER_CONFIGS) {
+    const set = typedListParams.sets.find((s) => s.name === config.setName)
+    if (!set) continue
+
+    const methodEntries: string[] = []
+    for (const rule of set.params) {
+      if (config.linkConstant && rule.name === config.linkConstant) continue
+      const methodName = constantToMethodName(rule.name, config.prefix)
+      methodEntries.push(
+        `      ${methodName}: { constant: "${rule.name}", argCount: ${rule.args.length} },`,
+      )
+    }
+
+    // Sub-dispatch shapes
+    const subEntries: string[] = []
+    if (set.subDispatch) {
+      for (const shape of set.subDispatch.params) {
+        const shapeName = constantToMethodName(shape.name, config.prefix)
+        subEntries.push(
+          `      { dispatchConstant: "${set.subDispatch.constant}", shapeConstant: "${shape.name}", argCount: ${shape.args.length}, methodName: "${shapeName}" },`,
+        )
+      }
+    }
+
+    setEntries.push(`  ${set.name}: {`)
+    setEntries.push(`    methods: {`)
+    setEntries.push(...methodEntries)
+    setEntries.push(`    },`)
+    if (subEntries.length > 0) {
+      setEntries.push(`    subDispatch: [`)
+      setEntries.push(...subEntries)
+      setEntries.push(`    ],`)
+    }
+    if (config.linkConstant) {
+      setEntries.push(`    linkConstant: "${config.linkConstant}",`)
+      setEntries.push(`    linkMethod: "link",`)
+    }
+    setEntries.push(`  },`)
+  }
+  lines.push("export const BUILDER_SETS: Record<string, BuilderSetDef> = {")
+  lines.push(...setEntries)
+  lines.push("}")
+  lines.push("")
+
+  return lines.join("\n")
 }

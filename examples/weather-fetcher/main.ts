@@ -44,7 +44,7 @@ Wind ${weather.wind}`
 }
 
 function setFloatText(text: string, color: Vector, alpha: number) {
-  ll.SetLinkPrimitiveParamsFast(LINK_THIS, [PRIM_TEXT, text, color, alpha])
+  setPrimParams(LINK_THIS).text(text, color, alpha)
 }
 
 function updateHoverText() {

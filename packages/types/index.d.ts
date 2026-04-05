@@ -6800,3 +6800,315 @@ type ParcelDetailFlag =
   | typeof PARCEL_DETAILS_TP_ROUTING
   | typeof PARCEL_DETAILS_FLAGS
   | typeof PARCEL_DETAILS_SCRIPT_DANGER
+
+/** Fluent builder for PrimParam lists. Compiles to a flat parameter list at build time. */
+interface PrimParamBuilder {
+  name(name: string): PrimParamBuilder
+  desc(description: string): PrimParamBuilder
+  slice(slice: Vector): PrimParamBuilder
+  physicsShapeType(type: number): PrimParamBuilder
+  material(flag: number): PrimParamBuilder
+  physics(enabled: boolean): PrimParamBuilder
+  tempOnRez(enabled: boolean): PrimParamBuilder
+  phantom(enabled: boolean): PrimParamBuilder
+  position(position: Vector): PrimParamBuilder
+  posLocal(position: Vector): PrimParamBuilder
+  rotation(rot: Quaternion): PrimParamBuilder
+  rotLocal(rot: Quaternion): PrimParamBuilder
+  size(size: Vector): PrimParamBuilder
+  texture(
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ): PrimParamBuilder
+  renderMaterial(face: number, renderMaterial: string): PrimParamBuilder
+  text(text: string, color: Vector, alpha: number): PrimParamBuilder
+  color(face: number, color: Vector, alpha: number): PrimParamBuilder
+  bumpShiny(face: number, shiny: number, bump: number): PrimParamBuilder
+  pointLight(
+    enabled: boolean,
+    linearColor: Vector,
+    intensity: number,
+    radius: number,
+    falloff: number,
+  ): PrimParamBuilder
+  reflectionProbe(
+    enabled: boolean,
+    ambiance: number,
+    clipDistance: number,
+    flags: number,
+  ): PrimParamBuilder
+  fullbright(face: number, enabled: boolean): PrimParamBuilder
+  flexible(
+    enabled: boolean,
+    softness: number,
+    gravity: number,
+    friction: number,
+    wind: number,
+    tension: number,
+    force: Vector,
+  ): PrimParamBuilder
+  texgen(face: number, type: number): PrimParamBuilder
+  glow(face: number, intensity: number): PrimParamBuilder
+  omega(axis: Vector, spinrate: number, gain: number): PrimParamBuilder
+  normal(
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ): PrimParamBuilder
+  specular(
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    color: Vector,
+    glossiness: number,
+    environment: number,
+  ): PrimParamBuilder
+  alphaMode(face: number, alphaMode: number, maskCutoff: number): PrimParamBuilder
+  castShadows(enabled: boolean): PrimParamBuilder
+  allowUnsit(enabled: boolean): PrimParamBuilder
+  scriptedSitOnly(enabled: boolean): PrimParamBuilder
+  sitTarget(enabled: boolean, offset: Vector, rot: Quaternion): PrimParamBuilder
+  projector(texture: string, fov: number, focus: number, ambiance: number): PrimParamBuilder
+  clickAction(action: number): PrimParamBuilder
+  gltfBaseColor(
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    linearColor: Vector,
+    alpha: number,
+    gltfAlphaMode: number,
+    alphaMaskCutoff: number,
+    doubleSided: number,
+  ): PrimParamBuilder
+  gltfNormal(
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ): PrimParamBuilder
+  gltfMetallicRoughness(
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    metallicFactor: number,
+    roughnessFactor: number,
+  ): PrimParamBuilder
+  gltfEmissive(
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    linearEmissiveTint: Vector,
+  ): PrimParamBuilder
+  sitFlags(flags: number): PrimParamBuilder
+  damage(damage: number, damageType: number): PrimParamBuilder
+  health(health: number): PrimParamBuilder
+  typeBox(
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ): PrimParamBuilder
+  typeCylinder(
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ): PrimParamBuilder
+  typePrism(
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ): PrimParamBuilder
+  typeSphere(
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    dimple: Vector,
+  ): PrimParamBuilder
+  typeTorus(
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ): PrimParamBuilder
+  typeTube(
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ): PrimParamBuilder
+  typeRing(
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ): PrimParamBuilder
+  typeSculpt(map: string, type: number): PrimParamBuilder
+  link(linkTarget: number, cb: (link: PrimParamBuilder) => PrimParamBuilder): PrimParamBuilder
+}
+
+declare function setPrimParams(linkNumber: number): PrimParamBuilder
+
+/** Fluent builder for ParticleSystemParam lists. Compiles to a flat parameter list at build time. */
+interface ParticleSystemParamBuilder {
+  partFlags(flags: number): ParticleSystemParamBuilder
+  srcPattern(pattern: number): ParticleSystemParamBuilder
+  srcBurstRadius(radius: number): ParticleSystemParamBuilder
+  srcAngleBegin(angleBegin: number): ParticleSystemParamBuilder
+  srcAngleEnd(angleEnd: number): ParticleSystemParamBuilder
+  srcInnerangle(angleInner: number): ParticleSystemParamBuilder
+  srcOuterangle(angleOuter: number): ParticleSystemParamBuilder
+  srcTargetKey(target: UUID): ParticleSystemParamBuilder
+  partStartColor(colorStart: Vector): ParticleSystemParamBuilder
+  partEndColor(colorEnd: Vector): ParticleSystemParamBuilder
+  partStartAlpha(alphaStart: number): ParticleSystemParamBuilder
+  partEndAlpha(alphaEnd: number): ParticleSystemParamBuilder
+  partStartScale(scaleStart: Vector): ParticleSystemParamBuilder
+  partEndScale(scaleEnd: Vector): ParticleSystemParamBuilder
+  srcTexture(texture: string): ParticleSystemParamBuilder
+  partStartGlow(glowStart: number): ParticleSystemParamBuilder
+  partEndGlow(glowEnd: number): ParticleSystemParamBuilder
+  partBlendFuncSource(bfSource: number): ParticleSystemParamBuilder
+  partBlendFuncDest(bfDest: number): ParticleSystemParamBuilder
+  srcMaxAge(durationSystem: number): ParticleSystemParamBuilder
+  partMaxAge(durationParticle: number): ParticleSystemParamBuilder
+  srcBurstRate(burstSleep: number): ParticleSystemParamBuilder
+  srcBurstPartCount(burstParticleCount: number): ParticleSystemParamBuilder
+  srcAccel(acceleration: Vector): ParticleSystemParamBuilder
+  srcOmega(omega: Vector): ParticleSystemParamBuilder
+  srcBurstSpeedMin(speedMin: number): ParticleSystemParamBuilder
+  srcBurstSpeedMax(speedMax: number): ParticleSystemParamBuilder
+}
+
+declare function particleSystem(): ParticleSystemParamBuilder
+
+declare function linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
+
+/** Fluent builder for CameraParam lists. Compiles to a flat parameter list at build time. */
+interface CameraParamBuilder {
+  active(isActive: boolean): CameraParamBuilder
+  behindnessAngle(degrees: number): CameraParamBuilder
+  behindnessLag(seconds: number): CameraParamBuilder
+  distance(meters: number): CameraParamBuilder
+  focus(position: Vector): CameraParamBuilder
+  focusLag(seconds: number): CameraParamBuilder
+  focusLocked(isLocked: number): CameraParamBuilder
+  focusOffset(meters: Vector): CameraParamBuilder
+  focusThreshold(meters: number): CameraParamBuilder
+  pitch(degrees: number): CameraParamBuilder
+  position(position: Vector): CameraParamBuilder
+  positionLag(seconds: number): CameraParamBuilder
+  positionLocked(isLocked: number): CameraParamBuilder
+  positionThreshold(meters: number): CameraParamBuilder
+}
+
+declare function setCameraParams(): CameraParamBuilder
+
+/** Fluent builder for HttpParam lists. Compiles to a flat parameter list at build time. */
+interface HttpParamBuilder {
+  method(method: string): HttpParamBuilder
+  mimetype(mimeType: string): HttpParamBuilder
+  bodyMaxlength(length: number): HttpParamBuilder
+  verifyCert(verify: number): HttpParamBuilder
+  verboseThrottle(noisy: number): HttpParamBuilder
+  customHeader(name: string, value: string): HttpParamBuilder
+  pragmaNoCache(sendHeader: number): HttpParamBuilder
+  userAgent(user: string): HttpParamBuilder
+  accept(mimeType: string): HttpParamBuilder
+  extendedError(extended: number): HttpParamBuilder
+}
+
+declare function httpRequest(url: string, body: string): HttpParamBuilder
+
+/** Fluent builder for CastRayParam lists. Compiles to a flat parameter list at build time. */
+interface CastRayParamBuilder {
+  rejectTypes(filter: number): CastRayParamBuilder
+  dataFlags(flags: number): CastRayParamBuilder
+  maxHits(maxHits: number): CastRayParamBuilder
+  detectPhantom(detectPhantom: number): CastRayParamBuilder
+}
+
+declare function castRay(start: Vector, end: Vector): CastRayParamBuilder
+
+/** Fluent builder for CharacterParam lists. Compiles to a flat parameter list at build time. */
+interface CharacterParamBuilder {
+  desiredSpeed(desiredSpeed: number): CharacterParamBuilder
+  radius(radius: number): CharacterParamBuilder
+  length(length: number): CharacterParamBuilder
+  orientation(orientation: number): CharacterParamBuilder
+  type(type: number): CharacterParamBuilder
+  avoidanceMode(avoidanceMode: number): CharacterParamBuilder
+  maxAccel(maxAccel: number): CharacterParamBuilder
+  maxDecel(maxDecel: number): CharacterParamBuilder
+  desiredTurnSpeed(desiredTurnSpeed: number): CharacterParamBuilder
+  maxTurnRadius(maxTurnRadius: number): CharacterParamBuilder
+  maxSpeed(maxSpeed: number): CharacterParamBuilder
+  accountForSkippedFrames(accountForSkippedFrames: number): CharacterParamBuilder
+  stayWithinParcel(stayWithinParcel: number): CharacterParamBuilder
+}
+
+declare function createCharacter(): CharacterParamBuilder
+
+declare function updateCharacter(): CharacterParamBuilder
+
+/** Fluent builder for RezParam lists. Compiles to a flat parameter list at build time. */
+interface RezParamBuilder {
+  param(param: number): RezParamBuilder
+  flags(flags: number): RezParamBuilder
+  pos(pos: Vector, relative: number, atRoot: number): RezParamBuilder
+  rot(rot: Quaternion, relative: number): RezParamBuilder
+  vel(velocity: Vector, local: number, inherit: number): RezParamBuilder
+  accel(force: Vector, local: number): RezParamBuilder
+  omega(axis: Vector, local: number, spin: number, gain: number): RezParamBuilder
+  damage(damage: number): RezParamBuilder
+  sound(sound: string, volume: number, loop: number): RezParamBuilder
+  soundCollide(sound: string, volume: number): RezParamBuilder
+  lockAxes(locks: Vector): RezParamBuilder
+  damageType(damageType: number): RezParamBuilder
+  paramString(startParam: string): RezParamBuilder
+}
+
+declare function rezObjectWithParams(inventoryItem: string): RezParamBuilder

@@ -182,7 +182,7 @@ describe("loadConfig", () => {
   })
 
   it("calls callback with ok=false and error on timeout", () => {
-    // No notecard registered — GetNotecardLineSync returns NAK,
+    // No notecard registered, GetNotecardLineSync returns NAK,
     // triggering the yieldDataserver path which will time out
     setCoroutineYieldValue([false, "timeout"])
 

@@ -1,5 +1,16 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.4.0
+
+### Minor Changes
+
+- [`bf433d8`](https://github.com/gwigz/slua/commit/bf433d89df35c7dabedcc16613008b01c634398e) Thanks [@gwigz](https://github.com/gwigz)! - zero-cost fluent builder chains for prim, particle, camera, http, cast-ray, character, and rez parameter lists
+
+### Patch Changes
+
+- Updated dependencies [[`bf433d8`](https://github.com/gwigz/slua/commit/bf433d89df35c7dabedcc16613008b01c634398e)]:
+  - @gwigz/slua-types@1.3.0
+
 ## 1.3.1
 
 ### Patch Changes

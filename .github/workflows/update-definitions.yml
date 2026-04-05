@@ -24,7 +24,7 @@ jobs:
           PINNED=$(git rev-parse HEAD)
           echo "pinned=$PINNED" >> "$GITHUB_OUTPUT"
 
-          git fetch origin main
+          git fetch --unshallow origin main 2>/dev/null || git fetch origin main
 
           LATEST=$(git rev-parse origin/main)
           echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
@@ -43,10 +43,8 @@ jobs:
             echo "$LOG" >> "$GITHUB_OUTPUT"
             echo "$EOF" >> "$GITHUB_OUTPUT"
 
-            PINNED_SHORT=${PINNED:0:7}
-            LATEST_SHORT=${LATEST:0:7}
-            echo "latest-short=$LATEST_SHORT" >> "$GITHUB_OUTPUT"
-            echo "compare-url=https://github.com/secondlife/lsl-definitions/compare/${PINNED_SHORT}...${LATEST_SHORT}" >> "$GITHUB_OUTPUT"
+            echo "latest-short=${LATEST:0:7}" >> "$GITHUB_OUTPUT"
+            echo "compare-url=https://github.com/secondlife/lsl-definitions/compare/${PINNED}...${LATEST}" >> "$GITHUB_OUTPUT"
 
             echo "Found $(echo "$LOG" | wc -l | tr -d ' ') new upstream commit(s)."
           fi

@@ -1,5 +1,11 @@
 # @gwigz/slua-types
 
+## 1.2.0
+
+### Minor Changes
+
+- [`15b86b5`](https://github.com/gwigz/slua/commit/15b86b5c22d744a37302fd79dd983f96db7b0009) Thanks [@gwigz](https://github.com/gwigz)! - typed parameter lists for prim, http, particle, camera, cast-ray, character, rez, object-detail, and parcel-detail functions
+
 ## 1.1.2
 
 ### Patch Changes

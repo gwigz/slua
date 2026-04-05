@@ -4269,160 +4269,160 @@ declare namespace ll {
 }
 
 /** Objects in world that are running a script or currently physically moving. */
-declare const ACTIVE: number
+declare const ACTIVE: 2
 /** Objects in world that are agents. */
-declare const AGENT: number
-declare const AGENT_ALWAYS_RUN: number
+declare const AGENT: 1
+declare const AGENT_ALWAYS_RUN: 4096
 /** The agent has attachments. */
-declare const AGENT_ATTACHMENTS: number
+declare const AGENT_ATTACHMENTS: 2
 /** The agent has been identified as a scripted agent */
-declare const AGENT_AUTOMATED: number
-declare const AGENT_AUTOPILOT: number
-declare const AGENT_AWAY: number
-declare const AGENT_BUSY: number
-declare const AGENT_BY_LEGACY_NAME: number
-declare const AGENT_BY_USERNAME: number
-declare const AGENT_CROUCHING: number
+declare const AGENT_AUTOMATED: 16384
+declare const AGENT_AUTOPILOT: 8192
+declare const AGENT_AWAY: 64
+declare const AGENT_BUSY: 2048
+declare const AGENT_BY_LEGACY_NAME: 1
+declare const AGENT_BY_USERNAME: 16
+declare const AGENT_CROUCHING: 1024
 /** The agent is floating via scripted attachment. */
-declare const AGENT_FLOATING_VIA_SCRIPTED_ATTACHMENT: number
+declare const AGENT_FLOATING_VIA_SCRIPTED_ATTACHMENT: 32768
 /** The agent is flying. */
-declare const AGENT_FLYING: number
-declare const AGENT_IN_AIR: number
+declare const AGENT_FLYING: 1
+declare const AGENT_IN_AIR: 256
 /** Agents on the same parcel where the script is running. */
-declare const AGENT_LIST_PARCEL: number
+declare const AGENT_LIST_PARCEL: 1
 /** Agents on any parcel in the region where the parcel owner is the same as the owner of the parcel under the scripted object. */
-declare const AGENT_LIST_PARCEL_OWNER: number
+declare const AGENT_LIST_PARCEL_OWNER: 2
 /** All agents in the region. */
-declare const AGENT_LIST_REGION: number
-declare const AGENT_MOUSELOOK: number
-declare const AGENT_ON_OBJECT: number
+declare const AGENT_LIST_REGION: 4
+declare const AGENT_MOUSELOOK: 8
+declare const AGENT_ON_OBJECT: 32
 /** The agent has scripted attachments. */
-declare const AGENT_SCRIPTED: number
-declare const AGENT_SITTING: number
-declare const AGENT_TYPING: number
-declare const AGENT_WALKING: number
-declare const ALL_SIDES: number
+declare const AGENT_SCRIPTED: 4
+declare const AGENT_SITTING: 16
+declare const AGENT_TYPING: 512
+declare const AGENT_WALKING: 128
+declare const ALL_SIDES: -1
 /** Texture animation is on. */
-declare const ANIM_ON: number
+declare const ANIM_ON: 1
 /** Filtering for any HUD attachment. */
-declare const ATTACH_ANY_HUD: number
+declare const ATTACH_ANY_HUD: -1
 /** Attach to the avatar's geometric centre. */
-declare const ATTACH_AVATAR_CENTER: number
+declare const ATTACH_AVATAR_CENTER: 40
 /** Attach to the avatar's back. */
-declare const ATTACH_BACK: number
+declare const ATTACH_BACK: 9
 /** Attach to the avatar's belly. */
-declare const ATTACH_BELLY: number
+declare const ATTACH_BELLY: 28
 /** Attach to the avatar's chest. */
-declare const ATTACH_CHEST: number
+declare const ATTACH_CHEST: 1
 /** Attach to the avatar's chin. */
-declare const ATTACH_CHIN: number
+declare const ATTACH_CHIN: 12
 /** Attach to the avatar's jaw. */
-declare const ATTACH_FACE_JAW: number
+declare const ATTACH_FACE_JAW: 47
 /** Attach to the avatar's left ear (extended). */
-declare const ATTACH_FACE_LEAR: number
+declare const ATTACH_FACE_LEAR: 48
 /** Attach to the avatar's left eye (extended). */
-declare const ATTACH_FACE_LEYE: number
+declare const ATTACH_FACE_LEYE: 50
 /** Attach to the avatar's right ear (extended). */
-declare const ATTACH_FACE_REAR: number
+declare const ATTACH_FACE_REAR: 49
 /** Attach to the avatar's right eye (extended). */
-declare const ATTACH_FACE_REYE: number
+declare const ATTACH_FACE_REYE: 51
 /** Attach to the avatar's tongue. */
-declare const ATTACH_FACE_TONGUE: number
+declare const ATTACH_FACE_TONGUE: 52
 /** Attach to the avatar's groin. */
-declare const ATTACH_GROIN: number
+declare const ATTACH_GROIN: 53
 /** Attach to the avatar's head. */
-declare const ATTACH_HEAD: number
+declare const ATTACH_HEAD: 2
 /** Attach to the avatar's left hind foot. */
-declare const ATTACH_HIND_LFOOT: number
+declare const ATTACH_HIND_LFOOT: 54
 /** Attach to the avatar's right hind foot. */
-declare const ATTACH_HIND_RFOOT: number
-declare const ATTACH_HUD_BOTTOM: number
-declare const ATTACH_HUD_BOTTOM_LEFT: number
-declare const ATTACH_HUD_BOTTOM_RIGHT: number
-declare const ATTACH_HUD_CENTER_1: number
-declare const ATTACH_HUD_CENTER_2: number
-declare const ATTACH_HUD_TOP_CENTER: number
-declare const ATTACH_HUD_TOP_LEFT: number
-declare const ATTACH_HUD_TOP_RIGHT: number
+declare const ATTACH_HIND_RFOOT: 55
+declare const ATTACH_HUD_BOTTOM: 37
+declare const ATTACH_HUD_BOTTOM_LEFT: 36
+declare const ATTACH_HUD_BOTTOM_RIGHT: 38
+declare const ATTACH_HUD_CENTER_1: 35
+declare const ATTACH_HUD_CENTER_2: 31
+declare const ATTACH_HUD_TOP_CENTER: 33
+declare const ATTACH_HUD_TOP_LEFT: 34
+declare const ATTACH_HUD_TOP_RIGHT: 32
 /** Attach to the avatar's left ear. */
-declare const ATTACH_LEAR: number
+declare const ATTACH_LEAR: 13
 /** Attach to the avatar's left pectoral. */
-declare const ATTACH_LEFT_PEC: number
+declare const ATTACH_LEFT_PEC: 29
 /** Attach to the avatar's left eye. */
-declare const ATTACH_LEYE: number
+declare const ATTACH_LEYE: 15
 /** Attach to the avatar's left foot. */
-declare const ATTACH_LFOOT: number
+declare const ATTACH_LFOOT: 7
 /** Attach to the avatar's left hand. */
-declare const ATTACH_LHAND: number
+declare const ATTACH_LHAND: 5
 /** Attach to the avatar's left ring finger. */
-declare const ATTACH_LHAND_RING1: number
+declare const ATTACH_LHAND_RING1: 41
 /** Attach to the avatar's left hip. */
-declare const ATTACH_LHIP: number
+declare const ATTACH_LHIP: 25
 /** Attach to the avatar's left lower arm. */
-declare const ATTACH_LLARM: number
+declare const ATTACH_LLARM: 21
 /** Attach to the avatar's lower left leg. */
-declare const ATTACH_LLLEG: number
+declare const ATTACH_LLLEG: 27
 /**
  * Attach to the avatar's right pectoral. (Deprecated, use ATTACH_RIGHT_PEC)
  * @deprecated Use 'ATTACH_RIGHT_PEC' instead.
  */
-declare const ATTACH_LPEC: number
+declare const ATTACH_LPEC: 30
 /** Attach to the avatar's left shoulder. */
-declare const ATTACH_LSHOULDER: number
+declare const ATTACH_LSHOULDER: 3
 /** Attach to the avatar's left upper arm. */
-declare const ATTACH_LUARM: number
+declare const ATTACH_LUARM: 20
 /** Attach to the avatar's lower upper leg. */
-declare const ATTACH_LULEG: number
+declare const ATTACH_LULEG: 26
 /** Attach to the avatar's left wing. */
-declare const ATTACH_LWING: number
+declare const ATTACH_LWING: 45
 /** Attach to the avatar's mouth. */
-declare const ATTACH_MOUTH: number
+declare const ATTACH_MOUTH: 11
 /** Attach to the avatar's neck. */
-declare const ATTACH_NECK: number
+declare const ATTACH_NECK: 39
 /** Attach to the avatar's nose. */
-declare const ATTACH_NOSE: number
+declare const ATTACH_NOSE: 17
 /** Attach to the avatar's pelvis. */
-declare const ATTACH_PELVIS: number
+declare const ATTACH_PELVIS: 10
 /** Attach to the avatar's right ear. */
-declare const ATTACH_REAR: number
+declare const ATTACH_REAR: 14
 /** Attach to the avatar's right eye. */
-declare const ATTACH_REYE: number
+declare const ATTACH_REYE: 16
 /** Attach to the avatar's right foot. */
-declare const ATTACH_RFOOT: number
+declare const ATTACH_RFOOT: 8
 /** Attach to the avatar's right hand. */
-declare const ATTACH_RHAND: number
+declare const ATTACH_RHAND: 6
 /** Attach to the avatar's right ring finger. */
-declare const ATTACH_RHAND_RING1: number
+declare const ATTACH_RHAND_RING1: 42
 /** Attach to the avatar's right hip. */
-declare const ATTACH_RHIP: number
+declare const ATTACH_RHIP: 22
 /** Attach to the avatar's right pectoral. */
-declare const ATTACH_RIGHT_PEC: number
+declare const ATTACH_RIGHT_PEC: 30
 /** Attach to the avatar's right lower arm. */
-declare const ATTACH_RLARM: number
+declare const ATTACH_RLARM: 19
 /** Attach to the avatar's right lower leg. */
-declare const ATTACH_RLLEG: number
+declare const ATTACH_RLLEG: 24
 /**
  * Attach to the avatar's left pectoral. (deprecated, use ATTACH_LEFT_PEC)
  * @deprecated Use 'ATTACH_LEFT_PEC' instead.
  */
-declare const ATTACH_RPEC: number
+declare const ATTACH_RPEC: 29
 /** Attach to the avatar's right shoulder. */
-declare const ATTACH_RSHOULDER: number
+declare const ATTACH_RSHOULDER: 4
 /** Attach to the avatar's right upper arm. */
-declare const ATTACH_RUARM: number
+declare const ATTACH_RUARM: 18
 /** Attach to the avatar's right upper leg. */
-declare const ATTACH_RULEG: number
+declare const ATTACH_RULEG: 23
 /** Attach to the avatar's right wing. */
-declare const ATTACH_RWING: number
+declare const ATTACH_RWING: 46
 /** Attach to the avatar's tail base. */
-declare const ATTACH_TAIL_BASE: number
+declare const ATTACH_TAIL_BASE: 43
 /** Attach to the avatar's tail tip. */
-declare const ATTACH_TAIL_TIP: number
-declare const AVOID_CHARACTERS: number
-declare const AVOID_DYNAMIC_OBSTACLES: number
-declare const AVOID_NONE: number
+declare const ATTACH_TAIL_TIP: 44
+declare const AVOID_CHARACTERS: 1
+declare const AVOID_DYNAMIC_OBSTACLES: 2
+declare const AVOID_NONE: 0
 /** Cause llMapBeacon to optionally display and focus the world map on the avatar's viewer. */
-declare const BEACON_MAP: number
+declare const BEACON_MAP: 1
 declare const CAMERA_ACTIVE: 12
 declare const CAMERA_BEHINDNESS_ANGLE: 8
 declare const CAMERA_BEHINDNESS_LAG: 9
@@ -4438,39 +4438,39 @@ declare const CAMERA_POSITION_LAG: 5
 declare const CAMERA_POSITION_LOCKED: 21
 declare const CAMERA_POSITION_THRESHOLD: 10
 /** The object inventory has changed because an item was added through the llAllowInventoryDrop interface. */
-declare const CHANGED_ALLOWED_DROP: number
+declare const CHANGED_ALLOWED_DROP: 64
 /** The object color has changed. */
-declare const CHANGED_COLOR: number
+declare const CHANGED_COLOR: 2
 /** The object inventory has changed. */
-declare const CHANGED_INVENTORY: number
+declare const CHANGED_INVENTORY: 1
 /** The object has linked or its links were broken. */
-declare const CHANGED_LINK: number
-declare const CHANGED_MEDIA: number
+declare const CHANGED_LINK: 32
+declare const CHANGED_MEDIA: 2048
 /** The object has changed ownership. */
-declare const CHANGED_OWNER: number
+declare const CHANGED_OWNER: 128
 /** The object has changed region. */
-declare const CHANGED_REGION: number
+declare const CHANGED_REGION: 256
 /** The region this object is in has just come online. */
-declare const CHANGED_REGION_START: number
+declare const CHANGED_REGION_START: 1024
 /** The render material has changed. */
-declare const CHANGED_RENDER_MATERIAL: number
+declare const CHANGED_RENDER_MATERIAL: 4096
 /** The object scale (size) has changed. */
-declare const CHANGED_SCALE: number
+declare const CHANGED_SCALE: 8
 /** The object base shape has changed, e.g., a box to a cylinder. */
-declare const CHANGED_SHAPE: number
+declare const CHANGED_SHAPE: 4
 /** The avatar to whom this object is attached has teleported. */
-declare const CHANGED_TELEPORT: number
+declare const CHANGED_TELEPORT: 512
 /** The texture offset, scale rotation, or simply the object texture has changed. */
-declare const CHANGED_TEXTURE: number
+declare const CHANGED_TEXTURE: 16
 /** If set to false, character will not attempt to catch up on lost time when pathfinding performance is low, potentially providing more reliable movement (albeit while potentially appearing to be more stuttery). Default is true to match pre-existing behavior. */
 declare const CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES: 14
 /** Allows you to specify that a character should not try to avoid other characters, should not try to avoid dynamic obstacles (relatively fast moving objects and avatars), or both. */
 declare const CHARACTER_AVOIDANCE_MODE: 5
 /** Makes the character jump. Requires an additional parameter, the height to jump, between 0.1m and 2.0m. This must be provided as the first element of the llExecCharacterCmd option list. */
-declare const CHARACTER_CMD_JUMP: number
-declare const CHARACTER_CMD_SMOOTH_STOP: number
+declare const CHARACTER_CMD_JUMP: 1
+declare const CHARACTER_CMD_SMOOTH_STOP: 2
 /** Stops any current pathfinding operation. */
-declare const CHARACTER_CMD_STOP: number
+declare const CHARACTER_CMD_STOP: 0
 /** Speed of pursuit in meters per second. */
 declare const CHARACTER_DESIRED_SPEED: 1
 /** The character's maximum speed while turning about the Z axis. - Note that this is only loosely enforced. */
@@ -4496,223 +4496,223 @@ declare const CHARACTER_RADIUS: 2
 declare const CHARACTER_STAY_WITHIN_PARCEL: 15
 /** Specifies which walk-ability coefficient will be used by this character. */
 declare const CHARACTER_TYPE: 6
-declare const CHARACTER_TYPE_A: number
-declare const CHARACTER_TYPE_B: number
-declare const CHARACTER_TYPE_C: number
-declare const CHARACTER_TYPE_D: number
-declare const CHARACTER_TYPE_NONE: number
+declare const CHARACTER_TYPE_A: 0
+declare const CHARACTER_TYPE_B: 1
+declare const CHARACTER_TYPE_C: 2
+declare const CHARACTER_TYPE_D: 3
+declare const CHARACTER_TYPE_NONE: 4
 /** When the prim is clicked, the buy dialog is opened. */
-declare const CLICK_ACTION_BUY: number
+declare const CLICK_ACTION_BUY: 2
 /** No click action. No touches detected or passed. */
-declare const CLICK_ACTION_DISABLED: number
+declare const CLICK_ACTION_DISABLED: 8
 /** No click action. Object is invisible to the mouse. */
-declare const CLICK_ACTION_IGNORE: number
+declare const CLICK_ACTION_IGNORE: 9
 /** Performs the default action: when the prim is clicked, touch events are triggered. */
-declare const CLICK_ACTION_NONE: number
+declare const CLICK_ACTION_NONE: 0
 /** When the prim is clicked, the object inventory dialog is opened. */
-declare const CLICK_ACTION_OPEN: number
+declare const CLICK_ACTION_OPEN: 4
 /** When the prim is touched, the web media dialog is opened. */
-declare const CLICK_ACTION_OPEN_MEDIA: number
+declare const CLICK_ACTION_OPEN_MEDIA: 6
 /** When the prim is clicked, the pay dialog is opened. */
-declare const CLICK_ACTION_PAY: number
+declare const CLICK_ACTION_PAY: 3
 /** When the prim is clicked, html-on-a-prim is enabled? */
-declare const CLICK_ACTION_PLAY: number
+declare const CLICK_ACTION_PLAY: 5
 /** When the prim is clicked, the avatar sits upon it. */
-declare const CLICK_ACTION_SIT: number
+declare const CLICK_ACTION_SIT: 1
 /** When the prim is clicked, touch events are triggered. */
-declare const CLICK_ACTION_TOUCH: number
+declare const CLICK_ACTION_TOUCH: 0
 /** Zoom in on object when clicked. */
-declare const CLICK_ACTION_ZOOM: number
+declare const CLICK_ACTION_ZOOM: 7
 /** COMBAT_CHANNEL is an integer constant that, when passed to llRegionSay will add the message to the combat log. A script with a chat listen active on COMBAT_CHANNEL may also monitor the combat log. */
-declare const COMBAT_CHANNEL: number
+declare const COMBAT_CHANNEL: 2147483646
 /**
  * Messages from the region to the COMBAT_CHANNEL will all be from this ID.
  *  Scripts may filter llListen calls on this ID to receive only system generated combat log messages.
  */
 declare const COMBAT_LOG_ID: UUID
 /** "application/atom+xml" */
-declare const CONTENT_TYPE_ATOM: number
+declare const CONTENT_TYPE_ATOM: 4
 /** "application/x-www-form-urlencoded" */
-declare const CONTENT_TYPE_FORM: number
+declare const CONTENT_TYPE_FORM: 7
 /** "text/html", only valid for embedded browsers on content owned by the person viewing. Falls back to "text/plain" otherwise. */
-declare const CONTENT_TYPE_HTML: number
+declare const CONTENT_TYPE_HTML: 1
 /** "application/json" */
-declare const CONTENT_TYPE_JSON: number
+declare const CONTENT_TYPE_JSON: 5
 /** "application/llsd+xml" */
-declare const CONTENT_TYPE_LLSD: number
+declare const CONTENT_TYPE_LLSD: 6
 /** "application/rss+xml" */
-declare const CONTENT_TYPE_RSS: number
+declare const CONTENT_TYPE_RSS: 8
 /** "text/plain" */
-declare const CONTENT_TYPE_TEXT: number
+declare const CONTENT_TYPE_TEXT: 0
 /** "application/xhtml+xml" */
-declare const CONTENT_TYPE_XHTML: number
+declare const CONTENT_TYPE_XHTML: 3
 /** "application/xml" */
-declare const CONTENT_TYPE_XML: number
+declare const CONTENT_TYPE_XML: 2
 /** Test for the avatar move back control. */
-declare const CONTROL_BACK: number
+declare const CONTROL_BACK: 2
 /** Test for the avatar move down control. */
-declare const CONTROL_DOWN: number
+declare const CONTROL_DOWN: 32
 /** Test for the avatar move forward control. */
-declare const CONTROL_FWD: number
+declare const CONTROL_FWD: 1
 /** Test for the avatar left button control. */
-declare const CONTROL_LBUTTON: number
+declare const CONTROL_LBUTTON: 268435456
 /** Test for the avatar move left control. */
-declare const CONTROL_LEFT: number
+declare const CONTROL_LEFT: 4
 /** Test for the avatar left button control while in mouse look. */
-declare const CONTROL_ML_LBUTTON: number
+declare const CONTROL_ML_LBUTTON: 1073741824
 /** Test for the avatar move right control. */
-declare const CONTROL_RIGHT: number
+declare const CONTROL_RIGHT: 8
 /** Test for the avatar rotate left control. */
-declare const CONTROL_ROT_LEFT: number
+declare const CONTROL_ROT_LEFT: 256
 /** Test for the avatar rotate right control. */
-declare const CONTROL_ROT_RIGHT: number
+declare const CONTROL_ROT_RIGHT: 512
 /** Test for the avatar move up control. */
-declare const CONTROL_UP: number
+declare const CONTROL_UP: 16
 /** Objects in world that are able to process damage. */
-declare const DAMAGEABLE: number
+declare const DAMAGEABLE: 32
 /** Damage caused by a caustic substance, such as acid */
-declare const DAMAGE_TYPE_ACID: number
+declare const DAMAGE_TYPE_ACID: 1
 /** Damage caused by a blunt object, such as a club. */
-declare const DAMAGE_TYPE_BLUDGEONING: number
+declare const DAMAGE_TYPE_BLUDGEONING: 2
 /** Damage inflicted by exposure to extreme cold */
-declare const DAMAGE_TYPE_COLD: number
+declare const DAMAGE_TYPE_COLD: 3
 /** Damage caused by electricity. */
-declare const DAMAGE_TYPE_ELECTRIC: number
-declare const DAMAGE_TYPE_EMOTIONAL: number
+declare const DAMAGE_TYPE_ELECTRIC: 4
+declare const DAMAGE_TYPE_EMOTIONAL: 14
 /** Damage inflicted by exposure to heat or flames. */
-declare const DAMAGE_TYPE_FIRE: number
+declare const DAMAGE_TYPE_FIRE: 5
 /** Damage inflicted by a great force or impact. */
-declare const DAMAGE_TYPE_FORCE: number
+declare const DAMAGE_TYPE_FORCE: 6
 /** Generic or legacy damage. */
-declare const DAMAGE_TYPE_GENERIC: number
+declare const DAMAGE_TYPE_GENERIC: 0
 /** System damage generated by impact with land or a prim. */
-declare const DAMAGE_TYPE_IMPACT: number
+declare const DAMAGE_TYPE_IMPACT: -1
 /** Damage caused by a direct assault on life-force */
-declare const DAMAGE_TYPE_NECROTIC: number
+declare const DAMAGE_TYPE_NECROTIC: 7
 /** Damage caused by a piercing object such as a bullet, spear, or arrow. */
-declare const DAMAGE_TYPE_PIERCING: number
+declare const DAMAGE_TYPE_PIERCING: 8
 /** Damage caused by poison. */
-declare const DAMAGE_TYPE_POISON: number
+declare const DAMAGE_TYPE_POISON: 9
 /** Damage caused by a direct assault on the mind. */
-declare const DAMAGE_TYPE_PSYCHIC: number
+declare const DAMAGE_TYPE_PSYCHIC: 10
 /** Damage caused by radiation or extreme light. */
-declare const DAMAGE_TYPE_RADIANT: number
+declare const DAMAGE_TYPE_RADIANT: 11
 /** Damage caused by a slashing object such as a sword or axe. */
-declare const DAMAGE_TYPE_SLASHING: number
+declare const DAMAGE_TYPE_SLASHING: 12
 /** Damage caused by loud noises, like a Crash Worship concert. */
-declare const DAMAGE_TYPE_SONIC: number
+declare const DAMAGE_TYPE_SONIC: 13
 /** The date the agent was born, returned in ISO 8601 format of YYYY-MM-DD. */
-declare const DATA_BORN: number
+declare const DATA_BORN: 3
 /** The name of the agent. */
-declare const DATA_NAME: number
+declare const DATA_NAME: 2
 /** TRUE for online, FALSE for offline. */
-declare const DATA_ONLINE: number
-declare const DATA_PAYINFO: number
+declare const DATA_ONLINE: 1
+declare const DATA_PAYINFO: 8
 /** Returns the agent ratings as a comma separated string of six integers. They are:1) Positive rated behaviour2) Negative rated behaviour3) Positive rated appearance4) Negative rated appearance5) Positive rated building6) Negative rated building */
-declare const DATA_RATING: number
+declare const DATA_RATING: 4
 /** Reserved for Linden use. */
-declare const DATA_RESERVED_0: number
-declare const DATA_SIM_POS: number
-declare const DATA_SIM_RATING: number
-declare const DATA_SIM_STATUS: number
+declare const DATA_RESERVED_0: 9
+declare const DATA_SIM_POS: 5
+declare const DATA_SIM_RATING: 7
+declare const DATA_SIM_STATUS: 6
 /** DEBUG_CHANNEL is an integer constant that, when passed to llSay, llWhisper, or llShout as a channel parameter, will print text to the Script Warning/Error Window. */
-declare const DEBUG_CHANNEL: number
+declare const DEBUG_CHANNEL: 2147483647
 /** 0.017453293 - Number of radians per degree.You can use this to convert degrees to radians by multiplying the degrees by this number. */
 declare const DEG_TO_RAD: number
 /** Used with llSetPhysicsMaterial to enable the density value. Must be between 1.0 and 22587.0 (in Kg/m^3 -- see if you can figure out what 22587 represents) */
-declare const DENSITY: number
+declare const DENSITY: 1
 /** Causes the object to immediately die. */
-declare const DEREZ_DIE: number
+declare const DEREZ_DIE: 0
 /** The object is made temporary and will be cleaned up at some later timer. */
-declare const DEREZ_MAKE_TEMP: number
+declare const DEREZ_MAKE_TEMP: 1
 /** The object is returned to the inventory of the rezzer. */
-declare const DEREZ_TO_INVENTORY: number
+declare const DEREZ_TO_INVENTORY: 2
 /** Day length, offset and progression. */
-declare const ENVIRONMENT_DAYINFO: number
+declare const ENVIRONMENT_DAYINFO: 200
 /** Could not find agent with the specified ID */
-declare const ENV_INVALID_AGENT: number
+declare const ENV_INVALID_AGENT: -4
 /** Attempted to change an unknown property. */
-declare const ENV_INVALID_RULE: number
+declare const ENV_INVALID_RULE: -5
 /** Attempt to change environments outside an experience. */
-declare const ENV_NOT_EXPERIENCE: number
+declare const ENV_NOT_EXPERIENCE: -1
 /** Could not find environmental settings in object inventory. */
-declare const ENV_NO_ENVIRONMENT: number
+declare const ENV_NO_ENVIRONMENT: -3
 /** The experience has not been enabled on this land. */
-declare const ENV_NO_EXPERIENCE_LAND: number
+declare const ENV_NO_EXPERIENCE_LAND: -7
 /** Agent has not granted permission to change environments. */
-declare const ENV_NO_EXPERIENCE_PERMISSION: number
+declare const ENV_NO_EXPERIENCE_PERMISSION: -2
 /** Script does not have permission to modify environment. */
-declare const ENV_NO_PERMISSIONS: number
+declare const ENV_NO_PERMISSIONS: -9
 /** Could not validate values for environment. */
-declare const ENV_THROTTLE: number
+declare const ENV_THROTTLE: -8
 /** Could not validate values for environment. */
-declare const ENV_VALIDATION_FAIL: number
+declare const ENV_VALIDATION_FAIL: -6
 /** Indicates the last line of a notecard was read. */
 declare const EOF: string
-declare const ERR_GENERIC: number
-declare const ERR_MALFORMED_PARAMS: number
-declare const ERR_PARCEL_PERMISSIONS: number
-declare const ERR_RUNTIME_PERMISSIONS: number
-declare const ERR_THROTTLED: number
+declare const ERR_GENERIC: -1
+declare const ERR_MALFORMED_PARAMS: -3
+declare const ERR_PARCEL_PERMISSIONS: -2
+declare const ERR_RUNTIME_PERMISSIONS: -4
+declare const ERR_THROTTLED: -5
 /** Add the agent to this estate's Allowed Residents list. */
-declare const ESTATE_ACCESS_ALLOWED_AGENT_ADD: number
+declare const ESTATE_ACCESS_ALLOWED_AGENT_ADD: 4
 /** Remove the agent from this estate's Allowed Residents list. */
-declare const ESTATE_ACCESS_ALLOWED_AGENT_REMOVE: number
+declare const ESTATE_ACCESS_ALLOWED_AGENT_REMOVE: 8
 /** Add the group to this estate's Allowed groups list. */
-declare const ESTATE_ACCESS_ALLOWED_GROUP_ADD: number
+declare const ESTATE_ACCESS_ALLOWED_GROUP_ADD: 16
 /** Remove the group from this estate's Allowed groups list. */
-declare const ESTATE_ACCESS_ALLOWED_GROUP_REMOVE: number
+declare const ESTATE_ACCESS_ALLOWED_GROUP_REMOVE: 32
 /** Add the agent to this estate's Banned residents list. */
-declare const ESTATE_ACCESS_BANNED_AGENT_ADD: number
+declare const ESTATE_ACCESS_BANNED_AGENT_ADD: 64
 /** Remove the agent from this estate's Banned residents list. */
-declare const ESTATE_ACCESS_BANNED_AGENT_REMOVE: number
+declare const ESTATE_ACCESS_BANNED_AGENT_REMOVE: 128
 /** Flags to control returned attachments. */
-declare const FILTER_FLAGS: number
+declare const FILTER_FLAGS: 2
 /** Include HUDs with matching experience. */
-declare const FILTER_FLAG_HUDS: number
+declare const FILTER_FLAG_HUDS: 1
 /** Include attachment point. */
-declare const FILTER_INCLUDE: number
+declare const FILTER_INCLUDE: 1
 /** Makes character navigate in a straight line toward position. May be set to TRUE or FALSE. */
-declare const FORCE_DIRECT_PATH: number
+declare const FORCE_DIRECT_PATH: 1
 /** Used with llSetPhysicsMaterial to enable the friction value. Must be between 0.0 and 255.0 */
-declare const FRICTION: number
-declare const GAME_CONTROL_AXIS_LEFTX: number
-declare const GAME_CONTROL_AXIS_LEFTY: number
-declare const GAME_CONTROL_AXIS_RIGHTX: number
-declare const GAME_CONTROL_AXIS_RIGHTY: number
-declare const GAME_CONTROL_AXIS_TRIGGERLEFT: number
-declare const GAME_CONTROL_AXIS_TRIGGERRIGHT: number
-declare const GAME_CONTROL_BUTTON_A: number
-declare const GAME_CONTROL_BUTTON_B: number
-declare const GAME_CONTROL_BUTTON_BACK: number
-declare const GAME_CONTROL_BUTTON_DPAD_DOWN: number
-declare const GAME_CONTROL_BUTTON_DPAD_LEFT: number
-declare const GAME_CONTROL_BUTTON_DPAD_RIGHT: number
-declare const GAME_CONTROL_BUTTON_DPAD_UP: number
-declare const GAME_CONTROL_BUTTON_GUIDE: number
-declare const GAME_CONTROL_BUTTON_LEFTSHOULDER: number
-declare const GAME_CONTROL_BUTTON_LEFTSTICK: number
-declare const GAME_CONTROL_BUTTON_MISC1: number
-declare const GAME_CONTROL_BUTTON_PADDLE1: number
-declare const GAME_CONTROL_BUTTON_PADDLE2: number
-declare const GAME_CONTROL_BUTTON_PADDLE3: number
-declare const GAME_CONTROL_BUTTON_PADDLE4: number
-declare const GAME_CONTROL_BUTTON_RIGHTSHOULDER: number
-declare const GAME_CONTROL_BUTTON_RIGHTSTICK: number
-declare const GAME_CONTROL_BUTTON_START: number
-declare const GAME_CONTROL_BUTTON_TOUCHPAD: number
-declare const GAME_CONTROL_BUTTON_X: number
-declare const GAME_CONTROL_BUTTON_Y: number
-declare const GCNP_GET_WALKABILITY: number
-declare const GCNP_RADIUS: number
-declare const GCNP_STATIC: number
+declare const FRICTION: 2
+declare const GAME_CONTROL_AXIS_LEFTX: 0
+declare const GAME_CONTROL_AXIS_LEFTY: 1
+declare const GAME_CONTROL_AXIS_RIGHTX: 2
+declare const GAME_CONTROL_AXIS_RIGHTY: 3
+declare const GAME_CONTROL_AXIS_TRIGGERLEFT: 4
+declare const GAME_CONTROL_AXIS_TRIGGERRIGHT: 5
+declare const GAME_CONTROL_BUTTON_A: 1
+declare const GAME_CONTROL_BUTTON_B: 2
+declare const GAME_CONTROL_BUTTON_BACK: 16
+declare const GAME_CONTROL_BUTTON_DPAD_DOWN: 4096
+declare const GAME_CONTROL_BUTTON_DPAD_LEFT: 8192
+declare const GAME_CONTROL_BUTTON_DPAD_RIGHT: 16384
+declare const GAME_CONTROL_BUTTON_DPAD_UP: 2048
+declare const GAME_CONTROL_BUTTON_GUIDE: 32
+declare const GAME_CONTROL_BUTTON_LEFTSHOULDER: 512
+declare const GAME_CONTROL_BUTTON_LEFTSTICK: 128
+declare const GAME_CONTROL_BUTTON_MISC1: 32768
+declare const GAME_CONTROL_BUTTON_PADDLE1: 65536
+declare const GAME_CONTROL_BUTTON_PADDLE2: 131072
+declare const GAME_CONTROL_BUTTON_PADDLE3: 262144
+declare const GAME_CONTROL_BUTTON_PADDLE4: 524288
+declare const GAME_CONTROL_BUTTON_RIGHTSHOULDER: 1024
+declare const GAME_CONTROL_BUTTON_RIGHTSTICK: 256
+declare const GAME_CONTROL_BUTTON_START: 64
+declare const GAME_CONTROL_BUTTON_TOUCHPAD: 1048576
+declare const GAME_CONTROL_BUTTON_X: 4
+declare const GAME_CONTROL_BUTTON_Y: 8
+declare const GCNP_GET_WALKABILITY: 2
+declare const GCNP_RADIUS: 0
+declare const GCNP_STATIC: 1
 /** Used with llSetPhysicsMaterial to enable the gravity multiplier value. Must be between -1.0 and +28.0 */
-declare const GRAVITY_MULTIPLIER: number
-declare const HORIZONTAL: number
+declare const GRAVITY_MULTIPLIER: 8
+declare const HORIZONTAL: 1
 /** Provide a string value to be included in the HTTPaccepts header value. This replaces the default Second Life HTTP accepts header. */
 declare const HTTP_ACCEPT: 8
 declare const HTTP_BODY_MAXLENGTH: 2
-declare const HTTP_BODY_TRUNCATED: number
+declare const HTTP_BODY_TRUNCATED: 0
 /** Add an extra custom HTTP header to the request. The first string is the name of the parameter to change, e.g. "Pragma", and the second string is the value, e.g. "no-cache". Up to 8 custom headers may be configured per request. Note that certain headers, such as the default headers, are blocked for security reasons. */
 declare const HTTP_CUSTOM_HEADER: 5
 /** Report extended error information through http_response event. */
@@ -4739,22 +4739,22 @@ declare const IMG_USE_BAKED_LEFTLEG: UUID
 declare const IMG_USE_BAKED_LOWER: UUID
 declare const IMG_USE_BAKED_SKIRT: UUID
 declare const IMG_USE_BAKED_UPPER: UUID
-declare const INVENTORY_ALL: number
-declare const INVENTORY_ANIMATION: number
-declare const INVENTORY_BODYPART: number
-declare const INVENTORY_CLOTHING: number
-declare const INVENTORY_GESTURE: number
-declare const INVENTORY_LANDMARK: number
-declare const INVENTORY_MATERIAL: number
-declare const INVENTORY_NONE: number
-declare const INVENTORY_NOTECARD: number
-declare const INVENTORY_OBJECT: number
-declare const INVENTORY_SCRIPT: number
-declare const INVENTORY_SETTING: number
-declare const INVENTORY_SOUND: number
-declare const INVENTORY_TEXTURE: number
+declare const INVENTORY_ALL: -1
+declare const INVENTORY_ANIMATION: 20
+declare const INVENTORY_BODYPART: 13
+declare const INVENTORY_CLOTHING: 5
+declare const INVENTORY_GESTURE: 21
+declare const INVENTORY_LANDMARK: 3
+declare const INVENTORY_MATERIAL: 57
+declare const INVENTORY_NONE: -1
+declare const INVENTORY_NOTECARD: 7
+declare const INVENTORY_OBJECT: 6
+declare const INVENTORY_SCRIPT: 10
+declare const INVENTORY_SETTING: 56
+declare const INVENTORY_SOUND: 1
+declare const INVENTORY_TEXTURE: 0
 /** @deprecated Use 'lljson.decode' and 'table.insert' instead. */
-declare const JSON_APPEND: number
+declare const JSON_APPEND: -1
 /** @deprecated Use 'lljson.array_mt' instead. */
 declare const JSON_ARRAY: string
 /** @deprecated Use 'nil' instead. */
@@ -4774,103 +4774,103 @@ declare const JSON_STRING: string
 /** @deprecated Use 'true' instead. */
 declare const JSON_TRUE: string
 /** For use with KFM_COMMAND. */
-declare const KFM_CMD_PAUSE: number
+declare const KFM_CMD_PAUSE: 2
 /** For use with KFM_COMMAND. */
-declare const KFM_CMD_PLAY: number
+declare const KFM_CMD_PLAY: 0
 /** For use with KFM_COMMAND. */
-declare const KFM_CMD_STOP: number
-declare const KFM_COMMAND: number
-declare const KFM_DATA: number
+declare const KFM_CMD_STOP: 1
+declare const KFM_COMMAND: 0
+declare const KFM_DATA: 2
 /** For use with KFM_MODE. */
-declare const KFM_FORWARD: number
+declare const KFM_FORWARD: 0
 /** For use with KFM_MODE. */
-declare const KFM_LOOP: number
-declare const KFM_MODE: number
+declare const KFM_LOOP: 1
+declare const KFM_MODE: 1
 /** For use with KFM_MODE. */
-declare const KFM_PING_PONG: number
+declare const KFM_PING_PONG: 2
 /** For use with KFM_MODE. */
-declare const KFM_REVERSE: number
+declare const KFM_REVERSE: 3
 /** For use with KFM_DATA. */
-declare const KFM_ROTATION: number
+declare const KFM_ROTATION: 1
 /** For use with KFM_DATA. */
-declare const KFM_TRANSLATION: number
+declare const KFM_TRANSLATION: 2
 /**
  * Use a large brush size.
  * NOTE: This value is incorrect, a large brush should be 2.
  */
-declare const LAND_LARGE_BRUSH: number
+declare const LAND_LARGE_BRUSH: 3
 /** Action to level the land. */
-declare const LAND_LEVEL: number
+declare const LAND_LEVEL: 0
 /** Action to lower the land. */
-declare const LAND_LOWER: number
+declare const LAND_LOWER: 2
 /**
  * Use a medium brush size.
  * NOTE: This value is incorrect, a medium brush should be 1.
  */
-declare const LAND_MEDIUM_BRUSH: number
-declare const LAND_NOISE: number
+declare const LAND_MEDIUM_BRUSH: 2
+declare const LAND_NOISE: 4
 /** Action to raise the land. */
-declare const LAND_RAISE: number
-declare const LAND_REVERT: number
+declare const LAND_RAISE: 1
+declare const LAND_REVERT: 5
 /**
  * Use a small brush size.
  * NOTE: This value is incorrect, a small brush should be 0.
  */
-declare const LAND_SMALL_BRUSH: number
-declare const LAND_SMOOTH: number
+declare const LAND_SMALL_BRUSH: 1
+declare const LAND_SMOOTH: 3
 declare const LEGACY_MASS_FACTOR: number
 /** A name:value pair has been removed from the linkset datastore. */
-declare const LINKSETDATA_DELETE: number
+declare const LINKSETDATA_DELETE: 2
 /** A name:value pair was too large to write to the linkset datastore. */
-declare const LINKSETDATA_EMEMORY: number
+declare const LINKSETDATA_EMEMORY: 1
 /** The key supplied was empty. */
-declare const LINKSETDATA_ENOKEY: number
+declare const LINKSETDATA_ENOKEY: 2
 /** The name:value pair has been protected from overwrite in the linkset datastore. */
-declare const LINKSETDATA_EPROTECTED: number
+declare const LINKSETDATA_EPROTECTED: 3
 /** A CSV list of names removed from the linkset datastore. */
-declare const LINKSETDATA_MULTIDELETE: number
+declare const LINKSETDATA_MULTIDELETE: 3
 /** The named key was not found in the datastore. */
-declare const LINKSETDATA_NOTFOUND: number
+declare const LINKSETDATA_NOTFOUND: 4
 /** The value written to a name in the keystore is the same as the value already there. */
-declare const LINKSETDATA_NOUPDATE: number
+declare const LINKSETDATA_NOUPDATE: 5
 /** The name:value pair was written to the datastore. */
-declare const LINKSETDATA_OK: number
+declare const LINKSETDATA_OK: 0
 /** The linkset datastore has been reset. */
-declare const LINKSETDATA_RESET: number
+declare const LINKSETDATA_RESET: 0
 /** A name:value pair in the linkset datastore has been changed or created. */
-declare const LINKSETDATA_UPDATE: number
+declare const LINKSETDATA_UPDATE: 1
 /** This targets every object except the root in the linked set. */
-declare const LINK_ALL_CHILDREN: number
+declare const LINK_ALL_CHILDREN: -3
 /** This targets every object in the linked set except the object with the script. */
-declare const LINK_ALL_OTHERS: number
+declare const LINK_ALL_OTHERS: -2
 /** This targets the root of the linked set. */
-declare const LINK_ROOT: number
+declare const LINK_ROOT: 1
 /** This targets every object in the linked set. */
-declare const LINK_SET: number
+declare const LINK_SET: -1
 /** The link number of the prim containing the script. */
-declare const LINK_THIS: number
-declare const LIST_STAT_GEOMETRIC_MEAN: number
-declare const LIST_STAT_MAX: number
-declare const LIST_STAT_MEAN: number
-declare const LIST_STAT_MEDIAN: number
-declare const LIST_STAT_MIN: number
-declare const LIST_STAT_NUM_COUNT: number
-declare const LIST_STAT_RANGE: number
-declare const LIST_STAT_STD_DEV: number
-declare const LIST_STAT_SUM: number
-declare const LIST_STAT_SUM_SQUARES: number
+declare const LINK_THIS: -4
+declare const LIST_STAT_GEOMETRIC_MEAN: 9
+declare const LIST_STAT_MAX: 2
+declare const LIST_STAT_MEAN: 3
+declare const LIST_STAT_MEDIAN: 4
+declare const LIST_STAT_MIN: 1
+declare const LIST_STAT_NUM_COUNT: 8
+declare const LIST_STAT_RANGE: 0
+declare const LIST_STAT_STD_DEV: 5
+declare const LIST_STAT_SUM: 6
+declare const LIST_STAT_SUM_SQUARES: 7
 /** Loop the texture animation. */
-declare const LOOP: number
-declare const MASK_BASE: number
+declare const LOOP: 2
+declare const MASK_BASE: 0
 /** Fold permissions for object inventory into results. */
-declare const MASK_COMBINED: number
-declare const MASK_EVERYONE: number
-declare const MASK_GROUP: number
-declare const MASK_NEXT: number
-declare const MASK_OWNER: number
+declare const MASK_COMBINED: 16
+declare const MASK_EVERYONE: 3
+declare const MASK_GROUP: 2
+declare const MASK_NEXT: 4
+declare const MASK_OWNER: 1
 /** Indicates a notecard read was attempted and the notecard was not yet cached on the server. */
 declare const NAK: string
-declare const NAVIGATE_TO_GOAL_REACHED_DIST: number
+declare const NAVIGATE_TO_GOAL_REACHED_DIST: 2
 declare const NULL_KEY: UUID
 /**
  * Retrieves the account level of an avatar.
@@ -4970,9 +4970,9 @@ declare const OBJECT_PRIM_EQUIVALENCE: 13
  * The maximum render weight stored by the simulator is 500000. When called against an object, 0 is returned.
  */
 declare const OBJECT_RENDER_WEIGHT: 24
-declare const OBJECT_RETURN_PARCEL: number
-declare const OBJECT_RETURN_PARCEL_OWNER: number
-declare const OBJECT_RETURN_REGION: number
+declare const OBJECT_RETURN_PARCEL: 1
+declare const OBJECT_RETURN_PARCEL_OWNER: 2
+declare const OBJECT_RETURN_REGION: 4
 declare const OBJECT_REZZER_KEY: 32
 /** Get the time when an object was rezzed. */
 declare const OBJECT_REZ_TIME: 45
@@ -5007,39 +5007,39 @@ declare const OBJECT_TEXT_COLOR: 48
 /** Gets the total inventory count of the object.  The script and target object must be owned by the same owner */
 declare const OBJECT_TOTAL_INVENTORY_COUNT: 31
 declare const OBJECT_TOTAL_SCRIPT_COUNT: 10
-declare const OBJECT_UNKNOWN_DETAIL: number
+declare const OBJECT_UNKNOWN_DETAIL: -1
 /** Gets the object's velocity. */
 declare const OBJECT_VELOCITY: 5
 /** Returned for avatars. */
-declare const OPT_AVATAR: number
+declare const OPT_AVATAR: 1
 /** Returned for pathfinding characters. */
-declare const OPT_CHARACTER: number
+declare const OPT_CHARACTER: 2
 /** Returned for exclusion volumes. */
-declare const OPT_EXCLUSION_VOLUME: number
+declare const OPT_EXCLUSION_VOLUME: 6
 /** Returned for movable obstacles, movable phantoms, physical, and volumedetect objects. */
-declare const OPT_LEGACY_LINKSET: number
+declare const OPT_LEGACY_LINKSET: 0
 /** Returned for material volumes. */
-declare const OPT_MATERIAL_VOLUME: number
+declare const OPT_MATERIAL_VOLUME: 5
 /** Returned for attachments, Linden trees, and grass. */
-declare const OPT_OTHER: number
+declare const OPT_OTHER: -1
 /** Returned for static obstacles. */
-declare const OPT_STATIC_OBSTACLE: number
+declare const OPT_STATIC_OBSTACLE: 4
 /** Returned for walkable objects. */
-declare const OPT_WALKABLE: number
-declare const OVERRIDE_GLTF_BASE_ALPHA: number
-declare const OVERRIDE_GLTF_BASE_ALPHA_MASK: number
-declare const OVERRIDE_GLTF_BASE_ALPHA_MODE: number
-declare const OVERRIDE_GLTF_BASE_COLOR_FACTOR: number
-declare const OVERRIDE_GLTF_BASE_DOUBLE_SIDED: number
-declare const OVERRIDE_GLTF_EMISSIVE_FACTOR: number
-declare const OVERRIDE_GLTF_METALLIC_FACTOR: number
-declare const OVERRIDE_GLTF_ROUGHNESS_FACTOR: number
-declare const PARCEL_COUNT_GROUP: number
-declare const PARCEL_COUNT_OTHER: number
-declare const PARCEL_COUNT_OWNER: number
-declare const PARCEL_COUNT_SELECTED: number
-declare const PARCEL_COUNT_TEMP: number
-declare const PARCEL_COUNT_TOTAL: number
+declare const OPT_WALKABLE: 3
+declare const OVERRIDE_GLTF_BASE_ALPHA: 2
+declare const OVERRIDE_GLTF_BASE_ALPHA_MASK: 4
+declare const OVERRIDE_GLTF_BASE_ALPHA_MODE: 3
+declare const OVERRIDE_GLTF_BASE_COLOR_FACTOR: 1
+declare const OVERRIDE_GLTF_BASE_DOUBLE_SIDED: 5
+declare const OVERRIDE_GLTF_EMISSIVE_FACTOR: 8
+declare const OVERRIDE_GLTF_METALLIC_FACTOR: 6
+declare const OVERRIDE_GLTF_ROUGHNESS_FACTOR: 7
+declare const PARCEL_COUNT_GROUP: 2
+declare const PARCEL_COUNT_OTHER: 3
+declare const PARCEL_COUNT_OWNER: 1
+declare const PARCEL_COUNT_SELECTED: 4
+declare const PARCEL_COUNT_TEMP: 5
+declare const PARCEL_COUNT_TOTAL: 0
 /** The parcel's area, in square meters. (5 chars.). */
 declare const PARCEL_DETAILS_AREA: 4
 /** The description of the parcel. (127 chars). */
@@ -5068,109 +5068,109 @@ declare const PARCEL_DETAILS_SCRIPT_DANGER: 13
 declare const PARCEL_DETAILS_SEE_AVATARS: 6
 /** Parcel's teleport routing setting. */
 declare const PARCEL_DETAILS_TP_ROUTING: 11
-declare const PARCEL_FLAG_ALLOW_ALL_OBJECT_ENTRY: number
-declare const PARCEL_FLAG_ALLOW_CREATE_GROUP_OBJECTS: number
-declare const PARCEL_FLAG_ALLOW_CREATE_OBJECTS: number
-declare const PARCEL_FLAG_ALLOW_DAMAGE: number
-declare const PARCEL_FLAG_ALLOW_FLY: number
-declare const PARCEL_FLAG_ALLOW_GROUP_OBJECT_ENTRY: number
-declare const PARCEL_FLAG_ALLOW_GROUP_SCRIPTS: number
-declare const PARCEL_FLAG_ALLOW_LANDMARK: number
-declare const PARCEL_FLAG_ALLOW_SCRIPTS: number
-declare const PARCEL_FLAG_ALLOW_TERRAFORM: number
-declare const PARCEL_FLAG_LINDEN_HOMES: number
-declare const PARCEL_FLAG_LOCAL_SOUND_ONLY: number
-declare const PARCEL_FLAG_RESTRICT_PUSHOBJECT: number
-declare const PARCEL_FLAG_USE_ACCESS_GROUP: number
-declare const PARCEL_FLAG_USE_ACCESS_LIST: number
-declare const PARCEL_FLAG_USE_BAN_LIST: number
-declare const PARCEL_FLAG_USE_LAND_PASS_LIST: number
-declare const PARCEL_MEDIA_COMMAND_AGENT: number
-declare const PARCEL_MEDIA_COMMAND_AUTO_ALIGN: number
+declare const PARCEL_FLAG_ALLOW_ALL_OBJECT_ENTRY: 134217728
+declare const PARCEL_FLAG_ALLOW_CREATE_GROUP_OBJECTS: 67108864
+declare const PARCEL_FLAG_ALLOW_CREATE_OBJECTS: 64
+declare const PARCEL_FLAG_ALLOW_DAMAGE: 32
+declare const PARCEL_FLAG_ALLOW_FLY: 1
+declare const PARCEL_FLAG_ALLOW_GROUP_OBJECT_ENTRY: 268435456
+declare const PARCEL_FLAG_ALLOW_GROUP_SCRIPTS: 33554432
+declare const PARCEL_FLAG_ALLOW_LANDMARK: 8
+declare const PARCEL_FLAG_ALLOW_SCRIPTS: 2
+declare const PARCEL_FLAG_ALLOW_TERRAFORM: 16
+declare const PARCEL_FLAG_LINDEN_HOMES: 8388608
+declare const PARCEL_FLAG_LOCAL_SOUND_ONLY: 32768
+declare const PARCEL_FLAG_RESTRICT_PUSHOBJECT: 2097152
+declare const PARCEL_FLAG_USE_ACCESS_GROUP: 256
+declare const PARCEL_FLAG_USE_ACCESS_LIST: 512
+declare const PARCEL_FLAG_USE_BAN_LIST: 1024
+declare const PARCEL_FLAG_USE_LAND_PASS_LIST: 2048
+declare const PARCEL_MEDIA_COMMAND_AGENT: 7
+declare const PARCEL_MEDIA_COMMAND_AUTO_ALIGN: 9
 /** Use this to get or set the parcel media description. */
-declare const PARCEL_MEDIA_COMMAND_DESC: number
-declare const PARCEL_MEDIA_COMMAND_LOOP: number
+declare const PARCEL_MEDIA_COMMAND_DESC: 12
+declare const PARCEL_MEDIA_COMMAND_LOOP: 3
 /** Used to get or set the parcel's media looping variable. */
-declare const PARCEL_MEDIA_COMMAND_LOOP_SET: number
-declare const PARCEL_MEDIA_COMMAND_PAUSE: number
-declare const PARCEL_MEDIA_COMMAND_PLAY: number
+declare const PARCEL_MEDIA_COMMAND_LOOP_SET: 13
+declare const PARCEL_MEDIA_COMMAND_PAUSE: 1
+declare const PARCEL_MEDIA_COMMAND_PLAY: 2
 /** Use this to get or set the parcel media pixel resolution. */
-declare const PARCEL_MEDIA_COMMAND_SIZE: number
-declare const PARCEL_MEDIA_COMMAND_STOP: number
-declare const PARCEL_MEDIA_COMMAND_TEXTURE: number
-declare const PARCEL_MEDIA_COMMAND_TIME: number
+declare const PARCEL_MEDIA_COMMAND_SIZE: 11
+declare const PARCEL_MEDIA_COMMAND_STOP: 0
+declare const PARCEL_MEDIA_COMMAND_TEXTURE: 4
+declare const PARCEL_MEDIA_COMMAND_TIME: 6
 /** Use this to get or set the parcel media MIME type (e.g. "text/html"). */
-declare const PARCEL_MEDIA_COMMAND_TYPE: number
-declare const PARCEL_MEDIA_COMMAND_UNLOAD: number
-declare const PARCEL_MEDIA_COMMAND_URL: number
+declare const PARCEL_MEDIA_COMMAND_TYPE: 10
+declare const PARCEL_MEDIA_COMMAND_UNLOAD: 8
+declare const PARCEL_MEDIA_COMMAND_URL: 5
 /** The agent authorized to purchase the parcel. */
-declare const PARCEL_SALE_AGENT: number
+declare const PARCEL_SALE_AGENT: 2
 /** Are the objects on the parcel included in the sale? */
-declare const PARCEL_SALE_OBJECTS: number
+declare const PARCEL_SALE_OBJECTS: 3
 /** The price of the parcel. If no authorized agent is set, must be greater than 0. */
-declare const PARCEL_SALE_PRICE: number
+declare const PARCEL_SALE_PRICE: 1
 /** The sale information was successfully set. */
-declare const PARCEL_SALE_OK: number
+declare const PARCEL_SALE_OK: 0
 /** The parcel could not be found. */
-declare const PARCEL_SALE_ERROR_NO_PARCEL: number
+declare const PARCEL_SALE_ERROR_NO_PARCEL: 1
 /** The script does not have the required permissions to set the sale information. */
-declare const PARCEL_SALE_ERROR_NO_PERMISSIONS: number
+declare const PARCEL_SALE_ERROR_NO_PERMISSIONS: 2
 /** The parcel is currently in escrow and cannot be set for sale. */
-declare const PARCEL_SALE_ERROR_IN_ESCROW: number
+declare const PARCEL_SALE_ERROR_IN_ESCROW: 3
 /** The price set for the parcel is invalid (e.g., less than or equal to 0). */
-declare const PARCEL_SALE_ERROR_INVALID_PRICE: number
+declare const PARCEL_SALE_ERROR_INVALID_PRICE: 4
 /** The parameters provided to set the sale information are invalid. */
-declare const PARCEL_SALE_ERROR_BAD_PARAMS: number
+declare const PARCEL_SALE_ERROR_BAD_PARAMS: 5
 /** Static in-world objects. */
-declare const PASSIVE: number
+declare const PASSIVE: 4
 /** Always pass the event. */
-declare const PASS_ALWAYS: number
+declare const PASS_ALWAYS: 1
 /** Pass the event if there is no script handling the event in the prim. */
-declare const PASS_IF_NOT_HANDLED: number
+declare const PASS_IF_NOT_HANDLED: 0
 /** Always pass the event. */
-declare const PASS_NEVER: number
-declare const PATROL_PAUSE_AT_WAYPOINTS: number
-declare const PAYMENT_INFO_ON_FILE: number
-declare const PAYMENT_INFO_USED: number
-declare const PAY_DEFAULT: number
-declare const PAY_HIDE: number
+declare const PASS_NEVER: 2
+declare const PATROL_PAUSE_AT_WAYPOINTS: 0
+declare const PAYMENT_INFO_ON_FILE: 1
+declare const PAYMENT_INFO_USED: 2
+declare const PAY_DEFAULT: -2
+declare const PAY_HIDE: -1
 /** If this permission is enabled, the object can successfully call llGiveMoney or llTransferLindenDollars to debit the owners account. */
-declare const PERMISSION_DEBIT: number
+declare const PERMISSION_DEBIT: 2
 /** If this permission enabled, the object can successfully call the llTakeControls library call. */
-declare const PERMISSION_TAKE_CONTROLS: number
+declare const PERMISSION_TAKE_CONTROLS: 4
 /** (not yet implemented) */
-declare const PERMISSION_REMAP_CONTROLS: number
+declare const PERMISSION_REMAP_CONTROLS: 8
 /** If this permission is enabled, the object can successfully call llStartAnimation for the avatar that owns this. */
-declare const PERMISSION_TRIGGER_ANIMATION: number
+declare const PERMISSION_TRIGGER_ANIMATION: 16
 /** If this permission is enabled, the object can successfully call llAttachToAvatar to attach to the given avatar. */
-declare const PERMISSION_ATTACH: number
+declare const PERMISSION_ATTACH: 32
 /** (not yet implemented) */
-declare const PERMISSION_RELEASE_OWNERSHIP: number
+declare const PERMISSION_RELEASE_OWNERSHIP: 64
 /** If this permission is enabled, the object can successfully call llCreateLink, llBreakLink, and llBreakAllLinks to change links to other objects. */
-declare const PERMISSION_CHANGE_LINKS: number
+declare const PERMISSION_CHANGE_LINKS: 128
 /** (not yet implemented) */
-declare const PERMISSION_CHANGE_JOINTS: number
+declare const PERMISSION_CHANGE_JOINTS: 256
 /** (not yet implemented) */
-declare const PERMISSION_CHANGE_PERMISSIONS: number
-declare const PERMISSION_TRACK_CAMERA: number
-declare const PERMISSION_CONTROL_CAMERA: number
-declare const PERMISSION_TELEPORT: number
+declare const PERMISSION_CHANGE_PERMISSIONS: 512
+declare const PERMISSION_TRACK_CAMERA: 1024
+declare const PERMISSION_CONTROL_CAMERA: 2048
+declare const PERMISSION_TELEPORT: 4096
 /** A script with this permission does not notify the object owner when it modifies estate access rules via llManageEstateAccess. */
-declare const PERMISSION_SILENT_ESTATE_MANAGEMENT: number
+declare const PERMISSION_SILENT_ESTATE_MANAGEMENT: 16384
 /** Permission to override default animations. */
-declare const PERMISSION_OVERRIDE_ANIMATIONS: number
-declare const PERMISSION_RETURN_OBJECTS: number
+declare const PERMISSION_OVERRIDE_ANIMATIONS: 32768
+declare const PERMISSION_RETURN_OBJECTS: 65536
 /** Grants the script privileged access to land parcel functions, such as parcel sale. */
-declare const PERMISSION_PRIVILEGED_LAND_ACCESS: number
-declare const PERM_ALL: number
-declare const PERM_COPY: number
-declare const PERM_MODIFY: number
-declare const PERM_MOVE: number
-declare const PERM_TRANSFER: number
+declare const PERMISSION_PRIVILEGED_LAND_ACCESS: 524288
+declare const PERM_ALL: 2147483647
+declare const PERM_COPY: 32768
+declare const PERM_MODIFY: 16384
+declare const PERM_MOVE: 524288
+declare const PERM_TRANSFER: 8192
 /** 3.14159265 - The number of radians in a semi-circle. */
 declare const PI: number
 /** Play animation going forwards, then backwards. */
-declare const PING_PONG: number
+declare const PING_PONG: 8
 /** 1.57079633 - The number of radians in a quarter circle. */
 declare const PI_BY_TWO: number
 /**
@@ -5189,47 +5189,47 @@ declare const PRIM_ALPHA_MODE: 38
  * Prim parameter setting for PRIM_ALPHA_MODE.
  * Indicates that the diffuse texture's alpha channel should be rendered as alpha-blended.
  */
-declare const PRIM_ALPHA_MODE_BLEND: number
+declare const PRIM_ALPHA_MODE_BLEND: 1
 /**
  * Prim parameter setting for PRIM_ALPHA_MODE.
  * Indicates that the diffuse texture's alpha channel should be rendered as an emissivity mask.
  */
-declare const PRIM_ALPHA_MODE_EMISSIVE: number
+declare const PRIM_ALPHA_MODE_EMISSIVE: 3
 /**
  * Prim parameter setting for PRIM_ALPHA_MODE.
  * Indicates that the diffuse texture's alpha channel should be rendered as fully opaque for alpha values above alpha_cutoff and fully transparent otherwise.
  */
-declare const PRIM_ALPHA_MODE_MASK: number
+declare const PRIM_ALPHA_MODE_MASK: 2
 /**
  * Prim parameter setting for PRIM_ALPHA_MODE.
  * Indicates that the diffuse texture's alpha channel should be ignored.
  */
-declare const PRIM_ALPHA_MODE_NONE: number
-declare const PRIM_BUMP_BARK: number
-declare const PRIM_BUMP_BLOBS: number
-declare const PRIM_BUMP_BRICKS: number
-declare const PRIM_BUMP_BRIGHT: number
-declare const PRIM_BUMP_CHECKER: number
-declare const PRIM_BUMP_CONCRETE: number
-declare const PRIM_BUMP_DARK: number
-declare const PRIM_BUMP_DISKS: number
-declare const PRIM_BUMP_GRAVEL: number
-declare const PRIM_BUMP_LARGETILE: number
-declare const PRIM_BUMP_NONE: number
+declare const PRIM_ALPHA_MODE_NONE: 0
+declare const PRIM_BUMP_BARK: 4
+declare const PRIM_BUMP_BLOBS: 12
+declare const PRIM_BUMP_BRICKS: 5
+declare const PRIM_BUMP_BRIGHT: 1
+declare const PRIM_BUMP_CHECKER: 6
+declare const PRIM_BUMP_CONCRETE: 7
+declare const PRIM_BUMP_DARK: 2
+declare const PRIM_BUMP_DISKS: 10
+declare const PRIM_BUMP_GRAVEL: 11
+declare const PRIM_BUMP_LARGETILE: 14
+declare const PRIM_BUMP_NONE: 0
 declare const PRIM_BUMP_SHINY: 19
-declare const PRIM_BUMP_SIDING: number
-declare const PRIM_BUMP_STONE: number
-declare const PRIM_BUMP_STUCCO: number
-declare const PRIM_BUMP_SUCTION: number
-declare const PRIM_BUMP_TILE: number
-declare const PRIM_BUMP_WEAVE: number
-declare const PRIM_BUMP_WOOD: number
+declare const PRIM_BUMP_SIDING: 13
+declare const PRIM_BUMP_STONE: 9
+declare const PRIM_BUMP_STUCCO: 15
+declare const PRIM_BUMP_SUCTION: 16
+declare const PRIM_BUMP_TILE: 8
+declare const PRIM_BUMP_WEAVE: 17
+declare const PRIM_BUMP_WOOD: 3
 /** @deprecated Not implemented. */
 declare const PRIM_CAST_SHADOWS: 24
 /** [PRIM_CLICK_ACTION, integer CLICK_ACTION_*] */
 declare const PRIM_CLICK_ACTION: 43
 /** Collision sound uuid and volume for this prim */
-declare const PRIM_COLLISION_SOUND: number
+declare const PRIM_COLLISION_SOUND: 53
 /** [PRIM_COLOR, integer face, vector color, float alpha]integer face – face number or ALL_SIDESvector color – color in RGB <R, G, B> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)float alpha – from 0.0 (clear) to 1.0 (solid) (0.0 <= alpha <= 1.0) */
 declare const PRIM_COLOR: 18
 /** Damage and damage type assigned to this prim. */
@@ -5246,11 +5246,11 @@ declare const PRIM_FULLBRIGHT: 20
  */
 declare const PRIM_GLOW: 25
 /** Prim parameter setting for PRIM_GLTF_BASE_COLOR alpha mode "BLEND". */
-declare const PRIM_GLTF_ALPHA_MODE_BLEND: number
+declare const PRIM_GLTF_ALPHA_MODE_BLEND: 1
 /** Prim parameter setting for PRIM_GLTF_BASE_COLOR alpha mode "MASK". */
-declare const PRIM_GLTF_ALPHA_MODE_MASK: number
+declare const PRIM_GLTF_ALPHA_MODE_MASK: 2
 /** Prim parameter setting for PRIM_GLTF_BASE_COLOR alpha mode "OPAQUE". */
-declare const PRIM_GLTF_ALPHA_MODE_OPAQUE: number
+declare const PRIM_GLTF_ALPHA_MODE_OPAQUE: 0
 /**
  * Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color, integer alpha_mode, float alpha_cutoff, boolean double_sided.
  * Valid options for alpha_mode are PRIM_ALPHA_MODE_BLEND, _NONE, and _MASK.
@@ -5265,70 +5265,70 @@ declare const PRIM_GLTF_METALLIC_ROUGHNESS: 47
 declare const PRIM_GLTF_NORMAL: 45
 /** Health value for this prim */
 declare const PRIM_HEALTH: 52
-declare const PRIM_HOLE_CIRCLE: number
-declare const PRIM_HOLE_DEFAULT: number
-declare const PRIM_HOLE_SQUARE: number
-declare const PRIM_HOLE_TRIANGLE: number
+declare const PRIM_HOLE_CIRCLE: 16
+declare const PRIM_HOLE_DEFAULT: 0
+declare const PRIM_HOLE_SQUARE: 32
+declare const PRIM_HOLE_TRIANGLE: 48
 /** [ PRIM_LINK_TARGET, integer link_target ]Used to get or set multiple links with a single PrimParameters call. */
 declare const PRIM_LINK_TARGET: 34
 /** [ PRIM_MATERIAL, integer PRIM_MATERIAL_* ] */
 declare const PRIM_MATERIAL: 2
-declare const PRIM_MATERIAL_DENSITY: number
-declare const PRIM_MATERIAL_FLESH: number
-declare const PRIM_MATERIAL_FRICTION: number
-declare const PRIM_MATERIAL_GLASS: number
-declare const PRIM_MATERIAL_GRAVITY_MULTIPLIER: number
-declare const PRIM_MATERIAL_LIGHT: number
-declare const PRIM_MATERIAL_METAL: number
-declare const PRIM_MATERIAL_PLASTIC: number
-declare const PRIM_MATERIAL_RESTITUTION: number
-declare const PRIM_MATERIAL_RUBBER: number
-declare const PRIM_MATERIAL_STONE: number
-declare const PRIM_MATERIAL_WOOD: number
+declare const PRIM_MATERIAL_DENSITY: 1
+declare const PRIM_MATERIAL_FLESH: 4
+declare const PRIM_MATERIAL_FRICTION: 2
+declare const PRIM_MATERIAL_GLASS: 2
+declare const PRIM_MATERIAL_GRAVITY_MULTIPLIER: 8
+declare const PRIM_MATERIAL_LIGHT: 7
+declare const PRIM_MATERIAL_METAL: 1
+declare const PRIM_MATERIAL_PLASTIC: 5
+declare const PRIM_MATERIAL_RESTITUTION: 4
+declare const PRIM_MATERIAL_RUBBER: 6
+declare const PRIM_MATERIAL_STONE: 0
+declare const PRIM_MATERIAL_WOOD: 3
 /** Boolean. Gets/Sets the default image state (the image that the user sees before a piece of media is active) for the chosen face. The default image is specified by Second Life's server for that media type. */
-declare const PRIM_MEDIA_ALT_IMAGE_ENABLE: number
+declare const PRIM_MEDIA_ALT_IMAGE_ENABLE: 0
 /** Boolean. Gets/Sets whether auto-looping is enabled. */
-declare const PRIM_MEDIA_AUTO_LOOP: number
+declare const PRIM_MEDIA_AUTO_LOOP: 4
 /** Boolean. Gets/Sets whether the media auto-plays when a Resident can view it. */
-declare const PRIM_MEDIA_AUTO_PLAY: number
+declare const PRIM_MEDIA_AUTO_PLAY: 5
 /** Boolean. Gets/Sets whether auto-scaling is enabled. Auto-scaling forces the media to the full size of the texture. */
-declare const PRIM_MEDIA_AUTO_SCALE: number
+declare const PRIM_MEDIA_AUTO_SCALE: 6
 /** Boolean. Gets/Sets whether clicking the media triggers auto-zoom and auto-focus on the media. */
-declare const PRIM_MEDIA_AUTO_ZOOM: number
+declare const PRIM_MEDIA_AUTO_ZOOM: 7
 /** Integer. Gets/Sets the style of controls. Can be either PRIM_MEDIA_CONTROLS_STANDARD or PRIM_MEDIA_CONTROLS_MINI. */
-declare const PRIM_MEDIA_CONTROLS: number
+declare const PRIM_MEDIA_CONTROLS: 1
 /** Mini web navigation controls; does not include an address bar. */
-declare const PRIM_MEDIA_CONTROLS_MINI: number
+declare const PRIM_MEDIA_CONTROLS_MINI: 1
 /** Standard web navigation controls. */
-declare const PRIM_MEDIA_CONTROLS_STANDARD: number
+declare const PRIM_MEDIA_CONTROLS_STANDARD: 0
 /** String. Gets/Sets the current url displayed on the chosen face. Changing this URL causes navigation. 1024 characters Maximum. */
-declare const PRIM_MEDIA_CURRENT_URL: number
+declare const PRIM_MEDIA_CURRENT_URL: 2
 /** Boolean. Gets/Sets whether the first click interaction is enabled. */
-declare const PRIM_MEDIA_FIRST_CLICK_INTERACT: number
+declare const PRIM_MEDIA_FIRST_CLICK_INTERACT: 8
 /** Integer. Gets/Sets the height of the media in pixels. */
-declare const PRIM_MEDIA_HEIGHT_PIXELS: number
+declare const PRIM_MEDIA_HEIGHT_PIXELS: 10
 /** String. Gets/Sets the home URL for the chosen face. 1024 characters maximum. */
-declare const PRIM_MEDIA_HOME_URL: number
-declare const PRIM_MEDIA_MAX_HEIGHT_PIXELS: number
-declare const PRIM_MEDIA_MAX_URL_LENGTH: number
-declare const PRIM_MEDIA_MAX_WHITELIST_COUNT: number
-declare const PRIM_MEDIA_MAX_WHITELIST_SIZE: number
-declare const PRIM_MEDIA_MAX_WIDTH_PIXELS: number
-declare const PRIM_MEDIA_PARAM_MAX: number
+declare const PRIM_MEDIA_HOME_URL: 3
+declare const PRIM_MEDIA_MAX_HEIGHT_PIXELS: 2048
+declare const PRIM_MEDIA_MAX_URL_LENGTH: 1024
+declare const PRIM_MEDIA_MAX_WHITELIST_COUNT: 64
+declare const PRIM_MEDIA_MAX_WHITELIST_SIZE: 1024
+declare const PRIM_MEDIA_MAX_WIDTH_PIXELS: 2048
+declare const PRIM_MEDIA_PARAM_MAX: 14
 /** Integer. Gets/Sets the permissions mask that control who can see the media control bar above the object:: PRIM_MEDIA_PERM_ANYONE, PRIM_MEDIA_PERM_GROUP, PRIM_MEDIA_PERM_NONE, PRIM_MEDIA_PERM_OWNER */
-declare const PRIM_MEDIA_PERMS_CONTROL: number
+declare const PRIM_MEDIA_PERMS_CONTROL: 14
 /** Integer. Gets/Sets the permissions mask that control who can interact with the object: PRIM_MEDIA_PERM_ANYONE, PRIM_MEDIA_PERM_GROUP, PRIM_MEDIA_PERM_NONE, PRIM_MEDIA_PERM_OWNER */
-declare const PRIM_MEDIA_PERMS_INTERACT: number
-declare const PRIM_MEDIA_PERM_ANYONE: number
-declare const PRIM_MEDIA_PERM_GROUP: number
-declare const PRIM_MEDIA_PERM_NONE: number
-declare const PRIM_MEDIA_PERM_OWNER: number
+declare const PRIM_MEDIA_PERMS_INTERACT: 13
+declare const PRIM_MEDIA_PERM_ANYONE: 4
+declare const PRIM_MEDIA_PERM_GROUP: 2
+declare const PRIM_MEDIA_PERM_NONE: 0
+declare const PRIM_MEDIA_PERM_OWNER: 1
 /** String. Gets/Sets the white-list as a string of escaped, comma-separated URLs. This string can hold up to 64 URLs or 1024 characters, whichever comes first. */
-declare const PRIM_MEDIA_WHITELIST: number
+declare const PRIM_MEDIA_WHITELIST: 12
 /** Boolean. Gets/Sets whether navigation is restricted to URLs in PRIM_MEDIA_WHITELIST. */
-declare const PRIM_MEDIA_WHITELIST_ENABLE: number
+declare const PRIM_MEDIA_WHITELIST_ENABLE: 11
 /** Integer. Gets/Sets the width of the media in pixels. */
-declare const PRIM_MEDIA_WIDTH_PIXELS: number
+declare const PRIM_MEDIA_WIDTH_PIXELS: 9
 /** [ PRIM_NAME, string name ] */
 declare const PRIM_NAME: 27
 /** Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians */
@@ -5340,11 +5340,11 @@ declare const PRIM_PHANTOM: 5
 /** [ PRIM_PHYSICS, integer boolean ] */
 declare const PRIM_PHYSICS: 3
 /** Use the convex hull of the prim shape for physics (this is the default for mesh objects). */
-declare const PRIM_PHYSICS_SHAPE_CONVEX: number
+declare const PRIM_PHYSICS_SHAPE_CONVEX: 2
 /** Ignore this prim in the physics shape. NB: This cannot be applied to the root prim. */
-declare const PRIM_PHYSICS_SHAPE_NONE: number
+declare const PRIM_PHYSICS_SHAPE_NONE: 1
 /** Use the normal prim shape for physics (this is the default for all non-mesh objects). */
-declare const PRIM_PHYSICS_SHAPE_PRIM: number
+declare const PRIM_PHYSICS_SHAPE_PRIM: 0
 /** Allows you to set the physics shape type of a prim via lsl. Permitted values are:PRIM_PHYSICS_SHAPE_NONE, PRIM_PHYSICS_SHAPE_PRIM, PRIM_PHYSICS_SHAPE_CONVEX */
 declare const PRIM_PHYSICS_SHAPE_TYPE: 30
 /** [ PRIM_POINT_LIGHT, integer boolean, vector linear_color, float intensity, float radius, float falloff ]integer boolean – TRUE enables, FALSE disablesvector linear_color – linear color in RGB <R, G, B&> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)float intensity – ranges from 0.0 to 1.0float radius – ranges from 0.1 to 20.0float falloff – ranges from 0.01 to 2.0 */
@@ -5358,11 +5358,11 @@ declare const PRIM_PROJECTOR: 42
 /** Allows you to configure the object as a custom-placed reflection probe, for image-based lighting (IBL). Only objects in the influence volume of the reflection probe object are affected. */
 declare const PRIM_REFLECTION_PROBE: 44
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe is a box. When unset, the reflection probe is a sphere. */
-declare const PRIM_REFLECTION_PROBE_BOX: number
+declare const PRIM_REFLECTION_PROBE_BOX: 1
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe includes avatars in IBL effects. When unset, the reflection probe excludes avatars. */
-declare const PRIM_REFLECTION_PROBE_DYNAMIC: number
+declare const PRIM_REFLECTION_PROBE_DYNAMIC: 2
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe acts as a mirror. */
-declare const PRIM_REFLECTION_PROBE_MIRROR: number
+declare const PRIM_REFLECTION_PROBE_MIRROR: 4
 /** [ PRIM_RENDER_MATERIAL, integer face, string material ] */
 declare const PRIM_RENDER_MATERIAL: 49
 /** [ PRIM_ROT_LOCAL, rotation global_rot ] */
@@ -5375,21 +5375,21 @@ declare const PRIM_ROT_LOCAL: 29
  */
 declare const PRIM_SCRIPTED_SIT_ONLY: 40
 /** Mesh is animated. */
-declare const PRIM_SCULPT_FLAG_ANIMESH: number
+declare const PRIM_SCULPT_FLAG_ANIMESH: 32
 /** Render inside out (inverts the normals). */
-declare const PRIM_SCULPT_FLAG_INVERT: number
+declare const PRIM_SCULPT_FLAG_INVERT: 64
 /** Render an X axis mirror of the sculpty. */
-declare const PRIM_SCULPT_FLAG_MIRROR: number
-declare const PRIM_SCULPT_TYPE_CYLINDER: number
-declare const PRIM_SCULPT_TYPE_MASK: number
-declare const PRIM_SCULPT_TYPE_MESH: number
-declare const PRIM_SCULPT_TYPE_PLANE: number
-declare const PRIM_SCULPT_TYPE_SPHERE: number
-declare const PRIM_SCULPT_TYPE_TORUS: number
-declare const PRIM_SHINY_HIGH: number
-declare const PRIM_SHINY_LOW: number
-declare const PRIM_SHINY_MEDIUM: number
-declare const PRIM_SHINY_NONE: number
+declare const PRIM_SCULPT_FLAG_MIRROR: 128
+declare const PRIM_SCULPT_TYPE_CYLINDER: 4
+declare const PRIM_SCULPT_TYPE_MASK: 7
+declare const PRIM_SCULPT_TYPE_MESH: 5
+declare const PRIM_SCULPT_TYPE_PLANE: 3
+declare const PRIM_SCULPT_TYPE_SPHERE: 1
+declare const PRIM_SCULPT_TYPE_TORUS: 2
+declare const PRIM_SHINY_HIGH: 3
+declare const PRIM_SHINY_LOW: 1
+declare const PRIM_SHINY_MEDIUM: 2
+declare const PRIM_SHINY_NONE: 0
 declare const PRIM_SIT_FLAGS: 50
 /** [ PRIM_SIT_TARGET, integer boolean, vector offset, rotation rot ] */
 declare const PRIM_SIT_TARGET: 41
@@ -5402,8 +5402,8 @@ declare const PRIM_SPECULAR: 36
 declare const PRIM_TEMP_ON_REZ: 4
 /** [ PRIM_TEXGEN, integer face, PRIM_TEXGEN_* ] */
 declare const PRIM_TEXGEN: 22
-declare const PRIM_TEXGEN_DEFAULT: number
-declare const PRIM_TEXGEN_PLANAR: number
+declare const PRIM_TEXGEN_DEFAULT: 0
+declare const PRIM_TEXGEN_PLANAR: 1
 /** [ PRIM_TEXT, string text, vector color, float alpha ] */
 declare const PRIM_TEXT: 26
 /** [ PRIM_TEXTURE, integer face, string texture, vector repeats, vector offsets, float rotation_in_radians ] */
@@ -5418,23 +5418,23 @@ declare const PRIM_TYPE_SPHERE: 3
 declare const PRIM_TYPE_TORUS: 4
 declare const PRIM_TYPE_TUBE: 5
 /** Disables profiling */
-declare const PROFILE_NONE: number
+declare const PROFILE_NONE: 0
 /** Enables memory profiling */
-declare const PROFILE_SCRIPT_MEMORY: number
-declare const PSYS_PART_BF_DEST_COLOR: number
-declare const PSYS_PART_BF_ONE: number
-declare const PSYS_PART_BF_ONE_MINUS_DEST_COLOR: number
-declare const PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA: number
-declare const PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR: number
-declare const PSYS_PART_BF_SOURCE_ALPHA: number
-declare const PSYS_PART_BF_SOURCE_COLOR: number
-declare const PSYS_PART_BF_ZERO: number
+declare const PROFILE_SCRIPT_MEMORY: 1
+declare const PSYS_PART_BF_DEST_COLOR: 2
+declare const PSYS_PART_BF_ONE: 0
+declare const PSYS_PART_BF_ONE_MINUS_DEST_COLOR: 4
+declare const PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA: 9
+declare const PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR: 5
+declare const PSYS_PART_BF_SOURCE_ALPHA: 7
+declare const PSYS_PART_BF_SOURCE_COLOR: 3
+declare const PSYS_PART_BF_ZERO: 1
 declare const PSYS_PART_BLEND_FUNC_DEST: 25
 declare const PSYS_PART_BLEND_FUNC_SOURCE: 24
 /** Particles bounce off of a plane at the objects Z height. */
-declare const PSYS_PART_BOUNCE_MASK: number
+declare const PSYS_PART_BOUNCE_MASK: 4
 /** The particle glows. */
-declare const PSYS_PART_EMISSIVE_MASK: number
+declare const PSYS_PART_EMISSIVE_MASK: 256
 /** A float which determines the ending alpha of the object. */
 declare const PSYS_PART_END_ALPHA: 4
 /** A vector <r, g, b> which determines the ending color of the object. */
@@ -5445,16 +5445,16 @@ declare const PSYS_PART_END_SCALE: 6
 /** Each particle that is emitted by the particle system is simulated based on the following flags. To use multiple flags, bitwise or (|) them together. */
 declare const PSYS_PART_FLAGS: 0
 /** The particle position is relative to the source objects position. */
-declare const PSYS_PART_FOLLOW_SRC_MASK: number
+declare const PSYS_PART_FOLLOW_SRC_MASK: 16
 /** The particle orientation is rotated so the vertical axis faces towards the particle velocity. */
-declare const PSYS_PART_FOLLOW_VELOCITY_MASK: number
+declare const PSYS_PART_FOLLOW_VELOCITY_MASK: 32
 /** Interpolate both the color and alpha from the start value to the end value. */
-declare const PSYS_PART_INTERP_COLOR_MASK: number
+declare const PSYS_PART_INTERP_COLOR_MASK: 1
 /** Interpolate the particle scale from the start value to the end value. */
-declare const PSYS_PART_INTERP_SCALE_MASK: number
+declare const PSYS_PART_INTERP_SCALE_MASK: 2
 /** Age in seconds of a particle at which it dies. */
 declare const PSYS_PART_MAX_AGE: 7
-declare const PSYS_PART_RIBBON_MASK: number
+declare const PSYS_PART_RIBBON_MASK: 1024
 /** A float which determines the starting alpha of the object. */
 declare const PSYS_PART_START_ALPHA: 2
 /** A vector <r, g, b> which determines the starting color of the object. */
@@ -5462,11 +5462,11 @@ declare const PSYS_PART_START_COLOR: 1
 declare const PSYS_PART_START_GLOW: 26
 /** A vector <sx, sy, z>, which is the starting size of the particle billboard in meters (z is ignored). */
 declare const PSYS_PART_START_SCALE: 5
-declare const PSYS_PART_TARGET_LINEAR_MASK: number
+declare const PSYS_PART_TARGET_LINEAR_MASK: 128
 /** The particle heads towards the location of the target object as defined by PSYS_SRC_TARGET_KEY. */
-declare const PSYS_PART_TARGET_POS_MASK: number
+declare const PSYS_PART_TARGET_POS_MASK: 64
 /** Particles have their velocity damped towards the wind velocity. */
-declare const PSYS_PART_WIND_MASK: number
+declare const PSYS_PART_WIND_MASK: 8
 /** A vector <x, y, z> which is the acceleration to apply on particles. */
 declare const PSYS_SRC_ACCEL: 8
 /** Area in radians specifying where particles will NOT be created (for ANGLE patterns) */
@@ -5487,7 +5487,7 @@ declare const PSYS_SRC_BURST_SPEED_MIN: 17
 declare const PSYS_SRC_INNERANGLE: 10
 /** How long this particle system should last, 0.0 means forever. */
 declare const PSYS_SRC_MAX_AGE: 19
-declare const PSYS_SRC_OBJ_REL_MASK: number
+declare const PSYS_SRC_OBJ_REL_MASK: 1
 /** Sets the angular velocity to rotate the axis that SRC_PATTERN_ANGLE and SRC_PATTERN_ANGLE_CONE use. */
 declare const PSYS_SRC_OMEGA: 21
 /** Specifies the outer angle of the arc created by the PSYS_SRC_PATTERN_ANGLE or PSYS_SRC_PATTERN_ANGLE_CONE source pattern.The area between the outer and inner angle will be filled with particles. */
@@ -5495,88 +5495,88 @@ declare const PSYS_SRC_OUTERANGLE: 11
 /** The pattern which is used to generate particles.Use one of the following values: PSYS_SRC_PATTERN Values. */
 declare const PSYS_SRC_PATTERN: 9
 /** Shoot particles across a 2 dimensional area defined by the arc created from PSYS_SRC_OUTERANGLE. There will be an open area defined by PSYS_SRC_INNERANGLE within the larger arc. */
-declare const PSYS_SRC_PATTERN_ANGLE: number
+declare const PSYS_SRC_PATTERN_ANGLE: 4
 /** Shoot particles out in a 3 dimensional cone with an outer arc of PSYS_SRC_OUTERANGLE and an inner open area defined by PSYS_SRC_INNERANGLE. */
-declare const PSYS_SRC_PATTERN_ANGLE_CONE: number
-declare const PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY: number
+declare const PSYS_SRC_PATTERN_ANGLE_CONE: 8
+declare const PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY: 16
 /** Drop particles at the source position. */
-declare const PSYS_SRC_PATTERN_DROP: number
+declare const PSYS_SRC_PATTERN_DROP: 1
 /** Shoot particles out in all directions, using the burst parameters. */
-declare const PSYS_SRC_PATTERN_EXPLODE: number
+declare const PSYS_SRC_PATTERN_EXPLODE: 2
 /** The key of a target object to move towards if PSYS_PART_TARGET_POS_MASK is enabled. */
 declare const PSYS_SRC_TARGET_KEY: 20
 /** An asset name for the texture to use for the particles. */
 declare const PSYS_SRC_TEXTURE: 12
 /** PUBLIC_CHANNEL is an integer constant that, when passed to llSay, llWhisper, or llShout as a channel parameter, will print text to the publicly heard chat channel. */
-declare const PUBLIC_CHANNEL: number
+declare const PUBLIC_CHANNEL: 0
 /** Selects a random destination near the offset. */
-declare const PURSUIT_FUZZ_FACTOR: number
-declare const PURSUIT_GOAL_TOLERANCE: number
+declare const PURSUIT_FUZZ_FACTOR: 3
+declare const PURSUIT_GOAL_TOLERANCE: 5
 /** Define whether the character attempts to predict the target's location. */
-declare const PURSUIT_INTERCEPT: number
+declare const PURSUIT_INTERCEPT: 4
 /** Go to a position offset from the target. */
-declare const PURSUIT_OFFSET: number
+declare const PURSUIT_OFFSET: 1
 /** Triggered when an llEvade character thinks it has hidden from its pursuer. */
-declare const PU_EVADE_HIDDEN: number
+declare const PU_EVADE_HIDDEN: 7
 /** Triggered when an llEvade character switches from hiding to running */
-declare const PU_EVADE_SPOTTED: number
-declare const PU_FAILURE_DYNAMIC_PATHFINDING_DISABLED: number
+declare const PU_EVADE_SPOTTED: 8
+declare const PU_FAILURE_DYNAMIC_PATHFINDING_DISABLED: 10
 /** Goal is not on the navigation-mesh and cannot be reached. */
-declare const PU_FAILURE_INVALID_GOAL: number
+declare const PU_FAILURE_INVALID_GOAL: 3
 /** Character cannot navigate from the current location - e.g., the character is off the navmesh or too high above it. */
-declare const PU_FAILURE_INVALID_START: number
+declare const PU_FAILURE_INVALID_START: 2
 /** This is a fatal error reported to a character when there is no navmesh for the region. This usually indicates a server failure and users should file a bug report and include the time and region in which they received this message. */
-declare const PU_FAILURE_NO_NAVMESH: number
+declare const PU_FAILURE_NO_NAVMESH: 9
 /** There is no good place for the character to go - e.g., it is patrolling and all the patrol points are now unreachable. */
-declare const PU_FAILURE_NO_VALID_DESTINATION: number
-declare const PU_FAILURE_OTHER: number
-declare const PU_FAILURE_PARCEL_UNREACHABLE: number
+declare const PU_FAILURE_NO_VALID_DESTINATION: 6
+declare const PU_FAILURE_OTHER: 1000000
+declare const PU_FAILURE_PARCEL_UNREACHABLE: 11
 /** Target (for llPursue or llEvade) can no longer be tracked - e.g., it left the region or is an avatar that is now more than about 30m outside the region. */
-declare const PU_FAILURE_TARGET_GONE: number
+declare const PU_FAILURE_TARGET_GONE: 5
 /** Goal is no longer reachable for some reason - e.g., an obstacle blocks the path. */
-declare const PU_FAILURE_UNREACHABLE: number
+declare const PU_FAILURE_UNREACHABLE: 4
 /** Character has reached the goal and will stop or choose a new goal (if wandering). */
-declare const PU_GOAL_REACHED: number
+declare const PU_GOAL_REACHED: 1
 /** Character is near current goal. */
-declare const PU_SLOWDOWN_DISTANCE_REACHED: number
+declare const PU_SLOWDOWN_DISTANCE_REACHED: 0
 /** 57.2957795 - Number of degrees per radian. You can use this number to convert radians to degrees by multiplying the radians by this number. */
 declare const RAD_TO_DEG: number
-declare const RCERR_CAST_TIME_EXCEEDED: number
-declare const RCERR_SIM_PERF_LOW: number
-declare const RCERR_UNKNOWN: number
+declare const RCERR_CAST_TIME_EXCEEDED: -3
+declare const RCERR_SIM_PERF_LOW: -2
+declare const RCERR_UNKNOWN: -1
 declare const RC_DATA_FLAGS: 2
 declare const RC_DETECT_PHANTOM: 1
-declare const RC_GET_LINK_NUM: number
-declare const RC_GET_NORMAL: number
-declare const RC_GET_ROOT_KEY: number
+declare const RC_GET_LINK_NUM: 4
+declare const RC_GET_NORMAL: 1
+declare const RC_GET_ROOT_KEY: 2
 declare const RC_MAX_HITS: 3
-declare const RC_REJECT_AGENTS: number
-declare const RC_REJECT_LAND: number
-declare const RC_REJECT_NONPHYSICAL: number
-declare const RC_REJECT_PHYSICAL: number
+declare const RC_REJECT_AGENTS: 1
+declare const RC_REJECT_LAND: 8
+declare const RC_REJECT_NONPHYSICAL: 4
+declare const RC_REJECT_PHYSICAL: 2
 declare const RC_REJECT_TYPES: 0
-declare const REGION_FLAG_ALLOW_DAMAGE: number
-declare const REGION_FLAG_ALLOW_DIRECT_TELEPORT: number
-declare const REGION_FLAG_BLOCK_FLY: number
-declare const REGION_FLAG_BLOCK_FLYOVER: number
-declare const REGION_FLAG_BLOCK_TERRAFORM: number
-declare const REGION_FLAG_DISABLE_COLLISIONS: number
-declare const REGION_FLAG_DISABLE_PHYSICS: number
-declare const REGION_FLAG_FIXED_SUN: number
-declare const REGION_FLAG_RESTRICT_PUSHOBJECT: number
-declare const REGION_FLAG_SANDBOX: number
+declare const REGION_FLAG_ALLOW_DAMAGE: 1
+declare const REGION_FLAG_ALLOW_DIRECT_TELEPORT: 1048576
+declare const REGION_FLAG_BLOCK_FLY: 524288
+declare const REGION_FLAG_BLOCK_FLYOVER: 134217728
+declare const REGION_FLAG_BLOCK_TERRAFORM: 64
+declare const REGION_FLAG_DISABLE_COLLISIONS: 4096
+declare const REGION_FLAG_DISABLE_PHYSICS: 16384
+declare const REGION_FLAG_FIXED_SUN: 16
+declare const REGION_FLAG_RESTRICT_PUSHOBJECT: 4194304
+declare const REGION_FLAG_SANDBOX: 256
 /** @deprecated */
-declare const REMOTE_DATA_CHANNEL: number
+declare const REMOTE_DATA_CHANNEL: 1
 /** @deprecated */
-declare const REMOTE_DATA_REPLY: number
+declare const REMOTE_DATA_REPLY: 3
 /** @deprecated */
-declare const REMOTE_DATA_REQUEST: number
+declare const REMOTE_DATA_REQUEST: 2
 /** Define whether the character needs a line-of-sight to give chase. */
-declare const REQUIRE_LINE_OF_SIGHT: number
+declare const REQUIRE_LINE_OF_SIGHT: 2
 /** Used with llSetPhysicsMaterial to enable the density value. Must be between 0.0 and 1.0 */
-declare const RESTITUTION: number
+declare const RESTITUTION: 4
 /** Play animation in reverse direction. */
-declare const REVERSE: number
+declare const REVERSE: 4
 /** Acceleration forced applied to the rezzed object. [vector force, integer rel] */
 declare const REZ_ACCEL: 5
 /** Damage applied by the object when it collides with an agent. [float damage] */
@@ -5586,21 +5586,21 @@ declare const REZ_DAMAGE_TYPE: 12
 /** Rez flags to set on the newly rezzed object. [integer flags] */
 declare const REZ_FLAGS: 1
 /** Prevent grabbing the object. */
-declare const REZ_FLAG_BLOCK_GRAB_OBJECT: number
+declare const REZ_FLAG_BLOCK_GRAB_OBJECT: 128
 /** Object will die after its first collision. */
-declare const REZ_FLAG_DIE_ON_COLLIDE: number
+declare const REZ_FLAG_DIE_ON_COLLIDE: 8
 /** Object will die if it attempts to enter a parcel that it can not. */
-declare const REZ_FLAG_DIE_ON_NOENTRY: number
+declare const REZ_FLAG_DIE_ON_NOENTRY: 16
 /** Object will not trigger collision events with other objects created by the same rezzer. */
-declare const REZ_FLAG_NO_COLLIDE_FAMILY: number
+declare const REZ_FLAG_NO_COLLIDE_FAMILY: 64
 /** Object will not trigger collision events with its owner. */
-declare const REZ_FLAG_NO_COLLIDE_OWNER: number
+declare const REZ_FLAG_NO_COLLIDE_OWNER: 32
 /** Make the object phantom on rez. */
-declare const REZ_FLAG_PHANTOM: number
+declare const REZ_FLAG_PHANTOM: 4
 /** Make the object physical on rez. */
-declare const REZ_FLAG_PHYSICAL: number
+declare const REZ_FLAG_PHYSICAL: 2
 /** Flag the object as temp on rez. */
-declare const REZ_FLAG_TEMP: number
+declare const REZ_FLAG_TEMP: 1
 /** Prevent the object from rotating around some axes. [vector locks] */
 declare const REZ_LOCK_AXES: 11
 /** Omega applied to the rezzed object. [vector axis, integer rel, float spin, float gain] */
@@ -5617,466 +5617,466 @@ declare const REZ_ROT: 3
 declare const REZ_SOUND: 9
 /** Sound played by the object on a collision. [string name, float volume] */
 declare const REZ_SOUND_COLLIDE: 10
-declare const REZ_TORQUE: number
+declare const REZ_TORQUE: 6
 /** Initial velocity of rezzed object. [vector vel, integer rel, integer inherit] */
 declare const REZ_VEL: 4
 /** Animate texture rotation. */
-declare const ROTATE: number
+declare const ROTATE: 32
 /** Animate the texture scale. */
-declare const SCALE: number
+declare const SCALE: 64
 /** Scripted in-world objects. */
-declare const SCRIPTED: number
+declare const SCRIPTED: 8
 /** Number of active scripts. */
-declare const SIM_STAT_ACTIVE_SCRIPT_COUNT: number
+declare const SIM_STAT_ACTIVE_SCRIPT_COUNT: 12
 /** Number of agents in region. */
-declare const SIM_STAT_AGENT_COUNT: number
+declare const SIM_STAT_AGENT_COUNT: 10
 /** Time spent in 'agent' segment of simulation frame. */
-declare const SIM_STAT_AGENT_MS: number
+declare const SIM_STAT_AGENT_MS: 7
 /** Agent updates per second. */
-declare const SIM_STAT_AGENT_UPDATES: number
+declare const SIM_STAT_AGENT_UPDATES: 2
 /** Time spent on AI step. */
-declare const SIM_STAT_AI_MS: number
+declare const SIM_STAT_AI_MS: 26
 /** Pending asset download count. */
-declare const SIM_STAT_ASSET_DOWNLOADS: number
+declare const SIM_STAT_ASSET_DOWNLOADS: 15
 /** Pending asset upload count. */
-declare const SIM_STAT_ASSET_UPLOADS: number
+declare const SIM_STAT_ASSET_UPLOADS: 16
 /** Number of child agents in region. */
-declare const SIM_STAT_CHILD_AGENT_COUNT: number
+declare const SIM_STAT_CHILD_AGENT_COUNT: 11
 /** Total frame time. */
-declare const SIM_STAT_FRAME_MS: number
+declare const SIM_STAT_FRAME_MS: 3
 /** Time spent in 'image' segment of simulation frame. */
-declare const SIM_STAT_IMAGE_MS: number
+declare const SIM_STAT_IMAGE_MS: 8
 /** Pump IO time. */
-declare const SIM_STAT_IO_PUMP_MS: number
+declare const SIM_STAT_IO_PUMP_MS: 24
 /** Time spent in 'network' segment of simulation frame. */
-declare const SIM_STAT_NET_MS: number
+declare const SIM_STAT_NET_MS: 4
 /** Time spent in 'other' segment of simulation frame. */
-declare const SIM_STAT_OTHER_MS: number
+declare const SIM_STAT_OTHER_MS: 5
 /** Packets in per second. */
-declare const SIM_STAT_PACKETS_IN: number
+declare const SIM_STAT_PACKETS_IN: 13
 /** Packets out per second. */
-declare const SIM_STAT_PACKETS_OUT: number
+declare const SIM_STAT_PACKETS_OUT: 14
 /**
  * Returns the % of pathfinding characters skipped each frame, averaged over the last minute.
  * The returned value corresponds to the "Characters Updated" stat in the viewer's Statistics Bar.
  */
-declare const SIM_STAT_PCT_CHARS_STEPPED: number
+declare const SIM_STAT_PCT_CHARS_STEPPED: 0
 /** Physics simulation FPS. */
-declare const SIM_STAT_PHYSICS_FPS: number
+declare const SIM_STAT_PHYSICS_FPS: 1
 /** Time spent in 'physics' segment of simulation frame. */
-declare const SIM_STAT_PHYSICS_MS: number
+declare const SIM_STAT_PHYSICS_MS: 6
 /** Physics other time. */
-declare const SIM_STAT_PHYSICS_OTHER_MS: number
+declare const SIM_STAT_PHYSICS_OTHER_MS: 20
 /** Physics shape update time. */
-declare const SIM_STAT_PHYSICS_SHAPE_MS: number
+declare const SIM_STAT_PHYSICS_SHAPE_MS: 19
 /** Physics step time. */
-declare const SIM_STAT_PHYSICS_STEP_MS: number
+declare const SIM_STAT_PHYSICS_STEP_MS: 18
 /** Script events per second. */
-declare const SIM_STAT_SCRIPT_EPS: number
+declare const SIM_STAT_SCRIPT_EPS: 21
 /** Time spent in 'script' segment of simulation frame. */
-declare const SIM_STAT_SCRIPT_MS: number
+declare const SIM_STAT_SCRIPT_MS: 9
 /** Percent of scripts run during frame. */
-declare const SIM_STAT_SCRIPT_RUN_PCT: number
+declare const SIM_STAT_SCRIPT_RUN_PCT: 25
 /** Time spent sleeping. */
-declare const SIM_STAT_SLEEP_MS: number
+declare const SIM_STAT_SLEEP_MS: 23
 /** Spare time left after frame. */
-declare const SIM_STAT_SPARE_MS: number
+declare const SIM_STAT_SPARE_MS: 22
 /** Total unacknowledged bytes. */
-declare const SIM_STAT_UNACKED_BYTES: number
+declare const SIM_STAT_UNACKED_BYTES: 17
 /** The prim allows a seated avatar to stand up. */
-declare const SIT_FLAG_ALLOW_UNSIT: number
+declare const SIT_FLAG_ALLOW_UNSIT: 2
 /** The seated avatar's hit box is disabled when seated on this prim. */
-declare const SIT_FLAG_NO_COLLIDE: number
+declare const SIT_FLAG_NO_COLLIDE: 16
 /** Damage will not be forwarded to an avatar seated on this prim. */
-declare const SIT_FLAG_NO_DAMAGE: number
+declare const SIT_FLAG_NO_DAMAGE: 32
 /** An avatar may not manually sit on this prim. */
-declare const SIT_FLAG_SCRIPTED_ONLY: number
+declare const SIT_FLAG_SCRIPTED_ONLY: 4
 /** The prim has an explicitly set sit target. */
-declare const SIT_FLAG_SIT_TARGET: number
+declare const SIT_FLAG_SIT_TARGET: 1
 /** Avatar ID did not specify a valid avatar. */
-declare const SIT_INVALID_AGENT: number
+declare const SIT_INVALID_AGENT: -4
 /** Link ID did not specify a valid prim in the linkset or resolved to multiple prims. */
-declare const SIT_INVALID_LINK: number
+declare const SIT_INVALID_LINK: -5
 /** Attempt to force an avatar to sit on an attachment or other invalid target. */
-declare const SIT_INVALID_OBJECT: number
+declare const SIT_INVALID_OBJECT: -7
 /** Attempt to force an avatar to sit outside an experience. */
-declare const SIT_NOT_EXPERIENCE: number
+declare const SIT_NOT_EXPERIENCE: -1
 /** Avatar does not have access to the parcel containing the target linkset of the forced sit. */
-declare const SIT_NO_ACCESS: number
+declare const SIT_NO_ACCESS: -6
 /** Avatar has not granted permission to force sits. */
-declare const SIT_NO_EXPERIENCE_PERMISSION: number
+declare const SIT_NO_EXPERIENCE_PERMISSION: -2
 /** No available sit target in linkset for forced sit. */
-declare const SIT_NO_SIT_TARGET: number
-declare const SKY_ABSORPTION_CONFIG: number
+declare const SIT_NO_SIT_TARGET: -3
+declare const SKY_ABSORPTION_CONFIG: 16
 /** The ambient color of the environment */
-declare const SKY_AMBIENT: number
+declare const SKY_AMBIENT: 0
 /** Blue settings for environment */
-declare const SKY_BLUE: number
+declare const SKY_BLUE: 22
 /** Settings controlling cloud density and configuration */
-declare const SKY_CLOUDS: number
+declare const SKY_CLOUDS: 2
 /** Texture ID used by clouds */
-declare const SKY_CLOUD_TEXTURE: number
+declare const SKY_CLOUD_TEXTURE: 19
 /** Counts for density profiles of each type. */
-declare const SKY_DENSITY_PROFILE_COUNTS: number
+declare const SKY_DENSITY_PROFILE_COUNTS: 3
 /** Sky dome information. */
-declare const SKY_DOME: number
+declare const SKY_DOME: 4
 /** The gamma value applied to the scene. */
-declare const SKY_GAMMA: number
+declare const SKY_GAMMA: 5
 /** Glow color applied to the sun and moon. */
-declare const SKY_GLOW: number
+declare const SKY_GLOW: 6
 /** Haze settings for environment */
-declare const SKY_HAZE: number
+declare const SKY_HAZE: 23
 /** Miscellaneous lighting values. */
-declare const SKY_LIGHT: number
+declare const SKY_LIGHT: 8
 /** MIE scatting profile parameters. */
-declare const SKY_MIE_CONFIG: number
+declare const SKY_MIE_CONFIG: 17
 /** Environmental moon details. */
-declare const SKY_MOON: number
+declare const SKY_MOON: 9
 /** Environmental moon texture. */
-declare const SKY_MOON_TEXTURE: number
+declare const SKY_MOON_TEXTURE: 20
 /** Planet information used in rendering the sky. */
-declare const SKY_PLANET: number
+declare const SKY_PLANET: 10
 /** Rayleigh scatting profile parameters. */
-declare const SKY_RAYLEIGH_CONFIG: number
+declare const SKY_RAYLEIGH_CONFIG: 18
 /** Settings the ambience of the reflection probe. */
-declare const SKY_REFLECTION_PROBE_AMBIANCE: number
+declare const SKY_REFLECTION_PROBE_AMBIANCE: 24
 /** Sky refraction parameters for rainbows and optical effects. */
-declare const SKY_REFRACTION: number
+declare const SKY_REFRACTION: 11
 /** Brightness value for the stars. */
-declare const SKY_STAR_BRIGHTNESS: number
+declare const SKY_STAR_BRIGHTNESS: 13
 /** Detailed sun information */
-declare const SKY_SUN: number
+declare const SKY_SUN: 14
 /** Environmental sun texture */
-declare const SKY_SUN_TEXTURE: number
+declare const SKY_SUN_TEXTURE: 21
 /** Is the environment using the default textures. */
-declare const SKY_TEXTURE_DEFAULTS: number
+declare const SKY_TEXTURE_DEFAULTS: 1
 /** Track elevations for this region. */
-declare const SKY_TRACKS: number
+declare const SKY_TRACKS: 15
 /** Slide in the X direction, instead of playing separate frames. */
-declare const SMOOTH: number
+declare const SMOOTH: 16
 /** Sound will loop until stopped. */
-declare const SOUND_LOOP: number
+declare const SOUND_LOOP: 1
 /** Sound will play normally. */
-declare const SOUND_PLAY: number
+declare const SOUND_PLAY: 0
 /** Sound will be synchronized with the nearest master. */
-declare const SOUND_SYNC: number
+declare const SOUND_SYNC: 4
 /** Sound will be triggered at the prim's location and not attached. */
-declare const SOUND_TRIGGER: number
+declare const SOUND_TRIGGER: 2
 /** 1.41421356 - The square root of 2. */
 declare const SQRT2: number
 /**
  * Controls whether the object can be grabbed.
  * A grab is the default action when in third person, and is available as the hand tool in build mode. This is useful for physical objects that you don't want other people to be able to trivially disturb. The default is FALSE
  */
-declare const STATUS_BLOCK_GRAB: number
+declare const STATUS_BLOCK_GRAB: 64
 /** Prevent click-and-drag movement on all prims in the object. */
-declare const STATUS_BLOCK_GRAB_OBJECT: number
+declare const STATUS_BLOCK_GRAB_OBJECT: 1024
 /** Argument(s) passed to function had a bounds error. */
-declare const STATUS_BOUNDS_ERROR: number
-declare const STATUS_CAST_SHADOWS: number
+declare const STATUS_BOUNDS_ERROR: 1002
+declare const STATUS_CAST_SHADOWS: 512
 /**
  * Controls whether the object is returned to the owner's inventory if it wanders off the edge of the world.
  * It is useful to set this status TRUE for things like bullets or rockets. The default is TRUE
  */
-declare const STATUS_DIE_AT_EDGE: number
+declare const STATUS_DIE_AT_EDGE: 128
 /**
  * Controls whether the object dies if it attempts to enter a parcel that does not allow object entry or does not have enough capacity.
  * It is useful to set this status TRUE for things like bullets or rockets. The default is FALSE
  */
-declare const STATUS_DIE_AT_NO_ENTRY: number
+declare const STATUS_DIE_AT_NO_ENTRY: 2048
 /** An internal error occurred. */
-declare const STATUS_INTERNAL_ERROR: number
+declare const STATUS_INTERNAL_ERROR: 1999
 /** Function was called with malformed parameters. */
-declare const STATUS_MALFORMED_PARAMS: number
+declare const STATUS_MALFORMED_PARAMS: 1000
 /** Object or other item was not found. */
-declare const STATUS_NOT_FOUND: number
+declare const STATUS_NOT_FOUND: 1003
 /** Feature not supported. */
-declare const STATUS_NOT_SUPPORTED: number
+declare const STATUS_NOT_SUPPORTED: 1004
 /** Result of function call was a success. */
-declare const STATUS_OK: number
+declare const STATUS_OK: 0
 /**
  * Controls/indicates whether the object collides or not.
  * Setting the value to TRUE makes the object non-colliding with all objects. It is a good idea to use this for most objects that move or rotate, but are non-physical. It is also useful for simulating volumetric lighting. The default is FALSE.
  */
-declare const STATUS_PHANTOM: number
+declare const STATUS_PHANTOM: 16
 /**
  * Controls/indicates whether the object moves physically.
  * This controls the same flag that the UI check-box for Physical controls. The default is FALSE.
  */
-declare const STATUS_PHYSICS: number
-declare const STATUS_RETURN_AT_EDGE: number
-declare const STATUS_ROTATE_X: number
-declare const STATUS_ROTATE_Y: number
+declare const STATUS_PHYSICS: 1
+declare const STATUS_RETURN_AT_EDGE: 256
+declare const STATUS_ROTATE_X: 2
+declare const STATUS_ROTATE_Y: 4
 /** Controls/indicates whether the object can physically rotate aroundthe specific axis or not. This flag has no meaningfor non-physical objects. Set the value to FALSEif you want to disable rotation around that axis. Thedefault is TRUE for a physical object.A useful example to think about when visualizingthe effect is a sit-and-spin device. They spin around theZ axis (up) but not around the X or Y axis. */
-declare const STATUS_ROTATE_Z: number
+declare const STATUS_ROTATE_Z: 8
 /** Controls/indicates whether the object can cross region boundariesand move more than 20 meters from its creationpoint. The default if FALSE. */
-declare const STATUS_SANDBOX: number
+declare const STATUS_SANDBOX: 32
 /** Argument(s) passed to function had a type mismatch. */
-declare const STATUS_TYPE_MISMATCH: number
+declare const STATUS_TYPE_MISMATCH: 1001
 /** Whitelist Failed. */
-declare const STATUS_WHITELIST_FAILED: number
-declare const STRING_TRIM: number
-declare const STRING_TRIM_HEAD: number
-declare const STRING_TRIM_TAIL: number
+declare const STATUS_WHITELIST_FAILED: 2001
+declare const STRING_TRIM: 3
+declare const STRING_TRIM_HEAD: 1
+declare const STRING_TRIM_TAIL: 2
 /** Send email to the owner of the object */
-declare const TARGETED_EMAIL_OBJECT_OWNER: number
+declare const TARGETED_EMAIL_OBJECT_OWNER: 2
 /** Send email to the creator of the root object */
-declare const TARGETED_EMAIL_ROOT_CREATOR: number
-declare const TERRAIN_DETAIL_1: number
-declare const TERRAIN_DETAIL_2: number
-declare const TERRAIN_DETAIL_3: number
-declare const TERRAIN_DETAIL_4: number
-declare const TERRAIN_HEIGHT_RANGE_NE: number
-declare const TERRAIN_HEIGHT_RANGE_NW: number
-declare const TERRAIN_HEIGHT_RANGE_SE: number
-declare const TERRAIN_HEIGHT_RANGE_SW: number
-declare const TERRAIN_PBR_OFFSET_1: number
-declare const TERRAIN_PBR_OFFSET_2: number
-declare const TERRAIN_PBR_OFFSET_3: number
-declare const TERRAIN_PBR_OFFSET_4: number
-declare const TERRAIN_PBR_ROTATION_1: number
-declare const TERRAIN_PBR_ROTATION_2: number
-declare const TERRAIN_PBR_ROTATION_3: number
-declare const TERRAIN_PBR_ROTATION_4: number
-declare const TERRAIN_PBR_SCALE_1: number
-declare const TERRAIN_PBR_SCALE_2: number
-declare const TERRAIN_PBR_SCALE_3: number
-declare const TERRAIN_PBR_SCALE_4: number
+declare const TARGETED_EMAIL_ROOT_CREATOR: 1
+declare const TERRAIN_DETAIL_1: 0
+declare const TERRAIN_DETAIL_2: 1
+declare const TERRAIN_DETAIL_3: 2
+declare const TERRAIN_DETAIL_4: 3
+declare const TERRAIN_HEIGHT_RANGE_NE: 7
+declare const TERRAIN_HEIGHT_RANGE_NW: 6
+declare const TERRAIN_HEIGHT_RANGE_SE: 5
+declare const TERRAIN_HEIGHT_RANGE_SW: 4
+declare const TERRAIN_PBR_OFFSET_1: 16
+declare const TERRAIN_PBR_OFFSET_2: 17
+declare const TERRAIN_PBR_OFFSET_3: 18
+declare const TERRAIN_PBR_OFFSET_4: 19
+declare const TERRAIN_PBR_ROTATION_1: 12
+declare const TERRAIN_PBR_ROTATION_2: 13
+declare const TERRAIN_PBR_ROTATION_3: 14
+declare const TERRAIN_PBR_ROTATION_4: 15
+declare const TERRAIN_PBR_SCALE_1: 8
+declare const TERRAIN_PBR_SCALE_2: 9
+declare const TERRAIN_PBR_SCALE_3: 10
+declare const TERRAIN_PBR_SCALE_4: 11
 declare const TEXTURE_BLANK: UUID
 declare const TEXTURE_DEFAULT: UUID
 declare const TEXTURE_MEDIA: UUID
 declare const TEXTURE_PLYWOOD: UUID
 declare const TEXTURE_TRANSPARENT: UUID
-declare const TOUCH_INVALID_FACE: number
+declare const TOUCH_INVALID_FACE: -1
 declare const TOUCH_INVALID_TEXCOORD: Vector
 declare const TOUCH_INVALID_VECTOR: Vector
 /** Direct teleporting is blocked on this parcel. */
-declare const TP_ROUTING_BLOCKED: number
+declare const TP_ROUTING_BLOCKED: 0
 /** Teleports are unrestricted on this parcel. */
-declare const TP_ROUTING_FREE: number
+declare const TP_ROUTING_FREE: 2
 /** Teleports are routed to a landing point if set on this parcel. */
-declare const TP_ROUTING_LANDINGP: number
+declare const TP_ROUTING_LANDINGP: 1
 /** Invalid inventory options. */
-declare const TRANSFER_BAD_OPTS: number
+declare const TRANSFER_BAD_OPTS: -1
 /** The root path specified in TRANSFER_DEST contained an invalid directory or was reduced to nothing. */
-declare const TRANSFER_BAD_ROOT: number
+declare const TRANSFER_BAD_ROOT: -5
 /** The root folder to transfer inventory into. */
-declare const TRANSFER_DEST: number
+declare const TRANSFER_DEST: 0
 /** Flags to control the behavior of inventory transfer. */
-declare const TRANSFER_FLAGS: number
+declare const TRANSFER_FLAGS: 1
 /** Gives a copy of the object being transfered. Implies TRANSFER_FLAG_TAKE. */
-declare const TRANSFER_FLAG_COPY: number
+declare const TRANSFER_FLAG_COPY: 4
 /** Reserved for future expansion. */
-declare const TRANSFER_FLAG_RESERVED: number
+declare const TRANSFER_FLAG_RESERVED: 1
 /** On a successful transfer, automatically takes the object into inventory. */
-declare const TRANSFER_FLAG_TAKE: number
+declare const TRANSFER_FLAG_TAKE: 2
 /** Can not transfer ownership of an attached object. */
-declare const TRANSFER_NO_ATTACHMENT: number
+declare const TRANSFER_NO_ATTACHMENT: -7
 /** No items in the inventory list are eligible for transfer. */
-declare const TRANSFER_NO_ITEMS: number
+declare const TRANSFER_NO_ITEMS: -4
 /** The object does not have transfer permissions. */
-declare const TRANSFER_NO_PERMS: number
+declare const TRANSFER_NO_PERMS: -6
 /** Could not find the receiver in the current region. */
-declare const TRANSFER_NO_TARGET: number
+declare const TRANSFER_NO_TARGET: -2
 /** Inventory transfer offer was successfully made. */
-declare const TRANSFER_OK: number
+declare const TRANSFER_OK: 0
 /** Inventory throttle hit. */
-declare const TRANSFER_THROTTLE: number
+declare const TRANSFER_THROTTLE: -3
 /** One of TRAVERSAL_TYPE_FAST, TRAVERSAL_TYPE_SLOW, and TRAVERSAL_TYPE_NONE. */
-declare const TRAVERSAL_TYPE: number
-declare const TRAVERSAL_TYPE_FAST: number
-declare const TRAVERSAL_TYPE_NONE: number
-declare const TRAVERSAL_TYPE_SLOW: number
+declare const TRAVERSAL_TYPE: 7
+declare const TRAVERSAL_TYPE_FAST: 1
+declare const TRAVERSAL_TYPE_NONE: 2
+declare const TRAVERSAL_TYPE_SLOW: 0
 /** 6.28318530 - The radians of a circle. */
 declare const TWO_PI: number
 /**
  * The list entry is a float.
  * @deprecated Use '"number"' instead.
  */
-declare const TYPE_FLOAT: number
+declare const TYPE_FLOAT: 2
 /**
  * The list entry is an integer.
  * @deprecated Use '"number"' instead.
  */
-declare const TYPE_INTEGER: number
+declare const TYPE_INTEGER: 1
 /**
  * The list entry is invalid.
  * @deprecated Use 'nil' instead.
  */
-declare const TYPE_INVALID: number
+declare const TYPE_INVALID: 0
 /**
  * The list entry is a key.
  * @deprecated Use '"uuid"' instead.
  */
-declare const TYPE_KEY: number
+declare const TYPE_KEY: 4
 /**
  * The list entry is a rotation.
  * @deprecated Use '"quaternion"' instead.
  */
-declare const TYPE_ROTATION: number
+declare const TYPE_ROTATION: 6
 /**
  * The list entry is a string.
  * @deprecated Use '"string"' instead.
  */
-declare const TYPE_STRING: number
+declare const TYPE_STRING: 3
 /**
  * The list entry is a vector.
  * @deprecated Use '"vector"' instead.
  */
-declare const TYPE_VECTOR: number
+declare const TYPE_VECTOR: 5
 declare const URL_REQUEST_DENIED: string
 declare const URL_REQUEST_GRANTED: string
 /** A slider between minimum (0.0) and maximum (1.0) deflection of angular orientation. That is, its a simple scalar for modulating the strength of angular deflection such that the vehicles preferred axis of motion points toward its real velocity. */
-declare const VEHICLE_ANGULAR_DEFLECTION_EFFICIENCY: number
+declare const VEHICLE_ANGULAR_DEFLECTION_EFFICIENCY: 32
 /** The time-scale for exponential success of linear deflection deflection. Its another way to specify the strength of the vehicles tendency to reorient itself so that its preferred axis of motion agrees with its true velocity. */
-declare const VEHICLE_ANGULAR_DEFLECTION_TIMESCALE: number
+declare const VEHICLE_ANGULAR_DEFLECTION_TIMESCALE: 33
 /** A vector of timescales for exponential decay of the vehicle's angular velocity about its preferred axes of motion (at, left, up).Range = [0.07, inf) seconds for each element of the vector. */
-declare const VEHICLE_ANGULAR_FRICTION_TIMESCALE: number
+declare const VEHICLE_ANGULAR_FRICTION_TIMESCALE: 17
 /** The timescale for exponential decay of the angular motors magnitude. */
-declare const VEHICLE_ANGULAR_MOTOR_DECAY_TIMESCALE: number
+declare const VEHICLE_ANGULAR_MOTOR_DECAY_TIMESCALE: 35
 /** The direction and magnitude (in preferred frame) of the vehicle's angular motor. The vehicle will accelerate (or decelerate if necessary) to match its velocity to its motor. */
-declare const VEHICLE_ANGULAR_MOTOR_DIRECTION: number
+declare const VEHICLE_ANGULAR_MOTOR_DIRECTION: 19
 /** The timescale for exponential approach to full angular motor velocity. */
-declare const VEHICLE_ANGULAR_MOTOR_TIMESCALE: number
+declare const VEHICLE_ANGULAR_MOTOR_TIMESCALE: 34
 /** A slider between anti (-1.0), none (0.0), and maxmum (1.0) banking strength. */
-declare const VEHICLE_BANKING_EFFICIENCY: number
+declare const VEHICLE_BANKING_EFFICIENCY: 38
 /** A slider between static (0.0) and dynamic (1.0) banking. "Static" means the banking scales only with the angle of roll, whereas "dynamic" is a term that also scales with the vehicles linear speed. */
-declare const VEHICLE_BANKING_MIX: number
+declare const VEHICLE_BANKING_MIX: 39
 /** The timescale for banking to exponentially approach its maximum effect. This is another way to scale the strength of the banking effect, however it affects the term that is proportional to the difference between what the banking behavior is trying to do, and what the vehicle is actually doing. */
-declare const VEHICLE_BANKING_TIMESCALE: number
+declare const VEHICLE_BANKING_TIMESCALE: 40
 /** A slider between minimum (0.0) and maximum anti-gravity (1.0). */
-declare const VEHICLE_BUOYANCY: number
+declare const VEHICLE_BUOYANCY: 27
 /** Prevent other scripts from pushing vehicle. */
-declare const VEHICLE_FLAG_BLOCK_INTERFERENCE: number
-declare const VEHICLE_FLAG_CAMERA_DECOUPLED: number
+declare const VEHICLE_FLAG_BLOCK_INTERFERENCE: 1024
+declare const VEHICLE_FLAG_CAMERA_DECOUPLED: 512
 /** Hover at global height. */
-declare const VEHICLE_FLAG_HOVER_GLOBAL_HEIGHT: number
+declare const VEHICLE_FLAG_HOVER_GLOBAL_HEIGHT: 16
 /** Ignore water height when hovering. */
-declare const VEHICLE_FLAG_HOVER_TERRAIN_ONLY: number
+declare const VEHICLE_FLAG_HOVER_TERRAIN_ONLY: 8
 /** Hover does not push down. Use this flag for hovering vehicles that should be able to jump above their hover height. */
-declare const VEHICLE_FLAG_HOVER_UP_ONLY: number
+declare const VEHICLE_FLAG_HOVER_UP_ONLY: 32
 /** Ignore terrain height when hovering. */
-declare const VEHICLE_FLAG_HOVER_WATER_ONLY: number
+declare const VEHICLE_FLAG_HOVER_WATER_ONLY: 4
 /** Prevents ground vehicles from motoring into the sky. */
-declare const VEHICLE_FLAG_LIMIT_MOTOR_UP: number
+declare const VEHICLE_FLAG_LIMIT_MOTOR_UP: 64
 /** For vehicles with vertical attractor that want to be able to climb/dive, for instance, aeroplanes that want to use the banking feature. */
-declare const VEHICLE_FLAG_LIMIT_ROLL_ONLY: number
-declare const VEHICLE_FLAG_MOUSELOOK_BANK: number
-declare const VEHICLE_FLAG_MOUSELOOK_STEER: number
+declare const VEHICLE_FLAG_LIMIT_ROLL_ONLY: 2
+declare const VEHICLE_FLAG_MOUSELOOK_BANK: 256
+declare const VEHICLE_FLAG_MOUSELOOK_STEER: 128
 /** This flag prevents linear deflection parallel to world z-axis. This is useful for preventing ground vehicles with large linear deflection, like bumper cars, from climbing their linear deflection into the sky. */
-declare const VEHICLE_FLAG_NO_DEFLECTION_UP: number
+declare const VEHICLE_FLAG_NO_DEFLECTION_UP: 1
 /**
  * Old, changed to VEHICLE_FLAG_NO_DEFLECTION_UP
  * @deprecated Use 'VEHICLE_FLAG_NO_DEFLECTION_UP' instead.
  */
-declare const VEHICLE_FLAG_NO_FLY_UP: number
+declare const VEHICLE_FLAG_NO_FLY_UP: 1
 /** A slider between minimum (0.0 = bouncy) and maximum (1.0 = fast as possible) damped motion of the hover behavior. */
-declare const VEHICLE_HOVER_EFFICIENCY: number
+declare const VEHICLE_HOVER_EFFICIENCY: 25
 /** The height (above the terrain or water, or global) at which the vehicle will try to hover. */
-declare const VEHICLE_HOVER_HEIGHT: number
+declare const VEHICLE_HOVER_HEIGHT: 24
 /** Period of time (in seconds) for the vehicle to achieve its hover height. */
-declare const VEHICLE_HOVER_TIMESCALE: number
+declare const VEHICLE_HOVER_TIMESCALE: 26
 /** A slider between minimum (0.0) and maximum (1.0) deflection of linear velocity. That is, its a simple scalar for modulating the strength of linear deflection. */
-declare const VEHICLE_LINEAR_DEFLECTION_EFFICIENCY: number
+declare const VEHICLE_LINEAR_DEFLECTION_EFFICIENCY: 28
 /** The timescale for exponential success of linear deflection deflection. It is another way to specify how much time it takes for the vehicle's linear velocity to be redirected to its preferred axis of motion. */
-declare const VEHICLE_LINEAR_DEFLECTION_TIMESCALE: number
+declare const VEHICLE_LINEAR_DEFLECTION_TIMESCALE: 29
 /** A vector of timescales for exponential decay of the vehicle's linear velocity along its preferred axes of motion (at, left, up).Range = [0.07, inf) seconds for each element of the vector. */
-declare const VEHICLE_LINEAR_FRICTION_TIMESCALE: number
+declare const VEHICLE_LINEAR_FRICTION_TIMESCALE: 16
 /** The timescale for exponential decay of the linear motors magnitude. */
-declare const VEHICLE_LINEAR_MOTOR_DECAY_TIMESCALE: number
+declare const VEHICLE_LINEAR_MOTOR_DECAY_TIMESCALE: 31
 /** The direction and magnitude (in preferred frame) of the vehicle's linear motor. The vehicle will accelerate (or decelerate if necessary) to match its velocity to its motor.Range of magnitude = [0, 30] meters/second. */
-declare const VEHICLE_LINEAR_MOTOR_DIRECTION: number
-declare const VEHICLE_LINEAR_MOTOR_OFFSET: number
+declare const VEHICLE_LINEAR_MOTOR_DIRECTION: 18
+declare const VEHICLE_LINEAR_MOTOR_OFFSET: 20
 /** The timescale for exponential approach to full linear motor velocity. */
-declare const VEHICLE_LINEAR_MOTOR_TIMESCALE: number
+declare const VEHICLE_LINEAR_MOTOR_TIMESCALE: 30
 /** A rotation of the vehicle's preferred axes of motion and orientation (at, left, up) with respect to the vehicle's local frame (x, y, z). */
-declare const VEHICLE_REFERENCE_FRAME: number
+declare const VEHICLE_REFERENCE_FRAME: 44
 /**
  * Uses linear deflection for lift, no hover, and banking to turn.
  * See http://wiki.secondlife.com/wiki/VEHICLE_TYPE_AIRPLANE
  */
-declare const VEHICLE_TYPE_AIRPLANE: number
+declare const VEHICLE_TYPE_AIRPLANE: 4
 /**
  * Hover, and friction, but no deflection.
  * See http://wiki.secondlife.com/wiki/VEHICLE_TYPE_BALLOON
  */
-declare const VEHICLE_TYPE_BALLOON: number
+declare const VEHICLE_TYPE_BALLOON: 5
 /**
  * Hovers over water with lots of friction and some anglar deflection.
  * See http://wiki.secondlife.com/wiki/VEHICLE_TYPE_BOAT
  */
-declare const VEHICLE_TYPE_BOAT: number
+declare const VEHICLE_TYPE_BOAT: 3
 /**
  * Another vehicle that bounces along the ground but needs the motors to be driven from external controls or timer events.
  * See http://wiki.secondlife.com/wiki/VEHICLE_TYPE_CAR
  */
-declare const VEHICLE_TYPE_CAR: number
-declare const VEHICLE_TYPE_NONE: number
+declare const VEHICLE_TYPE_CAR: 2
+declare const VEHICLE_TYPE_NONE: 0
 /**
  * Simple vehicle that bumps along the ground, and likes to move along its local x-axis.
  * See http://wiki.secondlife.com/wiki/VEHICLE_TYPE_SLED
  */
-declare const VEHICLE_TYPE_SLED: number
+declare const VEHICLE_TYPE_SLED: 1
 /** A slider between minimum (0.0 = wobbly) and maximum (1.0 = firm as possible) stability of the vehicle to keep itself upright. */
-declare const VEHICLE_VERTICAL_ATTRACTION_EFFICIENCY: number
+declare const VEHICLE_VERTICAL_ATTRACTION_EFFICIENCY: 36
 /** The period of wobble, or timescale for exponential approach, of the vehicle to rotate such that its preferred "up" axis is oriented along the world's "up" axis. */
-declare const VEHICLE_VERTICAL_ATTRACTION_TIMESCALE: number
-declare const VERTICAL: number
-declare const WANDER_PAUSE_AT_WAYPOINTS: number
+declare const VEHICLE_VERTICAL_ATTRACTION_TIMESCALE: 37
+declare const VERTICAL: 0
+declare const WANDER_PAUSE_AT_WAYPOINTS: 0
 /** Blur factor. */
-declare const WATER_BLUR_MULTIPLIER: number
+declare const WATER_BLUR_MULTIPLIER: 100
 /** Fog properties when underwater. */
-declare const WATER_FOG: number
+declare const WATER_FOG: 101
 /** Fresnel scattering applied to the surface of the water. */
-declare const WATER_FRESNEL: number
+declare const WATER_FRESNEL: 102
 /** Scaling applied to the water normal map. */
-declare const WATER_NORMAL_SCALE: number
+declare const WATER_NORMAL_SCALE: 104
 /** Normal map used for environmental waves. */
-declare const WATER_NORMAL_TEXTURE: number
+declare const WATER_NORMAL_TEXTURE: 107
 /** Refraction factors when looking through the surface of the water. */
-declare const WATER_REFRACTION: number
+declare const WATER_REFRACTION: 105
 /** Is the environment using the default wave map. */
-declare const WATER_TEXTURE_DEFAULTS: number
+declare const WATER_TEXTURE_DEFAULTS: 103
 /** Vectors for the directions of the waves. */
-declare const WATER_WAVE_DIRECTION: number
+declare const WATER_WAVE_DIRECTION: 106
 /** The region currently has experiences disabled. */
-declare const XP_ERROR_EXPERIENCES_DISABLED: number
+declare const XP_ERROR_EXPERIENCES_DISABLED: 2
 /** The experience owner has temporarily disabled the experience. */
-declare const XP_ERROR_EXPERIENCE_DISABLED: number
+declare const XP_ERROR_EXPERIENCE_DISABLED: 8
 /** The experience has been suspended by Linden Customer Support. */
-declare const XP_ERROR_EXPERIENCE_SUSPENDED: number
+declare const XP_ERROR_EXPERIENCE_SUSPENDED: 9
 /** The script is associated with an experience that no longer exists. */
-declare const XP_ERROR_INVALID_EXPERIENCE: number
+declare const XP_ERROR_INVALID_EXPERIENCE: 7
 /** One of the string arguments was too big to fit in the key-value store. */
-declare const XP_ERROR_INVALID_PARAMETERS: number
+declare const XP_ERROR_INVALID_PARAMETERS: 3
 /** The requested key does not exist. */
-declare const XP_ERROR_KEY_NOT_FOUND: number
+declare const XP_ERROR_KEY_NOT_FOUND: 14
 /** The content rating of the experience exceeds that of the region. */
-declare const XP_ERROR_MATURITY_EXCEEDED: number
+declare const XP_ERROR_MATURITY_EXCEEDED: 16
 /** No error was detected. */
-declare const XP_ERROR_NONE: number
+declare const XP_ERROR_NONE: 0
 /** The sim was unable to verify the validity of the experience. Retrying after a short wait is advised. */
-declare const XP_ERROR_NOT_FOUND: number
+declare const XP_ERROR_NOT_FOUND: 6
 /** This experience is not allowed to run by the requested agent. */
-declare const XP_ERROR_NOT_PERMITTED: number
+declare const XP_ERROR_NOT_PERMITTED: 4
 /** This experience is not allowed to run on the current region. */
-declare const XP_ERROR_NOT_PERMITTED_LAND: number
+declare const XP_ERROR_NOT_PERMITTED_LAND: 17
 /** This script is not associated with an experience. */
-declare const XP_ERROR_NO_EXPERIENCE: number
+declare const XP_ERROR_NO_EXPERIENCE: 5
 /** An attempted write data to the key-value store failed due to the data quota being met. */
-declare const XP_ERROR_QUOTA_EXCEEDED: number
+declare const XP_ERROR_QUOTA_EXCEEDED: 11
 /** Request timed out; permissions not modified. */
-declare const XP_ERROR_REQUEST_PERM_TIMEOUT: number
+declare const XP_ERROR_REQUEST_PERM_TIMEOUT: 18
 /** A checked update failed due to an out of date request. */
-declare const XP_ERROR_RETRY_UPDATE: number
+declare const XP_ERROR_RETRY_UPDATE: 15
 /** Unable to communicate with the key-value store. */
-declare const XP_ERROR_STORAGE_EXCEPTION: number
+declare const XP_ERROR_STORAGE_EXCEPTION: 13
 /** The key-value store is currently disabled on this region. */
-declare const XP_ERROR_STORE_DISABLED: number
+declare const XP_ERROR_STORE_DISABLED: 12
 /** The call failed due to too many recent calls. */
-declare const XP_ERROR_THROTTLED: number
+declare const XP_ERROR_THROTTLED: 1
 /** Other unknown error. */
-declare const XP_ERROR_UNKNOWN_ERROR: number
+declare const XP_ERROR_UNKNOWN_ERROR: 10
 declare const ZERO_ROTATION: Quaternion
 declare const ZERO_VECTOR: Vector
 

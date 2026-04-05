@@ -247,7 +247,7 @@ Pass `optimize: true` to enable all optimizations, or pass an object to pick ind
 }
 ```
 
-### filter
+### `filter`
 
 Inlines `arr.filter(cb)` as an `ipairs` loop instead of pulling in `__TS__ArrayFilter`. Automatically disabled for files with more than one `.filter()` call, where the shared helper results in a smaller script.
 
@@ -268,7 +268,7 @@ end
 local result = ____opt_0
 ```
 
-### compoundAssignment
+### `compoundAssignment`
 
 Rewrites self-reassignment arithmetic to Luau compound assignment operators.
 
@@ -278,7 +278,7 @@ Rewrites self-reassignment arithmetic to Luau compound assignment operators.
 | `x = x - 1`  | `x -= 1`   |
 | `x = x .. s` | `x ..= s`  |
 
-### floorMultiply
+### `floorMultiply`
 
 Reorders `Math.floor((a / b) * c)` to use the floor division operator, avoiding a `math.floor` call.
 
@@ -288,7 +288,7 @@ Reorders `Math.floor((a / b) * c)` to use the floor division operator, avoiding 
 
 Plain `Math.floor(a / b)` is **always** optimized to `a // b` regardless of this flag.
 
-### indexOf
+### `indexOf`
 
 Emits bare `string.find` / `table.find` for `indexOf` presence checks instead of the full `(find or 0) - 1` pattern.
 
@@ -302,7 +302,7 @@ Emits bare `string.find` / `table.find` for `indexOf` presence checks instead of
 
 Bare `indexOf` calls without a comparison still emit `(find or 0) - 1` to retain 0-index style responses.
 
-### shortenTemps
+### `shortenTemps`
 
 Shortens TSTL's destructuring temp names and collapses consecutive field accesses into multi-assignment.
 
@@ -325,7 +325,7 @@ local _r0 = fn()
 local a, b = _r0.a, _r0.b
 ```
 
-### inlineLocals
+### `inlineLocals`
 
 Merges forward-declared `local x` with its first `x = value` assignment when there are no references to `x` in between.
 
@@ -342,7 +342,7 @@ Optimized output:
 local x = 5
 ```
 
-### numericConcat
+### `numericConcat`
 
 Strips `tostring()` from number-typed (and string-typed) template literal interpolations, since Luau's `..` operator handles numeric concatenation natively.
 
@@ -365,7 +365,7 @@ local msg = "items: " .. count
 
 Non-numeric types (booleans, `any`, etc.) still get wrapped in `tostring()`.
 
-### defaultParams
+### `defaultParams`
 
 Collapses default-parameter nil-checks into a single `or` expression.
 
@@ -394,6 +394,30 @@ end
 ```
 
 Safe for string and number defaults (both truthy in Lua). Not applied to `false` defaults.
+
+### `foldBitwise`
+
+Folds compile-time constant bitwise expressions into a single numeric literal, eliminating nested `bit32.*` calls for static flag combinations. An inline comment preserves the original variable names.
+
+```typescript
+const flags = PSYS_PART_EMISSIVE_MASK | PSYS_PART_INTERP_COLOR_MASK | PSYS_PART_INTERP_SCALE_MASK
+```
+
+Default output:
+
+```lua
+local flags = bit32.bor(bit32.bor(PSYS_PART_EMISSIVE_MASK, PSYS_PART_INTERP_COLOR_MASK), PSYS_PART_INTERP_SCALE_MASK)
+```
+
+Optimized output:
+
+```lua
+local flags = 259 --[[ PSYS_PART_EMISSIVE_MASK | PSYS_PART_INTERP_COLOR_MASK | PSYS_PART_INTERP_SCALE_MASK ]]
+```
+
+Constants must have numeric literal types (e.g. `declare const MASK: 256`, not `declare const MASK: number`) for the type checker to resolve their values. All SLua integer constants are emitted with literal types by default.
+
+All bitwise operators are supported (`|`, `&`, `^`, `~`, `<<`, `>>`, `>>>`). Expressions with any non-constant operands fall through to the normal `bit32.*` calls.
 
 ## Keeping output small
 

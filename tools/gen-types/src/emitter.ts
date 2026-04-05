@@ -1215,20 +1215,24 @@ export function emitAll(
     const docs = buildDocs(c.tooltip, c["slua-deprecated"] ?? c.deprecated)
     const literalValue = literalConstants.get(name)
 
+    // Determine the type annotation: prefer typed-list-params literal, then
+    // parse the YAML value for integer constants, then slua-type, then LSL type.
+    let constType: string
+    if (literalValue !== undefined) {
+      constType = String(literalValue)
+    } else if (c.type === "integer" && c.value != null) {
+      const v = String(c.value)
+      constType = String(parseInt(v, v.startsWith("0x") ? 16 : 10))
+    } else if (c["slua-type"]) {
+      constType = mapType(c["slua-type"])
+    } else {
+      constType = mapLslType(c.type)
+    }
+
     sf.addVariableStatement({
       declarationKind: VariableDeclarationKind.Const,
       hasDeclareKeyword: true,
-      declarations: [
-        {
-          name,
-          type:
-            literalValue !== undefined
-              ? String(literalValue)
-              : c["slua-type"]
-                ? mapType(c["slua-type"])
-                : mapLslType(c.type),
-        },
-      ],
+      declarations: [{ name, type: constType }],
       ...(docs.length > 0 ? { docs } : {}),
     })
   }

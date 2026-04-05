@@ -568,9 +568,9 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("transaction_result: (requestId: UUID, success: boolean")
   })
 
-  it("contains LSL constants", () => {
-    expect(output).toContain("declare const AGENT: number;")
-    expect(output).toContain("declare const ACTIVE: number;")
+  it("contains LSL constants with literal types", () => {
+    expect(output).toContain("declare const AGENT: 1;")
+    expect(output).toContain("declare const ACTIVE: 2;")
   })
 
   it("does not contain ll or llcompat as standalone modules", () => {

@@ -20,6 +20,8 @@ export interface OptimizeFlags {
   numericConcat?: boolean
   /** Collapse `if x == nil then x = <literal> end` to `x = x or <literal>`. */
   defaultParams?: boolean
+  /** Fold compile-time constant bitwise expressions to a single number. */
+  foldBitwise?: boolean
 }
 
 export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
@@ -31,6 +33,7 @@ export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
   inlineLocals: true,
   numericConcat: true,
   defaultParams: true,
+  foldBitwise: true,
 }
 
 /**

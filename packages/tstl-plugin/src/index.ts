@@ -23,6 +23,7 @@ import {
 } from "./utils.js"
 import { CALL_TRANSFORMS } from "./transforms.js"
 import { matchBuilderChain, emitBuilderChain } from "./builder-transform.js"
+import { tryFoldBitwise } from "./fold-bitwise.js"
 import { createOptimizeTransforms, countFilterCalls, ALL_OPTIMIZE } from "./optimize.js"
 import { tryEvaluateCondition, shouldStripDefineGuard } from "./define.js"
 import {
@@ -55,6 +56,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
   const optTransforms = opt.filter ? createOptimizeTransforms(filterSkipFiles) : []
   const transforms = [...CALL_TRANSFORMS, ...optTransforms]
   const defineMap: DefineMap = new Map(options.define ? Object.entries(options.define) : [])
+  const foldedBitwiseComments = new Map<string, { value: number; source: string }[]>()
 
   const plugin: tstl.Plugin = {
     visitors: {
@@ -212,6 +214,18 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
         const op = node.operatorToken.kind
         const fn = BINARY_BITWISE_OPS[op]
+
+        if (fn && opt.foldBitwise) {
+          const folded = tryFoldBitwise(node, context.checker)
+
+          if (folded) {
+            const fileName = node.getSourceFile().fileName
+            const arr = foldedBitwiseComments.get(fileName)
+            if (arr) arr.push(folded)
+            else foldedBitwiseComments.set(fileName, [folded])
+            return tstl.createNumericLiteral(folded.value, node)
+          }
+        }
 
         if (fn) {
           const left = context.transformExpression(node.left)
@@ -377,6 +391,18 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       },
 
       [ts.SyntaxKind.PrefixUnaryExpression]: (node: ts.PrefixUnaryExpression, context) => {
+        if (node.operator === ts.SyntaxKind.TildeToken && opt.foldBitwise) {
+          const folded = tryFoldBitwise(node, context.checker)
+
+          if (folded) {
+            const fileName = node.getSourceFile().fileName
+            const arr = foldedBitwiseComments.get(fileName)
+            if (arr) arr.push(folded)
+            else foldedBitwiseComments.set(fileName, [folded])
+            return tstl.createNumericLiteral(folded.value, node)
+          }
+        }
+
         if (node.operator === ts.SyntaxKind.TildeToken) {
           const operand = context.transformExpression(node.operand)
           return createBit32Call("bnot", [operand], node)
@@ -517,12 +543,48 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           file.sourceMapNode = printed.sourceMapNode
         }
 
+        // String-level post-processing (no Lua AST node for these constructs).
+        // When any string replacement fires, we must clear sourceMapNode so that
+        // the bundle assembler uses the modified `code` instead of the stale
+        // source-map tree.
+        let codeDirty = false
+
         // Compound assignment stays as regex (no Lua AST node for +=)
         if (opt.compoundAssignment) {
+          const before = file.code
           file.code = file.code.replace(
             /^(\s*)(\w+) = \2 (\/\/|\.\.|[+\-*/%^]) (\S+)(\s*(?:--.*)?)$/gm,
             "$1$2 $3= $4$5",
           )
+          if (file.code !== before) codeDirty = true
+        }
+
+        // Inject inline comments for folded bitwise constants
+        if (opt.foldBitwise && file.sourceFiles) {
+          for (const sf of file.sourceFiles) {
+            const entries = foldedBitwiseComments.get(sf.fileName)
+            if (!entries) continue
+
+            for (const { value, source } of entries) {
+              if (/[|&^~<>]/.test(source)) {
+                const numStr = String(value)
+                const before = file.code
+                // Replace first occurrence of the bare folded number (not already commented)
+                file.code = file.code.replace(
+                  new RegExp(`(?<=\\W)${numStr}(?=\\W)(?!.*--)`, "m"),
+                  `${numStr} --[[ ${source} ]]`,
+                )
+                if (file.code !== before) codeDirty = true
+              }
+            }
+
+            foldedBitwiseComments.delete(sf.fileName)
+          }
+        }
+
+        // Force bundle assembler to use modified code string
+        if (codeDirty) {
+          file.sourceMapNode = undefined as any
         }
       }
     },

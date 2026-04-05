@@ -143,7 +143,7 @@ local function readNotecardLines(notecard, timeout)
 		end
 
 		lines[#lines + 1] = line
-		lineNum = lineNum + 1
+		lineNum += 1
 	end
 
 	return { true, lines }
@@ -374,7 +374,7 @@ local function rezBatched(count)
 			})
 		end
 
-		remaining = remaining - batch
+		remaining -= batch
 
 		if remaining > 0 then
 			LLTimers:once(1, rezBatch)
@@ -434,7 +434,7 @@ local function assignedCount()
 	local count = 0
 
 	for _ in pairs(assignedListeners) do
-		count = count + 1
+		count += 1
 	end
 
 	return count
@@ -521,7 +521,7 @@ local function verifyListeners()
 		if #ll.GetObjectDetails(listener, { OBJECT_POS }) > 0 then
 			remaining[#remaining + 1] = listener
 		else
-			rezCount = rezCount + 1
+			rezCount += 1
 		end
 	end
 
@@ -533,7 +533,7 @@ local function verifyListeners()
 		if #ll.GetObjectDetails(listener, { OBJECT_POS }) == 0 then
 			clearAssignment(key, listener)
 			assignedListeners[key] = nil
-			rezCount = rezCount + 1
+			rezCount += 1
 		end
 	end
 

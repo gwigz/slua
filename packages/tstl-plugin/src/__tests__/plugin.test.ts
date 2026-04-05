@@ -244,6 +244,81 @@ describe("bitwise operators", () => {
   })
 })
 
+describe("bitwise constant folding", () => {
+  it("folds two-operand OR to a single number", () => {
+    const lua = transpileOptimized("const x = (2 as number) | (4 as number)")
+
+    expect(lua).toContain("6")
+    expect(lua).not.toContain("bit32.bor")
+  })
+
+  it("folds three-operand OR chain", () => {
+    const lua = transpileOptimized("const x = (1 as number) | (2 as number) | (4 as number)")
+
+    expect(lua).toContain("7")
+    expect(lua).not.toContain("bit32")
+  })
+
+  it("folds mixed operators", () => {
+    const lua = transpileOptimized(
+      "const x = ((0xFF as number) & (0x0F as number)) | (0x100 as number)",
+    )
+
+    expect(lua).toContain("271")
+    expect(lua).not.toContain("bit32")
+  })
+
+  it("folds bitwise NOT of constant", () => {
+    const lua = transpileOptimized("const x = ~(0 as number)")
+
+    expect(lua).toContain("4294967295")
+    expect(lua).not.toContain("bit32.bnot")
+  })
+
+  it("folds shift operators", () => {
+    const lua = transpileOptimized("const x = (1 as number) << (8 as number)")
+
+    expect(lua).toContain("256")
+    expect(lua).not.toContain("bit32.lshift")
+  })
+
+  it("does not fold when operands are non-constant", () => {
+    const lua = transpileOptimized("declare const a: number;\nconst x = a | (2 as number)")
+
+    expect(lua).toContain("bit32.bor")
+  })
+
+  it("does not fold without optimize flag", () => {
+    const lua = transpileSimple("const x = (2 as number) | (4 as number)")
+
+    expect(lua).toContain("bit32.bor(2, 4)")
+  })
+
+  it("adds comment with original expression", () => {
+    const lua = transpileOptimized("const x = (2 as number) | (4 as number)")
+
+    expect(lua).toContain("--[[")
+    expect(lua).toMatch(/6\s*--\[\[.*\|.*\]\]/)
+  })
+
+  it("folds identifiers with numeric literal types", () => {
+    const lua = transpileOptimized(
+      "declare const MASK_A: 256;\ndeclare const MASK_B: 1;\ndeclare const MASK_C: 2;\nconst x = MASK_A | MASK_B | MASK_C",
+    )
+
+    expect(lua).toContain("259")
+    expect(lua).not.toContain("bit32")
+  })
+
+  it("does not fold identifiers typed as plain number", () => {
+    const lua = transpileOptimized(
+      "declare const MASK_A: number;\ndeclare const MASK_B: number;\nconst x = MASK_A | MASK_B",
+    )
+
+    expect(lua).toContain("bit32.bor")
+  })
+})
+
 describe("JSON transforms", () => {
   it("translates JSON.stringify to lljson.encode", () => {
     const lua = transpileSimple("declare const obj: any;\nconst s = JSON.stringify(obj)")

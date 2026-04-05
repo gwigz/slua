@@ -135,7 +135,7 @@ local function readNotecardLines(notecard, timeout)
 		end
 
 		lines[#lines + 1] = line
-		lineNum = lineNum + 1
+		lineNum += 1
 	end
 
 	return { true, lines }
@@ -493,7 +493,7 @@ function handleRelayedMessage(text)
 		end
 
 		if recentMessages[hash] == nil then
-			recentCount = recentCount + 1
+			recentCount += 1
 		end
 
 		recentMessages[hash] = now
@@ -510,7 +510,7 @@ function handleRelayedMessage(text)
 		for key in pairs(recentMessages) do
 			if now - recentMessages[key] >= config.DEDUP_WINDOW then
 				recentMessages[key] = nil
-				recentCount = recentCount - 1
+				recentCount -= 1
 			end
 		end
 	end)
@@ -592,7 +592,7 @@ LLEvents:on("listen", function(channel, _name, id, text)
 	local hash = (tostring(id) .. "|") .. text
 
 	if recentMessages[hash] == nil then
-		recentCount = recentCount + 1
+		recentCount += 1
 	end
 
 	recentMessages[hash] = ll.GetTime()

@@ -124,7 +124,7 @@ local function readNotecardLines(notecard, timeout)
 		end
 
 		lines[#lines + 1] = line
-		lineNum = lineNum + 1
+		lineNum += 1
 	end
 
 	return { true, lines }

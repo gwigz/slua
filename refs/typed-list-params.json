@@ -1,0 +1,1120 @@
+{
+  "sets": [
+    {
+      "name": "PrimParam",
+      "functions": [
+        "llSetPrimitiveParams",
+        "llSetLinkPrimitiveParams",
+        "llSetLinkPrimitiveParamsFast"
+      ],
+      "params": [
+        {
+          "name": "PRIM_NAME",
+          "value": 27,
+          "args": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_DESC",
+          "value": 28,
+          "args": [
+            {
+              "type": "string",
+              "name": "description"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SLICE",
+          "value": 35,
+          "args": [
+            {
+              "type": "vector",
+              "name": "slice"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_PHYSICS_SHAPE_TYPE",
+          "value": 30,
+          "args": [
+            {
+              "type": "integer",
+              "name": "type"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MATERIAL",
+          "value": 2,
+          "args": [
+            {
+              "type": "integer",
+              "name": "flag"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_PHYSICS",
+          "value": 3,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_TEMP_ON_REZ",
+          "value": 4,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_PHANTOM",
+          "value": 5,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_POSITION",
+          "value": 6,
+          "args": [
+            {
+              "type": "vector",
+              "name": "position"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_POS_LOCAL",
+          "value": 33,
+          "args": [
+            {
+              "type": "vector",
+              "name": "position"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_ROTATION",
+          "value": 8,
+          "args": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_ROT_LOCAL",
+          "value": 29,
+          "args": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SIZE",
+          "value": 7,
+          "args": [
+            {
+              "type": "vector",
+              "name": "size"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_TEXTURE",
+          "value": 17,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_RENDER_MATERIAL",
+          "value": 49,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "render_material"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_TEXT",
+          "value": 26,
+          "args": [
+            {
+              "type": "string",
+              "name": "text"
+            },
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "float",
+              "name": "alpha"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_COLOR",
+          "value": 18,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "float",
+              "name": "alpha"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_BUMP_SHINY",
+          "value": 19,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "integer",
+              "name": "shiny"
+            },
+            {
+              "type": "integer",
+              "name": "bump"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_POINT_LIGHT",
+          "value": 23,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "vector",
+              "name": "linear_color"
+            },
+            {
+              "type": "float",
+              "name": "intensity"
+            },
+            {
+              "type": "float",
+              "name": "radius"
+            },
+            {
+              "type": "float",
+              "name": "falloff"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_REFLECTION_PROBE",
+          "value": 44,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "float",
+              "name": "ambiance"
+            },
+            {
+              "type": "float",
+              "name": "clip_distance"
+            },
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_FULLBRIGHT",
+          "value": 20,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_FLEXIBLE",
+          "value": 21,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "integer",
+              "name": "softness"
+            },
+            {
+              "type": "float",
+              "name": "gravity"
+            },
+            {
+              "type": "float",
+              "name": "friction"
+            },
+            {
+              "type": "float",
+              "name": "wind"
+            },
+            {
+              "type": "float",
+              "name": "tension"
+            },
+            {
+              "type": "vector",
+              "name": "force"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_TEXGEN",
+          "value": 22,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "integer",
+              "name": "type"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLOW",
+          "value": 25,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "float",
+              "name": "intensity"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_OMEGA",
+          "value": 32,
+          "args": [
+            {
+              "type": "vector",
+              "name": "axis"
+            },
+            {
+              "type": "float",
+              "name": "spinrate"
+            },
+            {
+              "type": "float",
+              "name": "gain"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_NORMAL",
+          "value": 37,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SPECULAR",
+          "value": 36,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "integer",
+              "name": "glossiness"
+            },
+            {
+              "type": "integer",
+              "name": "environment"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_ALPHA_MODE",
+          "value": 38,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "integer",
+              "name": "alpha_mode"
+            },
+            {
+              "type": "integer",
+              "name": "mask_cutoff"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_LINK_TARGET",
+          "value": 34,
+          "args": [
+            {
+              "type": "integer",
+              "name": "link_target"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_CAST_SHADOWS",
+          "value": 24,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_ALLOW_UNSIT",
+          "value": 39,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SCRIPTED_SIT_ONLY",
+          "value": 40,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SIT_TARGET",
+          "value": 41,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "vector",
+              "name": "offset"
+            },
+            {
+              "type": "rotation",
+              "name": "rot"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_PROJECTOR",
+          "value": 42,
+          "args": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "float",
+              "name": "fov"
+            },
+            {
+              "type": "float",
+              "name": "focus"
+            },
+            {
+              "type": "float",
+              "name": "ambiance"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_CLICK_ACTION",
+          "value": 43,
+          "args": [
+            {
+              "type": "integer",
+              "name": "action"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLTF_BASE_COLOR",
+          "value": 48,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "vector",
+              "name": "linear_color"
+            },
+            {
+              "type": "float",
+              "name": "alpha"
+            },
+            {
+              "type": "integer",
+              "name": "gltf_alpha_mode"
+            },
+            {
+              "type": "float",
+              "name": "alpha_mask_cutoff"
+            },
+            {
+              "type": "integer",
+              "name": "double_sided"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLTF_NORMAL",
+          "value": 45,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLTF_METALLIC_ROUGHNESS",
+          "value": 47,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "float",
+              "name": "metallic_factor"
+            },
+            {
+              "type": "float",
+              "name": "roughness_factor"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLTF_EMISSIVE",
+          "value": 46,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            },
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "vector",
+              "name": "linear_emissive_tint"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SIT_FLAGS",
+          "value": 50,
+          "args": [
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_DAMAGE",
+          "value": 51,
+          "args": [
+            {
+              "type": "float",
+              "name": "damage"
+            },
+            {
+              "type": "integer",
+              "name": "damage_type"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_HEALTH",
+          "value": 52,
+          "args": [
+            {
+              "type": "float",
+              "name": "health"
+            }
+          ]
+        }
+      ],
+      "subDispatch": {
+        "constant": "PRIM_TYPE",
+        "name": "PrimTypeShape",
+        "params": [
+          {
+            "name": "PRIM_TYPE_BOX",
+            "value": 0,
+            "args": [
+              {
+                "type": "integer",
+                "name": "hole_shape"
+              },
+              {
+                "type": "vector",
+                "name": "cut"
+              },
+              {
+                "type": "float",
+                "name": "hollow"
+              },
+              {
+                "type": "vector",
+                "name": "twist"
+              },
+              {
+                "type": "vector",
+                "name": "top_size"
+              },
+              {
+                "type": "vector",
+                "name": "top_shear"
+              }
+            ]
+          },
+          {
+            "name": "PRIM_TYPE_CYLINDER",
+            "value": 1,
+            "args": [
+              {
+                "type": "integer",
+                "name": "hole_shape"
+              },
+              {
+                "type": "vector",
+                "name": "cut"
+              },
+              {
+                "type": "float",
+                "name": "hollow"
+              },
+              {
+                "type": "vector",
+                "name": "twist"
+              },
+              {
+                "type": "vector",
+                "name": "top_size"
+              },
+              {
+                "type": "vector",
+                "name": "top_shear"
+              }
+            ]
+          },
+          {
+            "name": "PRIM_TYPE_PRISM",
+            "value": 2,
+            "args": [
+              {
+                "type": "integer",
+                "name": "hole_shape"
+              },
+              {
+                "type": "vector",
+                "name": "cut"
+              },
+              {
+                "type": "float",
+                "name": "hollow"
+              },
+              {
+                "type": "vector",
+                "name": "twist"
+              },
+              {
+                "type": "vector",
+                "name": "top_size"
+              },
+              {
+                "type": "vector",
+                "name": "top_shear"
+              }
+            ]
+          },
+          {
+            "name": "PRIM_TYPE_SPHERE",
+            "value": 3,
+            "args": [
+              {
+                "type": "integer",
+                "name": "hole_shape"
+              },
+              {
+                "type": "vector",
+                "name": "cut"
+              },
+              {
+                "type": "float",
+                "name": "hollow"
+              },
+              {
+                "type": "vector",
+                "name": "twist"
+              },
+              {
+                "type": "vector",
+                "name": "dimple"
+              }
+            ]
+          },
+          {
+            "name": "PRIM_TYPE_TORUS",
+            "value": 4,
+            "args": [
+              {
+                "type": "integer",
+                "name": "hole_shape"
+              },
+              {
+                "type": "vector",
+                "name": "cut"
+              },
+              {
+                "type": "float",
+                "name": "hollow"
+              },
+              {
+                "type": "vector",
+                "name": "twist"
+              },
+              {
+                "type": "vector",
+                "name": "hole_size"
+              },
+              {
+                "type": "vector",
+                "name": "top_shear"
+              },
+              {
+                "type": "vector",
+                "name": "advanced_cut"
+              },
+              {
+                "type": "vector",
+                "name": "taper"
+              },
+              {
+                "type": "float",
+                "name": "revolutions"
+              },
+              {
+                "type": "float",
+                "name": "radius_offset"
+              },
+              {
+                "type": "float",
+                "name": "skew"
+              }
+            ]
+          },
+          {
+            "name": "PRIM_TYPE_TUBE",
+            "value": 5,
+            "args": [
+              {
+                "type": "integer",
+                "name": "hole_shape"
+              },
+              {
+                "type": "vector",
+                "name": "cut"
+              },
+              {
+                "type": "float",
+                "name": "hollow"
+              },
+              {
+                "type": "vector",
+                "name": "twist"
+              },
+              {
+                "type": "vector",
+                "name": "hole_size"
+              },
+              {
+                "type": "vector",
+                "name": "top_shear"
+              },
+              {
+                "type": "vector",
+                "name": "advanced_cut"
+              },
+              {
+                "type": "vector",
+                "name": "taper"
+              },
+              {
+                "type": "float",
+                "name": "revolutions"
+              },
+              {
+                "type": "float",
+                "name": "radius_offset"
+              },
+              {
+                "type": "float",
+                "name": "skew"
+              }
+            ]
+          },
+          {
+            "name": "PRIM_TYPE_RING",
+            "value": 6,
+            "args": [
+              {
+                "type": "integer",
+                "name": "hole_shape"
+              },
+              {
+                "type": "vector",
+                "name": "cut"
+              },
+              {
+                "type": "float",
+                "name": "hollow"
+              },
+              {
+                "type": "vector",
+                "name": "twist"
+              },
+              {
+                "type": "vector",
+                "name": "hole_size"
+              },
+              {
+                "type": "vector",
+                "name": "top_shear"
+              },
+              {
+                "type": "vector",
+                "name": "advanced_cut"
+              },
+              {
+                "type": "vector",
+                "name": "taper"
+              },
+              {
+                "type": "float",
+                "name": "revolutions"
+              },
+              {
+                "type": "float",
+                "name": "radius_offset"
+              },
+              {
+                "type": "float",
+                "name": "skew"
+              }
+            ]
+          },
+          {
+            "name": "PRIM_TYPE_SCULPT",
+            "value": 7,
+            "args": [
+              {
+                "type": "string",
+                "name": "map"
+              },
+              {
+                "type": "integer",
+                "name": "type"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "HttpParam",
+      "functions": [
+        "llHTTPRequest"
+      ],
+      "params": [
+        {
+          "name": "HTTP_METHOD",
+          "value": 0,
+          "args": [
+            {
+              "type": "string",
+              "name": "method"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_MIMETYPE",
+          "value": 1,
+          "args": [
+            {
+              "type": "string",
+              "name": "mime_type"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_BODY_MAXLENGTH",
+          "value": 2,
+          "args": [
+            {
+              "type": "integer",
+              "name": "length"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_VERIFY_CERT",
+          "value": 3,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "verify"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_VERBOSE_THROTTLE",
+          "value": 4,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "noisy"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_CUSTOM_HEADER",
+          "value": 5,
+          "args": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "string",
+              "name": "value"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_PRAGMA_NO_CACHE",
+          "value": 6,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "send_header"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_USER_AGENT",
+          "value": 7,
+          "args": [
+            {
+              "type": "string",
+              "name": "user_agent"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_ACCEPT",
+          "value": 8,
+          "args": [
+            {
+              "type": "string",
+              "name": "mime_type"
+            }
+          ]
+        },
+        {
+          "name": "HTTP_EXTENDED_ERROR",
+          "value": 9,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "extended"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

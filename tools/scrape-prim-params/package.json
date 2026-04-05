@@ -1,0 +1,12 @@
+{
+  "name": "@gwigz/slua-scrape-prim-params",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "scrape": "bun src/index.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}

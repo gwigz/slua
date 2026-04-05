@@ -23,6 +23,8 @@ import type {
   GlobalVariable,
   FunctionDef,
   ModuleDef,
+  TypedListParams,
+  TypedListRule,
 } from "./types.js"
 
 // ---------------------------------------------------------------------------
@@ -127,6 +129,11 @@ const LSL_TYPE_MAP: Record<string, string> = {
 
 function mapLslType(lslType: string) {
   return LSL_TYPE_MAP[lslType] ?? lslType
+}
+
+function mapListArgType(lslType: string): string {
+  if (lslType === "boolean") return "boolean"
+  return mapLslType(lslType)
 }
 
 /**
@@ -812,7 +819,11 @@ export function emitModule(mod: ModuleDef, className?: string) {
 /**
  * Emit the complete `.d.ts` file from parsed SLua and LSL definitions.
  */
-export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
+export function emitAll(
+  slua: SLuaDefinitions,
+  lsl: LSLDefinitions,
+  typedListParams?: TypedListParams,
+) {
   const sf = createSourceFile()
 
   // 1. Header
@@ -949,6 +960,29 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
     addModule(sf, mod, CONSTRUCTOR_CLASS_NAMES[mod.name])
   }
 
+  // Build literal constants map and typed function lookup from param sets
+  const literalConstants = new Map<string, number>()
+  const typedFunctionMap = new Map<string, { name: string }>()
+  if (typedListParams) {
+    for (const set of typedListParams.sets) {
+      for (const rule of set.params) {
+        literalConstants.set(rule.name, rule.value)
+      }
+      if (set.subDispatch) {
+        for (const rule of set.subDispatch.params) {
+          literalConstants.set(rule.name, rule.value)
+        }
+        const dispatchConst = lsl.constants[set.subDispatch.constant]
+        if (dispatchConst) {
+          literalConstants.set(set.subDispatch.constant, parseInt(dispatchConst.value, 10))
+        }
+      }
+      for (const fn of set.functions) {
+        typedFunctionMap.set(fn, { name: set.name })
+      }
+    }
+  }
+
   // 10. ll namespace (from LSL functions)
   const llFunctions = Object.entries(lsl.functions).filter(([, fn]) => !fn["slua-removed"])
 
@@ -1014,13 +1048,45 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
         }
       }
 
-      llNs.addFunction({
-        name,
-        isExported: true,
-        parameters: params,
-        returnType,
-        ...(docs.length > 0 ? { docs } : {}),
-      })
+      const typedSet = typedFunctionMap.get(lslName)
+      if (typedSet) {
+        // Emit typed generic signature via raw text (ts-morph doesn't support `const T`)
+        const parseType = `Parse${typedSet.name}s`
+        const typedParams = params.map((p) => {
+          if (p.type === "list") {
+            return `${p.name}: T & ${parseType}<T>`
+          }
+          return `${p.name}: ${p.type}`
+        })
+
+        // Build JSDoc string
+        let jsdoc = ""
+        if (docs.length > 0) {
+          const parts: string[] = []
+          for (const doc of docs) {
+            if (doc.description) parts.push(` * ${doc.description}`)
+            if (doc.tags) {
+              for (const tag of doc.tags) {
+                parts.push(` * @${tag.tagName}${tag.text ? ` ${tag.text}` : ""}`)
+              }
+            }
+          }
+          if (parts.length > 0) {
+            jsdoc = `\n/**\n${parts.join("\n")}\n */\n`
+          }
+        }
+
+        const sig = `${jsdoc}export function ${name}<const T extends readonly unknown[]>(${typedParams.join(", ")}): ${returnType};\n`
+        llNs.insertText(llNs.getEnd() - 1, sig)
+      } else {
+        llNs.addFunction({
+          name,
+          isExported: true,
+          parameters: params,
+          returnType,
+          ...(docs.length > 0 ? { docs } : {}),
+        })
+      }
     }
   }
 
@@ -1029,13 +1095,98 @@ export function emitAll(slua: SLuaDefinitions, lsl: LSLDefinitions) {
 
   for (const [name, c] of lslConstants) {
     const docs = buildDocs(c.tooltip, c["slua-deprecated"] ?? c.deprecated)
+    const literalValue = literalConstants.get(name)
 
     sf.addVariableStatement({
       declarationKind: VariableDeclarationKind.Const,
       hasDeclareKeyword: true,
-      declarations: [{ name, type: c["slua-type"] ? mapType(c["slua-type"]) : mapLslType(c.type) }],
+      declarations: [
+        {
+          name,
+          type:
+            literalValue !== undefined
+              ? String(literalValue)
+              : c["slua-type"]
+                ? mapType(c["slua-type"])
+                : mapLslType(c.type),
+        },
+      ],
       ...(docs.length > 0 ? { docs } : {}),
     })
+  }
+
+  // Emit typed list param maps and parser types for each param set
+  if (typedListParams) {
+    const lines: string[] = []
+
+    const emitParamMap = (mapName: string, comment: string, rules: TypedListRule[]) => {
+      lines.push("")
+      lines.push(`/** ${comment} */`)
+      lines.push(`interface ${mapName} {`)
+      for (const rule of rules) {
+        const namedArgs = rule.args
+          .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
+          .join(", ")
+        lines.push(`  [${rule.name}]: [${namedArgs}]`)
+      }
+      lines.push("}")
+    }
+
+    for (const set of typedListParams.sets) {
+      const mapName = `${set.name}Map`
+      const parseName = `Parse${set.name}s`
+
+      emitParamMap(
+        mapName,
+        "Maps each constant to the tuple of arguments that follow it.",
+        set.params,
+      )
+
+      if (set.subDispatch) {
+        emitParamMap(
+          `${set.subDispatch.name}Map`,
+          "Maps each sub-dispatch constant to the tuple of arguments that follow it.",
+          set.subDispatch.params,
+        )
+      }
+
+      // Recursive parser type
+      lines.push("")
+      lines.push(
+        `/** Recursive type that validates a flat parameter list for ${set.name} constants. */`,
+      )
+      lines.push(`type ${parseName}<T extends readonly unknown[]> =`)
+      lines.push("  T extends readonly [] ? [] :")
+      lines.push("  T extends readonly [infer K, ...infer Rest]")
+
+      if (set.subDispatch) {
+        const subMapName = `${set.subDispatch.name}Map`
+        lines.push(`    ? K extends typeof ${set.subDispatch.constant}`)
+        lines.push("      ? Rest extends readonly [infer S, ...infer ShapeRest]")
+        lines.push(`        ? S extends keyof ${subMapName}`)
+        lines.push(
+          `          ? ShapeRest extends readonly [...${subMapName}[S], ...infer Remaining]`,
+        )
+        lines.push(
+          `            ? [flag: K, shape: S, ...${subMapName}[S], ...${parseName}<Remaining>]`,
+        )
+        lines.push("            : never")
+        lines.push("          : never")
+        lines.push("        : never")
+        lines.push(`      : K extends keyof ${mapName}`)
+      } else {
+        lines.push(`    ? K extends keyof ${mapName}`)
+      }
+
+      lines.push(`        ? Rest extends readonly [...${mapName}[K], ...infer Remaining]`)
+      lines.push(`          ? [flag: K, ...${mapName}[K], ...${parseName}<Remaining>]`)
+      lines.push("          : never")
+      lines.push("        : never")
+      lines.push("    : never")
+    }
+
+    lines.push("")
+    sf.insertText(sf.getFullText().length, lines.join("\n"))
   }
 
   return sf.getFullText()

@@ -2507,10 +2507,14 @@ declare namespace ll {
   export function HMAC(key: string, message: string, algorithm: string): string
 
   /**
-   * Sends an HTTP request to the specified URL with the Body of the request and Parameters.
-   * Returns a key that is a handle identifying the HTTP request made.
-   */
-  export function HTTPRequest(url: string, parameters: list, body: string): UUID
+ * Sends an HTTP request to the specified URL with the Body of the request and Parameters.
+Returns a key that is a handle identifying the HTTP request made.
+ */
+  export function HTTPRequest<const T extends readonly unknown[]>(
+    url: string,
+    parameters: T & ParseHttpParams<T>,
+    body: string,
+  ): UUID
 
   /** Responds to an incoming HTTP request which was triggerd by an http_request event within the script. HTTPRequestID specifies the request to respond to (this ID is supplied in the http_request event handler).  Status and Body specify the status code and message to respond with. */
   export function HTTPResponse(httpRequestId: UUID, status: number, body: string): void
@@ -3699,13 +3703,19 @@ declare namespace ll {
    * Deprecated: Use llSetLinkPrimitiveParamsFast instead.
    * @deprecated Use 'll.SetLinkPrimitiveParamsFast' instead.
    */
-  export function SetLinkPrimitiveParams(linkNumber: number, parameters: list): void
+  export function SetLinkPrimitiveParams<const T extends readonly unknown[]>(
+    linkNumber: number,
+    parameters: T & ParsePrimParams<T>,
+  ): void
 
   /**
-   * Set primitive parameters for LinkNumber based on Parameters, without a delay.
-   * Set parameters for link number, from the list of Parameters, with no built-in script sleep. This function is identical to llSetLinkPrimitiveParams, except without the delay.
-   */
-  export function SetLinkPrimitiveParamsFast(linkNumber: number, parameters: list): void
+ * Set primitive parameters for LinkNumber based on Parameters, without a delay.
+Set parameters for link number, from the list of Parameters, with no built-in script sleep. This function is identical to llSetLinkPrimitiveParams, except without the delay.
+ */
+  export function SetLinkPrimitiveParamsFast<const T extends readonly unknown[]>(
+    linkNumber: number,
+    parameters: T & ParsePrimParams<T>,
+  ): void
 
   /** Sets the Render Material of Face on a linked prim, specified by LinkNumber. Render Material may be a UUID or name of a material in prim inventory. */
   export function SetLinkRenderMaterial(
@@ -3810,7 +3820,9 @@ declare namespace ll {
    * Deprecated: Use llSetLinkPrimitiveParamsFast instead.
    * @deprecated Use 'll.SetLinkPrimitiveParamsFast' instead.
    */
-  export function SetPrimitiveParams(parameters: list): void
+  export function SetPrimitiveParams<const T extends readonly unknown[]>(
+    parameters: T & ParsePrimParams<T>,
+  ): void
 
   /**
    * Attempts to move the object so that the root prim is within 0.1m of Position.
@@ -4673,24 +4685,24 @@ declare const GCNP_STATIC: number
 declare const GRAVITY_MULTIPLIER: number
 declare const HORIZONTAL: number
 /** Provide a string value to be included in the HTTPaccepts header value. This replaces the default Second Life HTTP accepts header. */
-declare const HTTP_ACCEPT: number
-declare const HTTP_BODY_MAXLENGTH: number
+declare const HTTP_ACCEPT: 8
+declare const HTTP_BODY_MAXLENGTH: 2
 declare const HTTP_BODY_TRUNCATED: number
 /** Add an extra custom HTTP header to the request. The first string is the name of the parameter to change, e.g. "Pragma", and the second string is the value, e.g. "no-cache". Up to 8 custom headers may be configured per request. Note that certain headers, such as the default headers, are blocked for security reasons. */
-declare const HTTP_CUSTOM_HEADER: number
+declare const HTTP_CUSTOM_HEADER: 5
 /** Report extended error information through http_response event. */
-declare const HTTP_EXTENDED_ERROR: number
-declare const HTTP_METHOD: number
-declare const HTTP_MIMETYPE: number
+declare const HTTP_EXTENDED_ERROR: 9
+declare const HTTP_METHOD: 0
+declare const HTTP_MIMETYPE: 1
 /**
  * Allows enabling/disabling of the "Pragma: no-cache" header.
  * Usage: [HTTP_PRAGMA_NO_CACHE, integer SendHeader]. When SendHeader is TRUE, the "Pragma: no-cache" header is sent by the script. This matches the default behavior. When SendHeader is FALSE, no "Pragma" header is sent by the script.
  */
-declare const HTTP_PRAGMA_NO_CACHE: number
+declare const HTTP_PRAGMA_NO_CACHE: 6
 /** Provide a string value to be included in the HTTPUser-Agent header value. This is appended to the default value. */
-declare const HTTP_USER_AGENT: number
-declare const HTTP_VERBOSE_THROTTLE: number
-declare const HTTP_VERIFY_CERT: number
+declare const HTTP_USER_AGENT: 7
+declare const HTTP_VERBOSE_THROTTLE: 4
+declare const HTTP_VERIFY_CERT: 3
 declare const IMG_USE_BAKED_AUX1: UUID
 declare const IMG_USE_BAKED_AUX2: UUID
 declare const IMG_USE_BAKED_AUX3: UUID
@@ -5140,14 +5152,14 @@ declare const PI_BY_TWO: number
  * Prim parameter for restricting manual standing for seated avatars in an experience.
  * Ignored if the avatar was not seated via a call to llSitOnLink.
  */
-declare const PRIM_ALLOW_UNSIT: number
+declare const PRIM_ALLOW_UNSIT: 39
 /**
  * Prim parameter for materials using integer face, integer alpha_mode, integer alpha_cutoff.
  * Defines how the alpha channel of the diffuse texture should be rendered.
  * Valid options for alpha_mode are PRIM_ALPHA_MODE_BLEND, _NONE, _MASK, and _EMISSIVE.
  * alpha_cutoff is used only for PRIM_ALPHA_MODE_MASK.
  */
-declare const PRIM_ALPHA_MODE: number
+declare const PRIM_ALPHA_MODE: 38
 /**
  * Prim parameter setting for PRIM_ALPHA_MODE.
  * Indicates that the diffuse texture's alpha channel should be rendered as alpha-blended.
@@ -5179,7 +5191,7 @@ declare const PRIM_BUMP_DISKS: number
 declare const PRIM_BUMP_GRAVEL: number
 declare const PRIM_BUMP_LARGETILE: number
 declare const PRIM_BUMP_NONE: number
-declare const PRIM_BUMP_SHINY: number
+declare const PRIM_BUMP_SHINY: 19
 declare const PRIM_BUMP_SIDING: number
 declare const PRIM_BUMP_STONE: number
 declare const PRIM_BUMP_STUCCO: number
@@ -5188,26 +5200,26 @@ declare const PRIM_BUMP_TILE: number
 declare const PRIM_BUMP_WEAVE: number
 declare const PRIM_BUMP_WOOD: number
 /** @deprecated Not implemented. */
-declare const PRIM_CAST_SHADOWS: number
+declare const PRIM_CAST_SHADOWS: 24
 /** [PRIM_CLICK_ACTION, integer CLICK_ACTION_*] */
-declare const PRIM_CLICK_ACTION: number
+declare const PRIM_CLICK_ACTION: 43
 /** Collision sound uuid and volume for this prim */
 declare const PRIM_COLLISION_SOUND: number
 /** [PRIM_COLOR, integer face, vector color, float alpha]integer face – face number or ALL_SIDESvector color – color in RGB <R, G, B> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)float alpha – from 0.0 (clear) to 1.0 (solid) (0.0 <= alpha <= 1.0) */
-declare const PRIM_COLOR: number
+declare const PRIM_COLOR: 18
 /** Damage and damage type assigned to this prim. */
-declare const PRIM_DAMAGE: number
+declare const PRIM_DAMAGE: 51
 /** [PRIM_DESC, string description] */
-declare const PRIM_DESC: number
+declare const PRIM_DESC: 28
 /** [ PRIM_FLEXIBLE, integer boolean, integer softness, float gravity, float friction, float wind, float tension, vector force ]integer boolean – TRUE enables, FALSE disablesinteger softness – ranges from 0 to 3float gravity – ranges from -10.0 to 10.0float friction – ranges from 0.0 to 10.0float wind – ranges from 0.0 to 10.0float tension – ranges from 0.0 to 10.0vector force */
-declare const PRIM_FLEXIBLE: number
+declare const PRIM_FLEXIBLE: 21
 /** [ PRIM_FULLBRIGHT, integer face, integer boolean ] */
-declare const PRIM_FULLBRIGHT: number
+declare const PRIM_FULLBRIGHT: 20
 /**
  * PRIM_GLOW is used to get or set the glow status of the face.
  * [ PRIM_GLOW, integer face, float intensity ]
  */
-declare const PRIM_GLOW: number
+declare const PRIM_GLOW: 25
 /** Prim parameter setting for PRIM_GLTF_BASE_COLOR alpha mode "BLEND". */
 declare const PRIM_GLTF_ALPHA_MODE_BLEND: number
 /** Prim parameter setting for PRIM_GLTF_BASE_COLOR alpha mode "MASK". */
@@ -5219,23 +5231,23 @@ declare const PRIM_GLTF_ALPHA_MODE_OPAQUE: number
  * Valid options for alpha_mode are PRIM_ALPHA_MODE_BLEND, _NONE, and _MASK.
  * alpha_cutoff is used only for PRIM_ALPHA_MODE_MASK.
  */
-declare const PRIM_GLTF_BASE_COLOR: number
+declare const PRIM_GLTF_BASE_COLOR: 48
 /** Prim parameter for GLTF materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color */
-declare const PRIM_GLTF_EMISSIVE: number
+declare const PRIM_GLTF_EMISSIVE: 46
 /** Prim parameter for GLTF materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, float metallic_factor, float roughness_factor */
-declare const PRIM_GLTF_METALLIC_ROUGHNESS: number
+declare const PRIM_GLTF_METALLIC_ROUGHNESS: 47
 /** Prim parameter for GLTF materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians */
-declare const PRIM_GLTF_NORMAL: number
+declare const PRIM_GLTF_NORMAL: 45
 /** Health value for this prim */
-declare const PRIM_HEALTH: number
+declare const PRIM_HEALTH: 52
 declare const PRIM_HOLE_CIRCLE: number
 declare const PRIM_HOLE_DEFAULT: number
 declare const PRIM_HOLE_SQUARE: number
 declare const PRIM_HOLE_TRIANGLE: number
 /** [ PRIM_LINK_TARGET, integer link_target ]Used to get or set multiple links with a single PrimParameters call. */
-declare const PRIM_LINK_TARGET: number
+declare const PRIM_LINK_TARGET: 34
 /** [ PRIM_MATERIAL, integer PRIM_MATERIAL_* ] */
-declare const PRIM_MATERIAL: number
+declare const PRIM_MATERIAL: 2
 declare const PRIM_MATERIAL_DENSITY: number
 declare const PRIM_MATERIAL_FLESH: number
 declare const PRIM_MATERIAL_FRICTION: number
@@ -5293,15 +5305,15 @@ declare const PRIM_MEDIA_WHITELIST_ENABLE: number
 /** Integer. Gets/Sets the width of the media in pixels. */
 declare const PRIM_MEDIA_WIDTH_PIXELS: number
 /** [ PRIM_NAME, string name ] */
-declare const PRIM_NAME: number
+declare const PRIM_NAME: 27
 /** Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians */
-declare const PRIM_NORMAL: number
+declare const PRIM_NORMAL: 37
 /** [ PRIM_OMEGA, vector axis, float spinrate, float gain ]vector axis – arbitrary axis to rotate the object aroundfloat spinrate – rate of rotation in radians per secondfloat gain – also modulates the final spinrate and disables the rotation behavior if zero */
-declare const PRIM_OMEGA: number
+declare const PRIM_OMEGA: 32
 /** [ PRIM_PHANTOM, integer boolean ] */
-declare const PRIM_PHANTOM: number
+declare const PRIM_PHANTOM: 5
 /** [ PRIM_PHYSICS, integer boolean ] */
-declare const PRIM_PHYSICS: number
+declare const PRIM_PHYSICS: 3
 /** Use the convex hull of the prim shape for physics (this is the default for mesh objects). */
 declare const PRIM_PHYSICS_SHAPE_CONVEX: number
 /** Ignore this prim in the physics shape. NB: This cannot be applied to the root prim. */
@@ -5309,17 +5321,17 @@ declare const PRIM_PHYSICS_SHAPE_NONE: number
 /** Use the normal prim shape for physics (this is the default for all non-mesh objects). */
 declare const PRIM_PHYSICS_SHAPE_PRIM: number
 /** Allows you to set the physics shape type of a prim via lsl. Permitted values are:PRIM_PHYSICS_SHAPE_NONE, PRIM_PHYSICS_SHAPE_PRIM, PRIM_PHYSICS_SHAPE_CONVEX */
-declare const PRIM_PHYSICS_SHAPE_TYPE: number
+declare const PRIM_PHYSICS_SHAPE_TYPE: 30
 /** [ PRIM_POINT_LIGHT, integer boolean, vector linear_color, float intensity, float radius, float falloff ]integer boolean – TRUE enables, FALSE disablesvector linear_color – linear color in RGB <R, G, B&> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)float intensity – ranges from 0.0 to 1.0float radius – ranges from 0.1 to 20.0float falloff – ranges from 0.01 to 2.0 */
-declare const PRIM_POINT_LIGHT: number
+declare const PRIM_POINT_LIGHT: 23
 /** [ PRIM_POSITION, vector position ]vector position – position in region or local coordinates depending upon the situation */
-declare const PRIM_POSITION: number
+declare const PRIM_POSITION: 6
 /** [ PRIM_POS_LOCAL, vector position ]vector position - position in local coordinates */
-declare const PRIM_POS_LOCAL: number
+declare const PRIM_POS_LOCAL: 33
 /** [ PRIM_PROJECTOR, string texture, float fov, float focus, float ambiance ] */
-declare const PRIM_PROJECTOR: number
+declare const PRIM_PROJECTOR: 42
 /** Allows you to configure the object as a custom-placed reflection probe, for image-based lighting (IBL). Only objects in the influence volume of the reflection probe object are affected. */
-declare const PRIM_REFLECTION_PROBE: number
+declare const PRIM_REFLECTION_PROBE: 44
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe is a box. When unset, the reflection probe is a sphere. */
 declare const PRIM_REFLECTION_PROBE_BOX: number
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe includes avatars in IBL effects. When unset, the reflection probe excludes avatars. */
@@ -5327,16 +5339,16 @@ declare const PRIM_REFLECTION_PROBE_DYNAMIC: number
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe acts as a mirror. */
 declare const PRIM_REFLECTION_PROBE_MIRROR: number
 /** [ PRIM_RENDER_MATERIAL, integer face, string material ] */
-declare const PRIM_RENDER_MATERIAL: number
+declare const PRIM_RENDER_MATERIAL: 49
 /** [ PRIM_ROT_LOCAL, rotation global_rot ] */
-declare const PRIM_ROTATION: number
+declare const PRIM_ROTATION: 8
 /** [ PRIM_ROT_LOCAL, rotation local_rot ] */
-declare const PRIM_ROT_LOCAL: number
+declare const PRIM_ROT_LOCAL: 29
 /**
  * Prim parameter for restricting manual sitting on this prim.
  * Sitting must be initiated via call to llSitOnLink.
  */
-declare const PRIM_SCRIPTED_SIT_ONLY: number
+declare const PRIM_SCRIPTED_SIT_ONLY: 40
 /** Mesh is animated. */
 declare const PRIM_SCULPT_FLAG_ANIMESH: number
 /** Render inside out (inverts the normals). */
@@ -5353,33 +5365,33 @@ declare const PRIM_SHINY_HIGH: number
 declare const PRIM_SHINY_LOW: number
 declare const PRIM_SHINY_MEDIUM: number
 declare const PRIM_SHINY_NONE: number
-declare const PRIM_SIT_FLAGS: number
+declare const PRIM_SIT_FLAGS: 50
 /** [ PRIM_SIT_TARGET, integer boolean, vector offset, rotation rot ] */
-declare const PRIM_SIT_TARGET: number
+declare const PRIM_SIT_TARGET: 41
 /** [ PRIM_SIZE, vector size ] */
-declare const PRIM_SIZE: number
+declare const PRIM_SIZE: 7
 /** [ PRIM_SLICE, vector slice ] */
-declare const PRIM_SLICE: number
+declare const PRIM_SLICE: 35
 /** Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color, integer glossy, integer environment */
-declare const PRIM_SPECULAR: number
-declare const PRIM_TEMP_ON_REZ: number
+declare const PRIM_SPECULAR: 36
+declare const PRIM_TEMP_ON_REZ: 4
 /** [ PRIM_TEXGEN, integer face, PRIM_TEXGEN_* ] */
-declare const PRIM_TEXGEN: number
+declare const PRIM_TEXGEN: 22
 declare const PRIM_TEXGEN_DEFAULT: number
 declare const PRIM_TEXGEN_PLANAR: number
 /** [ PRIM_TEXT, string text, vector color, float alpha ] */
-declare const PRIM_TEXT: number
+declare const PRIM_TEXT: 26
 /** [ PRIM_TEXTURE, integer face, string texture, vector repeats, vector offsets, float rotation_in_radians ] */
-declare const PRIM_TEXTURE: number
-declare const PRIM_TYPE: number
-declare const PRIM_TYPE_BOX: number
-declare const PRIM_TYPE_CYLINDER: number
-declare const PRIM_TYPE_PRISM: number
-declare const PRIM_TYPE_RING: number
-declare const PRIM_TYPE_SCULPT: number
-declare const PRIM_TYPE_SPHERE: number
-declare const PRIM_TYPE_TORUS: number
-declare const PRIM_TYPE_TUBE: number
+declare const PRIM_TEXTURE: 17
+declare const PRIM_TYPE: 9
+declare const PRIM_TYPE_BOX: 0
+declare const PRIM_TYPE_CYLINDER: 1
+declare const PRIM_TYPE_PRISM: 2
+declare const PRIM_TYPE_RING: 6
+declare const PRIM_TYPE_SCULPT: 7
+declare const PRIM_TYPE_SPHERE: 3
+declare const PRIM_TYPE_TORUS: 4
+declare const PRIM_TYPE_TUBE: 5
 /** Disables profiling */
 declare const PROFILE_NONE: number
 /** Enables memory profiling */
@@ -6042,3 +6054,235 @@ declare const XP_ERROR_THROTTLED: number
 declare const XP_ERROR_UNKNOWN_ERROR: number
 declare const ZERO_ROTATION: Quaternion
 declare const ZERO_VECTOR: Vector
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface PrimParamMap {
+  [PRIM_NAME]: [name: string]
+  [PRIM_DESC]: [description: string]
+  [PRIM_SLICE]: [slice: Vector]
+  [PRIM_PHYSICS_SHAPE_TYPE]: [type: number]
+  [PRIM_MATERIAL]: [flag: number]
+  [PRIM_PHYSICS]: [enabled: boolean]
+  [PRIM_TEMP_ON_REZ]: [enabled: boolean]
+  [PRIM_PHANTOM]: [enabled: boolean]
+  [PRIM_POSITION]: [position: Vector]
+  [PRIM_POS_LOCAL]: [position: Vector]
+  [PRIM_ROTATION]: [rot: Quaternion]
+  [PRIM_ROT_LOCAL]: [rot: Quaternion]
+  [PRIM_SIZE]: [size: Vector]
+  [PRIM_TEXTURE]: [
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ]
+  [PRIM_RENDER_MATERIAL]: [face: number, renderMaterial: string]
+  [PRIM_TEXT]: [text: string, color: Vector, alpha: number]
+  [PRIM_COLOR]: [face: number, color: Vector, alpha: number]
+  [PRIM_BUMP_SHINY]: [face: number, shiny: number, bump: number]
+  [PRIM_POINT_LIGHT]: [
+    enabled: boolean,
+    linearColor: Vector,
+    intensity: number,
+    radius: number,
+    falloff: number,
+  ]
+  [PRIM_REFLECTION_PROBE]: [enabled: boolean, ambiance: number, clipDistance: number, flags: number]
+  [PRIM_FULLBRIGHT]: [face: number, enabled: boolean]
+  [PRIM_FLEXIBLE]: [
+    enabled: boolean,
+    softness: number,
+    gravity: number,
+    friction: number,
+    wind: number,
+    tension: number,
+    force: Vector,
+  ]
+  [PRIM_TEXGEN]: [face: number, type: number]
+  [PRIM_GLOW]: [face: number, intensity: number]
+  [PRIM_OMEGA]: [axis: Vector, spinrate: number, gain: number]
+  [PRIM_NORMAL]: [
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ]
+  [PRIM_SPECULAR]: [
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    color: Vector,
+    glossiness: number,
+    environment: number,
+  ]
+  [PRIM_ALPHA_MODE]: [face: number, alphaMode: number, maskCutoff: number]
+  [PRIM_LINK_TARGET]: [linkTarget: number]
+  [PRIM_CAST_SHADOWS]: [enabled: boolean]
+  [PRIM_ALLOW_UNSIT]: [enabled: boolean]
+  [PRIM_SCRIPTED_SIT_ONLY]: [enabled: boolean]
+  [PRIM_SIT_TARGET]: [enabled: boolean, offset: Vector, rot: Quaternion]
+  [PRIM_PROJECTOR]: [texture: string, fov: number, focus: number, ambiance: number]
+  [PRIM_CLICK_ACTION]: [action: number]
+  [PRIM_GLTF_BASE_COLOR]: [
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    linearColor: Vector,
+    alpha: number,
+    gltfAlphaMode: number,
+    alphaMaskCutoff: number,
+    doubleSided: number,
+  ]
+  [PRIM_GLTF_NORMAL]: [
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ]
+  [PRIM_GLTF_METALLIC_ROUGHNESS]: [
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    metallicFactor: number,
+    roughnessFactor: number,
+  ]
+  [PRIM_GLTF_EMISSIVE]: [
+    face: number,
+    texture: string,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    linearEmissiveTint: Vector,
+  ]
+  [PRIM_SIT_FLAGS]: [flags: number]
+  [PRIM_DAMAGE]: [damage: number, damageType: number]
+  [PRIM_HEALTH]: [health: number]
+}
+
+/** Maps each sub-dispatch constant to the tuple of arguments that follow it. */
+interface PrimTypeShapeMap {
+  [PRIM_TYPE_BOX]: [
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ]
+  [PRIM_TYPE_CYLINDER]: [
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ]
+  [PRIM_TYPE_PRISM]: [
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ]
+  [PRIM_TYPE_SPHERE]: [
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    dimple: Vector,
+  ]
+  [PRIM_TYPE_TORUS]: [
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ]
+  [PRIM_TYPE_TUBE]: [
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ]
+  [PRIM_TYPE_RING]: [
+    holeShape: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ]
+  [PRIM_TYPE_SCULPT]: [map: string, type: number]
+}
+
+/** Recursive type that validates a flat parameter list for PrimParam constants. */
+type ParsePrimParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends typeof PRIM_TYPE
+      ? Rest extends readonly [infer S, ...infer ShapeRest]
+        ? S extends keyof PrimTypeShapeMap
+          ? ShapeRest extends readonly [...PrimTypeShapeMap[S], ...infer Remaining]
+            ? [flag: K, shape: S, ...PrimTypeShapeMap[S], ...ParsePrimParams<Remaining>]
+            : never
+          : never
+        : never
+      : K extends keyof PrimParamMap
+        ? Rest extends readonly [...PrimParamMap[K], ...infer Remaining]
+          ? [flag: K, ...PrimParamMap[K], ...ParsePrimParams<Remaining>]
+          : never
+        : never
+    : never
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface HttpParamMap {
+  [HTTP_METHOD]: [method: string]
+  [HTTP_MIMETYPE]: [mimeType: string]
+  [HTTP_BODY_MAXLENGTH]: [length: number]
+  [HTTP_VERIFY_CERT]: [verify: boolean]
+  [HTTP_VERBOSE_THROTTLE]: [noisy: boolean]
+  [HTTP_CUSTOM_HEADER]: [name: string, value: string]
+  [HTTP_PRAGMA_NO_CACHE]: [sendHeader: boolean]
+  [HTTP_USER_AGENT]: [userAgent: string]
+  [HTTP_ACCEPT]: [mimeType: string]
+  [HTTP_EXTENDED_ERROR]: [extended: boolean]
+}
+
+/** Recursive type that validates a flat parameter list for HttpParam constants. */
+type ParseHttpParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof HttpParamMap
+      ? Rest extends readonly [...HttpParamMap[K], ...infer Remaining]
+        ? [flag: K, ...HttpParamMap[K], ...ParseHttpParams<Remaining>]
+        : never
+      : never
+    : never

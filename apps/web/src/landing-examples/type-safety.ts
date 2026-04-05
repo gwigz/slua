@@ -1,15 +1,9 @@
-const origin = ll.GetPos()
-const offset = new Vector(0, 0, 2.5)
-const white = new Vector(1, 1, 1)
-
-ll.SetText("Hover pad", white, 1.0)
+const ADMIN = "a822ff2b-ff02-461d-b45d-dcd10a2de0c2"
 
 LLEvents.on("touch_start", (events) => {
-  const name = events[0].getName()
-  const pos = events[0].getTouchPos()
+  const who = events[0].getKey()
 
-  if (ll.VecDist(pos, origin) < 5.0) {
-    ll.SetPos(origin + offset)
-    ll.Say(0, `Activated by ${name}`)
+  if (who === ADMIN) {
+    ll.Say(0, `${events[0].getName()} has admin access`)
   }
 })

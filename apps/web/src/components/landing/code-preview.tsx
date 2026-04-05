@@ -69,10 +69,10 @@ export type CodeGalleryTab = {
   luaHtml: string
 }
 
-// Twoslash directives prepended to specific examples to suppress expected errors.
-// Vector + Vector uses TSTL operator overloading which TypeScript doesn't natively support.
+// Twoslash directives prepended to specific examples to surface expected errors.
+// The type-safety example compares string (getName) to UUID (GetOwner) — TS error 2367.
 const TWOSLASH_DIRECTIVES: Record<string, string> = {
-  "type-safety": "// @errors: 2365\n",
+  "type-safety": "// @errors: 2367\n",
 }
 
 export async function CodeGalleryPreview(): Promise<CodeGalleryTab[]> {

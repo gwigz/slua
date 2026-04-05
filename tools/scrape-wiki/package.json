@@ -1,5 +1,5 @@
 {
-  "name": "@gwigz/slua-scrape-prim-params",
+  "name": "@gwigz/slua-scrape-wiki",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
@@ -7,6 +7,7 @@
     "scrape": "bun src/index.ts"
   },
   "dependencies": {
-    "cheerio": "^1.0.0"
+    "cheerio": "^1.0.0",
+    "yaml": "^2.7.0"
   }
 }

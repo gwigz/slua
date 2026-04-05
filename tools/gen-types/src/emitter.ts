@@ -310,6 +310,23 @@ function buildDocs(
   return hasContent ? [doc] : []
 }
 
+function serializeJSDoc(docs: OptionalKind<JSDocStructure>[]): string {
+  const parts: string[] = []
+  for (const doc of docs) {
+    if (doc.description) {
+      for (const line of (doc.description as string).split("\n")) {
+        parts.push(` * ${line}`)
+      }
+    }
+    if (doc.tags) {
+      for (const tag of doc.tags as OptionalKind<JSDocTagStructure>[]) {
+        parts.push(` * @${tag.tagName}${tag.text ? ` ${tag.text}` : ""}`)
+      }
+    }
+  }
+  return parts.length > 0 ? `\n/**\n${parts.join("\n")}\n */\n` : ""
+}
+
 function buildParams(params: ParameterDef[] | undefined, skipSelf: boolean) {
   if (!params || params.length === 0) {
     return []
@@ -962,9 +979,12 @@ export function emitAll(
 
   // Build literal constants map and typed function lookup from param sets
   const literalConstants = new Map<string, number>()
-  const typedFunctionMap = new Map<string, { name: string }>()
+  const typedFunctionMap = new Map<string, { name: string; flagsOnly: boolean }>()
+  const setFlagsOnly = new Map<string, boolean>()
   if (typedListParams) {
     for (const set of typedListParams.sets) {
+      const flagsOnly = set.params.every((r) => r.args.length === 0) && !set.subDispatch
+      setFlagsOnly.set(set.name, flagsOnly)
       for (const rule of set.params) {
         literalConstants.set(rule.name, rule.value)
       }
@@ -978,7 +998,7 @@ export function emitAll(
         }
       }
       for (const fn of set.functions) {
-        typedFunctionMap.set(fn, { name: set.name })
+        typedFunctionMap.set(fn, { name: set.name, flagsOnly })
       }
     }
   }
@@ -1049,7 +1069,20 @@ export function emitAll(
       }
 
       const typedSet = typedFunctionMap.get(lslName)
-      if (typedSet) {
+      if (typedSet && typedSet.flagsOnly) {
+        // Flags-only set: use simple union type instead of recursive parser
+        const flagType = `${typedSet.name}Flag`
+        const simpleParams = params.map((p) =>
+          p.type === "list" ? { ...p, type: `${flagType}[]` } : p,
+        )
+        llNs.addFunction({
+          name,
+          isExported: true,
+          parameters: simpleParams,
+          returnType,
+          ...(docs.length > 0 ? { docs } : {}),
+        })
+      } else if (typedSet) {
         // Emit typed generic signature via raw text (ts-morph doesn't support `const T`)
         const parseType = `Parse${typedSet.name}s`
         const typedParams = params.map((p) => {
@@ -1059,22 +1092,7 @@ export function emitAll(
           return `${p.name}: ${p.type}`
         })
 
-        // Build JSDoc string
-        let jsdoc = ""
-        if (docs.length > 0) {
-          const parts: string[] = []
-          for (const doc of docs) {
-            if (doc.description) parts.push(` * ${doc.description}`)
-            if (doc.tags) {
-              for (const tag of doc.tags) {
-                parts.push(` * @${tag.tagName}${tag.text ? ` ${tag.text}` : ""}`)
-              }
-            }
-          }
-          if (parts.length > 0) {
-            jsdoc = `\n/**\n${parts.join("\n")}\n */\n`
-          }
-        }
+        const jsdoc = serializeJSDoc(docs)
 
         const sig = `${jsdoc}export function ${name}<const T extends readonly unknown[]>(${typedParams.join(", ")}): ${returnType};\n`
         llNs.insertText(llNs.getEnd() - 1, sig)
@@ -1133,6 +1151,15 @@ export function emitAll(
     }
 
     for (const set of typedListParams.sets) {
+      if (setFlagsOnly.get(set.name)) {
+        // Flags-only set: emit a simple union type
+        const flagType = `${set.name}Flag`
+        lines.push("")
+        lines.push(`/** Valid constants for ${set.name} functions. */`)
+        lines.push(`type ${flagType} = ${set.params.map((r) => `typeof ${r.name}`).join(" | ")}`)
+        continue
+      }
+
       const mapName = `${set.name}Map`
       const parseName = `Parse${set.name}s`
 

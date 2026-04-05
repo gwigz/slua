@@ -1005,6 +1005,300 @@
       }
     },
     {
+      "name": "PrimParamGet",
+      "functions": [
+        "llGetPrimitiveParams",
+        "llGetLinkPrimitiveParams"
+      ],
+      "params": [
+        {
+          "name": "PRIM_NAME",
+          "value": 27,
+          "args": []
+        },
+        {
+          "name": "PRIM_DESC",
+          "value": 28,
+          "args": []
+        },
+        {
+          "name": "PRIM_SLICE",
+          "value": 35,
+          "args": []
+        },
+        {
+          "name": "PRIM_PHYSICS_SHAPE_TYPE",
+          "value": 30,
+          "args": []
+        },
+        {
+          "name": "PRIM_MATERIAL",
+          "value": 2,
+          "args": []
+        },
+        {
+          "name": "PRIM_PHYSICS",
+          "value": 3,
+          "args": []
+        },
+        {
+          "name": "PRIM_TEMP_ON_REZ",
+          "value": 4,
+          "args": []
+        },
+        {
+          "name": "PRIM_PHANTOM",
+          "value": 5,
+          "args": []
+        },
+        {
+          "name": "PRIM_POSITION",
+          "value": 6,
+          "args": []
+        },
+        {
+          "name": "PRIM_POS_LOCAL",
+          "value": 33,
+          "args": []
+        },
+        {
+          "name": "PRIM_ROTATION",
+          "value": 8,
+          "args": []
+        },
+        {
+          "name": "PRIM_ROT_LOCAL",
+          "value": 29,
+          "args": []
+        },
+        {
+          "name": "PRIM_SIZE",
+          "value": 7,
+          "args": []
+        },
+        {
+          "name": "PRIM_TEXTURE",
+          "value": 17,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_RENDER_MATERIAL",
+          "value": 49,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_TEXT",
+          "value": 26,
+          "args": []
+        },
+        {
+          "name": "PRIM_COLOR",
+          "value": 18,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_BUMP_SHINY",
+          "value": 19,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_FULLBRIGHT",
+          "value": 20,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_FLEXIBLE",
+          "value": 21,
+          "args": []
+        },
+        {
+          "name": "PRIM_TEXGEN",
+          "value": 22,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_POINT_LIGHT",
+          "value": 23,
+          "args": []
+        },
+        {
+          "name": "PRIM_REFLECTION_PROBE",
+          "value": 44,
+          "args": []
+        },
+        {
+          "name": "PRIM_GLOW",
+          "value": 25,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_OMEGA",
+          "value": 32,
+          "args": []
+        },
+        {
+          "name": "PRIM_NORMAL",
+          "value": 37,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SPECULAR",
+          "value": 36,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_ALPHA_MODE",
+          "value": 38,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_LINK_TARGET",
+          "value": 34,
+          "args": [
+            {
+              "type": "integer",
+              "name": "link_target"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_CAST_SHADOWS",
+          "value": 24,
+          "args": []
+        },
+        {
+          "name": "PRIM_ALLOW_UNSIT",
+          "value": 39,
+          "args": []
+        },
+        {
+          "name": "PRIM_SCRIPTED_SIT_ONLY",
+          "value": 40,
+          "args": []
+        },
+        {
+          "name": "PRIM_SIT_TARGET",
+          "value": 41,
+          "args": []
+        },
+        {
+          "name": "PRIM_PROJECTOR",
+          "value": 42,
+          "args": []
+        },
+        {
+          "name": "PRIM_CLICK_ACTION",
+          "value": 43,
+          "args": []
+        },
+        {
+          "name": "PRIM_GLTF_BASE_COLOR",
+          "value": 48,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLTF_NORMAL",
+          "value": 45,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLTF_METALLIC_ROUGHNESS",
+          "value": 47,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_GLTF_EMISSIVE",
+          "value": 46,
+          "args": [
+            {
+              "type": "integer",
+              "name": "face"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_SIT_FLAGS",
+          "value": 50,
+          "args": []
+        },
+        {
+          "name": "PRIM_DAMAGE",
+          "value": 51,
+          "args": []
+        },
+        {
+          "name": "PRIM_HEALTH",
+          "value": 52,
+          "args": []
+        }
+      ]
+    },
+    {
       "name": "HttpParam",
       "functions": [
         "llHTTPRequest"
@@ -1026,7 +1320,7 @@
           "args": [
             {
               "type": "string",
-              "name": "mime_type"
+              "name": "MIME_type"
             }
           ]
         },
@@ -1045,7 +1339,7 @@
           "value": 3,
           "args": [
             {
-              "type": "boolean",
+              "type": "integer",
               "name": "verify"
             }
           ]
@@ -1055,7 +1349,7 @@
           "value": 4,
           "args": [
             {
-              "type": "boolean",
+              "type": "integer",
               "name": "noisy"
             }
           ]
@@ -1079,7 +1373,7 @@
           "value": 6,
           "args": [
             {
-              "type": "boolean",
+              "type": "integer",
               "name": "send_header"
             }
           ]
@@ -1090,7 +1384,7 @@
           "args": [
             {
               "type": "string",
-              "name": "user_agent"
+              "name": "user"
             }
           ]
         },
@@ -1100,7 +1394,7 @@
           "args": [
             {
               "type": "string",
-              "name": "mime_type"
+              "name": "MIME_type"
             }
           ]
         },
@@ -1109,10 +1403,1166 @@
           "value": 9,
           "args": [
             {
-              "type": "boolean",
+              "type": "integer",
               "name": "extended"
             }
           ]
+        }
+      ]
+    },
+    {
+      "name": "ParticleSystemParam",
+      "functions": [
+        "llParticleSystem",
+        "llLinkParticleSystem"
+      ],
+      "params": [
+        {
+          "name": "PSYS_PART_FLAGS",
+          "value": 0,
+          "args": [
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_PATTERN",
+          "value": 9,
+          "args": [
+            {
+              "type": "integer",
+              "name": "pattern"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_BURST_RADIUS",
+          "value": 16,
+          "args": [
+            {
+              "type": "float",
+              "name": "radius"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_ANGLE_BEGIN",
+          "value": 22,
+          "args": [
+            {
+              "type": "float",
+              "name": "angle_begin"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_ANGLE_END",
+          "value": 23,
+          "args": [
+            {
+              "type": "float",
+              "name": "angle_end"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_INNERANGLE",
+          "value": 10,
+          "args": [
+            {
+              "type": "float",
+              "name": "angle_inner"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_OUTERANGLE",
+          "value": 11,
+          "args": [
+            {
+              "type": "float",
+              "name": "angle_outer"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_TARGET_KEY",
+          "value": 20,
+          "args": [
+            {
+              "type": "key",
+              "name": "target"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_START_COLOR",
+          "value": 1,
+          "args": [
+            {
+              "type": "vector",
+              "name": "color_start"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_END_COLOR",
+          "value": 3,
+          "args": [
+            {
+              "type": "vector",
+              "name": "color_end"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_START_ALPHA",
+          "value": 2,
+          "args": [
+            {
+              "type": "float",
+              "name": "alpha_start"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_END_ALPHA",
+          "value": 4,
+          "args": [
+            {
+              "type": "float",
+              "name": "alpha_end"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_START_SCALE",
+          "value": 5,
+          "args": [
+            {
+              "type": "vector",
+              "name": "scale_start"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_END_SCALE",
+          "value": 6,
+          "args": [
+            {
+              "type": "vector",
+              "name": "scale_end"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_TEXTURE",
+          "value": 12,
+          "args": [
+            {
+              "type": "string",
+              "name": "texture"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_START_GLOW",
+          "value": 26,
+          "args": [
+            {
+              "type": "float",
+              "name": "glow_start"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_END_GLOW",
+          "value": 27,
+          "args": [
+            {
+              "type": "float",
+              "name": "glow_end"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_BLEND_FUNC_SOURCE",
+          "value": 24,
+          "args": [
+            {
+              "type": "integer",
+              "name": "bf_source"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_BLEND_FUNC_DEST",
+          "value": 25,
+          "args": [
+            {
+              "type": "integer",
+              "name": "bf_dest"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_MAX_AGE",
+          "value": 19,
+          "args": [
+            {
+              "type": "float",
+              "name": "duration_system"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_PART_MAX_AGE",
+          "value": 7,
+          "args": [
+            {
+              "type": "float",
+              "name": "duration_particle"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_BURST_RATE",
+          "value": 13,
+          "args": [
+            {
+              "type": "float",
+              "name": "burst_sleep"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_BURST_PART_COUNT",
+          "value": 15,
+          "args": [
+            {
+              "type": "integer",
+              "name": "burst_particle_count"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_ACCEL",
+          "value": 8,
+          "args": [
+            {
+              "type": "vector",
+              "name": "acceleration"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_OMEGA",
+          "value": 21,
+          "args": [
+            {
+              "type": "vector",
+              "name": "omega"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_BURST_SPEED_MIN",
+          "value": 17,
+          "args": [
+            {
+              "type": "float",
+              "name": "speed_min"
+            }
+          ]
+        },
+        {
+          "name": "PSYS_SRC_BURST_SPEED_MAX",
+          "value": 18,
+          "args": [
+            {
+              "type": "float",
+              "name": "speed_max"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CameraParam",
+      "functions": [
+        "llSetCameraParams"
+      ],
+      "params": [
+        {
+          "name": "CAMERA_ACTIVE",
+          "value": 12,
+          "args": [
+            {
+              "type": "boolean",
+              "name": "isActive"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_BEHINDNESS_ANGLE",
+          "value": 8,
+          "args": [
+            {
+              "type": "float",
+              "name": "degrees"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_BEHINDNESS_LAG",
+          "value": 9,
+          "args": [
+            {
+              "type": "float",
+              "name": "seconds"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_DISTANCE",
+          "value": 7,
+          "args": [
+            {
+              "type": "float",
+              "name": "meters"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_FOCUS",
+          "value": 17,
+          "args": [
+            {
+              "type": "vector",
+              "name": "position"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_FOCUS_LAG",
+          "value": 6,
+          "args": [
+            {
+              "type": "float",
+              "name": "seconds"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_FOCUS_LOCKED",
+          "value": 22,
+          "args": [
+            {
+              "type": "integer",
+              "name": "isLocked"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_FOCUS_OFFSET",
+          "value": 1,
+          "args": [
+            {
+              "type": "vector",
+              "name": "meters"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_FOCUS_THRESHOLD",
+          "value": 11,
+          "args": [
+            {
+              "type": "float",
+              "name": "meters"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_PITCH",
+          "value": 0,
+          "args": [
+            {
+              "type": "float",
+              "name": "degrees"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_POSITION",
+          "value": 13,
+          "args": [
+            {
+              "type": "vector",
+              "name": "position"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_POSITION_LAG",
+          "value": 5,
+          "args": [
+            {
+              "type": "float",
+              "name": "seconds"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_POSITION_LOCKED",
+          "value": 21,
+          "args": [
+            {
+              "type": "integer",
+              "name": "isLocked"
+            }
+          ]
+        },
+        {
+          "name": "CAMERA_POSITION_THRESHOLD",
+          "value": 10,
+          "args": [
+            {
+              "type": "float",
+              "name": "meters"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CastRayParam",
+      "functions": [
+        "llCastRay"
+      ],
+      "params": [
+        {
+          "name": "RC_REJECT_TYPES",
+          "value": 0,
+          "args": [
+            {
+              "type": "integer",
+              "name": "filter"
+            }
+          ]
+        },
+        {
+          "name": "RC_DATA_FLAGS",
+          "value": 2,
+          "args": [
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
+        },
+        {
+          "name": "RC_MAX_HITS",
+          "value": 3,
+          "args": [
+            {
+              "type": "integer",
+              "name": "max_hits"
+            }
+          ]
+        },
+        {
+          "name": "RC_DETECT_PHANTOM",
+          "value": 1,
+          "args": [
+            {
+              "type": "integer",
+              "name": "detect_phantom"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CharacterParam",
+      "functions": [
+        "llCreateCharacter",
+        "llUpdateCharacter"
+      ],
+      "params": [
+        {
+          "name": "CHARACTER_DESIRED_SPEED",
+          "value": 1,
+          "args": [
+            {
+              "type": "integer",
+              "name": "desired_speed"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_RADIUS",
+          "value": 2,
+          "args": [
+            {
+              "type": "integer",
+              "name": "radius"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_LENGTH",
+          "value": 3,
+          "args": [
+            {
+              "type": "integer",
+              "name": "length"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_ORIENTATION",
+          "value": 4,
+          "args": [
+            {
+              "type": "integer",
+              "name": "orientation"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_TYPE",
+          "value": 6,
+          "args": [
+            {
+              "type": "integer",
+              "name": "type"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_AVOIDANCE_MODE",
+          "value": 5,
+          "args": [
+            {
+              "type": "integer",
+              "name": "avoidance_mode"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_MAX_ACCEL",
+          "value": 8,
+          "args": [
+            {
+              "type": "integer",
+              "name": "max_accel"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_MAX_DECEL",
+          "value": 9,
+          "args": [
+            {
+              "type": "integer",
+              "name": "max_decel"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_DESIRED_TURN_SPEED",
+          "value": 12,
+          "args": [
+            {
+              "type": "integer",
+              "name": "desired_turn_speed"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_MAX_TURN_RADIUS",
+          "value": 10,
+          "args": [
+            {
+              "type": "float",
+              "name": "max_turn_radius"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_MAX_SPEED",
+          "value": 13,
+          "args": [
+            {
+              "type": "integer",
+              "name": "max_speed"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES",
+          "value": 14,
+          "args": [
+            {
+              "type": "integer",
+              "name": "account_for_skipped_frames"
+            }
+          ]
+        },
+        {
+          "name": "CHARACTER_STAY_WITHIN_PARCEL",
+          "value": 15,
+          "args": [
+            {
+              "type": "integer",
+              "name": "stay_within_parcel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RezParam",
+      "functions": [
+        "llRezObjectWithParams"
+      ],
+      "params": [
+        {
+          "name": "REZ_PARAM",
+          "value": 0,
+          "args": [
+            {
+              "type": "integer",
+              "name": "param"
+            }
+          ]
+        },
+        {
+          "name": "REZ_FLAGS",
+          "value": 1,
+          "args": [
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
+        },
+        {
+          "name": "REZ_POS",
+          "value": 2,
+          "args": [
+            {
+              "type": "vector",
+              "name": "pos"
+            },
+            {
+              "type": "integer",
+              "name": "relative"
+            },
+            {
+              "type": "integer",
+              "name": "at_root"
+            }
+          ]
+        },
+        {
+          "name": "REZ_ROT",
+          "value": 3,
+          "args": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            },
+            {
+              "type": "integer",
+              "name": "relative"
+            }
+          ]
+        },
+        {
+          "name": "REZ_VEL",
+          "value": 4,
+          "args": [
+            {
+              "type": "vector",
+              "name": "velocity"
+            },
+            {
+              "type": "integer",
+              "name": "local"
+            },
+            {
+              "type": "integer",
+              "name": "inherit"
+            }
+          ]
+        },
+        {
+          "name": "REZ_ACCEL",
+          "value": 5,
+          "args": [
+            {
+              "type": "vector",
+              "name": "force"
+            },
+            {
+              "type": "integer",
+              "name": "local"
+            }
+          ]
+        },
+        {
+          "name": "REZ_OMEGA",
+          "value": 7,
+          "args": [
+            {
+              "type": "vector",
+              "name": "axis"
+            },
+            {
+              "type": "integer",
+              "name": "local"
+            },
+            {
+              "type": "float",
+              "name": "spin"
+            },
+            {
+              "type": "float",
+              "name": "gain"
+            }
+          ]
+        },
+        {
+          "name": "REZ_DAMAGE",
+          "value": 8,
+          "args": [
+            {
+              "type": "float",
+              "name": "damage"
+            }
+          ]
+        },
+        {
+          "name": "REZ_SOUND",
+          "value": 9,
+          "args": [
+            {
+              "type": "string",
+              "name": "sound"
+            },
+            {
+              "type": "float",
+              "name": "volume"
+            },
+            {
+              "type": "integer",
+              "name": "loop"
+            }
+          ]
+        },
+        {
+          "name": "REZ_SOUND_COLLIDE",
+          "value": 10,
+          "args": [
+            {
+              "type": "string",
+              "name": "sound"
+            },
+            {
+              "type": "float",
+              "name": "volume"
+            }
+          ]
+        },
+        {
+          "name": "REZ_LOCK_AXES",
+          "value": 11,
+          "args": [
+            {
+              "type": "vector",
+              "name": "locks"
+            }
+          ]
+        },
+        {
+          "name": "REZ_DAMAGE_TYPE",
+          "value": 12,
+          "args": [
+            {
+              "type": "integer",
+              "name": "damage_type"
+            }
+          ]
+        },
+        {
+          "name": "REZ_PARAM_STRING",
+          "value": 13,
+          "args": [
+            {
+              "type": "string",
+              "name": "start_param"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ObjectDetail",
+      "functions": [
+        "llGetObjectDetails"
+      ],
+      "params": [
+        {
+          "name": "OBJECT_NAME",
+          "value": 1,
+          "args": []
+        },
+        {
+          "name": "OBJECT_DESC",
+          "value": 2,
+          "args": []
+        },
+        {
+          "name": "OBJECT_POS",
+          "value": 3,
+          "args": []
+        },
+        {
+          "name": "OBJECT_ROT",
+          "value": 4,
+          "args": []
+        },
+        {
+          "name": "OBJECT_VELOCITY",
+          "value": 5,
+          "args": []
+        },
+        {
+          "name": "OBJECT_OWNER",
+          "value": 6,
+          "args": []
+        },
+        {
+          "name": "OBJECT_GROUP",
+          "value": 7,
+          "args": []
+        },
+        {
+          "name": "OBJECT_CREATOR",
+          "value": 8,
+          "args": []
+        },
+        {
+          "name": "OBJECT_RUNNING_SCRIPT_COUNT",
+          "value": 9,
+          "args": []
+        },
+        {
+          "name": "OBJECT_TOTAL_SCRIPT_COUNT",
+          "value": 10,
+          "args": []
+        },
+        {
+          "name": "OBJECT_SCRIPT_MEMORY",
+          "value": 11,
+          "args": []
+        },
+        {
+          "name": "OBJECT_SCRIPT_TIME",
+          "value": 12,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PRIM_EQUIVALENCE",
+          "value": 13,
+          "args": []
+        },
+        {
+          "name": "OBJECT_SERVER_COST",
+          "value": 14,
+          "args": []
+        },
+        {
+          "name": "OBJECT_STREAMING_COST",
+          "value": 15,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PHYSICS_COST",
+          "value": 16,
+          "args": []
+        },
+        {
+          "name": "OBJECT_CHARACTER_TIME",
+          "value": 17,
+          "args": []
+        },
+        {
+          "name": "OBJECT_ROOT",
+          "value": 18,
+          "args": []
+        },
+        {
+          "name": "OBJECT_ATTACHED_POINT",
+          "value": 19,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PATHFINDING_TYPE",
+          "value": 20,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PHYSICS",
+          "value": 21,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PHANTOM",
+          "value": 22,
+          "args": []
+        },
+        {
+          "name": "OBJECT_TEMP_ON_REZ",
+          "value": 23,
+          "args": []
+        },
+        {
+          "name": "OBJECT_RENDER_WEIGHT",
+          "value": 24,
+          "args": []
+        },
+        {
+          "name": "OBJECT_HOVER_HEIGHT",
+          "value": 25,
+          "args": []
+        },
+        {
+          "name": "OBJECT_BODY_SHAPE_TYPE",
+          "value": 26,
+          "args": []
+        },
+        {
+          "name": "OBJECT_LAST_OWNER_ID",
+          "value": 27,
+          "args": []
+        },
+        {
+          "name": "OBJECT_CLICK_ACTION",
+          "value": 28,
+          "args": []
+        },
+        {
+          "name": "OBJECT_OMEGA",
+          "value": 29,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PRIM_COUNT",
+          "value": 30,
+          "args": []
+        },
+        {
+          "name": "OBJECT_TOTAL_INVENTORY_COUNT",
+          "value": 31,
+          "args": []
+        },
+        {
+          "name": "OBJECT_REZZER_KEY",
+          "value": 32,
+          "args": []
+        },
+        {
+          "name": "OBJECT_GROUP_TAG",
+          "value": 33,
+          "args": []
+        },
+        {
+          "name": "OBJECT_TEMP_ATTACHED",
+          "value": 34,
+          "args": []
+        },
+        {
+          "name": "OBJECT_ATTACHED_SLOTS_AVAILABLE",
+          "value": 35,
+          "args": []
+        },
+        {
+          "name": "OBJECT_CREATION_TIME",
+          "value": 36,
+          "args": []
+        },
+        {
+          "name": "OBJECT_SELECT_COUNT",
+          "value": 37,
+          "args": []
+        },
+        {
+          "name": "OBJECT_SIT_COUNT",
+          "value": 38,
+          "args": []
+        },
+        {
+          "name": "OBJECT_ANIMATED_COUNT",
+          "value": 39,
+          "args": []
+        },
+        {
+          "name": "OBJECT_ANIMATED_SLOTS_AVAILABLE",
+          "value": 40,
+          "args": []
+        },
+        {
+          "name": "OBJECT_ACCOUNT_LEVEL",
+          "value": 41,
+          "args": []
+        },
+        {
+          "name": "OBJECT_MATERIAL",
+          "value": 42,
+          "args": []
+        },
+        {
+          "name": "OBJECT_MASS",
+          "value": 43,
+          "args": []
+        },
+        {
+          "name": "OBJECT_TEXT",
+          "value": 44,
+          "args": []
+        },
+        {
+          "name": "OBJECT_REZ_TIME",
+          "value": 45,
+          "args": []
+        },
+        {
+          "name": "OBJECT_LINK_NUMBER",
+          "value": 46,
+          "args": []
+        },
+        {
+          "name": "OBJECT_SCALE",
+          "value": 47,
+          "args": []
+        },
+        {
+          "name": "OBJECT_TEXT_COLOR",
+          "value": 48,
+          "args": []
+        },
+        {
+          "name": "OBJECT_TEXT_ALPHA",
+          "value": 49,
+          "args": []
+        },
+        {
+          "name": "OBJECT_HEALTH",
+          "value": 50,
+          "args": []
+        },
+        {
+          "name": "OBJECT_DAMAGE",
+          "value": 51,
+          "args": []
+        },
+        {
+          "name": "OBJECT_DAMAGE_TYPE",
+          "value": 52,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PERMS",
+          "value": 53,
+          "args": []
+        },
+        {
+          "name": "OBJECT_PERMS_COMBINED",
+          "value": 54,
+          "args": []
+        }
+      ]
+    },
+    {
+      "name": "ParcelDetail",
+      "functions": [
+        "llGetParcelDetails"
+      ],
+      "params": [
+        {
+          "name": "PARCEL_DETAILS_NAME",
+          "value": 0,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_DESC",
+          "value": 1,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_OWNER",
+          "value": 2,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_GROUP",
+          "value": 3,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_AREA",
+          "value": 4,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_ID",
+          "value": 5,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_SEE_AVATARS",
+          "value": 6,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_PRIM_CAPACITY",
+          "value": 7,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_PRIM_USED",
+          "value": 8,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_LANDING_POINT",
+          "value": 9,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_LANDING_LOOKAT",
+          "value": 10,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_TP_ROUTING",
+          "value": 11,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_FLAGS",
+          "value": 12,
+          "args": []
+        },
+        {
+          "name": "PARCEL_DETAILS_SCRIPT_DANGER",
+          "value": 13,
+          "args": []
         }
       ]
     }

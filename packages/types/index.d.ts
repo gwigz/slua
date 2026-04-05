@@ -1351,7 +1351,11 @@ declare namespace ll {
    * Reports collision data for intersections with objects.
    * Return value: [UUID_1, {link_number_1}, hit_position_1, {hit_normal_1}, UUID_2, {link_number_2}, hit_position_2, {hit_normal_2}, ... , status_code] where {} indicates optional data.
    */
-  export function CastRay(start: Vector, end: Vector, options: list): list
+  export function CastRay<const T extends readonly unknown[]>(
+    start: Vector,
+    end: Vector,
+    options: T & ParseCastRayParams<T>,
+  ): list
 
   /**
    * Returns smallest integer value >= Value.
@@ -1428,7 +1432,9 @@ declare namespace ll {
    * Creates a path-finding entity, known as a "character", from the object containing the script. Required to activate use of path-finding functions.
    * Options is a list of key/value pairs.
    */
-  export function CreateCharacter(options: list): void
+  export function CreateCharacter<const T extends readonly unknown[]>(
+    options: T & ParseCharacterParams<T>,
+  ): void
 
   /** Starts an asychronous transaction to create a key-value pair. Will fail with XP_ERROR_STORAGE_EXCEPTION if the key already exists. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value passed to the function. */
   export function CreateKeyValue(key: string, value: string): UUID
@@ -1998,7 +2004,10 @@ declare namespace ll {
    * * Supplying a prim or object flag will return that flag's attributes.
    * * Face flags require the user to also supply a face index parameter.
    */
-  export function GetLinkPrimitiveParams(linkNumber: number, parameters: number[]): list
+  export function GetLinkPrimitiveParams<const T extends readonly unknown[]>(
+    linkNumber: number,
+    parameters: number[],
+  ): list
 
   /** Returns the sit flags set on the specified prim in a linkset. */
   export function GetLinkSitFlags(linkNumber: number): number
@@ -2227,7 +2236,7 @@ declare namespace ll {
    * Returns the primitive parameters specified in the parameters list.
    * Returns primitive parameters specified in the Parameters list.
    */
-  export function GetPrimitiveParams(parameters: number[]): list
+  export function GetPrimitiveParams<const T extends readonly unknown[]>(parameters: number[]): list
 
   /**
    * Returns the number of avatars in the region.
@@ -2507,9 +2516,9 @@ declare namespace ll {
   export function HMAC(key: string, message: string, algorithm: string): string
 
   /**
- * Sends an HTTP request to the specified URL with the Body of the request and Parameters.
-Returns a key that is a handle identifying the HTTP request made.
- */
+   * Sends an HTTP request to the specified URL with the Body of the request and Parameters.
+   * Returns a key that is a handle identifying the HTTP request made.
+   */
   export function HTTPRequest<const T extends readonly unknown[]>(
     url: string,
     parameters: T & ParseHttpParams<T>,
@@ -2604,7 +2613,10 @@ Returns a key that is a handle identifying the HTTP request made.
    * List format is [ rule-1, data-1, rule-2, data-2 ... rule-n, data-n ].
    * This is identical to llParticleSystem except that it applies to a specified linked prim and not just the prim the script is in.
    */
-  export function LinkParticleSystem(linkNumber: number, rules: list): void
+  export function LinkParticleSystem<const T extends readonly unknown[]>(
+    linkNumber: number,
+    rules: T & ParseParticleSystemParams<T>,
+  ): void
 
   /**
    * Plays Sound, once or looping, at Volume (0.0 - 1.0). The sound may be attached to the link or triggered at its location.
@@ -3108,7 +3120,9 @@ Returns a key that is a handle identifying the HTTP request made.
    * Creates a particle system in the prim the script is attached to, based on Parameters. An empty list removes a particle system from object.
    * List format is [ rule-1, data-1, rule-2, data-2 ... rule-n, data-n ].
    */
-  export function ParticleSystem(parameters: list): void
+  export function ParticleSystem<const T extends readonly unknown[]>(
+    parameters: T & ParseParticleSystemParams<T>,
+  ): void
 
   /**
    * Configures how collision events are passed to scripts in the linkset.
@@ -3407,8 +3421,13 @@ Returns a key that is a handle identifying the HTTP request made.
     startParameter: number,
   ): void
 
-  /** Instantiate owner's InventoryItem with the given parameters. */
-  export function RezObjectWithParams(inventoryItem: string, params: list): UUID
+  /**
+   * Instantiate owner's InventoryItem with the given parameters.
+   */
+  export function RezObjectWithParams<const T extends readonly unknown[]>(
+    inventoryItem: string,
+    params: T & ParseRezParams<T>,
+  ): UUID
 
   /**
    * Returns the rotation angle represented by Rotation.
@@ -3611,7 +3630,9 @@ Returns a key that is a handle identifying the HTTP request made.
    * Sets multiple camera parameters at once. List format is [ rule-1, data-1, rule-2, data-2 . . . rule-n, data-n ].
    * Requires the PERMISSION_CONTROL_CAMERA runtime permission (automatically granted to attached or sat on objects).
    */
-  export function SetCameraParams(parameters: list): void
+  export function SetCameraParams<const T extends readonly unknown[]>(
+    parameters: T & ParseCameraParams<T>,
+  ): void
 
   /** Sets the action performed when a prim is clicked upon. */
   export function SetClickAction(action: number): void
@@ -3709,9 +3730,9 @@ Returns a key that is a handle identifying the HTTP request made.
   ): void
 
   /**
- * Set primitive parameters for LinkNumber based on Parameters, without a delay.
-Set parameters for link number, from the list of Parameters, with no built-in script sleep. This function is identical to llSetLinkPrimitiveParams, except without the delay.
- */
+   * Set primitive parameters for LinkNumber based on Parameters, without a delay.
+   * Set parameters for link number, from the list of Parameters, with no built-in script sleep. This function is identical to llSetLinkPrimitiveParams, except without the delay.
+   */
   export function SetLinkPrimitiveParamsFast<const T extends readonly unknown[]>(
     linkNumber: number,
     parameters: T & ParsePrimParams<T>,
@@ -4163,8 +4184,12 @@ Set parameters for link number, from the list of Parameters, with no built-in sc
    */
   export function UnescapeURL(url: string): string
 
-  /** Updates settings for a pathfinding character. */
-  export function UpdateCharacter(options: list): void
+  /**
+   * Updates settings for a pathfinding character.
+   */
+  export function UpdateCharacter<const T extends readonly unknown[]>(
+    options: T & ParseCharacterParams<T>,
+  ): void
 
   /** Starts an asychronous transaction to update the value associated with the key given. The dataserver callback will be executed with the key returned from this call and a string describing the result. The result is a two element commma-delimited list. The first item is an integer specifying if the transaction succeeded (1) or not (0). In the failure case, the second item will be an integer corresponding to one of the XP_ERROR_... constants. In the success case the second item will be the value associated with the key. If Checked is 1 the existing value in the data store must match the OriginalValue passed or XP_ERROR_RETRY_UPDATE will be returned. If Checked is 0 the key will be created if necessary. */
   export function UpdateKeyValue(
@@ -4398,20 +4423,20 @@ declare const AVOID_DYNAMIC_OBSTACLES: number
 declare const AVOID_NONE: number
 /** Cause llMapBeacon to optionally display and focus the world map on the avatar's viewer. */
 declare const BEACON_MAP: number
-declare const CAMERA_ACTIVE: number
-declare const CAMERA_BEHINDNESS_ANGLE: number
-declare const CAMERA_BEHINDNESS_LAG: number
-declare const CAMERA_DISTANCE: number
-declare const CAMERA_FOCUS: number
-declare const CAMERA_FOCUS_LAG: number
-declare const CAMERA_FOCUS_LOCKED: number
-declare const CAMERA_FOCUS_OFFSET: number
-declare const CAMERA_FOCUS_THRESHOLD: number
-declare const CAMERA_PITCH: number
-declare const CAMERA_POSITION: number
-declare const CAMERA_POSITION_LAG: number
-declare const CAMERA_POSITION_LOCKED: number
-declare const CAMERA_POSITION_THRESHOLD: number
+declare const CAMERA_ACTIVE: 12
+declare const CAMERA_BEHINDNESS_ANGLE: 8
+declare const CAMERA_BEHINDNESS_LAG: 9
+declare const CAMERA_DISTANCE: 7
+declare const CAMERA_FOCUS: 17
+declare const CAMERA_FOCUS_LAG: 6
+declare const CAMERA_FOCUS_LOCKED: 22
+declare const CAMERA_FOCUS_OFFSET: 1
+declare const CAMERA_FOCUS_THRESHOLD: 11
+declare const CAMERA_PITCH: 0
+declare const CAMERA_POSITION: 13
+declare const CAMERA_POSITION_LAG: 5
+declare const CAMERA_POSITION_LOCKED: 21
+declare const CAMERA_POSITION_THRESHOLD: 10
 /** The object inventory has changed because an item was added through the llAllowInventoryDrop interface. */
 declare const CHANGED_ALLOWED_DROP: number
 /** The object color has changed. */
@@ -4438,39 +4463,39 @@ declare const CHANGED_TELEPORT: number
 /** The texture offset, scale rotation, or simply the object texture has changed. */
 declare const CHANGED_TEXTURE: number
 /** If set to false, character will not attempt to catch up on lost time when pathfinding performance is low, potentially providing more reliable movement (albeit while potentially appearing to be more stuttery). Default is true to match pre-existing behavior. */
-declare const CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES: number
+declare const CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES: 14
 /** Allows you to specify that a character should not try to avoid other characters, should not try to avoid dynamic obstacles (relatively fast moving objects and avatars), or both. */
-declare const CHARACTER_AVOIDANCE_MODE: number
+declare const CHARACTER_AVOIDANCE_MODE: 5
 /** Makes the character jump. Requires an additional parameter, the height to jump, between 0.1m and 2.0m. This must be provided as the first element of the llExecCharacterCmd option list. */
 declare const CHARACTER_CMD_JUMP: number
 declare const CHARACTER_CMD_SMOOTH_STOP: number
 /** Stops any current pathfinding operation. */
 declare const CHARACTER_CMD_STOP: number
 /** Speed of pursuit in meters per second. */
-declare const CHARACTER_DESIRED_SPEED: number
+declare const CHARACTER_DESIRED_SPEED: 1
 /** The character's maximum speed while turning about the Z axis. - Note that this is only loosely enforced. */
-declare const CHARACTER_DESIRED_TURN_SPEED: number
+declare const CHARACTER_DESIRED_TURN_SPEED: 12
 /** Set collision capsule length - cannot be less than two times the radius. */
-declare const CHARACTER_LENGTH: number
+declare const CHARACTER_LENGTH: 3
 /** The character's maximum acceleration rate. */
-declare const CHARACTER_MAX_ACCEL: number
+declare const CHARACTER_MAX_ACCEL: 8
 /** The character's maximum deceleration rate. */
-declare const CHARACTER_MAX_DECEL: number
+declare const CHARACTER_MAX_DECEL: 9
 /** The character's maximum speed. */
-declare const CHARACTER_MAX_SPEED: number
+declare const CHARACTER_MAX_SPEED: 13
 /** The character's turn radius when travelling at CHARACTER_MAX_TURN_SPEED. */
-declare const CHARACTER_MAX_TURN_RADIUS: number
+declare const CHARACTER_MAX_TURN_RADIUS: 10
 /** Valid options are: VERTICAL, HORIZONTAL. */
-declare const CHARACTER_ORIENTATION: number
+declare const CHARACTER_ORIENTATION: 4
 /** Set collision capsule radius. */
-declare const CHARACTER_RADIUS: number
+declare const CHARACTER_RADIUS: 2
 /**
  * Determines whether a character can leave its starting parcel.
  * Takes a boolean parameter. If TRUE, the character cannot voluntarilly leave the parcel, but can return to it.
  */
-declare const CHARACTER_STAY_WITHIN_PARCEL: number
+declare const CHARACTER_STAY_WITHIN_PARCEL: 15
 /** Specifies which walk-ability coefficient will be used by this character. */
-declare const CHARACTER_TYPE: number
+declare const CHARACTER_TYPE: 6
 declare const CHARACTER_TYPE_A: number
 declare const CHARACTER_TYPE_B: number
 declare const CHARACTER_TYPE_C: number
@@ -4854,137 +4879,137 @@ declare const NULL_KEY: UUID
  *  10 when the avatar has a premium plus account,
  *  or -1 if the object is not an avatar.
  */
-declare const OBJECT_ACCOUNT_LEVEL: number
+declare const OBJECT_ACCOUNT_LEVEL: 41
 /** This is a flag used with llGetObjectDetails to get the number of associated animated objects */
-declare const OBJECT_ANIMATED_COUNT: number
+declare const OBJECT_ANIMATED_COUNT: 39
 /** This is a flag used with llGetObjectDetails to get the number of additional animated object attachments allowed. */
-declare const OBJECT_ANIMATED_SLOTS_AVAILABLE: number
+declare const OBJECT_ANIMATED_SLOTS_AVAILABLE: 40
 /**
  * Gets the attachment point to which the object is attached.
  * Returns 0 if the object is not an attachment (or is an avatar, etc).
  */
-declare const OBJECT_ATTACHED_POINT: number
+declare const OBJECT_ATTACHED_POINT: 19
 /**
  * Returns the number of attachment slots available.
  * Returns 0 if the object is not an avatar or none are available.
  */
-declare const OBJECT_ATTACHED_SLOTS_AVAILABLE: number
+declare const OBJECT_ATTACHED_SLOTS_AVAILABLE: 35
 /**
  * This is a flag used with llGetObjectDetails to get the body type of the avatar, based on shape data.
  * If no data is available, -1.0 is returned.
  * This is normally between 0 and 1.0, with 0.5 and larger considered 'male'
  */
-declare const OBJECT_BODY_SHAPE_TYPE: number
+declare const OBJECT_BODY_SHAPE_TYPE: 26
 /** Units in seconds */
-declare const OBJECT_CHARACTER_TIME: number
+declare const OBJECT_CHARACTER_TIME: 17
 /**
  * This is a flag used with llGetObjectDetails to get the click action.
  * The default is 0
  */
-declare const OBJECT_CLICK_ACTION: number
+declare const OBJECT_CLICK_ACTION: 28
 /** This is a flag used with llGetObjectDetails to get the time this object was created */
-declare const OBJECT_CREATION_TIME: number
+declare const OBJECT_CREATION_TIME: 36
 /** Gets the object's creator key. If id is an avatar, a NULL_KEY is returned. */
-declare const OBJECT_CREATOR: number
+declare const OBJECT_CREATOR: 8
 /** Gets the damage value assigned to this object. */
-declare const OBJECT_DAMAGE: number
+declare const OBJECT_DAMAGE: 51
 /** Gets the damage type, if any, assigned to this object. */
-declare const OBJECT_DAMAGE_TYPE: number
+declare const OBJECT_DAMAGE_TYPE: 52
 /** Gets the object's description. If id is an avatar, an empty string is returned. */
-declare const OBJECT_DESC: number
+declare const OBJECT_DESC: 2
 /** Gets the prims's group key. If id is an avatar, a NULL_KEY is returned. */
-declare const OBJECT_GROUP: number
+declare const OBJECT_GROUP: 7
 /** Gets the agent's current group role tag. If id is an object, an empty is returned. */
-declare const OBJECT_GROUP_TAG: number
+declare const OBJECT_GROUP_TAG: 33
 /** Gets current health value for the object. */
-declare const OBJECT_HEALTH: number
+declare const OBJECT_HEALTH: 50
 /**
  * This is a flag used with llGetObjectDetails to get hover height of the avatar
  * If no data is available, 0.0 is returned.
  */
-declare const OBJECT_HOVER_HEIGHT: number
+declare const OBJECT_HOVER_HEIGHT: 25
 /** Gets the object's last owner ID. */
-declare const OBJECT_LAST_OWNER_ID: number
+declare const OBJECT_LAST_OWNER_ID: 27
 /** Gets the object's link number or 0 if unlinked. */
-declare const OBJECT_LINK_NUMBER: number
+declare const OBJECT_LINK_NUMBER: 46
 /** Get the object's mass */
-declare const OBJECT_MASS: number
+declare const OBJECT_MASS: 43
 /** Get an object's material setting. */
-declare const OBJECT_MATERIAL: number
+declare const OBJECT_MATERIAL: 42
 /** Gets the object's name. */
-declare const OBJECT_NAME: number
+declare const OBJECT_NAME: 1
 /** Gets an object's angular velocity. */
-declare const OBJECT_OMEGA: number
+declare const OBJECT_OMEGA: 29
 /** Gets an object's owner's key. If id is group owned, a NULL_KEY is returned. */
-declare const OBJECT_OWNER: number
+declare const OBJECT_OWNER: 6
 /** Returns the pathfinding setting of any object in the region. It returns an integer matching one of the OPT_* constants. */
-declare const OBJECT_PATHFINDING_TYPE: number
+declare const OBJECT_PATHFINDING_TYPE: 20
 /** Gets the objects permissions */
-declare const OBJECT_PERMS: number
+declare const OBJECT_PERMS: 53
 /** Gets the object's permissions including any inventory. */
-declare const OBJECT_PERMS_COMBINED: number
+declare const OBJECT_PERMS_COMBINED: 54
 /**
  * Returns boolean, detailing if phantom is enabled or disabled on the object.
  * If id is an avatar or attachment, 0 is returned.
  */
-declare const OBJECT_PHANTOM: number
+declare const OBJECT_PHANTOM: 22
 /**
  * Returns boolean, detailing if physics is enabled or disabled on the object.
  * If id is an avatar or attachment, 0 is returned.
  */
-declare const OBJECT_PHYSICS: number
-declare const OBJECT_PHYSICS_COST: number
+declare const OBJECT_PHYSICS: 21
+declare const OBJECT_PHYSICS_COST: 16
 /** Gets the object's position in region coordinates. */
-declare const OBJECT_POS: number
+declare const OBJECT_POS: 3
 /** Gets the prim count of the object.  The script and target object  must be owned by the same owner */
-declare const OBJECT_PRIM_COUNT: number
-declare const OBJECT_PRIM_EQUIVALENCE: number
+declare const OBJECT_PRIM_COUNT: 30
+declare const OBJECT_PRIM_EQUIVALENCE: 13
 /**
  * This is a flag used with llGetObjectDetails to get the Avatar_Rendering_Cost of an avatar, based on values reported by nearby viewers.
  * If no data is available, -1 is returned.
  * The maximum render weight stored by the simulator is 500000. When called against an object, 0 is returned.
  */
-declare const OBJECT_RENDER_WEIGHT: number
+declare const OBJECT_RENDER_WEIGHT: 24
 declare const OBJECT_RETURN_PARCEL: number
 declare const OBJECT_RETURN_PARCEL_OWNER: number
 declare const OBJECT_RETURN_REGION: number
-declare const OBJECT_REZZER_KEY: number
+declare const OBJECT_REZZER_KEY: 32
 /** Get the time when an object was rezzed. */
-declare const OBJECT_REZ_TIME: number
+declare const OBJECT_REZ_TIME: 45
 /**
  * Gets the id of the root prim of the object requested.
  * If id is an avatar, return the id of the root prim of the linkset the avatar is sitting on (or the avatar's own id if the avatar is not sitting on an object within the region).
  */
-declare const OBJECT_ROOT: number
+declare const OBJECT_ROOT: 18
 /** Gets the object's rotation. */
-declare const OBJECT_ROT: number
-declare const OBJECT_RUNNING_SCRIPT_COUNT: number
+declare const OBJECT_ROT: 4
+declare const OBJECT_RUNNING_SCRIPT_COUNT: 9
 /** Gets the object's size. */
-declare const OBJECT_SCALE: number
-declare const OBJECT_SCRIPT_MEMORY: number
-declare const OBJECT_SCRIPT_TIME: number
+declare const OBJECT_SCALE: 47
+declare const OBJECT_SCRIPT_MEMORY: 11
+declare const OBJECT_SCRIPT_TIME: 12
 /** This is a flag used with llGetObjectDetails to get the number of avatars selecting any part of the object */
-declare const OBJECT_SELECT_COUNT: number
-declare const OBJECT_SERVER_COST: number
+declare const OBJECT_SELECT_COUNT: 37
+declare const OBJECT_SERVER_COST: 14
 /** This is a flag used with llGetObjectDetails to get the number of avatars sitting on the object */
-declare const OBJECT_SIT_COUNT: number
-declare const OBJECT_STREAMING_COST: number
+declare const OBJECT_SIT_COUNT: 38
+declare const OBJECT_STREAMING_COST: 15
 /** Returns boolean, indicating if object is a temp attachment. */
-declare const OBJECT_TEMP_ATTACHED: number
+declare const OBJECT_TEMP_ATTACHED: 34
 /** Returns boolean, detailing if temporary is enabled or disabled on the object. */
-declare const OBJECT_TEMP_ON_REZ: number
+declare const OBJECT_TEMP_ON_REZ: 23
 /** Gets an objects hover text. */
-declare const OBJECT_TEXT: number
+declare const OBJECT_TEXT: 44
 /** Gets the alpha of an objects hover text. */
-declare const OBJECT_TEXT_ALPHA: number
+declare const OBJECT_TEXT_ALPHA: 49
 /** Gets the color of an objects hover text. */
-declare const OBJECT_TEXT_COLOR: number
+declare const OBJECT_TEXT_COLOR: 48
 /** Gets the total inventory count of the object.  The script and target object must be owned by the same owner */
-declare const OBJECT_TOTAL_INVENTORY_COUNT: number
-declare const OBJECT_TOTAL_SCRIPT_COUNT: number
+declare const OBJECT_TOTAL_INVENTORY_COUNT: 31
+declare const OBJECT_TOTAL_SCRIPT_COUNT: 10
 declare const OBJECT_UNKNOWN_DETAIL: number
 /** Gets the object's velocity. */
-declare const OBJECT_VELOCITY: number
+declare const OBJECT_VELOCITY: 5
 /** Returned for avatars. */
 declare const OPT_AVATAR: number
 /** Returned for pathfinding characters. */
@@ -5016,33 +5041,33 @@ declare const PARCEL_COUNT_SELECTED: number
 declare const PARCEL_COUNT_TEMP: number
 declare const PARCEL_COUNT_TOTAL: number
 /** The parcel's area, in square meters. (5 chars.). */
-declare const PARCEL_DETAILS_AREA: number
+declare const PARCEL_DETAILS_AREA: 4
 /** The description of the parcel. (127 chars). */
-declare const PARCEL_DETAILS_DESC: number
+declare const PARCEL_DETAILS_DESC: 1
 /** Flags set on the parcel */
-declare const PARCEL_DETAILS_FLAGS: number
+declare const PARCEL_DETAILS_FLAGS: 12
 /** The parcel group's key. (36 chars.). */
-declare const PARCEL_DETAILS_GROUP: number
+declare const PARCEL_DETAILS_GROUP: 3
 /** The parcel's key. (36 chars.). */
-declare const PARCEL_DETAILS_ID: number
+declare const PARCEL_DETAILS_ID: 5
 /** Lookat vector set for teleport routing. */
-declare const PARCEL_DETAILS_LANDING_LOOKAT: number
+declare const PARCEL_DETAILS_LANDING_LOOKAT: 10
 /** The parcel's landing point, if any. */
-declare const PARCEL_DETAILS_LANDING_POINT: number
+declare const PARCEL_DETAILS_LANDING_POINT: 9
 /** The name of the parcel. (63 chars.). */
-declare const PARCEL_DETAILS_NAME: number
+declare const PARCEL_DETAILS_NAME: 0
 /** The parcel owner's key. (36 chars.). */
-declare const PARCEL_DETAILS_OWNER: number
+declare const PARCEL_DETAILS_OWNER: 2
 /** The parcel's prim capacity. */
-declare const PARCEL_DETAILS_PRIM_CAPACITY: number
+declare const PARCEL_DETAILS_PRIM_CAPACITY: 7
 /** The number of prims used on this parcel. */
-declare const PARCEL_DETAILS_PRIM_USED: number
+declare const PARCEL_DETAILS_PRIM_USED: 8
 /** There are restrictions on this parcel that may impact script execution. */
-declare const PARCEL_DETAILS_SCRIPT_DANGER: number
+declare const PARCEL_DETAILS_SCRIPT_DANGER: 13
 /** The parcel's avatar visibility setting. (1 char.). */
-declare const PARCEL_DETAILS_SEE_AVATARS: number
+declare const PARCEL_DETAILS_SEE_AVATARS: 6
 /** Parcel's teleport routing setting. */
-declare const PARCEL_DETAILS_TP_ROUTING: number
+declare const PARCEL_DETAILS_TP_ROUTING: 11
 declare const PARCEL_FLAG_ALLOW_ALL_OBJECT_ENTRY: number
 declare const PARCEL_FLAG_ALLOW_CREATE_GROUP_OBJECTS: number
 declare const PARCEL_FLAG_ALLOW_CREATE_OBJECTS: number
@@ -5404,21 +5429,21 @@ declare const PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR: number
 declare const PSYS_PART_BF_SOURCE_ALPHA: number
 declare const PSYS_PART_BF_SOURCE_COLOR: number
 declare const PSYS_PART_BF_ZERO: number
-declare const PSYS_PART_BLEND_FUNC_DEST: number
-declare const PSYS_PART_BLEND_FUNC_SOURCE: number
+declare const PSYS_PART_BLEND_FUNC_DEST: 25
+declare const PSYS_PART_BLEND_FUNC_SOURCE: 24
 /** Particles bounce off of a plane at the objects Z height. */
 declare const PSYS_PART_BOUNCE_MASK: number
 /** The particle glows. */
 declare const PSYS_PART_EMISSIVE_MASK: number
 /** A float which determines the ending alpha of the object. */
-declare const PSYS_PART_END_ALPHA: number
+declare const PSYS_PART_END_ALPHA: 4
 /** A vector <r, g, b> which determines the ending color of the object. */
-declare const PSYS_PART_END_COLOR: number
-declare const PSYS_PART_END_GLOW: number
+declare const PSYS_PART_END_COLOR: 3
+declare const PSYS_PART_END_GLOW: 27
 /** A vector <sx, sy, z>, which is the ending size of the particle billboard in meters (z is ignored). */
-declare const PSYS_PART_END_SCALE: number
+declare const PSYS_PART_END_SCALE: 6
 /** Each particle that is emitted by the particle system is simulated based on the following flags. To use multiple flags, bitwise or (|) them together. */
-declare const PSYS_PART_FLAGS: number
+declare const PSYS_PART_FLAGS: 0
 /** The particle position is relative to the source objects position. */
 declare const PSYS_PART_FOLLOW_SRC_MASK: number
 /** The particle orientation is rotated so the vertical axis faces towards the particle velocity. */
@@ -5428,47 +5453,47 @@ declare const PSYS_PART_INTERP_COLOR_MASK: number
 /** Interpolate the particle scale from the start value to the end value. */
 declare const PSYS_PART_INTERP_SCALE_MASK: number
 /** Age in seconds of a particle at which it dies. */
-declare const PSYS_PART_MAX_AGE: number
+declare const PSYS_PART_MAX_AGE: 7
 declare const PSYS_PART_RIBBON_MASK: number
 /** A float which determines the starting alpha of the object. */
-declare const PSYS_PART_START_ALPHA: number
+declare const PSYS_PART_START_ALPHA: 2
 /** A vector <r, g, b> which determines the starting color of the object. */
-declare const PSYS_PART_START_COLOR: number
-declare const PSYS_PART_START_GLOW: number
+declare const PSYS_PART_START_COLOR: 1
+declare const PSYS_PART_START_GLOW: 26
 /** A vector <sx, sy, z>, which is the starting size of the particle billboard in meters (z is ignored). */
-declare const PSYS_PART_START_SCALE: number
+declare const PSYS_PART_START_SCALE: 5
 declare const PSYS_PART_TARGET_LINEAR_MASK: number
 /** The particle heads towards the location of the target object as defined by PSYS_SRC_TARGET_KEY. */
 declare const PSYS_PART_TARGET_POS_MASK: number
 /** Particles have their velocity damped towards the wind velocity. */
 declare const PSYS_PART_WIND_MASK: number
 /** A vector <x, y, z> which is the acceleration to apply on particles. */
-declare const PSYS_SRC_ACCEL: number
+declare const PSYS_SRC_ACCEL: 8
 /** Area in radians specifying where particles will NOT be created (for ANGLE patterns) */
-declare const PSYS_SRC_ANGLE_BEGIN: number
+declare const PSYS_SRC_ANGLE_BEGIN: 22
 /** Area in radians filled with particles (for ANGLE patterns) (if lower than PSYS_SRC_ANGLE_BEGIN, acts as PSYS_SRC_ANGLE_BEGIN itself, and PSYS_SRC_ANGLE_BEGIN acts as PSYS_SRC_ANGLE_END). */
-declare const PSYS_SRC_ANGLE_END: number
+declare const PSYS_SRC_ANGLE_END: 23
 /** How many particles to release in a burst. */
-declare const PSYS_SRC_BURST_PART_COUNT: number
+declare const PSYS_SRC_BURST_PART_COUNT: 15
 /** What distance from the center of the object to create the particles. */
-declare const PSYS_SRC_BURST_RADIUS: number
+declare const PSYS_SRC_BURST_RADIUS: 16
 /** How often to release a particle burst (float seconds). */
-declare const PSYS_SRC_BURST_RATE: number
+declare const PSYS_SRC_BURST_RATE: 13
 /** Maximum speed that a particle should be moving. */
-declare const PSYS_SRC_BURST_SPEED_MAX: number
+declare const PSYS_SRC_BURST_SPEED_MAX: 18
 /** Minimum speed that a particle should be moving. */
-declare const PSYS_SRC_BURST_SPEED_MIN: number
+declare const PSYS_SRC_BURST_SPEED_MIN: 17
 /** Specifies the inner angle of the arc created by the PSYS_SRC_PATTERN_ANGLE or PSYS_SRC_PATTERN_ANGLE_CONE source pattern.The area specified will NOT have particles in it. */
-declare const PSYS_SRC_INNERANGLE: number
+declare const PSYS_SRC_INNERANGLE: 10
 /** How long this particle system should last, 0.0 means forever. */
-declare const PSYS_SRC_MAX_AGE: number
+declare const PSYS_SRC_MAX_AGE: 19
 declare const PSYS_SRC_OBJ_REL_MASK: number
 /** Sets the angular velocity to rotate the axis that SRC_PATTERN_ANGLE and SRC_PATTERN_ANGLE_CONE use. */
-declare const PSYS_SRC_OMEGA: number
+declare const PSYS_SRC_OMEGA: 21
 /** Specifies the outer angle of the arc created by the PSYS_SRC_PATTERN_ANGLE or PSYS_SRC_PATTERN_ANGLE_CONE source pattern.The area between the outer and inner angle will be filled with particles. */
-declare const PSYS_SRC_OUTERANGLE: number
+declare const PSYS_SRC_OUTERANGLE: 11
 /** The pattern which is used to generate particles.Use one of the following values: PSYS_SRC_PATTERN Values. */
-declare const PSYS_SRC_PATTERN: number
+declare const PSYS_SRC_PATTERN: 9
 /** Shoot particles across a 2 dimensional area defined by the arc created from PSYS_SRC_OUTERANGLE. There will be an open area defined by PSYS_SRC_INNERANGLE within the larger arc. */
 declare const PSYS_SRC_PATTERN_ANGLE: number
 /** Shoot particles out in a 3 dimensional cone with an outer arc of PSYS_SRC_OUTERANGLE and an inner open area defined by PSYS_SRC_INNERANGLE. */
@@ -5479,9 +5504,9 @@ declare const PSYS_SRC_PATTERN_DROP: number
 /** Shoot particles out in all directions, using the burst parameters. */
 declare const PSYS_SRC_PATTERN_EXPLODE: number
 /** The key of a target object to move towards if PSYS_PART_TARGET_POS_MASK is enabled. */
-declare const PSYS_SRC_TARGET_KEY: number
+declare const PSYS_SRC_TARGET_KEY: 20
 /** An asset name for the texture to use for the particles. */
-declare const PSYS_SRC_TEXTURE: number
+declare const PSYS_SRC_TEXTURE: 12
 /** PUBLIC_CHANNEL is an integer constant that, when passed to llSay, llWhisper, or llShout as a channel parameter, will print text to the publicly heard chat channel. */
 declare const PUBLIC_CHANNEL: number
 /** Selects a random destination near the offset. */
@@ -5519,17 +5544,17 @@ declare const RAD_TO_DEG: number
 declare const RCERR_CAST_TIME_EXCEEDED: number
 declare const RCERR_SIM_PERF_LOW: number
 declare const RCERR_UNKNOWN: number
-declare const RC_DATA_FLAGS: number
-declare const RC_DETECT_PHANTOM: number
+declare const RC_DATA_FLAGS: 2
+declare const RC_DETECT_PHANTOM: 1
 declare const RC_GET_LINK_NUM: number
 declare const RC_GET_NORMAL: number
 declare const RC_GET_ROOT_KEY: number
-declare const RC_MAX_HITS: number
+declare const RC_MAX_HITS: 3
 declare const RC_REJECT_AGENTS: number
 declare const RC_REJECT_LAND: number
 declare const RC_REJECT_NONPHYSICAL: number
 declare const RC_REJECT_PHYSICAL: number
-declare const RC_REJECT_TYPES: number
+declare const RC_REJECT_TYPES: 0
 declare const REGION_FLAG_ALLOW_DAMAGE: number
 declare const REGION_FLAG_ALLOW_DIRECT_TELEPORT: number
 declare const REGION_FLAG_BLOCK_FLY: number
@@ -5553,13 +5578,13 @@ declare const RESTITUTION: number
 /** Play animation in reverse direction. */
 declare const REVERSE: number
 /** Acceleration forced applied to the rezzed object. [vector force, integer rel] */
-declare const REZ_ACCEL: number
+declare const REZ_ACCEL: 5
 /** Damage applied by the object when it collides with an agent. [float damage] */
-declare const REZ_DAMAGE: number
+declare const REZ_DAMAGE: 8
 /** Set the damage type applied when this object collides. [integer damage_type] */
-declare const REZ_DAMAGE_TYPE: number
+declare const REZ_DAMAGE_TYPE: 12
 /** Rez flags to set on the newly rezzed object. [integer flags] */
-declare const REZ_FLAGS: number
+declare const REZ_FLAGS: 1
 /** Prevent grabbing the object. */
 declare const REZ_FLAG_BLOCK_GRAB_OBJECT: number
 /** Object will die after its first collision. */
@@ -5577,24 +5602,24 @@ declare const REZ_FLAG_PHYSICAL: number
 /** Flag the object as temp on rez. */
 declare const REZ_FLAG_TEMP: number
 /** Prevent the object from rotating around some axes. [vector locks] */
-declare const REZ_LOCK_AXES: number
+declare const REZ_LOCK_AXES: 11
 /** Omega applied to the rezzed object. [vector axis, integer rel, float spin, float gain] */
-declare const REZ_OMEGA: number
+declare const REZ_OMEGA: 7
 /** Integer value to pass to the object as its rez parameter. [integer param] */
-declare const REZ_PARAM: number
+declare const REZ_PARAM: 0
 /** A string value to pass to the object as its rez parameter. [string param] */
-declare const REZ_PARAM_STRING: number
+declare const REZ_PARAM_STRING: 13
 /** Position at which to rez the new object. [vector position, integer rel, integer atroot] */
-declare const REZ_POS: number
+declare const REZ_POS: 2
 /** Rotation applied to newly rezzed object. [rotation rot, integer rel] */
-declare const REZ_ROT: number
+declare const REZ_ROT: 3
 /** Sound attached to the rezzed object. [string name, float volume, integer loop] */
-declare const REZ_SOUND: number
+declare const REZ_SOUND: 9
 /** Sound played by the object on a collision. [string name, float volume] */
-declare const REZ_SOUND_COLLIDE: number
+declare const REZ_SOUND_COLLIDE: 10
 declare const REZ_TORQUE: number
 /** Initial velocity of rezzed object. [vector vel, integer rel, integer inherit] */
-declare const REZ_VEL: number
+declare const REZ_VEL: 4
 /** Animate texture rotation. */
 declare const ROTATE: number
 /** Animate the texture scale. */
@@ -6263,17 +6288,74 @@ type ParsePrimParams<T extends readonly unknown[]> = T extends readonly []
     : never
 
 /** Maps each constant to the tuple of arguments that follow it. */
+interface PrimParamGetMap {
+  [PRIM_NAME]: []
+  [PRIM_DESC]: []
+  [PRIM_SLICE]: []
+  [PRIM_PHYSICS_SHAPE_TYPE]: []
+  [PRIM_MATERIAL]: []
+  [PRIM_PHYSICS]: []
+  [PRIM_TEMP_ON_REZ]: []
+  [PRIM_PHANTOM]: []
+  [PRIM_POSITION]: []
+  [PRIM_POS_LOCAL]: []
+  [PRIM_ROTATION]: []
+  [PRIM_ROT_LOCAL]: []
+  [PRIM_SIZE]: []
+  [PRIM_TEXTURE]: [face: number]
+  [PRIM_RENDER_MATERIAL]: [face: number]
+  [PRIM_TEXT]: []
+  [PRIM_COLOR]: [face: number]
+  [PRIM_BUMP_SHINY]: [face: number]
+  [PRIM_FULLBRIGHT]: [face: number]
+  [PRIM_FLEXIBLE]: []
+  [PRIM_TEXGEN]: [face: number]
+  [PRIM_POINT_LIGHT]: []
+  [PRIM_REFLECTION_PROBE]: []
+  [PRIM_GLOW]: [face: number]
+  [PRIM_OMEGA]: []
+  [PRIM_NORMAL]: [face: number]
+  [PRIM_SPECULAR]: [face: number]
+  [PRIM_ALPHA_MODE]: [face: number]
+  [PRIM_LINK_TARGET]: [linkTarget: number]
+  [PRIM_CAST_SHADOWS]: []
+  [PRIM_ALLOW_UNSIT]: []
+  [PRIM_SCRIPTED_SIT_ONLY]: []
+  [PRIM_SIT_TARGET]: []
+  [PRIM_PROJECTOR]: []
+  [PRIM_CLICK_ACTION]: []
+  [PRIM_GLTF_BASE_COLOR]: [face: number]
+  [PRIM_GLTF_NORMAL]: [face: number]
+  [PRIM_GLTF_METALLIC_ROUGHNESS]: [face: number]
+  [PRIM_GLTF_EMISSIVE]: [face: number]
+  [PRIM_SIT_FLAGS]: []
+  [PRIM_DAMAGE]: []
+  [PRIM_HEALTH]: []
+}
+
+/** Recursive type that validates a flat parameter list for PrimParamGet constants. */
+type ParsePrimParamGets<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof PrimParamGetMap
+      ? Rest extends readonly [...PrimParamGetMap[K], ...infer Remaining]
+        ? [flag: K, ...PrimParamGetMap[K], ...ParsePrimParamGets<Remaining>]
+        : never
+      : never
+    : never
+
+/** Maps each constant to the tuple of arguments that follow it. */
 interface HttpParamMap {
   [HTTP_METHOD]: [method: string]
   [HTTP_MIMETYPE]: [mimeType: string]
   [HTTP_BODY_MAXLENGTH]: [length: number]
-  [HTTP_VERIFY_CERT]: [verify: boolean]
-  [HTTP_VERBOSE_THROTTLE]: [noisy: boolean]
+  [HTTP_VERIFY_CERT]: [verify: number]
+  [HTTP_VERBOSE_THROTTLE]: [noisy: number]
   [HTTP_CUSTOM_HEADER]: [name: string, value: string]
-  [HTTP_PRAGMA_NO_CACHE]: [sendHeader: boolean]
-  [HTTP_USER_AGENT]: [userAgent: string]
+  [HTTP_PRAGMA_NO_CACHE]: [sendHeader: number]
+  [HTTP_USER_AGENT]: [user: string]
   [HTTP_ACCEPT]: [mimeType: string]
-  [HTTP_EXTENDED_ERROR]: [extended: boolean]
+  [HTTP_EXTENDED_ERROR]: [extended: number]
 }
 
 /** Recursive type that validates a flat parameter list for HttpParam constants. */
@@ -6286,3 +6368,223 @@ type ParseHttpParams<T extends readonly unknown[]> = T extends readonly []
         : never
       : never
     : never
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface ParticleSystemParamMap {
+  [PSYS_PART_FLAGS]: [flags: number]
+  [PSYS_SRC_PATTERN]: [pattern: number]
+  [PSYS_SRC_BURST_RADIUS]: [radius: number]
+  [PSYS_SRC_ANGLE_BEGIN]: [angleBegin: number]
+  [PSYS_SRC_ANGLE_END]: [angleEnd: number]
+  [PSYS_SRC_INNERANGLE]: [angleInner: number]
+  [PSYS_SRC_OUTERANGLE]: [angleOuter: number]
+  [PSYS_SRC_TARGET_KEY]: [target: UUID]
+  [PSYS_PART_START_COLOR]: [colorStart: Vector]
+  [PSYS_PART_END_COLOR]: [colorEnd: Vector]
+  [PSYS_PART_START_ALPHA]: [alphaStart: number]
+  [PSYS_PART_END_ALPHA]: [alphaEnd: number]
+  [PSYS_PART_START_SCALE]: [scaleStart: Vector]
+  [PSYS_PART_END_SCALE]: [scaleEnd: Vector]
+  [PSYS_SRC_TEXTURE]: [texture: string]
+  [PSYS_PART_START_GLOW]: [glowStart: number]
+  [PSYS_PART_END_GLOW]: [glowEnd: number]
+  [PSYS_PART_BLEND_FUNC_SOURCE]: [bfSource: number]
+  [PSYS_PART_BLEND_FUNC_DEST]: [bfDest: number]
+  [PSYS_SRC_MAX_AGE]: [durationSystem: number]
+  [PSYS_PART_MAX_AGE]: [durationParticle: number]
+  [PSYS_SRC_BURST_RATE]: [burstSleep: number]
+  [PSYS_SRC_BURST_PART_COUNT]: [burstParticleCount: number]
+  [PSYS_SRC_ACCEL]: [acceleration: Vector]
+  [PSYS_SRC_OMEGA]: [omega: Vector]
+  [PSYS_SRC_BURST_SPEED_MIN]: [speedMin: number]
+  [PSYS_SRC_BURST_SPEED_MAX]: [speedMax: number]
+}
+
+/** Recursive type that validates a flat parameter list for ParticleSystemParam constants. */
+type ParseParticleSystemParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof ParticleSystemParamMap
+      ? Rest extends readonly [...ParticleSystemParamMap[K], ...infer Remaining]
+        ? [flag: K, ...ParticleSystemParamMap[K], ...ParseParticleSystemParams<Remaining>]
+        : never
+      : never
+    : never
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface CameraParamMap {
+  [CAMERA_ACTIVE]: [isActive: boolean]
+  [CAMERA_BEHINDNESS_ANGLE]: [degrees: number]
+  [CAMERA_BEHINDNESS_LAG]: [seconds: number]
+  [CAMERA_DISTANCE]: [meters: number]
+  [CAMERA_FOCUS]: [position: Vector]
+  [CAMERA_FOCUS_LAG]: [seconds: number]
+  [CAMERA_FOCUS_LOCKED]: [isLocked: number]
+  [CAMERA_FOCUS_OFFSET]: [meters: Vector]
+  [CAMERA_FOCUS_THRESHOLD]: [meters: number]
+  [CAMERA_PITCH]: [degrees: number]
+  [CAMERA_POSITION]: [position: Vector]
+  [CAMERA_POSITION_LAG]: [seconds: number]
+  [CAMERA_POSITION_LOCKED]: [isLocked: number]
+  [CAMERA_POSITION_THRESHOLD]: [meters: number]
+}
+
+/** Recursive type that validates a flat parameter list for CameraParam constants. */
+type ParseCameraParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof CameraParamMap
+      ? Rest extends readonly [...CameraParamMap[K], ...infer Remaining]
+        ? [flag: K, ...CameraParamMap[K], ...ParseCameraParams<Remaining>]
+        : never
+      : never
+    : never
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface CastRayParamMap {
+  [RC_REJECT_TYPES]: [filter: number]
+  [RC_DATA_FLAGS]: [flags: number]
+  [RC_MAX_HITS]: [maxHits: number]
+  [RC_DETECT_PHANTOM]: [detectPhantom: number]
+}
+
+/** Recursive type that validates a flat parameter list for CastRayParam constants. */
+type ParseCastRayParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof CastRayParamMap
+      ? Rest extends readonly [...CastRayParamMap[K], ...infer Remaining]
+        ? [flag: K, ...CastRayParamMap[K], ...ParseCastRayParams<Remaining>]
+        : never
+      : never
+    : never
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface CharacterParamMap {
+  [CHARACTER_DESIRED_SPEED]: [desiredSpeed: number]
+  [CHARACTER_RADIUS]: [radius: number]
+  [CHARACTER_LENGTH]: [length: number]
+  [CHARACTER_ORIENTATION]: [orientation: number]
+  [CHARACTER_TYPE]: [type: number]
+  [CHARACTER_AVOIDANCE_MODE]: [avoidanceMode: number]
+  [CHARACTER_MAX_ACCEL]: [maxAccel: number]
+  [CHARACTER_MAX_DECEL]: [maxDecel: number]
+  [CHARACTER_DESIRED_TURN_SPEED]: [desiredTurnSpeed: number]
+  [CHARACTER_MAX_TURN_RADIUS]: [maxTurnRadius: number]
+  [CHARACTER_MAX_SPEED]: [maxSpeed: number]
+  [CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES]: [accountForSkippedFrames: number]
+  [CHARACTER_STAY_WITHIN_PARCEL]: [stayWithinParcel: number]
+}
+
+/** Recursive type that validates a flat parameter list for CharacterParam constants. */
+type ParseCharacterParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof CharacterParamMap
+      ? Rest extends readonly [...CharacterParamMap[K], ...infer Remaining]
+        ? [flag: K, ...CharacterParamMap[K], ...ParseCharacterParams<Remaining>]
+        : never
+      : never
+    : never
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface RezParamMap {
+  [REZ_PARAM]: [param: number]
+  [REZ_FLAGS]: [flags: number]
+  [REZ_POS]: [pos: Vector, relative: number, atRoot: number]
+  [REZ_ROT]: [rot: Quaternion, relative: number]
+  [REZ_VEL]: [velocity: Vector, local: number, inherit: number]
+  [REZ_ACCEL]: [force: Vector, local: number]
+  [REZ_OMEGA]: [axis: Vector, local: number, spin: number, gain: number]
+  [REZ_DAMAGE]: [damage: number]
+  [REZ_SOUND]: [sound: string, volume: number, loop: number]
+  [REZ_SOUND_COLLIDE]: [sound: string, volume: number]
+  [REZ_LOCK_AXES]: [locks: Vector]
+  [REZ_DAMAGE_TYPE]: [damageType: number]
+  [REZ_PARAM_STRING]: [startParam: string]
+}
+
+/** Recursive type that validates a flat parameter list for RezParam constants. */
+type ParseRezParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof RezParamMap
+      ? Rest extends readonly [...RezParamMap[K], ...infer Remaining]
+        ? [flag: K, ...RezParamMap[K], ...ParseRezParams<Remaining>]
+        : never
+      : never
+    : never
+
+/** Valid constants for ObjectDetail functions. */
+type ObjectDetailFlag =
+  | typeof OBJECT_NAME
+  | typeof OBJECT_DESC
+  | typeof OBJECT_POS
+  | typeof OBJECT_ROT
+  | typeof OBJECT_VELOCITY
+  | typeof OBJECT_OWNER
+  | typeof OBJECT_GROUP
+  | typeof OBJECT_CREATOR
+  | typeof OBJECT_RUNNING_SCRIPT_COUNT
+  | typeof OBJECT_TOTAL_SCRIPT_COUNT
+  | typeof OBJECT_SCRIPT_MEMORY
+  | typeof OBJECT_SCRIPT_TIME
+  | typeof OBJECT_PRIM_EQUIVALENCE
+  | typeof OBJECT_SERVER_COST
+  | typeof OBJECT_STREAMING_COST
+  | typeof OBJECT_PHYSICS_COST
+  | typeof OBJECT_CHARACTER_TIME
+  | typeof OBJECT_ROOT
+  | typeof OBJECT_ATTACHED_POINT
+  | typeof OBJECT_PATHFINDING_TYPE
+  | typeof OBJECT_PHYSICS
+  | typeof OBJECT_PHANTOM
+  | typeof OBJECT_TEMP_ON_REZ
+  | typeof OBJECT_RENDER_WEIGHT
+  | typeof OBJECT_HOVER_HEIGHT
+  | typeof OBJECT_BODY_SHAPE_TYPE
+  | typeof OBJECT_LAST_OWNER_ID
+  | typeof OBJECT_CLICK_ACTION
+  | typeof OBJECT_OMEGA
+  | typeof OBJECT_PRIM_COUNT
+  | typeof OBJECT_TOTAL_INVENTORY_COUNT
+  | typeof OBJECT_REZZER_KEY
+  | typeof OBJECT_GROUP_TAG
+  | typeof OBJECT_TEMP_ATTACHED
+  | typeof OBJECT_ATTACHED_SLOTS_AVAILABLE
+  | typeof OBJECT_CREATION_TIME
+  | typeof OBJECT_SELECT_COUNT
+  | typeof OBJECT_SIT_COUNT
+  | typeof OBJECT_ANIMATED_COUNT
+  | typeof OBJECT_ANIMATED_SLOTS_AVAILABLE
+  | typeof OBJECT_ACCOUNT_LEVEL
+  | typeof OBJECT_MATERIAL
+  | typeof OBJECT_MASS
+  | typeof OBJECT_TEXT
+  | typeof OBJECT_REZ_TIME
+  | typeof OBJECT_LINK_NUMBER
+  | typeof OBJECT_SCALE
+  | typeof OBJECT_TEXT_COLOR
+  | typeof OBJECT_TEXT_ALPHA
+  | typeof OBJECT_HEALTH
+  | typeof OBJECT_DAMAGE
+  | typeof OBJECT_DAMAGE_TYPE
+  | typeof OBJECT_PERMS
+  | typeof OBJECT_PERMS_COMBINED
+
+/** Valid constants for ParcelDetail functions. */
+type ParcelDetailFlag =
+  | typeof PARCEL_DETAILS_NAME
+  | typeof PARCEL_DETAILS_DESC
+  | typeof PARCEL_DETAILS_OWNER
+  | typeof PARCEL_DETAILS_GROUP
+  | typeof PARCEL_DETAILS_AREA
+  | typeof PARCEL_DETAILS_ID
+  | typeof PARCEL_DETAILS_SEE_AVATARS
+  | typeof PARCEL_DETAILS_PRIM_CAPACITY
+  | typeof PARCEL_DETAILS_PRIM_USED
+  | typeof PARCEL_DETAILS_LANDING_POINT
+  | typeof PARCEL_DETAILS_LANDING_LOOKAT
+  | typeof PARCEL_DETAILS_TP_ROUTING
+  | typeof PARCEL_DETAILS_FLAGS
+  | typeof PARCEL_DETAILS_SCRIPT_DANGER

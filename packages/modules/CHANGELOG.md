@@ -1,5 +1,11 @@
 # @gwigz/slua-modules
 
+## 0.3.1
+
+### Patch Changes
+
+- [`491e4c5`](https://github.com/gwigz/slua/commit/491e4c546629de8b5894bbf9a39d1ac9ae274a0a) Thanks [@gwigz](https://github.com/gwigz)! - fix `workspace:^` dependency on `@gwigz/slua-types`
+
 ## 0.3.0
 
 ### Minor Changes

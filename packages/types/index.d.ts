@@ -886,7 +886,10 @@ declare namespace math {
   /** Returns a random number within the given range. */
   export function random(min?: number, max?: number): number
 
-  /** Sets the seed for the random number generator. */
+  /**
+   * Sets the seed for the random number generator.
+   * @deprecated Disabled in SLua.
+   */
   export function randomseed(...args: never[]): void
 
   /** Rounds n to the nearest integer. */

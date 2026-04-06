@@ -1003,6 +1003,7 @@ export function emitAll(
     llGetExperienceDetails: "ExperienceDetails",
     llDetectedDamage: "DamageDetails",
     llGetPhysicsMaterial: "PhysicsMaterial",
+    llGetParcelPrimOwners: "ParcelPrimOwners",
   }
 
   // Inject detected-semantics LSL functions as methods on DetectedEvent (mirrors the Python generator).
@@ -1307,6 +1308,10 @@ export function emitAll(
       "",
       "/** Return type for ll.GetPhysicsMaterial — always 4 elements. */",
       "type PhysicsMaterial = [gravityMultiplier: number, restitution: number, friction: number, density: number]",
+      "",
+      "/** Repeating [agent, landImpact] pairs from ll.GetParcelPrimOwners. */",
+      "type ParcelPrimOwners = [...ParcelPrimOwnerStride, ...ParcelPrimOwners] | []",
+      "type ParcelPrimOwnerStride = [agent: UUID, landImpact: number]",
     ].join("\n"),
   )
 

@@ -2229,7 +2229,7 @@ declare namespace ll {
    * The list is formatted as [ key agentKey1, integer agentLI1, key agentKey2, integer agentLI2, ... ], sorted by agent key.
    * The integers are the combined land impacts of the objects owned by the corresponding agents.
    */
-  export function GetParcelPrimOwners(position: Vector): list
+  export function GetParcelPrimOwners(position: Vector): ParcelPrimOwners
 
   /** Returns an integer bitmask of the permissions that have been granted to the script.  Individual permissions can be determined using a bit-wise "and" operation against the PERMISSION_* constants */
   export function GetPermissions(): number
@@ -6135,6 +6135,10 @@ type PhysicsMaterial = [
   friction: number,
   density: number,
 ]
+
+/** Repeating [agent, landImpact] pairs from ll.GetParcelPrimOwners. */
+type ParcelPrimOwners = [...ParcelPrimOwnerStride, ...ParcelPrimOwners] | []
+type ParcelPrimOwnerStride = [agent: UUID, landImpact: number]
 /** Branded error type that surfaces a human-readable message in diagnostics. */
 type TypedListError<Msg extends string> = { [K in `__error: ${Msg}`]: never }
 

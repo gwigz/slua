@@ -1,5 +1,70 @@
 import { scrapeConstantList } from "../parse-params.js"
-import type { TypedListParamSet } from "../types.js"
+import type { TypedListArg, TypedListParamSet } from "../types.js"
+
+const PERM_RETURNS: TypedListArg[] = [
+  { type: "integer", name: "base" },
+  { type: "integer", name: "owner" },
+  { type: "integer", name: "group" },
+  { type: "integer", name: "everyone" },
+  { type: "integer", name: "nextOwner" },
+]
+
+const returns: Record<string, TypedListArg[]> = {
+  OBJECT_NAME: [{ type: "string", name: "name" }],
+  OBJECT_DESC: [{ type: "string", name: "desc" }],
+  OBJECT_POS: [{ type: "vector", name: "pos" }],
+  OBJECT_ROT: [{ type: "rotation", name: "rot" }],
+  OBJECT_VELOCITY: [{ type: "vector", name: "velocity" }],
+  OBJECT_OWNER: [{ type: "key", name: "owner" }],
+  OBJECT_GROUP: [{ type: "key", name: "group" }],
+  OBJECT_CREATOR: [{ type: "key", name: "creator" }],
+  OBJECT_RUNNING_SCRIPT_COUNT: [{ type: "integer", name: "runningScriptCount" }],
+  OBJECT_TOTAL_SCRIPT_COUNT: [{ type: "integer", name: "totalScriptCount" }],
+  OBJECT_SCRIPT_MEMORY: [{ type: "integer", name: "scriptMemory" }],
+  OBJECT_SCRIPT_TIME: [{ type: "float", name: "scriptTime" }],
+  OBJECT_PRIM_EQUIVALENCE: [{ type: "integer", name: "primEquivalence" }],
+  OBJECT_SERVER_COST: [{ type: "float", name: "serverCost" }],
+  OBJECT_STREAMING_COST: [{ type: "float", name: "streamingCost" }],
+  OBJECT_PHYSICS_COST: [{ type: "float", name: "physicsCost" }],
+  OBJECT_CHARACTER_TIME: [{ type: "float", name: "characterTime" }],
+  OBJECT_ROOT: [{ type: "key", name: "root" }],
+  OBJECT_ATTACHED_POINT: [{ type: "integer", name: "attachedPoint" }],
+  OBJECT_PATHFINDING_TYPE: [{ type: "integer", name: "pathfindingType" }],
+  OBJECT_PHYSICS: [{ type: "boolean", name: "physics" }],
+  OBJECT_PHANTOM: [{ type: "boolean", name: "phantom" }],
+  OBJECT_TEMP_ON_REZ: [{ type: "boolean", name: "tempOnRez" }],
+  OBJECT_RENDER_WEIGHT: [{ type: "integer", name: "renderWeight" }],
+  OBJECT_HOVER_HEIGHT: [{ type: "float", name: "hoverHeight" }],
+  OBJECT_BODY_SHAPE_TYPE: [{ type: "float", name: "bodyShapeType" }],
+  OBJECT_LAST_OWNER_ID: [{ type: "key", name: "lastOwnerId" }],
+  OBJECT_CLICK_ACTION: [{ type: "integer", name: "clickAction" }],
+  OBJECT_OMEGA: [{ type: "vector", name: "omega" }],
+  OBJECT_PRIM_COUNT: [{ type: "integer", name: "primCount" }],
+  OBJECT_TOTAL_INVENTORY_COUNT: [{ type: "integer", name: "totalInventoryCount" }],
+  OBJECT_REZZER_KEY: [{ type: "key", name: "rezzerKey" }],
+  OBJECT_GROUP_TAG: [{ type: "string", name: "groupTag" }],
+  OBJECT_TEMP_ATTACHED: [{ type: "boolean", name: "tempAttached" }],
+  OBJECT_ATTACHED_SLOTS_AVAILABLE: [{ type: "integer", name: "attachedSlotsAvailable" }],
+  OBJECT_CREATION_TIME: [{ type: "string", name: "creationTime" }],
+  OBJECT_SELECT_COUNT: [{ type: "integer", name: "selectCount" }],
+  OBJECT_SIT_COUNT: [{ type: "integer", name: "sitCount" }],
+  OBJECT_ANIMATED_COUNT: [{ type: "integer", name: "animatedCount" }],
+  OBJECT_ANIMATED_SLOTS_AVAILABLE: [{ type: "integer", name: "animatedSlotsAvailable" }],
+  OBJECT_ACCOUNT_LEVEL: [{ type: "integer", name: "accountLevel" }],
+  OBJECT_MATERIAL: [{ type: "integer", name: "material" }],
+  OBJECT_MASS: [{ type: "float", name: "mass" }],
+  OBJECT_TEXT: [{ type: "string", name: "text" }],
+  OBJECT_REZ_TIME: [{ type: "string", name: "rezTime" }],
+  OBJECT_LINK_NUMBER: [{ type: "integer", name: "linkNumber" }],
+  OBJECT_SCALE: [{ type: "vector", name: "scale" }],
+  OBJECT_TEXT_COLOR: [{ type: "vector", name: "textColor" }],
+  OBJECT_TEXT_ALPHA: [{ type: "float", name: "textAlpha" }],
+  OBJECT_HEALTH: [{ type: "float", name: "health" }],
+  OBJECT_DAMAGE: [{ type: "float", name: "damage" }],
+  OBJECT_DAMAGE_TYPE: [{ type: "integer", name: "damageType" }],
+  OBJECT_PERMS: PERM_RETURNS,
+  OBJECT_PERMS_COMBINED: PERM_RETURNS,
+}
 
 export async function scrapeObjectDetails(): Promise<TypedListParamSet[]> {
   return scrapeConstantList({
@@ -8,5 +73,6 @@ export async function scrapeObjectDetails(): Promise<TypedListParamSet[]> {
     prefix: "OBJECT_",
     name: "ObjectDetail",
     functions: ["llGetObjectDetails"],
+    returns,
   })
 }

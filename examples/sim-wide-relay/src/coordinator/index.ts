@@ -168,7 +168,9 @@ function verifyListeners() {
   const remaining: UUID[] = []
 
   for (const listener of freeListeners) {
-    if (ll.GetObjectDetails(listener, [OBJECT_POS]).length > 0) {
+    const [pos] = ll.GetObjectDetails(listener, [OBJECT_POS])
+
+    if (pos) {
       remaining.push(listener)
     } else {
       rezCount++
@@ -181,7 +183,9 @@ function verifyListeners() {
   for (const key in assignedListeners) {
     const listener = assignedListeners[key]!
 
-    if (ll.GetObjectDetails(listener, [OBJECT_POS]).length === 0) {
+    const [listenerPos] = ll.GetObjectDetails(listener, [OBJECT_POS])
+
+    if (!listenerPos) {
       clearAssignment(key, listener)
 
       assignedListeners[key] = undefined

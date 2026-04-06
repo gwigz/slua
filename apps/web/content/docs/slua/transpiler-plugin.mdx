@@ -219,6 +219,37 @@ Each builder method name is derived from the LSL constant by stripping the set p
 
 > Builder chains are entirely compile-time, no objects, arrays, or closures are allocated at runtime. The plugin walks the method chain AST and emits the flat Lua table directly.
 
+### Typed getter returns
+
+Functions like `ll.GetObjectDetails` and `ll.GetParcelDetails` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:
+
+```typescript
+const [name, pos] = ll.GetObjectDetails(id, [OBJECT_NAME, OBJECT_POS])
+// name: string | undefined
+// pos: Vector | undefined
+```
+
+Multi-value flags like `OBJECT_PERMS` spread into the tuple:
+
+```typescript
+const [base, owner, group, everyone, nextOwner] = ll.GetObjectDetails(id, [OBJECT_PERMS])
+// all: number | undefined
+```
+
+The return type is `MapObjectDetails<T> | []` — either the mapped tuple or an empty table when the target object doesn't exist. A simple truthiness check handles both cases:
+
+```typescript
+const [pos] = ll.GetObjectDetails(id, [OBJECT_POS])
+
+if (!pos) {
+  return
+}
+
+// pos is narrowed to Vector
+```
+
+When the flags array isn't a const tuple (e.g. a dynamic `ObjectDetailFlag[]`), the return falls back to a union array of all possible return types.
+
 ## Optimizations
 
 Pass `optimize: true` to enable all optimizations, or pass an object to pick individual flags. All flags default to `false` when not specified.

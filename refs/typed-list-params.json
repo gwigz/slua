@@ -2219,272 +2219,628 @@
         {
           "name": "OBJECT_NAME",
           "value": 1,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ]
         },
         {
           "name": "OBJECT_DESC",
           "value": 2,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "desc"
+            }
+          ]
         },
         {
           "name": "OBJECT_POS",
           "value": 3,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "pos"
+            }
+          ]
         },
         {
           "name": "OBJECT_ROT",
           "value": 4,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            }
+          ]
         },
         {
           "name": "OBJECT_VELOCITY",
           "value": 5,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "velocity"
+            }
+          ]
         },
         {
           "name": "OBJECT_OWNER",
           "value": 6,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "owner"
+            }
+          ]
         },
         {
           "name": "OBJECT_GROUP",
           "value": 7,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "group"
+            }
+          ]
         },
         {
           "name": "OBJECT_CREATOR",
           "value": 8,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "creator"
+            }
+          ]
         },
         {
           "name": "OBJECT_RUNNING_SCRIPT_COUNT",
           "value": 9,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "runningScriptCount"
+            }
+          ]
         },
         {
           "name": "OBJECT_TOTAL_SCRIPT_COUNT",
           "value": 10,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "totalScriptCount"
+            }
+          ]
         },
         {
           "name": "OBJECT_SCRIPT_MEMORY",
           "value": 11,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "scriptMemory"
+            }
+          ]
         },
         {
           "name": "OBJECT_SCRIPT_TIME",
           "value": 12,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "scriptTime"
+            }
+          ]
         },
         {
           "name": "OBJECT_PRIM_EQUIVALENCE",
           "value": 13,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "primEquivalence"
+            }
+          ]
         },
         {
           "name": "OBJECT_SERVER_COST",
           "value": 14,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "serverCost"
+            }
+          ]
         },
         {
           "name": "OBJECT_STREAMING_COST",
           "value": 15,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "streamingCost"
+            }
+          ]
         },
         {
           "name": "OBJECT_PHYSICS_COST",
           "value": 16,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "physicsCost"
+            }
+          ]
         },
         {
           "name": "OBJECT_CHARACTER_TIME",
           "value": 17,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "characterTime"
+            }
+          ]
         },
         {
           "name": "OBJECT_ROOT",
           "value": 18,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "root"
+            }
+          ]
         },
         {
           "name": "OBJECT_ATTACHED_POINT",
           "value": 19,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "attachedPoint"
+            }
+          ]
         },
         {
           "name": "OBJECT_PATHFINDING_TYPE",
           "value": 20,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "pathfindingType"
+            }
+          ]
         },
         {
           "name": "OBJECT_PHYSICS",
           "value": 21,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "physics"
+            }
+          ]
         },
         {
           "name": "OBJECT_PHANTOM",
           "value": 22,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "phantom"
+            }
+          ]
         },
         {
           "name": "OBJECT_TEMP_ON_REZ",
           "value": 23,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "tempOnRez"
+            }
+          ]
         },
         {
           "name": "OBJECT_RENDER_WEIGHT",
           "value": 24,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "renderWeight"
+            }
+          ]
         },
         {
           "name": "OBJECT_HOVER_HEIGHT",
           "value": 25,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "hoverHeight"
+            }
+          ]
         },
         {
           "name": "OBJECT_BODY_SHAPE_TYPE",
           "value": 26,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "bodyShapeType"
+            }
+          ]
         },
         {
           "name": "OBJECT_LAST_OWNER_ID",
           "value": 27,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "lastOwnerId"
+            }
+          ]
         },
         {
           "name": "OBJECT_CLICK_ACTION",
           "value": 28,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "clickAction"
+            }
+          ]
         },
         {
           "name": "OBJECT_OMEGA",
           "value": 29,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "omega"
+            }
+          ]
         },
         {
           "name": "OBJECT_PRIM_COUNT",
           "value": 30,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "primCount"
+            }
+          ]
         },
         {
           "name": "OBJECT_TOTAL_INVENTORY_COUNT",
           "value": 31,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "totalInventoryCount"
+            }
+          ]
         },
         {
           "name": "OBJECT_REZZER_KEY",
           "value": 32,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "rezzerKey"
+            }
+          ]
         },
         {
           "name": "OBJECT_GROUP_TAG",
           "value": 33,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "groupTag"
+            }
+          ]
         },
         {
           "name": "OBJECT_TEMP_ATTACHED",
           "value": 34,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "tempAttached"
+            }
+          ]
         },
         {
           "name": "OBJECT_ATTACHED_SLOTS_AVAILABLE",
           "value": 35,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "attachedSlotsAvailable"
+            }
+          ]
         },
         {
           "name": "OBJECT_CREATION_TIME",
           "value": 36,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "creationTime"
+            }
+          ]
         },
         {
           "name": "OBJECT_SELECT_COUNT",
           "value": 37,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "selectCount"
+            }
+          ]
         },
         {
           "name": "OBJECT_SIT_COUNT",
           "value": 38,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "sitCount"
+            }
+          ]
         },
         {
           "name": "OBJECT_ANIMATED_COUNT",
           "value": 39,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "animatedCount"
+            }
+          ]
         },
         {
           "name": "OBJECT_ANIMATED_SLOTS_AVAILABLE",
           "value": 40,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "animatedSlotsAvailable"
+            }
+          ]
         },
         {
           "name": "OBJECT_ACCOUNT_LEVEL",
           "value": 41,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "accountLevel"
+            }
+          ]
         },
         {
           "name": "OBJECT_MATERIAL",
           "value": 42,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "material"
+            }
+          ]
         },
         {
           "name": "OBJECT_MASS",
           "value": 43,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "mass"
+            }
+          ]
         },
         {
           "name": "OBJECT_TEXT",
           "value": 44,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "text"
+            }
+          ]
         },
         {
           "name": "OBJECT_REZ_TIME",
           "value": 45,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "rezTime"
+            }
+          ]
         },
         {
           "name": "OBJECT_LINK_NUMBER",
           "value": 46,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "linkNumber"
+            }
+          ]
         },
         {
           "name": "OBJECT_SCALE",
           "value": 47,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "scale"
+            }
+          ]
         },
         {
           "name": "OBJECT_TEXT_COLOR",
           "value": 48,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "textColor"
+            }
+          ]
         },
         {
           "name": "OBJECT_TEXT_ALPHA",
           "value": 49,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "textAlpha"
+            }
+          ]
         },
         {
           "name": "OBJECT_HEALTH",
           "value": 50,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "health"
+            }
+          ]
         },
         {
           "name": "OBJECT_DAMAGE",
           "value": 51,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "damage"
+            }
+          ]
         },
         {
           "name": "OBJECT_DAMAGE_TYPE",
           "value": 52,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "damageType"
+            }
+          ]
         },
         {
           "name": "OBJECT_PERMS",
           "value": 53,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "base"
+            },
+            {
+              "type": "integer",
+              "name": "owner"
+            },
+            {
+              "type": "integer",
+              "name": "group"
+            },
+            {
+              "type": "integer",
+              "name": "everyone"
+            },
+            {
+              "type": "integer",
+              "name": "nextOwner"
+            }
+          ]
         },
         {
           "name": "OBJECT_PERMS_COMBINED",
           "value": 54,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "base"
+            },
+            {
+              "type": "integer",
+              "name": "owner"
+            },
+            {
+              "type": "integer",
+              "name": "group"
+            },
+            {
+              "type": "integer",
+              "name": "everyone"
+            },
+            {
+              "type": "integer",
+              "name": "nextOwner"
+            }
+          ]
         }
       ]
     },
@@ -2497,72 +2853,156 @@
         {
           "name": "PARCEL_DETAILS_NAME",
           "value": 0,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_DESC",
           "value": 1,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "desc"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_OWNER",
           "value": 2,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "owner"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_GROUP",
           "value": 3,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "group"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_AREA",
           "value": 4,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "area"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_ID",
           "value": 5,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "id"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_SEE_AVATARS",
           "value": 6,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "seeAvatars"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_PRIM_CAPACITY",
           "value": 7,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "primCapacity"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_PRIM_USED",
           "value": 8,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "primUsed"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_LANDING_POINT",
           "value": 9,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "landingPoint"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_LANDING_LOOKAT",
           "value": 10,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "landingLookat"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_TP_ROUTING",
           "value": 11,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "tpRouting"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_FLAGS",
           "value": 12,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
         },
         {
           "name": "PARCEL_DETAILS_SCRIPT_DANGER",
           "value": 13,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "scriptDanger"
+            }
+          ]
         }
       ]
     },

@@ -64,6 +64,7 @@ export async function scrapeConstantList(opts: {
   prefix: string
   name: string
   functions: string[]
+  returns?: Record<string, TypedListArg[]>
 }): Promise<TypedListParamSet[]> {
   const { load } = await import("cheerio")
   const html = await fetchHtml(opts.url)
@@ -91,7 +92,12 @@ export async function scrapeConstantList(opts: {
 
     if (!flag.startsWith(opts.prefix) || isNaN(value)) return
 
-    params.push({ name: flag, value, args: [] })
+    params.push({
+      name: flag,
+      value,
+      args: [],
+      returns: opts.returns?.[flag],
+    })
   })
 
   return [{ name: opts.name, functions: opts.functions, params }]

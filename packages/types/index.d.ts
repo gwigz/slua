@@ -2125,7 +2125,10 @@ declare namespace ll {
    * Returns a list of object details specified in the Parameters list for the object or avatar in the region with key ID.
    * Parameters are specified by the OBJECT_* constants.
    */
-  export function GetObjectDetails(id: UUID, parameters: number[]): list
+  export function GetObjectDetails<const T extends readonly ObjectDetailFlag[]>(
+    id: UUID,
+    parameters: T,
+  ): MapObjectDetails<T> | []
 
   /**
    * Returns the key of the linked prim link_no in a linkset.
@@ -2177,7 +2180,10 @@ declare namespace ll {
    * Parameters is one or more of: PARCEL_DETAILS_NAME, _DESC, _OWNER, _GROUP, _AREA, _ID, _SEE_AVATARS.
    * Returns a list that is the parcel details specified in ParcelDetails (in the same order) for the parcel at Position.
    */
-  export function GetParcelDetails(position: Vector, parcelDetails: number[]): list
+  export function GetParcelDetails<const T extends readonly ParcelDetailFlag[]>(
+    position: Vector,
+    parcelDetails: T,
+  ): MapParcelDetails<T> | []
 
   /**
    * Returns a mask of the parcel flags (PARCEL_FLAG_*) for the parcel that includes the point Position.
@@ -6793,6 +6799,87 @@ type ObjectDetailFlag =
   | typeof OBJECT_PERMS
   | typeof OBJECT_PERMS_COMBINED
 
+/** Maps each ObjectDetail constant to the tuple of values it returns. */
+interface ObjectDetailReturnMap {
+  [OBJECT_NAME]: [name: string | undefined]
+  [OBJECT_DESC]: [desc: string | undefined]
+  [OBJECT_POS]: [pos: Vector | undefined]
+  [OBJECT_ROT]: [rot: Quaternion | undefined]
+  [OBJECT_VELOCITY]: [velocity: Vector | undefined]
+  [OBJECT_OWNER]: [owner: UUID | undefined]
+  [OBJECT_GROUP]: [group: UUID | undefined]
+  [OBJECT_CREATOR]: [creator: UUID | undefined]
+  [OBJECT_RUNNING_SCRIPT_COUNT]: [runningScriptCount: number | undefined]
+  [OBJECT_TOTAL_SCRIPT_COUNT]: [totalScriptCount: number | undefined]
+  [OBJECT_SCRIPT_MEMORY]: [scriptMemory: number | undefined]
+  [OBJECT_SCRIPT_TIME]: [scriptTime: number | undefined]
+  [OBJECT_PRIM_EQUIVALENCE]: [primEquivalence: number | undefined]
+  [OBJECT_SERVER_COST]: [serverCost: number | undefined]
+  [OBJECT_STREAMING_COST]: [streamingCost: number | undefined]
+  [OBJECT_PHYSICS_COST]: [physicsCost: number | undefined]
+  [OBJECT_CHARACTER_TIME]: [characterTime: number | undefined]
+  [OBJECT_ROOT]: [root: UUID | undefined]
+  [OBJECT_ATTACHED_POINT]: [attachedPoint: number | undefined]
+  [OBJECT_PATHFINDING_TYPE]: [pathfindingType: number | undefined]
+  [OBJECT_PHYSICS]: [physics: boolean | undefined]
+  [OBJECT_PHANTOM]: [phantom: boolean | undefined]
+  [OBJECT_TEMP_ON_REZ]: [tempOnRez: boolean | undefined]
+  [OBJECT_RENDER_WEIGHT]: [renderWeight: number | undefined]
+  [OBJECT_HOVER_HEIGHT]: [hoverHeight: number | undefined]
+  [OBJECT_BODY_SHAPE_TYPE]: [bodyShapeType: number | undefined]
+  [OBJECT_LAST_OWNER_ID]: [lastOwnerId: UUID | undefined]
+  [OBJECT_CLICK_ACTION]: [clickAction: number | undefined]
+  [OBJECT_OMEGA]: [omega: Vector | undefined]
+  [OBJECT_PRIM_COUNT]: [primCount: number | undefined]
+  [OBJECT_TOTAL_INVENTORY_COUNT]: [totalInventoryCount: number | undefined]
+  [OBJECT_REZZER_KEY]: [rezzerKey: UUID | undefined]
+  [OBJECT_GROUP_TAG]: [groupTag: string | undefined]
+  [OBJECT_TEMP_ATTACHED]: [tempAttached: boolean | undefined]
+  [OBJECT_ATTACHED_SLOTS_AVAILABLE]: [attachedSlotsAvailable: number | undefined]
+  [OBJECT_CREATION_TIME]: [creationTime: string | undefined]
+  [OBJECT_SELECT_COUNT]: [selectCount: number | undefined]
+  [OBJECT_SIT_COUNT]: [sitCount: number | undefined]
+  [OBJECT_ANIMATED_COUNT]: [animatedCount: number | undefined]
+  [OBJECT_ANIMATED_SLOTS_AVAILABLE]: [animatedSlotsAvailable: number | undefined]
+  [OBJECT_ACCOUNT_LEVEL]: [accountLevel: number | undefined]
+  [OBJECT_MATERIAL]: [material: number | undefined]
+  [OBJECT_MASS]: [mass: number | undefined]
+  [OBJECT_TEXT]: [text: string | undefined]
+  [OBJECT_REZ_TIME]: [rezTime: string | undefined]
+  [OBJECT_LINK_NUMBER]: [linkNumber: number | undefined]
+  [OBJECT_SCALE]: [scale: Vector | undefined]
+  [OBJECT_TEXT_COLOR]: [textColor: Vector | undefined]
+  [OBJECT_TEXT_ALPHA]: [textAlpha: number | undefined]
+  [OBJECT_HEALTH]: [health: number | undefined]
+  [OBJECT_DAMAGE]: [damage: number | undefined]
+  [OBJECT_DAMAGE_TYPE]: [damageType: number | undefined]
+  [OBJECT_PERMS]: [
+    base: number | undefined,
+    owner: number | undefined,
+    group: number | undefined,
+    everyone: number | undefined,
+    nextOwner: number | undefined,
+  ]
+  [OBJECT_PERMS_COMBINED]: [
+    base: number | undefined,
+    owner: number | undefined,
+    group: number | undefined,
+    everyone: number | undefined,
+    nextOwner: number | undefined,
+  ]
+}
+
+/** Recursively maps a tuple of ObjectDetail flags to their return types. */
+type MapObjectDetails<T extends readonly ObjectDetailFlag[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof ObjectDetailReturnMap
+      ? Rest extends readonly ObjectDetailFlag[]
+        ? [...ObjectDetailReturnMap[K], ...MapObjectDetails<Rest>]
+        : never
+      : never
+    : ObjectDetailReturnMap[ObjectDetailFlag][number][]
+
 /** Valid constants for ParcelDetail functions. */
 type ParcelDetailFlag =
   | typeof PARCEL_DETAILS_NAME
@@ -6810,16 +6897,45 @@ type ParcelDetailFlag =
   | typeof PARCEL_DETAILS_FLAGS
   | typeof PARCEL_DETAILS_SCRIPT_DANGER
 
+/** Maps each ParcelDetail constant to the tuple of values it returns. */
+interface ParcelDetailReturnMap {
+  [PARCEL_DETAILS_NAME]: [name: string | undefined]
+  [PARCEL_DETAILS_DESC]: [desc: string | undefined]
+  [PARCEL_DETAILS_OWNER]: [owner: UUID | undefined]
+  [PARCEL_DETAILS_GROUP]: [group: UUID | undefined]
+  [PARCEL_DETAILS_AREA]: [area: number | undefined]
+  [PARCEL_DETAILS_ID]: [id: UUID | undefined]
+  [PARCEL_DETAILS_SEE_AVATARS]: [seeAvatars: boolean | undefined]
+  [PARCEL_DETAILS_PRIM_CAPACITY]: [primCapacity: number | undefined]
+  [PARCEL_DETAILS_PRIM_USED]: [primUsed: number | undefined]
+  [PARCEL_DETAILS_LANDING_POINT]: [landingPoint: Vector | undefined]
+  [PARCEL_DETAILS_LANDING_LOOKAT]: [landingLookat: Vector | undefined]
+  [PARCEL_DETAILS_TP_ROUTING]: [tpRouting: number | undefined]
+  [PARCEL_DETAILS_FLAGS]: [flags: number | undefined]
+  [PARCEL_DETAILS_SCRIPT_DANGER]: [scriptDanger: boolean | undefined]
+}
+
+/** Recursively maps a tuple of ParcelDetail flags to their return types. */
+type MapParcelDetails<T extends readonly ParcelDetailFlag[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof ParcelDetailReturnMap
+      ? Rest extends readonly ParcelDetailFlag[]
+        ? [...ParcelDetailReturnMap[K], ...MapParcelDetails<Rest>]
+        : never
+      : never
+    : ParcelDetailReturnMap[ParcelDetailFlag][number][]
+
 /** Maps each constant to the tuple of arguments that follow it. */
 interface GltfOverrideParamMap {
-  [OVERRIDE_GLTF_BASE_COLOR_FACTOR]: [baseColorFactor: Vector]
-  [OVERRIDE_GLTF_BASE_ALPHA]: [baseAlpha: number]
-  [OVERRIDE_GLTF_BASE_ALPHA_MODE]: [baseAlphaMode: number]
-  [OVERRIDE_GLTF_BASE_ALPHA_MASK]: [baseAlphaMask: number]
-  [OVERRIDE_GLTF_BASE_DOUBLE_SIDED]: [baseDoubleSided: number]
-  [OVERRIDE_GLTF_METALLIC_FACTOR]: [metallicFactor: number]
-  [OVERRIDE_GLTF_ROUGHNESS_FACTOR]: [roughnessFactor: number]
-  [OVERRIDE_GLTF_EMISSIVE_FACTOR]: [emissiveFactor: Vector]
+  [OVERRIDE_GLTF_BASE_COLOR_FACTOR]: [baseColorFactor: Vector | ""]
+  [OVERRIDE_GLTF_BASE_ALPHA]: [baseAlpha: number | ""]
+  [OVERRIDE_GLTF_BASE_ALPHA_MODE]: [baseAlphaMode: number | ""]
+  [OVERRIDE_GLTF_BASE_ALPHA_MASK]: [baseAlphaMask: number | ""]
+  [OVERRIDE_GLTF_BASE_DOUBLE_SIDED]: [baseDoubleSided: number | ""]
+  [OVERRIDE_GLTF_METALLIC_FACTOR]: [metallicFactor: number | ""]
+  [OVERRIDE_GLTF_ROUGHNESS_FACTOR]: [roughnessFactor: number | ""]
+  [OVERRIDE_GLTF_EMISSIVE_FACTOR]: [emissiveFactor: Vector | ""]
 }
 
 /** Reverse map from numeric value to constant name for error messages. */
@@ -7140,14 +7256,14 @@ declare function updateCharacter(): CharacterParamBuilder
 
 /** Fluent builder for GltfOverrideParam lists. Compiles to a flat parameter list at build time. */
 interface GltfOverrideParamBuilder {
-  baseColorFactor(baseColorFactor: Vector): GltfOverrideParamBuilder
-  baseAlpha(baseAlpha: number): GltfOverrideParamBuilder
-  baseAlphaMode(baseAlphaMode: number): GltfOverrideParamBuilder
-  baseAlphaMask(baseAlphaMask: number): GltfOverrideParamBuilder
-  baseDoubleSided(baseDoubleSided: number): GltfOverrideParamBuilder
-  metallicFactor(metallicFactor: number): GltfOverrideParamBuilder
-  roughnessFactor(roughnessFactor: number): GltfOverrideParamBuilder
-  emissiveFactor(emissiveFactor: Vector): GltfOverrideParamBuilder
+  baseColorFactor(baseColorFactor: Vector | ""): GltfOverrideParamBuilder
+  baseAlpha(baseAlpha: number | ""): GltfOverrideParamBuilder
+  baseAlphaMode(baseAlphaMode: number | ""): GltfOverrideParamBuilder
+  baseAlphaMask(baseAlphaMask: number | ""): GltfOverrideParamBuilder
+  baseDoubleSided(baseDoubleSided: number | ""): GltfOverrideParamBuilder
+  metallicFactor(metallicFactor: number | ""): GltfOverrideParamBuilder
+  roughnessFactor(roughnessFactor: number | ""): GltfOverrideParamBuilder
+  emissiveFactor(emissiveFactor: Vector | ""): GltfOverrideParamBuilder
 }
 
 declare function setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder

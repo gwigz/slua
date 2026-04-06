@@ -190,13 +190,11 @@ function handleCommand(avatarId: UUID, text: string) {
 }
 
 function relayToOutOfRange(speakerId: UUID, message: string) {
-  const speakerDetails = ll.GetObjectDetails(speakerId, [OBJECT_POS])
+  const [speakerPos] = ll.GetObjectDetails(speakerId, [OBJECT_POS])
 
-  if (speakerDetails.length === 0) {
+  if (!speakerPos) {
     return
   }
-
-  const speakerPos = speakerDetails[0] as Vector
   const agents = ll.GetAgentList(AGENT_LIST_REGION, [])
   const speakerKey = tostring(speakerId)
   const relayText = `RELAY|${speakerKey}|${message}`
@@ -226,13 +224,11 @@ function relayToOutOfRange(speakerId: UUID, message: string) {
       continue
     }
 
-    const agentDetails = ll.GetObjectDetails(agent, [OBJECT_POS])
+    const [agentPos] = ll.GetObjectDetails(agent, [OBJECT_POS])
 
-    if (agentDetails.length === 0) {
+    if (!agentPos) {
       continue
     }
-
-    const agentPos = agentDetails[0] as Vector
     const distance = ll.VecDist(speakerPos, agentPos)
 
     if (distance <= SAY_RANGE) {

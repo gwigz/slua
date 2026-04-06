@@ -518,7 +518,9 @@ local function verifyListeners()
 	local remaining = {}
 
 	for ____, listener in ipairs(freeListeners) do
-		if #ll.GetObjectDetails(listener, { OBJECT_POS }) > 0 then
+		local pos = table.unpack(ll.GetObjectDetails(listener, { OBJECT_POS }), 1, 1)
+
+		if pos then
 			remaining[#remaining + 1] = listener
 		else
 			rezCount += 1
@@ -529,8 +531,9 @@ local function verifyListeners()
 
 	for key in pairs(assignedListeners) do
 		local listener = assignedListeners[key]
+		local listenerPos = table.unpack(ll.GetObjectDetails(listener, { OBJECT_POS }), 1, 1)
 
-		if #ll.GetObjectDetails(listener, { OBJECT_POS }) == 0 then
+		if not listenerPos then
 			clearAssignment(key, listener)
 			assignedListeners[key] = nil
 			rezCount += 1

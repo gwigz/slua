@@ -7,6 +7,7 @@ export interface TypedListRule {
   name: string
   value: number
   args: TypedListArg[]
+  returns?: TypedListArg[]
 }
 
 export interface TypedListSubDispatch {

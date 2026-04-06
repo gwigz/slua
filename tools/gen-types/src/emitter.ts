@@ -147,6 +147,8 @@ interface BuilderSetConfig {
   roots: BuilderRootConfig[]
   /** Constant that acts as a link-target scoping mechanism (e.g. "PRIM_LINK_TARGET") */
   linkConstant?: string
+  /** When true, each arg also accepts "" to clear the override */
+  clearable?: boolean
 }
 
 const BUILDER_CONFIGS: BuilderSetConfig[] = [
@@ -213,6 +215,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
   {
     setName: "GltfOverrideParam",
     prefix: "OVERRIDE_GLTF_",
+    clearable: true,
     roots: [
       {
         name: "setGltfOverrides",
@@ -1104,11 +1107,15 @@ export function emitAll(
 
   // Build literal constants map and typed function lookup from param sets
   const literalConstants = new Map<string, number>()
-  const typedFunctionMap = new Map<string, { name: string; flagsOnly: boolean }>()
+  const typedFunctionMap = new Map<
+    string,
+    { name: string; flagsOnly: boolean; hasReturns: boolean }
+  >()
   const setFlagsOnly = new Map<string, boolean>()
   if (typedListParams) {
     for (const set of typedListParams.sets) {
       const flagsOnly = set.params.every((r) => r.args.length === 0) && !set.subDispatch
+      const hasReturns = flagsOnly && set.params.some((r) => r.returns && r.returns.length > 0)
       setFlagsOnly.set(set.name, flagsOnly)
       for (const rule of set.params) {
         literalConstants.set(rule.name, rule.value)
@@ -1123,7 +1130,7 @@ export function emitAll(
         }
       }
       for (const fn of set.functions) {
-        typedFunctionMap.set(fn, { name: set.name, flagsOnly })
+        typedFunctionMap.set(fn, { name: set.name, flagsOnly, hasReturns })
       }
     }
   }
@@ -1195,18 +1202,32 @@ export function emitAll(
 
       const typedSet = typedFunctionMap.get(lslName)
       if (typedSet && typedSet.flagsOnly) {
-        // Flags-only set: use simple union type instead of recursive parser
         const flagType = `${typedSet.name}Flag`
-        const simpleParams = params.map((p) =>
-          p.type === "list" ? { ...p, type: `${flagType}[]` } : p,
-        )
-        llNs.addFunction({
-          name,
-          isExported: true,
-          parameters: simpleParams,
-          returnType,
-          ...(docs.length > 0 ? { docs } : {}),
-        })
+        if (typedSet.hasReturns) {
+          const mapperType = `Map${typedSet.name}s`
+          const typedParams = params.map((p) => {
+            if (p.type === "list" || p.type === "number[]") {
+              return `${p.name}: T`
+            }
+            return `${p.name}: ${p.type}`
+          })
+
+          const jsdoc = serializeJSDoc(docs)
+          const sig = `${jsdoc}export function ${name}<const T extends readonly ${flagType}[]>(${typedParams.join(", ")}): ${mapperType}<T> | [];\n`
+          llNs.insertText(llNs.getEnd() - 1, sig)
+        } else {
+          // Flags-only without return info: keep old behavior
+          const simpleParams = params.map((p) =>
+            p.type === "list" || p.type === "number[]" ? { ...p, type: `${flagType}[]` } : p,
+          )
+          llNs.addFunction({
+            name,
+            isExported: true,
+            parameters: simpleParams,
+            returnType,
+            ...(docs.length > 0 ? { docs } : {}),
+          })
+        }
       } else if (typedSet) {
         // Emit typed generic signature via raw text (ts-morph doesn't support `const T`)
         const parseType = `Parse${typedSet.name}s`
@@ -1270,13 +1291,21 @@ export function emitAll(
       "type TypedListError<Msg extends string> = { [K in `__error: ${Msg}`]: never }",
     ]
 
-    const emitParamMap = (mapName: string, comment: string, rules: TypedListRule[]) => {
+    const emitParamMap = (
+      mapName: string,
+      comment: string,
+      rules: TypedListRule[],
+      clearable?: boolean,
+    ) => {
       lines.push("")
       lines.push(`/** ${comment} */`)
       lines.push(`interface ${mapName} {`)
       for (const rule of rules) {
         const namedArgs = rule.args
-          .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
+          .map((a) => {
+            const t = mapListArgType(a.type)
+            return `${toCamelCase(a.name)}: ${clearable ? `${t} | ""` : t}`
+          })
           .join(", ")
         lines.push(`  [${rule.name}]: [${namedArgs}]`)
       }
@@ -1295,22 +1324,57 @@ export function emitAll(
 
     for (const set of typedListParams.sets) {
       if (setFlagsOnly.get(set.name)) {
-        // Flags-only set: emit a simple union type
         const flagType = `${set.name}Flag`
+        const hasReturns = set.params.some((r) => r.returns && r.returns.length > 0)
+
         lines.push("")
         lines.push(`/** Valid constants for ${set.name} functions. */`)
         lines.push(`type ${flagType} = ${set.params.map((r) => `typeof ${r.name}`).join(" | ")}`)
+
+        if (hasReturns) {
+          const returnMapName = `${set.name}ReturnMap`
+          lines.push("")
+          lines.push(`/** Maps each ${set.name} constant to the tuple of values it returns. */`)
+          lines.push(`interface ${returnMapName} {`)
+          for (const rule of set.params) {
+            if (!rule.returns?.length) {
+              throw new Error(`${set.name} has hasReturns but ${rule.name} is missing returns`)
+            }
+            const returns = rule.returns
+            const namedReturns = returns
+              .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)} | undefined`)
+              .join(", ")
+            lines.push(`  [${rule.name}]: [${namedReturns}]`)
+          }
+          lines.push("}")
+
+          const mapName = `Map${set.name}s`
+          lines.push("")
+          lines.push(`/** Recursively maps a tuple of ${set.name} flags to their return types. */`)
+          lines.push(`type ${mapName}<T extends readonly ${flagType}[]> =`)
+          lines.push("  T extends readonly [] ? [] :")
+          lines.push("  T extends readonly [infer K, ...infer Rest]")
+          lines.push(`    ? K extends keyof ${returnMapName}`)
+          lines.push(`      ? Rest extends readonly ${flagType}[]`)
+          lines.push(`        ? [...${returnMapName}[K], ...${mapName}<Rest>]`)
+          lines.push("        : never")
+          lines.push("      : never")
+          lines.push(`    : (${returnMapName}[${flagType}])[number][]`)
+        }
+
         continue
       }
 
       const mapName = `${set.name}Map`
       const nameMapName = `${set.name}NameMap`
       const parseName = `Parse${set.name}s`
+      const clearable = BUILDER_CONFIGS.find((c) => c.setName === set.name)?.clearable
 
       emitParamMap(
         mapName,
         "Maps each constant to the tuple of arguments that follow it.",
         set.params,
+        clearable,
       )
       emitNameMap(nameMapName, set.params)
 
@@ -1386,7 +1450,10 @@ export function emitAll(
 
         const methodName = constantToMethodName(rule.name, config.prefix)
         const args = rule.args
-          .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
+          .map((a) => {
+            const t = mapListArgType(a.type)
+            return `${toCamelCase(a.name)}: ${config.clearable ? `${t} | ""` : t}`
+          })
           .join(", ")
         methods.push(`  ${methodName}(${args}): ${interfaceName}`)
       }

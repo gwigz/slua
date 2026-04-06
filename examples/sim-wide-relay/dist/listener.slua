@@ -446,13 +446,11 @@ function followAvatar()
 		return
 	end
 
-	local details = ll.GetObjectDetails(assignedAvatar, { OBJECT_POS })
+	local avatarPos = table.unpack(ll.GetObjectDetails(assignedAvatar, { OBJECT_POS }), 1, 1)
 
-	if #details == 0 then
+	if not avatarPos then
 		return
 	end
-
-	local avatarPos = details[1]
 
 	if lastPosition ~= nil and ll.VecDist(lastPosition, avatarPos) < 0.01 then
 		return
@@ -463,13 +461,13 @@ function followAvatar()
 end
 
 function returnToObject(objectId)
-	local details = ll.GetObjectDetails(objectId, { OBJECT_POS })
+	local objectPos = table.unpack(ll.GetObjectDetails(objectId, { OBJECT_POS }), 1, 1)
 
-	if #details == 0 then
+	if not objectPos then
 		return
 	end
 
-	moveTo(details[1])
+	moveTo(objectPos)
 end
 
 function handleRelayedMessage(text)

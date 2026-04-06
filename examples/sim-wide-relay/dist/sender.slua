@@ -554,13 +554,12 @@ local function handleCommand(avatarId, text)
 end
 
 local function relayToOutOfRange(speakerId, message)
-	local speakerDetails = ll.GetObjectDetails(speakerId, { OBJECT_POS })
+	local speakerPos = table.unpack(ll.GetObjectDetails(speakerId, { OBJECT_POS }), 1, 1)
 
-	if #speakerDetails == 0 then
+	if not speakerPos then
 		return
 	end
 
-	local speakerPos = speakerDetails[1]
 	local agents = ll.GetAgentList(AGENT_LIST_REGION, {})
 	local speakerKey = tostring(speakerId)
 	local relayText = (("RELAY|" .. speakerKey) .. "|") .. message
@@ -588,13 +587,12 @@ local function relayToOutOfRange(speakerId, message)
 			continue
 		end
 
-		local agentDetails = ll.GetObjectDetails(agent, { OBJECT_POS })
+		local agentPos = table.unpack(ll.GetObjectDetails(agent, { OBJECT_POS }), 1, 1)
 
-		if #agentDetails == 0 then
+		if not agentPos then
 			continue
 		end
 
-		local agentPos = agentDetails[1]
 		local distance = ll.VecDist(speakerPos, agentPos)
 
 		if distance <= SAY_RANGE then

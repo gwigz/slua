@@ -216,13 +216,11 @@ function followAvatar() {
     return
   }
 
-  const details = ll.GetObjectDetails(assignedAvatar, [OBJECT_POS])
+  const [avatarPos] = ll.GetObjectDetails(assignedAvatar, [OBJECT_POS])
 
-  if (details.length === 0) {
+  if (!avatarPos) {
     return
   }
-
-  const avatarPos = details[0] as Vector
 
   if (lastPosition !== undefined && ll.VecDist(lastPosition, avatarPos) < 0.01) {
     return
@@ -234,13 +232,13 @@ function followAvatar() {
 }
 
 function returnToObject(objectId: UUID) {
-  const details = ll.GetObjectDetails(objectId, [OBJECT_POS])
+  const [objectPos] = ll.GetObjectDetails(objectId, [OBJECT_POS])
 
-  if (details.length === 0) {
+  if (!objectPos) {
     return
   }
 
-  moveTo(details[0] as Vector)
+  moveTo(objectPos)
 }
 
 // Receiving relay messages from sender

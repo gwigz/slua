@@ -6736,41 +6736,6 @@ type ParseRezParams<T extends readonly unknown[]> = T extends readonly []
       : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
 
-/** Maps each constant to the tuple of arguments that follow it. */
-interface GltfOverrideParamMap {
-  [OVERRIDE_GLTF_BASE_COLOR_FACTOR]: [color: Vector]
-  [OVERRIDE_GLTF_BASE_ALPHA]: [alpha: number]
-  [OVERRIDE_GLTF_BASE_ALPHA_MODE]: [alphaMode: number]
-  [OVERRIDE_GLTF_BASE_ALPHA_MASK]: [alphaCutoff: number]
-  [OVERRIDE_GLTF_BASE_DOUBLE_SIDED]: [doubleSided: number]
-  [OVERRIDE_GLTF_METALLIC_FACTOR]: [metallic: number]
-  [OVERRIDE_GLTF_ROUGHNESS_FACTOR]: [roughness: number]
-  [OVERRIDE_GLTF_EMISSIVE_FACTOR]: [color: Vector]
-}
-
-/** Reverse map from numeric value to constant name for error messages. */
-interface GltfOverrideParamNameMap {
-  1: "OVERRIDE_GLTF_BASE_COLOR_FACTOR"
-  2: "OVERRIDE_GLTF_BASE_ALPHA"
-  3: "OVERRIDE_GLTF_BASE_ALPHA_MODE"
-  4: "OVERRIDE_GLTF_BASE_ALPHA_MASK"
-  5: "OVERRIDE_GLTF_BASE_DOUBLE_SIDED"
-  6: "OVERRIDE_GLTF_METALLIC_FACTOR"
-  7: "OVERRIDE_GLTF_ROUGHNESS_FACTOR"
-  8: "OVERRIDE_GLTF_EMISSIVE_FACTOR"
-}
-
-/** Recursive type that validates a flat parameter list for GltfOverrideParam constants. */
-type ParseGltfOverrideParams<T extends readonly unknown[]> = T extends readonly []
-  ? []
-  : T extends readonly [infer K, ...infer Rest]
-    ? K extends keyof GltfOverrideParamMap
-      ? Rest extends readonly [...GltfOverrideParamMap[K], ...infer Remaining]
-        ? [flag: K, ...GltfOverrideParamMap[K], ...ParseGltfOverrideParams<Remaining>]
-        : TypedListError<`invalid arguments after ${GltfOverrideParamNameMap[K & keyof GltfOverrideParamNameMap]}`>
-      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
-    : never
-
 /** Valid constants for ObjectDetail functions. */
 type ObjectDetailFlag =
   | typeof OBJECT_NAME
@@ -6844,6 +6809,41 @@ type ParcelDetailFlag =
   | typeof PARCEL_DETAILS_TP_ROUTING
   | typeof PARCEL_DETAILS_FLAGS
   | typeof PARCEL_DETAILS_SCRIPT_DANGER
+
+/** Maps each constant to the tuple of arguments that follow it. */
+interface GltfOverrideParamMap {
+  [OVERRIDE_GLTF_BASE_COLOR_FACTOR]: [baseColorFactor: Vector]
+  [OVERRIDE_GLTF_BASE_ALPHA]: [baseAlpha: number]
+  [OVERRIDE_GLTF_BASE_ALPHA_MODE]: [baseAlphaMode: number]
+  [OVERRIDE_GLTF_BASE_ALPHA_MASK]: [baseAlphaMask: number]
+  [OVERRIDE_GLTF_BASE_DOUBLE_SIDED]: [baseDoubleSided: number]
+  [OVERRIDE_GLTF_METALLIC_FACTOR]: [metallicFactor: number]
+  [OVERRIDE_GLTF_ROUGHNESS_FACTOR]: [roughnessFactor: number]
+  [OVERRIDE_GLTF_EMISSIVE_FACTOR]: [emissiveFactor: Vector]
+}
+
+/** Reverse map from numeric value to constant name for error messages. */
+interface GltfOverrideParamNameMap {
+  1: "OVERRIDE_GLTF_BASE_COLOR_FACTOR"
+  2: "OVERRIDE_GLTF_BASE_ALPHA"
+  3: "OVERRIDE_GLTF_BASE_ALPHA_MODE"
+  4: "OVERRIDE_GLTF_BASE_ALPHA_MASK"
+  5: "OVERRIDE_GLTF_BASE_DOUBLE_SIDED"
+  6: "OVERRIDE_GLTF_METALLIC_FACTOR"
+  7: "OVERRIDE_GLTF_ROUGHNESS_FACTOR"
+  8: "OVERRIDE_GLTF_EMISSIVE_FACTOR"
+}
+
+/** Recursive type that validates a flat parameter list for GltfOverrideParam constants. */
+type ParseGltfOverrideParams<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof GltfOverrideParamMap
+      ? Rest extends readonly [...GltfOverrideParamMap[K], ...infer Remaining]
+        ? [flag: K, ...GltfOverrideParamMap[K], ...ParseGltfOverrideParams<Remaining>]
+        : TypedListError<`invalid arguments after ${GltfOverrideParamNameMap[K & keyof GltfOverrideParamNameMap]}`>
+      : TypedListError<`unknown parameter flag ${K & (string | number)}`>
+    : never
 
 /** Fluent builder for PrimParam lists. Compiles to a flat parameter list at build time. */
 interface PrimParamBuilder {
@@ -7140,14 +7140,14 @@ declare function updateCharacter(): CharacterParamBuilder
 
 /** Fluent builder for GltfOverrideParam lists. Compiles to a flat parameter list at build time. */
 interface GltfOverrideParamBuilder {
-  baseColorFactor(color: Vector): GltfOverrideParamBuilder
-  baseAlpha(alpha: number): GltfOverrideParamBuilder
-  baseAlphaMode(alphaMode: number): GltfOverrideParamBuilder
-  baseAlphaMask(alphaCutoff: number): GltfOverrideParamBuilder
-  baseDoubleSided(doubleSided: number): GltfOverrideParamBuilder
-  metallicFactor(metallic: number): GltfOverrideParamBuilder
-  roughnessFactor(roughness: number): GltfOverrideParamBuilder
-  emissiveFactor(color: Vector): GltfOverrideParamBuilder
+  baseColorFactor(baseColorFactor: Vector): GltfOverrideParamBuilder
+  baseAlpha(baseAlpha: number): GltfOverrideParamBuilder
+  baseAlphaMode(baseAlphaMode: number): GltfOverrideParamBuilder
+  baseAlphaMask(baseAlphaMask: number): GltfOverrideParamBuilder
+  baseDoubleSided(baseDoubleSided: number): GltfOverrideParamBuilder
+  metallicFactor(metallicFactor: number): GltfOverrideParamBuilder
+  roughnessFactor(roughnessFactor: number): GltfOverrideParamBuilder
+  emissiveFactor(emissiveFactor: Vector): GltfOverrideParamBuilder
 }
 
 declare function setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder

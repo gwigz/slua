@@ -6139,6 +6139,27 @@ type PhysicsMaterial = [
 /** Repeating [agent, landImpact] pairs from ll.GetParcelPrimOwners. */
 type ParcelPrimOwners = [...ParcelPrimOwnerStride, ...ParcelPrimOwners] | []
 type ParcelPrimOwnerStride = [agent: UUID, landImpact: number]
+
+/** Hit stride with no data flags. */
+type CastRayHit = [uuid: UUID, pos: Vector]
+/** Hit stride with RC_GET_NORMAL. */
+type CastRayHitNormal = [uuid: UUID, pos: Vector, normal: Vector]
+/** Hit stride with RC_GET_LINK_NUM. */
+type CastRayHitLink = [uuid: UUID, pos: Vector, link: number]
+/** Hit stride with RC_GET_NORMAL | RC_GET_LINK_NUM. */
+type CastRayHitBoth = [uuid: UUID, pos: Vector, normal: Vector, link: number]
+
+/** Repeating hit strides followed by a status code. */
+type CastRayHits<Hit extends unknown[]> = [...Hit, ...CastRayHits<Hit>] | [status: number] | []
+
+/** Maps RC_DATA_FLAGS value to the corresponding result type. */
+type CastRayResult<Opts extends CastRayParamOptions> = Opts extends { dataFlags: 5 | 7 }
+  ? CastRayHits<CastRayHitBoth>
+  : Opts extends { dataFlags: 4 | 6 }
+    ? CastRayHits<CastRayHitLink>
+    : Opts extends { dataFlags: 1 | 3 }
+      ? CastRayHits<CastRayHitNormal>
+      : CastRayHits<CastRayHit>
 /** Branded error type that surfaces a human-readable message in diagnostics. */
 type TypedListError<Msg extends string> = { [K in `__error: ${Msg}`]: never }
 
@@ -7671,31 +7692,36 @@ interface CameraParamBuilder {
 
 declare function setCameraParams(): CameraParamBuilder
 
-/** Fluent builder for HttpParam lists. Compiles to a flat parameter list at build time. */
-interface HttpParamBuilder {
-  method(method: string): HttpParamBuilder
-  mimetype(mimeType: string): HttpParamBuilder
-  bodyMaxlength(length: number): HttpParamBuilder
-  verifyCert(verify: number): HttpParamBuilder
-  verboseThrottle(noisy: number): HttpParamBuilder
-  customHeader(name: string, value: string): HttpParamBuilder
-  pragmaNoCache(sendHeader: number): HttpParamBuilder
-  userAgent(user: string): HttpParamBuilder
-  accept(mimeType: string): HttpParamBuilder
-  extendedError(extended: number): HttpParamBuilder
+/** Options object for httpRequest. All properties are optional. */
+interface HttpParamOptions {
+  method?: string
+  mimetype?: string
+  bodyMaxlength?: number
+  verifyCert?: number
+  verboseThrottle?: number
+  customHeader?: [string, string]
+  pragmaNoCache?: number
+  userAgent?: string
+  accept?: string
+  extendedError?: number
+  body?: string
 }
 
-declare function httpRequest(url: string, body: string): HttpParamBuilder
+declare function httpRequest(url: string, options: HttpParamOptions): UUID
 
-/** Fluent builder for CastRayParam lists. Compiles to a flat parameter list at build time. */
-interface CastRayParamBuilder {
-  rejectTypes(filter: number): CastRayParamBuilder
-  dataFlags(flags: number): CastRayParamBuilder
-  maxHits(maxHits: number): CastRayParamBuilder
-  detectPhantom(detectPhantom: number): CastRayParamBuilder
+/** Options object for castRay. All properties are optional. */
+interface CastRayParamOptions {
+  rejectTypes?: number
+  dataFlags?: number
+  maxHits?: number
+  detectPhantom?: number
 }
 
-declare function castRay(start: Vector, end: Vector): CastRayParamBuilder
+declare function castRay<const Opts extends CastRayParamOptions>(
+  start: Vector,
+  end: Vector,
+  options: Opts,
+): CastRayResult<Opts>
 
 /** Fluent builder for CharacterParam lists. Compiles to a flat parameter list at build time. */
 interface CharacterParamBuilder {

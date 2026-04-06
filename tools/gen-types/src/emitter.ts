@@ -136,6 +136,12 @@ interface BuilderRootConfig {
   preListArgs: string[]
   /** Parameter declarations for args that come after the list */
   postListArgs?: string[]
+  /** When true, also emit an options-object overload for use as an expression */
+  optionsArg?: boolean
+  /** Default values for params in the options-object overload (propertyName -> default expression) */
+  optionsDefaults?: Record<string, string>
+  /** Custom return type for options overload (uses generic Opts parameter for the options type) */
+  optionsReturnType?: string
 }
 
 interface BuilderSetConfig {
@@ -190,6 +196,8 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
         llFunction: "HTTPRequest",
         preListArgs: ["url: string"],
         postListArgs: ["body: string"],
+        optionsArg: true,
+        optionsDefaults: { method: '"GET"', body: '""' },
       },
     ],
   },
@@ -201,6 +209,8 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
         name: "castRay",
         llFunction: "CastRay",
         preListArgs: ["start: Vector", "end: Vector"],
+        optionsArg: true,
+        optionsReturnType: "CastRayResult<Opts>",
       },
     ],
   },
@@ -1312,6 +1322,25 @@ export function emitAll(
       "/** Repeating [agent, landImpact] pairs from ll.GetParcelPrimOwners. */",
       "type ParcelPrimOwners = [...ParcelPrimOwnerStride, ...ParcelPrimOwners] | []",
       "type ParcelPrimOwnerStride = [agent: UUID, landImpact: number]",
+      "",
+      "/** Hit stride with no data flags. */",
+      "type CastRayHit = [uuid: UUID, pos: Vector]",
+      "/** Hit stride with RC_GET_NORMAL. */",
+      "type CastRayHitNormal = [uuid: UUID, pos: Vector, normal: Vector]",
+      "/** Hit stride with RC_GET_LINK_NUM. */",
+      "type CastRayHitLink = [uuid: UUID, pos: Vector, link: number]",
+      "/** Hit stride with RC_GET_NORMAL | RC_GET_LINK_NUM. */",
+      "type CastRayHitBoth = [uuid: UUID, pos: Vector, normal: Vector, link: number]",
+      "",
+      "/** Repeating hit strides followed by a status code. */",
+      "type CastRayHits<Hit extends unknown[]> = [...Hit, ...CastRayHits<Hit>] | [status: number] | []",
+      "",
+      "/** Maps RC_DATA_FLAGS value to the corresponding result type. */",
+      "type CastRayResult<Opts extends CastRayParamOptions> =",
+      "  Opts extends { dataFlags: 5 | 7 } ? CastRayHits<CastRayHitBoth> :",
+      "  Opts extends { dataFlags: 4 | 6 } ? CastRayHits<CastRayHitLink> :",
+      "  Opts extends { dataFlags: 1 | 3 } ? CastRayHits<CastRayHitNormal> :",
+      "  CastRayHits<CastRayHit>",
     ].join("\n"),
   )
 
@@ -1554,56 +1583,105 @@ export function emitAll(
       const set = typedListParams.sets.find((s) => s.name === config.setName)
       if (!set) continue
 
-      const interfaceName = `${set.name}Builder`
+      // Options-only roots skip the fluent builder interface entirely
+      const optionsOnly = config.roots.every((r) => r.optionsArg)
 
-      // Collect builder methods from params
-      const methods: string[] = []
-      for (const rule of set.params) {
-        // Skip the link constant, it becomes .link() with a callback
-        if (config.linkConstant && rule.name === config.linkConstant) continue
+      if (!optionsOnly) {
+        const interfaceName = `${set.name}Builder`
 
-        const methodName = constantToMethodName(rule.name, config.prefix)
-        const args = rule.args
-          .map((a) => {
-            const t = mapListArgType(a.type)
-            return `${toCamelCase(a.name)}: ${config.clearable ? `${t} | ""` : t}`
-          })
-          .join(", ")
-        methods.push(`  ${methodName}(${args}): ${interfaceName}`)
-      }
+        // Collect builder methods from params
+        const methods: string[] = []
+        for (const rule of set.params) {
+          // Skip the link constant, it becomes .link() with a callback
+          if (config.linkConstant && rule.name === config.linkConstant) continue
 
-      // Add per-shape methods for sub-dispatch (e.g. .typeBox(), .typeCylinder())
-      if (set.subDispatch) {
-        for (const shape of set.subDispatch.params) {
-          const shapeName = constantToMethodName(shape.name, config.prefix)
-          const args = shape.args
-            .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
+          const methodName = constantToMethodName(rule.name, config.prefix)
+          const args = rule.args
+            .map((a) => {
+              const t = mapListArgType(a.type)
+              return `${toCamelCase(a.name)}: ${config.clearable ? `${t} | ""` : t}`
+            })
             .join(", ")
-          methods.push(`  ${shapeName}(${args}): ${interfaceName}`)
+          methods.push(`  ${methodName}(${args}): ${interfaceName}`)
+        }
+
+        // Add per-shape methods for sub-dispatch (e.g. .typeBox(), .typeCylinder())
+        if (set.subDispatch) {
+          for (const shape of set.subDispatch.params) {
+            const shapeName = constantToMethodName(shape.name, config.prefix)
+            const args = shape.args
+              .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
+              .join(", ")
+            methods.push(`  ${shapeName}(${args}): ${interfaceName}`)
+          }
+        }
+
+        // Add .link() method with callback if this set has a link constant
+        if (config.linkConstant) {
+          methods.push(
+            `  link(linkTarget: number, cb: (link: ${interfaceName}) => ${interfaceName}): ${interfaceName}`,
+          )
+        }
+
+        // Emit the interface
+        builderLines.push("")
+        builderLines.push(
+          `/** Fluent builder for ${set.name} lists. Compiles to a flat parameter list at build time. */`,
+        )
+        builderLines.push(`interface ${interfaceName} {`)
+        builderLines.push(...methods)
+        builderLines.push("}")
+
+        // Emit builder root function declarations (non-options roots only)
+        for (const root of config.roots) {
+          if (root.optionsArg) continue
+          const args = root.preListArgs.concat(root.postListArgs ?? []).join(", ")
+          builderLines.push("")
+          builderLines.push(`declare function ${root.name}(${args}): ${interfaceName}`)
         }
       }
 
-      // Add .link() method with callback if this set has a link constant
-      if (config.linkConstant) {
-        methods.push(
-          `  link(linkTarget: number, cb: (link: ${interfaceName}) => ${interfaceName}): ${interfaceName}`,
-        )
-      }
-
-      // Emit the interface
-      builderLines.push("")
-      builderLines.push(
-        `/** Fluent builder for ${set.name} lists. Compiles to a flat parameter list at build time. */`,
-      )
-      builderLines.push(`interface ${interfaceName} {`)
-      builderLines.push(...methods)
-      builderLines.push("}")
-
-      // Emit root function declarations
+      // Emit options-object interfaces and overloads
       for (const root of config.roots) {
-        const args = root.preListArgs.concat(root.postListArgs ?? []).join(", ")
+        if (!root.optionsArg) continue
+        const optionsName = `${set.name}Options`
+        const preArgs = root.preListArgs.join(", ")
+
         builderLines.push("")
-        builderLines.push(`declare function ${root.name}(${args}): ${interfaceName}`)
+        builderLines.push(`/** Options object for ${root.name}. All properties are optional. */`)
+        builderLines.push(`interface ${optionsName} {`)
+        for (const rule of set.params) {
+          if (config.linkConstant && rule.name === config.linkConstant) continue
+          const methodName = constantToMethodName(rule.name, config.prefix)
+          const argTypes = rule.args.map((a) => mapListArgType(a.type))
+          const type = argTypes.length === 1 ? argTypes[0] : `[${argTypes.join(", ")}]`
+          builderLines.push(`  ${methodName}?: ${type}`)
+        }
+        // Include post-list args as properties (e.g. body for httpRequest)
+        for (const postArg of root.postListArgs ?? []) {
+          const [name, type] = postArg.split(": ")
+          builderLines.push(`  ${name}?: ${type}`)
+        }
+        builderLines.push("}")
+        // Look up the actual return type from the LSL function
+        const lslFn = lsl.functions[`ll${root.llFunction}`]
+        const retType = lslFn
+          ? lslFn["slua-return"]
+            ? mapLslReturnType(lslFn["slua-return"])
+            : mapLslType(lslFn.return ?? "void")
+          : "list"
+
+        builderLines.push("")
+        if (root.optionsReturnType) {
+          const generic = `<const Opts extends ${optionsName}>`
+          builderLines.push(
+            `declare function ${root.name}${generic}(${preArgs}${preArgs ? ", " : ""}options: Opts): ${root.optionsReturnType}`,
+          )
+        } else {
+          builderLines.push(
+            `declare function ${root.name}(${preArgs}${preArgs ? ", " : ""}options: ${optionsName}): ${retType}`,
+          )
+        }
       }
     }
 
@@ -1641,6 +1719,9 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
     "  paramSet: string",
     "  preListArgs: number",
     "  postListArgs: number",
+    "  optionsArg?: boolean",
+    "  postListArgNames?: string[]",
+    "  optionsDefaults?: Record<string, string>",
     "}",
     "",
     "export interface BuilderMethodDef {",
@@ -1670,8 +1751,19 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
     const set = typedListParams.sets.find((s) => s.name === config.setName)
     if (!set) continue
     for (const root of config.roots) {
+      const optionsFlag = root.optionsArg ? ", optionsArg: true" : ""
+      const postNames =
+        root.optionsArg && root.postListArgs?.length
+          ? `, postListArgNames: [${root.postListArgs.map((a) => `"${a.split(": ")[0]}"`).join(", ")}]`
+          : ""
+      const defaults =
+        root.optionsArg && root.optionsDefaults
+          ? `, optionsDefaults: { ${Object.entries(root.optionsDefaults)
+              .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+              .join(", ")} }`
+          : ""
       rootEntries.push(
-        `  ${root.name}: { llFunction: "${root.llFunction}", paramSet: "${set.name}", preListArgs: ${root.preListArgs.length}, postListArgs: ${root.postListArgs?.length ?? 0} },`,
+        `  ${root.name}: { llFunction: "${root.llFunction}", paramSet: "${set.name}", preListArgs: ${root.preListArgs.length}, postListArgs: ${root.postListArgs?.length ?? 0}${optionsFlag}${postNames}${defaults} },`,
       )
     }
   }

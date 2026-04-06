@@ -219,6 +219,43 @@ Each builder method name is derived from the LSL constant by stripping the set p
 
 > Builder chains are entirely compile-time, no objects, arrays, or closures are allocated at runtime. The plugin walks the method chain AST and emits the flat Lua table directly.
 
+#### Options object overload
+
+`castRay` and `httpRequest` support an options-object overload, which compiles to the same flat parameter list but can be used as an expression:
+
+```typescript
+const result = castRay(start, end, {
+  rejectTypes: RC_REJECT_AGENTS,
+  maxHits: 4,
+  dataFlags: RC_GET_NORMAL,
+})
+```
+
+```lua
+local result = ll.CastRay(start, end_, {
+    RC_REJECT_TYPES, RC_REJECT_AGENTS,
+    RC_MAX_HITS, 4,
+    RC_DATA_FLAGS, RC_GET_NORMAL
+})
+```
+
+For `httpRequest`, the body is included in the options object (defaults to `""`). Method defaults to `"GET"`:
+
+```typescript
+const id = httpRequest("https://example.com", {
+  method: "POST",
+  mimetype: "application/json",
+  body: payload,
+})
+```
+
+```lua
+local id = ll.HTTPRequest("https://example.com", {
+    HTTP_METHOD, "POST",
+    HTTP_MIMETYPE, "application/json"
+}, payload)
+```
+
 ### Typed getter returns
 
 Functions like `ll.GetObjectDetails`, `ll.GetParcelDetails`, `ll.GetPrimitiveParams`, `ll.GetEnvironment`, `ll.GetPrimMediaParams`, `ll.GetLinkMedia`, and `ll.ParcelMediaQuery` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:

@@ -65,19 +65,6 @@ describe("builder chain transform", () => {
     expect(lua.indexOf("PRIM_TYPE,")).toBeLessThan(lua.indexOf("PRIM_TYPE_BOX"))
   })
 
-  it("castRay with pre-list args", () => {
-    const lua = transpile(`
-      declare const start: Vector, end_: Vector
-      castRay(start, end_)
-        .rejectTypes(1)
-        .maxHits(4)
-    `)
-
-    expect(lua).toContain("ll.CastRay")
-    expect(lua).toContain("RC_REJECT_TYPES")
-    expect(lua).toContain("RC_MAX_HITS")
-  })
-
   it("setCameraParams with no pre-list args", () => {
     const lua = transpile(`
       setCameraParams()
@@ -102,10 +89,11 @@ describe("builder chain transform", () => {
     expect(lua).toContain("PSYS_SRC_PATTERN")
   })
 
-  it("httpRequest with pre and post-list args", () => {
+  it("httpRequest with pre and post-list args (legacy fluent)", () => {
+    // httpRequest fluent builder was replaced by options object,
+    // but the underlying ll.HTTPRequest call still works via raw API
     const lua = transpile(`
-      httpRequest("https://example.com", "body")
-        .method("GET")
+      ll.HTTPRequest("https://example.com", [HTTP_METHOD, "POST"], "body")
     `)
 
     expect(lua).toContain("ll.HTTPRequest")
@@ -119,5 +107,75 @@ describe("builder chain transform", () => {
 
     // Should still emit the ll call with an empty table
     expect(lua).toContain("ll.ParticleSystem")
+  })
+})
+
+describe("options-object transform", () => {
+  it("basic options object", () => {
+    const lua = transpile(`
+      declare const start: Vector, end_: Vector
+      const result = castRay(start, end_, { rejectTypes: 1, maxHits: 4 })
+    `)
+
+    expect(lua).toContain("ll.CastRay")
+    expect(lua).toContain("RC_REJECT_TYPES")
+    expect(lua).toContain("RC_MAX_HITS")
+    expect(lua).toContain("local result = ll.CastRay")
+  })
+
+  it("single property", () => {
+    const lua = transpile(`
+      declare const start: Vector, end_: Vector
+      const result = castRay(start, end_, { maxHits: 2 })
+    `)
+
+    expect(lua).toContain("ll.CastRay")
+    expect(lua).toContain("RC_MAX_HITS")
+    expect(lua).not.toContain("RC_REJECT_TYPES")
+  })
+
+  it("empty options", () => {
+    const lua = transpile(`
+      declare const start: Vector, end_: Vector
+      const result = castRay(start, end_, {})
+    `)
+
+    expect(lua).toContain("ll.CastRay")
+  })
+
+  it("httpRequest with options object", () => {
+    const lua = transpile(`
+      const id = httpRequest("https://example.com", {
+        method: "POST",
+        mimetype: "application/json",
+        body: "payload",
+      })
+    `)
+
+    expect(lua).toContain("ll.HTTPRequest")
+    expect(lua).toContain("HTTP_METHOD")
+    expect(lua).toContain('"POST"')
+    expect(lua).toContain("HTTP_MIMETYPE")
+    expect(lua).toContain('"payload"')
+    expect(lua).toContain("local id = ll.HTTPRequest")
+  })
+
+  it("httpRequest defaults body to empty string", () => {
+    const lua = transpile(`
+      const id = httpRequest("https://example.com", {})
+    `)
+
+    expect(lua).toContain("ll.HTTPRequest")
+    expect(lua).toContain('""')
+  })
+
+  it("dataFlags with constant", () => {
+    const lua = transpile(`
+      declare const start: Vector, end_: Vector
+      const result = castRay(start, end_, { dataFlags: RC_GET_NORMAL })
+    `)
+
+    expect(lua).toContain("RC_DATA_FLAGS")
+    expect(lua).toContain("RC_GET_NORMAL")
   })
 })

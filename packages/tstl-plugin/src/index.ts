@@ -23,6 +23,7 @@ import {
 } from "./utils.js"
 import { CALL_TRANSFORMS } from "./transforms.js"
 import { matchBuilderChain, emitBuilderChain } from "./builder-transform.js"
+import { matchOptionsCall, emitOptionsCall } from "./options-transform.js"
 import { tryFoldBitwise } from "./fold-bitwise.js"
 import { createOptimizeTransforms, countFilterCalls, ALL_OPTIMIZE } from "./optimize.js"
 import { tryEvaluateCondition, shouldStripDefineGuard } from "./define.js"
@@ -308,6 +309,12 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       },
 
       [ts.SyntaxKind.CallExpression]: (node: ts.CallExpression, context) => {
+        // Options-object pattern (e.g. castRay(start, end, { maxHits: 4 }))
+        const optionsMatch = matchOptionsCall(node)
+        if (optionsMatch) {
+          return emitOptionsCall(optionsMatch, context, node)
+        }
+
         // Catalog-driven transforms
         for (const transform of transforms) {
           if (transform.match(node, context.checker)) {

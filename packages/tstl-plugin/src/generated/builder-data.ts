@@ -5,6 +5,9 @@ export interface BuilderRootDef {
   paramSet: string
   preListArgs: number
   postListArgs: number
+  optionsArg?: boolean
+  postListArgNames?: string[]
+  optionsDefaults?: Record<string, string>
 }
 
 export interface BuilderMethodDef {
@@ -56,8 +59,17 @@ export const BUILDER_ROOTS: Record<string, BuilderRootDef> = {
     paramSet: "HttpParam",
     preListArgs: 1,
     postListArgs: 1,
+    optionsArg: true,
+    postListArgNames: ["body"],
+    optionsDefaults: { method: '"GET"', body: '""' },
   },
-  castRay: { llFunction: "CastRay", paramSet: "CastRayParam", preListArgs: 2, postListArgs: 0 },
+  castRay: {
+    llFunction: "CastRay",
+    paramSet: "CastRayParam",
+    preListArgs: 2,
+    postListArgs: 0,
+    optionsArg: true,
+  },
   createCharacter: {
     llFunction: "CreateCharacter",
     paramSet: "CharacterParam",

@@ -110,6 +110,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
 
         const paramCell = cells.eq(0).text().trim()
         const valueCell = cells.eq(1).text().trim()
+        const returnCell = cells.eq(2).text().trim()
 
         const constMatch = paramCell.match(/\[\s*(PRIM_\w+)/)
         if (!constMatch) return
@@ -117,11 +118,19 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
         const value = parseInt(valueCell, 10)
         if (isNaN(value)) return
         if (flag.includes("LEGACY")) return
-        if (flag === "PRIM_TYPE") return
 
         const args = parseUsageString(paramCell)
 
-        getterParams.push({ name: flag, value, args })
+        // Parse return values from the Return Values column: [ type name, type name, ... ]
+        const returnInner = returnCell.replace(/^\[?\s*/, "").replace(/\s*\]?\s*$/, "")
+        const returns = returnInner ? parseRawParams(returnInner) : []
+
+        getterParams.push({
+          name: flag,
+          value,
+          args,
+          ...(returns.length > 0 ? { returns } : {}),
+        })
       })
   }
 

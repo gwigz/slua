@@ -221,7 +221,7 @@ Each builder method name is derived from the LSL constant by stripping the set p
 
 ### Typed getter returns
 
-Functions like `ll.GetObjectDetails`, `ll.GetParcelDetails`, `ll.GetPrimMediaParams`, `ll.GetLinkMedia`, and `ll.ParcelMediaQuery` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:
+Functions like `ll.GetObjectDetails`, `ll.GetParcelDetails`, `ll.GetPrimitiveParams`, `ll.GetEnvironment`, `ll.GetPrimMediaParams`, `ll.GetLinkMedia`, and `ll.ParcelMediaQuery` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:
 
 ```typescript
 const [name, pos] = ll.GetObjectDetails(id, [OBJECT_NAME, OBJECT_POS])
@@ -247,6 +247,20 @@ if (!pos) {
 
 // pos is narrowed to Vector
 ```
+
+For `ll.GetPrimitiveParams`, flags that require a face argument are validated at the type level too:
+
+```typescript
+const [color, alpha] = ll.GetPrimitiveParams([PRIM_COLOR, ALL_SIDES])
+// color: Vector | undefined
+// alpha: number | undefined
+
+const [name, texture, repeats, offsets, rot] = ll.GetPrimitiveParams([PRIM_NAME, PRIM_TEXTURE, 0])
+// name: string | undefined
+// texture: string | undefined, repeats: Vector | undefined, ...
+```
+
+Some functions always return a fixed-shape tuple: `ll.GetExperienceDetails` returns `ExperienceDetails`, `ll.GetPhysicsMaterial` returns `PhysicsMaterial`, and `DetectedEvent.getDamage()` returns `DamageDetails`.
 
 When the flags array isn't a const tuple (e.g. a dynamic `ObjectDetailFlag[]`), the return falls back to a union array of all possible return types.
 

@@ -1014,67 +1014,156 @@
         {
           "name": "PRIM_NAME",
           "value": 27,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ]
         },
         {
           "name": "PRIM_DESC",
           "value": 28,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "description"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_TYPE",
+          "value": 9,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "flag"
+            }
+          ]
         },
         {
           "name": "PRIM_SLICE",
           "value": 35,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "slice"
+            }
+          ]
         },
         {
           "name": "PRIM_PHYSICS_SHAPE_TYPE",
           "value": 30,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "type"
+            }
+          ]
         },
         {
           "name": "PRIM_MATERIAL",
           "value": 2,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "material"
+            }
+          ]
         },
         {
           "name": "PRIM_PHYSICS",
           "value": 3,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
         },
         {
           "name": "PRIM_TEMP_ON_REZ",
           "value": 4,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
         },
         {
           "name": "PRIM_PHANTOM",
           "value": 5,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
         },
         {
           "name": "PRIM_POSITION",
           "value": 6,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "position"
+            }
+          ]
         },
         {
           "name": "PRIM_POS_LOCAL",
           "value": 33,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "position"
+            }
+          ]
         },
         {
           "name": "PRIM_ROTATION",
           "value": 8,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            }
+          ]
         },
         {
           "name": "PRIM_ROT_LOCAL",
           "value": 29,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            }
+          ]
         },
         {
           "name": "PRIM_SIZE",
           "value": 7,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "size"
+            }
+          ]
         },
         {
           "name": "PRIM_TEXTURE",
@@ -1083,6 +1172,24 @@
             {
               "type": "integer",
               "name": "face"
+            }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
             }
           ]
         },
@@ -1094,12 +1201,32 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "render_material"
+            }
           ]
         },
         {
           "name": "PRIM_TEXT",
           "value": 26,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "text"
+            },
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "float",
+              "name": "alpha"
+            }
+          ]
         },
         {
           "name": "PRIM_COLOR",
@@ -1108,6 +1235,16 @@
             {
               "type": "integer",
               "name": "face"
+            }
+          ],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "float",
+              "name": "alpha"
             }
           ]
         },
@@ -1119,6 +1256,16 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "shiny"
+            },
+            {
+              "type": "integer",
+              "name": "bump"
+            }
           ]
         },
         {
@@ -1129,12 +1276,48 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
           ]
         },
         {
           "name": "PRIM_FLEXIBLE",
           "value": 21,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "integer",
+              "name": "softness"
+            },
+            {
+              "type": "float",
+              "name": "gravity"
+            },
+            {
+              "type": "float",
+              "name": "friction"
+            },
+            {
+              "type": "float",
+              "name": "wind"
+            },
+            {
+              "type": "float",
+              "name": "tension"
+            },
+            {
+              "type": "vector",
+              "name": "force"
+            }
+          ]
         },
         {
           "name": "PRIM_TEXGEN",
@@ -1144,17 +1327,63 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "mode"
+            }
           ]
         },
         {
           "name": "PRIM_POINT_LIGHT",
           "value": 23,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "vector",
+              "name": "linear_color"
+            },
+            {
+              "type": "float",
+              "name": "intensity"
+            },
+            {
+              "type": "float",
+              "name": "radius"
+            },
+            {
+              "type": "float",
+              "name": "falloff"
+            }
+          ]
         },
         {
           "name": "PRIM_REFLECTION_PROBE",
           "value": 44,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "float",
+              "name": "ambiance"
+            },
+            {
+              "type": "float",
+              "name": "clip_distance"
+            },
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
         },
         {
           "name": "PRIM_GLOW",
@@ -1164,12 +1393,32 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "float",
+              "name": "intensity"
+            }
           ]
         },
         {
           "name": "PRIM_OMEGA",
           "value": 32,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "axis"
+            },
+            {
+              "type": "float",
+              "name": "spinrate"
+            },
+            {
+              "type": "float",
+              "name": "gain"
+            }
+          ]
         },
         {
           "name": "PRIM_NORMAL",
@@ -1178,6 +1427,24 @@
             {
               "type": "integer",
               "name": "face"
+            }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
             }
           ]
         },
@@ -1189,6 +1456,36 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "integer",
+              "name": "glossiness"
+            },
+            {
+              "type": "integer",
+              "name": "environment"
+            }
           ]
         },
         {
@@ -1198,6 +1495,16 @@
             {
               "type": "integer",
               "name": "face"
+            }
+          ],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "alpha_mode"
+            },
+            {
+              "type": "integer",
+              "name": "mask_cutoff"
             }
           ]
         },
@@ -1214,32 +1521,88 @@
         {
           "name": "PRIM_CAST_SHADOWS",
           "value": 24,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
         },
         {
           "name": "PRIM_ALLOW_UNSIT",
           "value": 39,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
         },
         {
           "name": "PRIM_SCRIPTED_SIT_ONLY",
           "value": 40,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            }
+          ]
         },
         {
           "name": "PRIM_SIT_TARGET",
           "value": 41,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "enabled"
+            },
+            {
+              "type": "vector",
+              "name": "offset"
+            },
+            {
+              "type": "rotation",
+              "name": "rot"
+            }
+          ]
         },
         {
           "name": "PRIM_PROJECTOR",
           "value": 42,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "float",
+              "name": "fov"
+            },
+            {
+              "type": "float",
+              "name": "focus"
+            },
+            {
+              "type": "float",
+              "name": "ambiance"
+            }
+          ]
         },
         {
           "name": "PRIM_CLICK_ACTION",
           "value": 43,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "action"
+            }
+          ]
         },
         {
           "name": "PRIM_GLTF_BASE_COLOR",
@@ -1248,6 +1611,44 @@
             {
               "type": "integer",
               "name": "face"
+            }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "float",
+              "name": "alpha"
+            },
+            {
+              "type": "integer",
+              "name": "gltf_alpha_mode"
+            },
+            {
+              "type": "float",
+              "name": "alpha_mask_cutoff"
+            },
+            {
+              "type": "integer",
+              "name": "double_sided"
             }
           ]
         },
@@ -1259,6 +1660,24 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            }
           ]
         },
         {
@@ -1268,6 +1687,32 @@
             {
               "type": "integer",
               "name": "face"
+            }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "float",
+              "name": "metallic_factor"
+            },
+            {
+              "type": "float",
+              "name": "roughness_factor"
             }
           ]
         },
@@ -1279,22 +1724,66 @@
               "type": "integer",
               "name": "face"
             }
+          ],
+          "returns": [
+            {
+              "type": "string",
+              "name": "texture"
+            },
+            {
+              "type": "vector",
+              "name": "repeats"
+            },
+            {
+              "type": "vector",
+              "name": "offsets"
+            },
+            {
+              "type": "float",
+              "name": "rotation_in_radians"
+            },
+            {
+              "type": "vector",
+              "name": "emissive_tint"
+            }
           ]
         },
         {
           "name": "PRIM_SIT_FLAGS",
           "value": 50,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "flags"
+            }
+          ]
         },
         {
           "name": "PRIM_DAMAGE",
           "value": 51,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "damage"
+            },
+            {
+              "type": "integer",
+              "name": "damage_type"
+            }
+          ]
         },
         {
           "name": "PRIM_HEALTH",
           "value": 52,
-          "args": []
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "health"
+            }
+          ]
         }
       ]
     },
@@ -3341,6 +3830,416 @@
             {
               "type": "float",
               "name": "loop"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EnvironmentParam",
+      "functions": [
+        "llGetEnvironment"
+      ],
+      "params": [
+        {
+          "name": "SKY_TRACKS",
+          "value": 15,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "sky2"
+            },
+            {
+              "type": "float",
+              "name": "sky3"
+            },
+            {
+              "type": "float",
+              "name": "sky4"
+            }
+          ]
+        },
+        {
+          "name": "SKY_AMBIENT",
+          "value": 0,
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "ambient_color"
+            }
+          ]
+        },
+        {
+          "name": "SKY_TEXTURE_DEFAULTS",
+          "value": 1,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "bloom_is_default"
+            },
+            {
+              "type": "integer",
+              "name": "halo_is_default"
+            },
+            {
+              "type": "integer",
+              "name": "rainbow_is_default"
+            }
+          ]
+        },
+        {
+          "name": "SKY_CLOUDS",
+          "value": 2,
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "color"
+            },
+            {
+              "type": "float",
+              "name": "coverage"
+            },
+            {
+              "type": "float",
+              "name": "scale"
+            },
+            {
+              "type": "float",
+              "name": "variance"
+            },
+            {
+              "type": "vector",
+              "name": "scroll"
+            },
+            {
+              "type": "vector",
+              "name": "density"
+            },
+            {
+              "type": "vector",
+              "name": "detail"
+            },
+            {
+              "type": "integer",
+              "name": "is_default"
+            }
+          ]
+        },
+        {
+          "name": "SKY_DOME",
+          "value": 4,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "offset"
+            },
+            {
+              "type": "float",
+              "name": "radius"
+            },
+            {
+              "type": "float",
+              "name": "max_altitude"
+            }
+          ]
+        },
+        {
+          "name": "SKY_GAMMA",
+          "value": 5,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "gamma"
+            }
+          ]
+        },
+        {
+          "name": "SKY_GLOW",
+          "value": 6,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "glow_size"
+            },
+            {
+              "type": "float",
+              "name": "glow_focus"
+            }
+          ]
+        },
+        {
+          "name": "SKY_MOON",
+          "value": 9,
+          "args": [],
+          "returns": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            },
+            {
+              "type": "float",
+              "name": "scale"
+            },
+            {
+              "type": "float",
+              "name": "brightness"
+            },
+            {
+              "type": "integer",
+              "name": "is_default_texture"
+            },
+            {
+              "type": "vector",
+              "name": "direction"
+            },
+            {
+              "type": "vector",
+              "name": "ambient_color"
+            },
+            {
+              "type": "vector",
+              "name": "diffuse_color"
+            }
+          ]
+        },
+        {
+          "name": "SKY_STAR_BRIGHTNESS",
+          "value": 13,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "brightness"
+            }
+          ]
+        },
+        {
+          "name": "SKY_SUN",
+          "value": 14,
+          "args": [],
+          "returns": [
+            {
+              "type": "rotation",
+              "name": "rot"
+            },
+            {
+              "type": "float",
+              "name": "scale"
+            },
+            {
+              "type": "vector",
+              "name": "sun_color"
+            },
+            {
+              "type": "integer",
+              "name": "is_default_texture"
+            },
+            {
+              "type": "vector",
+              "name": "direction"
+            },
+            {
+              "type": "vector",
+              "name": "ambient_color"
+            },
+            {
+              "type": "vector",
+              "name": "diffuse_color"
+            }
+          ]
+        },
+        {
+          "name": "SKY_PLANET",
+          "value": 10,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "planet_radius"
+            },
+            {
+              "type": "float",
+              "name": "sky_bottom_radius"
+            },
+            {
+              "type": "float",
+              "name": "sky_top_radius"
+            }
+          ]
+        },
+        {
+          "name": "SKY_REFRACTION",
+          "value": 11,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "moisture_level"
+            },
+            {
+              "type": "float",
+              "name": "droplet_radius"
+            },
+            {
+              "type": "float",
+              "name": "ice_level"
+            }
+          ]
+        },
+        {
+          "name": "SKY_LIGHT",
+          "value": 8,
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "light_direction"
+            },
+            {
+              "type": "vector",
+              "name": "fade_color"
+            },
+            {
+              "type": "vector",
+              "name": "total_ambient"
+            }
+          ]
+        },
+        {
+          "name": "SKY_REFLECTION_PROBE_AMBIANCE",
+          "value": 24,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "ambiance"
+            }
+          ]
+        },
+        {
+          "name": "WATER_BLUR_MULTIPLIER",
+          "value": 100,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "multiplier"
+            }
+          ]
+        },
+        {
+          "name": "WATER_FOG",
+          "value": 101,
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "arg0"
+            },
+            {
+              "type": "float",
+              "name": "density"
+            },
+            {
+              "type": "float",
+              "name": "modulation"
+            }
+          ]
+        },
+        {
+          "name": "WATER_FRESNEL",
+          "value": 102,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "offset"
+            },
+            {
+              "type": "float",
+              "name": "scale"
+            }
+          ]
+        },
+        {
+          "name": "WATER_TEXTURE_DEFAULTS",
+          "value": 103,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "normal_is_default"
+            },
+            {
+              "type": "integer",
+              "name": "transparent_is_default"
+            }
+          ]
+        },
+        {
+          "name": "WATER_NORMAL_SCALE",
+          "value": 104,
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "scale"
+            }
+          ]
+        },
+        {
+          "name": "WATER_REFRACTION",
+          "value": 105,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "scale_above"
+            },
+            {
+              "type": "float",
+              "name": "scale_below"
+            }
+          ]
+        },
+        {
+          "name": "WATER_WAVE_DIRECTION",
+          "value": 106,
+          "args": [],
+          "returns": [
+            {
+              "type": "vector",
+              "name": "large_wave"
+            },
+            {
+              "type": "vector",
+              "name": "small_wave"
+            }
+          ]
+        },
+        {
+          "name": "ENVIRONMENT_DAYINFO",
+          "value": 200,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "day_length"
+            },
+            {
+              "type": "integer",
+              "name": "day_offset"
+            },
+            {
+              "type": "float",
+              "name": "secs_since_midnight"
             }
           ]
         }

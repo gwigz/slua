@@ -65,7 +65,7 @@ declare interface DetectedEvent {
   /** Changes the amount of damage to be delivered by this damage event. */
   adjustDamage(damage: number): void
   /** Returns a list containing the current damage for the event, the damage type and the original damage delivered. */
-  getDamage(): list
+  getDamage(): DamageDetails
   /**
    * Returns the grab offset of a user touching the object.
    * Returns <0.0, 0.0, 0.0> if Number is not a valid object.
@@ -1496,7 +1496,7 @@ declare namespace ll {
    * Returns a list containing the current damage for the event, the damage type and the original damage delivered.
    * @indexArg number
    */
-  export function DetectedDamage(number: number): list
+  export function DetectedDamage(number: number): DamageDetails
 
   /**
    * Returns the grab offset of a user touching the object.
@@ -1871,11 +1871,16 @@ declare namespace ll {
   /** Returns a string with the requested data about the region. */
   export function GetEnv(dataRequest: string): string
 
-  /** Returns a string with the requested data about the region. */
-  export function GetEnvironment(position: Vector, envParams: number[]): list
+  /**
+   * Returns a string with the requested data about the region.
+   */
+  export function GetEnvironment<const T extends readonly EnvironmentParamFlag[]>(
+    position: Vector,
+    envParams: T,
+  ): MapEnvironmentParam<T> | []
 
   /** Returns a list with the following Experience properties: [Experience Name, Owner ID, Group ID, Experience ID, State, State Message]. State is an integer corresponding to one of the constants XP_ERROR_... and State Message is the string returned by llGetExperienceErrorMessage for that integer. */
-  export function GetExperienceDetails(experienceId: UUID): list
+  export function GetExperienceDetails(experienceId: UUID): ExperienceDetails
 
   /** Returns a string describing the error code passed or the string corresponding with XP_ERROR_UNKNOWN_ERROR if the value is not a valid Experience error code. */
   export function GetExperienceErrorMessage(error: number): string
@@ -2015,8 +2020,8 @@ declare namespace ll {
    */
   export function GetLinkPrimitiveParams<const T extends readonly unknown[]>(
     linkNumber: number,
-    parameters: number[],
-  ): list
+    parameters: T & ParsePrimParamGets<T>,
+  ): MapPrimParamGet<T> | []
 
   /** Returns the sit flags set on the specified prim in a linkset. */
   export function GetLinkSitFlags(linkNumber: number): number
@@ -2236,7 +2241,7 @@ declare namespace ll {
   export function GetPermissionsKey(): UUID
 
   /** Returns a list of the form [float gravity_multiplier, float restitution, float friction, float density]. */
-  export function GetPhysicsMaterial(): number[]
+  export function GetPhysicsMaterial(): PhysicsMaterial
 
   /**
    * Returns the position of the task in region coordinates.
@@ -2256,7 +2261,9 @@ declare namespace ll {
    * Returns the primitive parameters specified in the parameters list.
    * Returns primitive parameters specified in the Parameters list.
    */
-  export function GetPrimitiveParams<const T extends readonly unknown[]>(parameters: number[]): list
+  export function GetPrimitiveParams<const T extends readonly unknown[]>(
+    parameters: T & ParsePrimParamGets<T>,
+  ): MapPrimParamGet<T> | []
 
   /**
    * Returns the number of avatars in the region.
@@ -6108,6 +6115,26 @@ declare const XP_ERROR_UNKNOWN_ERROR: 10
 declare const ZERO_ROTATION: Quaternion
 declare const ZERO_VECTOR: Vector
 
+/** Return type for ll.GetExperienceDetails — always 6 elements. */
+type ExperienceDetails = [
+  name: string,
+  ownerId: UUID,
+  experienceId: UUID,
+  state: number,
+  stateMessage: string,
+  groupId: UUID,
+]
+
+/** Return type for ll.DetectedDamage — always 3 elements. */
+type DamageDetails = [damage: number, damageType: number, originalDamage: number]
+
+/** Return type for ll.GetPhysicsMaterial — always 4 elements. */
+type PhysicsMaterial = [
+  gravityMultiplier: number,
+  restitution: number,
+  friction: number,
+  density: number,
+]
 /** Branded error type that surfaces a human-readable message in diagnostics. */
 type TypedListError<Msg extends string> = { [K in `__error: ${Msg}`]: never }
 
@@ -6380,6 +6407,7 @@ type ParsePrimParams<T extends readonly unknown[]> = T extends readonly []
 interface PrimParamGetMap {
   [PRIM_NAME]: []
   [PRIM_DESC]: []
+  [PRIM_TYPE]: []
   [PRIM_SLICE]: []
   [PRIM_PHYSICS_SHAPE_TYPE]: []
   [PRIM_MATERIAL]: []
@@ -6426,6 +6454,7 @@ interface PrimParamGetMap {
 interface PrimParamGetNameMap {
   27: "PRIM_NAME"
   28: "PRIM_DESC"
+  9: "PRIM_TYPE"
   35: "PRIM_SLICE"
   30: "PRIM_PHYSICS_SHAPE_TYPE"
   2: "PRIM_MATERIAL"
@@ -6478,6 +6507,228 @@ type ParsePrimParamGets<T extends readonly unknown[]> = T extends readonly []
         : TypedListError<`invalid arguments after ${PrimParamGetNameMap[K & keyof PrimParamGetNameMap]}`>
       : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
+
+/** Maps each PrimParamGet constant to the tuple of values it returns. */
+interface PrimParamGetReturnMap {
+  [PRIM_NAME]: [name: string | undefined]
+  [PRIM_DESC]: [description: string | undefined]
+  [PRIM_TYPE]:
+    | [
+        type: typeof PRIM_TYPE_BOX,
+        holeShape: number | undefined,
+        cut: Vector | undefined,
+        hollow: number | undefined,
+        twist: Vector | undefined,
+        topSize: Vector | undefined,
+        topShear: Vector | undefined,
+      ]
+    | [
+        type: typeof PRIM_TYPE_CYLINDER,
+        holeShape: number | undefined,
+        cut: Vector | undefined,
+        hollow: number | undefined,
+        twist: Vector | undefined,
+        topSize: Vector | undefined,
+        topShear: Vector | undefined,
+      ]
+    | [
+        type: typeof PRIM_TYPE_PRISM,
+        holeShape: number | undefined,
+        cut: Vector | undefined,
+        hollow: number | undefined,
+        twist: Vector | undefined,
+        topSize: Vector | undefined,
+        topShear: Vector | undefined,
+      ]
+    | [
+        type: typeof PRIM_TYPE_SPHERE,
+        holeShape: number | undefined,
+        cut: Vector | undefined,
+        hollow: number | undefined,
+        twist: Vector | undefined,
+        dimple: Vector | undefined,
+      ]
+    | [
+        type: typeof PRIM_TYPE_TORUS,
+        holeShape: number | undefined,
+        cut: Vector | undefined,
+        hollow: number | undefined,
+        twist: Vector | undefined,
+        holeSize: Vector | undefined,
+        topShear: Vector | undefined,
+        advancedCut: Vector | undefined,
+        taper: Vector | undefined,
+        revolutions: number | undefined,
+        radiusOffset: number | undefined,
+        skew: number | undefined,
+      ]
+    | [
+        type: typeof PRIM_TYPE_TUBE,
+        holeShape: number | undefined,
+        cut: Vector | undefined,
+        hollow: number | undefined,
+        twist: Vector | undefined,
+        holeSize: Vector | undefined,
+        topShear: Vector | undefined,
+        advancedCut: Vector | undefined,
+        taper: Vector | undefined,
+        revolutions: number | undefined,
+        radiusOffset: number | undefined,
+        skew: number | undefined,
+      ]
+    | [
+        type: typeof PRIM_TYPE_RING,
+        holeShape: number | undefined,
+        cut: Vector | undefined,
+        hollow: number | undefined,
+        twist: Vector | undefined,
+        holeSize: Vector | undefined,
+        topShear: Vector | undefined,
+        advancedCut: Vector | undefined,
+        taper: Vector | undefined,
+        revolutions: number | undefined,
+        radiusOffset: number | undefined,
+        skew: number | undefined,
+      ]
+    | [type: typeof PRIM_TYPE_SCULPT, map: string | undefined, type: number | undefined]
+  [PRIM_SLICE]: [slice: Vector | undefined]
+  [PRIM_PHYSICS_SHAPE_TYPE]: [type: number | undefined]
+  [PRIM_MATERIAL]: [material: number | undefined]
+  [PRIM_PHYSICS]: [enabled: boolean | undefined]
+  [PRIM_TEMP_ON_REZ]: [enabled: boolean | undefined]
+  [PRIM_PHANTOM]: [enabled: boolean | undefined]
+  [PRIM_POSITION]: [position: Vector | undefined]
+  [PRIM_POS_LOCAL]: [position: Vector | undefined]
+  [PRIM_ROTATION]: [rot: Quaternion | undefined]
+  [PRIM_ROT_LOCAL]: [rot: Quaternion | undefined]
+  [PRIM_SIZE]: [size: Vector | undefined]
+  [PRIM_TEXTURE]: [
+    texture: string | undefined,
+    repeats: Vector | undefined,
+    offsets: Vector | undefined,
+    rotationInRadians: number | undefined,
+  ]
+  [PRIM_RENDER_MATERIAL]: [renderMaterial: string | undefined]
+  [PRIM_TEXT]: [text: string | undefined, color: Vector | undefined, alpha: number | undefined]
+  [PRIM_COLOR]: [color: Vector | undefined, alpha: number | undefined]
+  [PRIM_BUMP_SHINY]: [shiny: number | undefined, bump: number | undefined]
+  [PRIM_FULLBRIGHT]: [enabled: boolean | undefined]
+  [PRIM_FLEXIBLE]: [
+    enabled: boolean | undefined,
+    softness: number | undefined,
+    gravity: number | undefined,
+    friction: number | undefined,
+    wind: number | undefined,
+    tension: number | undefined,
+    force: Vector | undefined,
+  ]
+  [PRIM_TEXGEN]: [mode: number | undefined]
+  [PRIM_POINT_LIGHT]: [
+    enabled: boolean | undefined,
+    linearColor: Vector | undefined,
+    intensity: number | undefined,
+    radius: number | undefined,
+    falloff: number | undefined,
+  ]
+  [PRIM_REFLECTION_PROBE]: [
+    enabled: boolean | undefined,
+    ambiance: number | undefined,
+    clipDistance: number | undefined,
+    flags: number | undefined,
+  ]
+  [PRIM_GLOW]: [intensity: number | undefined]
+  [PRIM_OMEGA]: [axis: Vector | undefined, spinrate: number | undefined, gain: number | undefined]
+  [PRIM_NORMAL]: [
+    texture: string | undefined,
+    repeats: Vector | undefined,
+    offsets: Vector | undefined,
+    rotationInRadians: number | undefined,
+  ]
+  [PRIM_SPECULAR]: [
+    texture: string | undefined,
+    repeats: Vector | undefined,
+    offsets: Vector | undefined,
+    rotationInRadians: number | undefined,
+    color: Vector | undefined,
+    glossiness: number | undefined,
+    environment: number | undefined,
+  ]
+  [PRIM_ALPHA_MODE]: [alphaMode: number | undefined, maskCutoff: number | undefined]
+  [PRIM_LINK_TARGET]: []
+  [PRIM_CAST_SHADOWS]: [enabled: boolean | undefined]
+  [PRIM_ALLOW_UNSIT]: [enabled: boolean | undefined]
+  [PRIM_SCRIPTED_SIT_ONLY]: [enabled: boolean | undefined]
+  [PRIM_SIT_TARGET]: [
+    enabled: boolean | undefined,
+    offset: Vector | undefined,
+    rot: Quaternion | undefined,
+  ]
+  [PRIM_PROJECTOR]: [
+    texture: string | undefined,
+    fov: number | undefined,
+    focus: number | undefined,
+    ambiance: number | undefined,
+  ]
+  [PRIM_CLICK_ACTION]: [action: number | undefined]
+  [PRIM_GLTF_BASE_COLOR]: [
+    texture: string | undefined,
+    repeats: Vector | undefined,
+    offsets: Vector | undefined,
+    rotationInRadians: number | undefined,
+    color: Vector | undefined,
+    alpha: number | undefined,
+    gltfAlphaMode: number | undefined,
+    alphaMaskCutoff: number | undefined,
+    doubleSided: number | undefined,
+  ]
+  [PRIM_GLTF_NORMAL]: [
+    texture: string | undefined,
+    repeats: Vector | undefined,
+    offsets: Vector | undefined,
+    rotationInRadians: number | undefined,
+  ]
+  [PRIM_GLTF_METALLIC_ROUGHNESS]: [
+    texture: string | undefined,
+    repeats: Vector | undefined,
+    offsets: Vector | undefined,
+    rotationInRadians: number | undefined,
+    metallicFactor: number | undefined,
+    roughnessFactor: number | undefined,
+  ]
+  [PRIM_GLTF_EMISSIVE]: [
+    texture: string | undefined,
+    repeats: Vector | undefined,
+    offsets: Vector | undefined,
+    rotationInRadians: number | undefined,
+    emissiveTint: Vector | undefined,
+  ]
+  [PRIM_SIT_FLAGS]: [flags: number | undefined]
+  [PRIM_DAMAGE]: [damage: number | undefined, damageType: number | undefined]
+  [PRIM_HEALTH]: [health: number | undefined]
+}
+
+/** Recursively maps a flat PrimParamGet parameter list to the corresponding return types. */
+type MapPrimParamGet<T extends readonly unknown[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends typeof PRIM_TYPE
+      ? Rest extends readonly [infer S, ...infer ShapeRest]
+        ? S extends keyof PrimTypeShapeMap
+          ? ShapeRest extends readonly [...PrimTypeShapeMap[S], ...infer Remaining]
+            ? [
+                type: S,
+                ...{ [I in keyof PrimTypeShapeMap[S]]: PrimTypeShapeMap[S][I] | undefined },
+                ...MapPrimParamGet<Remaining>,
+              ]
+            : never
+          : never
+        : never
+      : K extends keyof PrimParamGetMap & keyof PrimParamGetReturnMap
+        ? Rest extends readonly [...PrimParamGetMap[K], ...infer Remaining]
+          ? [...PrimParamGetReturnMap[K], ...MapPrimParamGet<Remaining>]
+          : never
+        : never
+    : unknown[]
 
 /** Maps each constant to the tuple of arguments that follow it. */
 interface HttpParamMap {
@@ -7051,6 +7302,124 @@ type MapParcelMediaQuery<T extends readonly ParcelMediaQueryFlag[]> = T extends 
         : never
       : never
     : ParcelMediaQueryReturnMap[ParcelMediaQueryFlag][number][]
+
+/** Valid constants for EnvironmentParam functions. */
+type EnvironmentParamFlag =
+  | typeof SKY_TRACKS
+  | typeof SKY_AMBIENT
+  | typeof SKY_TEXTURE_DEFAULTS
+  | typeof SKY_CLOUDS
+  | typeof SKY_DOME
+  | typeof SKY_GAMMA
+  | typeof SKY_GLOW
+  | typeof SKY_MOON
+  | typeof SKY_STAR_BRIGHTNESS
+  | typeof SKY_SUN
+  | typeof SKY_PLANET
+  | typeof SKY_REFRACTION
+  | typeof SKY_LIGHT
+  | typeof SKY_REFLECTION_PROBE_AMBIANCE
+  | typeof WATER_BLUR_MULTIPLIER
+  | typeof WATER_FOG
+  | typeof WATER_FRESNEL
+  | typeof WATER_TEXTURE_DEFAULTS
+  | typeof WATER_NORMAL_SCALE
+  | typeof WATER_REFRACTION
+  | typeof WATER_WAVE_DIRECTION
+  | typeof ENVIRONMENT_DAYINFO
+
+/** Maps each EnvironmentParam constant to the tuple of values it returns. */
+interface EnvironmentParamReturnMap {
+  [SKY_TRACKS]: [sky2: number | undefined, sky3: number | undefined, sky4: number | undefined]
+  [SKY_AMBIENT]: [ambientColor: Vector | undefined]
+  [SKY_TEXTURE_DEFAULTS]: [
+    bloomIsDefault: number | undefined,
+    haloIsDefault: number | undefined,
+    rainbowIsDefault: number | undefined,
+  ]
+  [SKY_CLOUDS]: [
+    color: Vector | undefined,
+    coverage: number | undefined,
+    scale: number | undefined,
+    variance: number | undefined,
+    scroll: Vector | undefined,
+    density: Vector | undefined,
+    detail: Vector | undefined,
+    isDefault: number | undefined,
+  ]
+  [SKY_DOME]: [
+    offset: number | undefined,
+    radius: number | undefined,
+    maxAltitude: number | undefined,
+  ]
+  [SKY_GAMMA]: [gamma: number | undefined]
+  [SKY_GLOW]: [glowSize: number | undefined, glowFocus: number | undefined]
+  [SKY_MOON]: [
+    rot: Quaternion | undefined,
+    scale: number | undefined,
+    brightness: number | undefined,
+    isDefaultTexture: number | undefined,
+    direction: Vector | undefined,
+    ambientColor: Vector | undefined,
+    diffuseColor: Vector | undefined,
+  ]
+  [SKY_STAR_BRIGHTNESS]: [brightness: number | undefined]
+  [SKY_SUN]: [
+    rot: Quaternion | undefined,
+    scale: number | undefined,
+    sunColor: Vector | undefined,
+    isDefaultTexture: number | undefined,
+    direction: Vector | undefined,
+    ambientColor: Vector | undefined,
+    diffuseColor: Vector | undefined,
+  ]
+  [SKY_PLANET]: [
+    planetRadius: number | undefined,
+    skyBottomRadius: number | undefined,
+    skyTopRadius: number | undefined,
+  ]
+  [SKY_REFRACTION]: [
+    moistureLevel: number | undefined,
+    dropletRadius: number | undefined,
+    iceLevel: number | undefined,
+  ]
+  [SKY_LIGHT]: [
+    lightDirection: Vector | undefined,
+    fadeColor: Vector | undefined,
+    totalAmbient: Vector | undefined,
+  ]
+  [SKY_REFLECTION_PROBE_AMBIANCE]: [ambiance: number | undefined]
+  [WATER_BLUR_MULTIPLIER]: [multiplier: number | undefined]
+  [WATER_FOG]: [
+    arg0: Vector | undefined,
+    density: number | undefined,
+    modulation: number | undefined,
+  ]
+  [WATER_FRESNEL]: [offset: number | undefined, scale: number | undefined]
+  [WATER_TEXTURE_DEFAULTS]: [
+    normalIsDefault: number | undefined,
+    transparentIsDefault: number | undefined,
+  ]
+  [WATER_NORMAL_SCALE]: [scale: Vector | undefined]
+  [WATER_REFRACTION]: [scaleAbove: number | undefined, scaleBelow: number | undefined]
+  [WATER_WAVE_DIRECTION]: [largeWave: Vector | undefined, smallWave: Vector | undefined]
+  [ENVIRONMENT_DAYINFO]: [
+    dayLength: number | undefined,
+    dayOffset: number | undefined,
+    secsSinceMidnight: number | undefined,
+  ]
+}
+
+/** Recursively maps a tuple of EnvironmentParam flags to their return types. */
+type MapEnvironmentParam<T extends readonly EnvironmentParamFlag[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof EnvironmentParamReturnMap
+      ? Rest extends readonly EnvironmentParamFlag[]
+        ? [...EnvironmentParamReturnMap[K], ...MapEnvironmentParam<Rest>]
+        : never
+      : never
+    : EnvironmentParamReturnMap[EnvironmentParamFlag][number][]
 
 /** Fluent builder for PrimParam lists. Compiles to a flat parameter list at build time. */
 interface PrimParamBuilder {

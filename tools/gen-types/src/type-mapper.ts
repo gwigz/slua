@@ -25,6 +25,9 @@ const PASSTHROUGH_TYPES = new Set([
   "LLEvents",
   "LLTimers",
   "LLEventName",
+  "ExperienceDetails",
+  "DamageDetails",
+  "PhysicsMaterial",
 ])
 
 const LUAU_TYPE_ALIASES: Record<string, string> = {

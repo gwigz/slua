@@ -13,6 +13,7 @@ import { scrapeParcelDetails } from "./scrapers/parcel-details.js"
 import { scrapeGltfOverrides } from "./scrapers/gltf-overrides.js"
 import { scrapeMediaParams } from "./scrapers/media-params.js"
 import { scrapeParcelMediaQuery } from "./scrapers/parcel-media-query.js"
+import { scrapeEnvironment } from "./scrapers/environment.js"
 
 async function main() {
   const results = await Promise.all([
@@ -28,6 +29,7 @@ async function main() {
     scrapeGltfOverrides(),
     scrapeMediaParams(),
     scrapeParcelMediaQuery(),
+    scrapeEnvironment(),
   ])
 
   const sets = results.flat()

@@ -998,6 +998,13 @@ export function emitAll(
     }
   }
 
+  // Return type overrides for functions where the YAML can't express the type
+  const returnOverrides: Record<string, string> = {
+    llGetExperienceDetails: "ExperienceDetails",
+    llDetectedDamage: "DamageDetails",
+    llGetPhysicsMaterial: "PhysicsMaterial",
+  }
+
   // Inject detected-semantics LSL functions as methods on DetectedEvent (mirrors the Python generator).
   // The YAML has `methods: []` as a placeholder; we populate it from lsl_definitions.yaml here.
   // Must run before addBaseClass so the interface is emitted with the methods.
@@ -1018,7 +1025,9 @@ export function emitAll(
       const rawReturn = fn["slua-return"] ?? fn.return ?? "void"
 
       // Pre-map to a TS-compatible type so addBaseClassMembers' mapReturnType call is a no-op passthrough.
-      const returnType = fn["slua-return"] ? mapReturnType(rawReturn) : mapLslType(rawReturn)
+      const returnType =
+        returnOverrides[lslName] ??
+        (fn["slua-return"] ? mapReturnType(rawReturn) : mapLslType(rawReturn))
 
       // Replace the first argument (index/Number) with `self`; keep any remaining args.
       const remainingArgs = (fn.arguments ?? []).slice(1).map((argObj) => {
@@ -1115,7 +1124,7 @@ export function emitAll(
   if (typedListParams) {
     for (const set of typedListParams.sets) {
       const flagsOnly = set.params.every((r) => r.args.length === 0) && !set.subDispatch
-      const hasReturns = flagsOnly && set.params.some((r) => r.returns && r.returns.length > 0)
+      const hasReturns = set.params.some((r) => r.returns && r.returns.length > 0)
       setFlagsOnly.set(set.name, flagsOnly)
       for (const rule of set.params) {
         literalConstants.set(rule.name, rule.value)
@@ -1182,13 +1191,14 @@ export function emitAll(
       const isIntegerReturn = rawReturn === "integer"
       const hasBoolReturn = !!fn["bool-semantics"] && isIntegerReturn
       const returnType =
-        hasIndexReturn && isIntegerReturn
+        returnOverrides[lslName] ??
+        (hasIndexReturn && isIntegerReturn
           ? "number | undefined"
           : hasBoolReturn
             ? "boolean"
             : fn["slua-return"]
               ? mapLslReturnType(rawReturn)
-              : mapLslType(rawReturn)
+              : mapLslType(rawReturn))
 
       // Merge index tags into docs
       if (indexTags.length > 0) {
@@ -1232,7 +1242,7 @@ export function emitAll(
         // Emit typed generic signature via raw text (ts-morph doesn't support `const T`)
         const parseType = `Parse${typedSet.name}s`
         const typedParams = params.map((p) => {
-          if (p.type === "list") {
+          if (p.type === "list" || p.type === "number[]") {
             return `${p.name}: T & ${parseType}<T>`
           }
           return `${p.name}: ${p.type}`
@@ -1240,7 +1250,8 @@ export function emitAll(
 
         const jsdoc = serializeJSDoc(docs)
 
-        const sig = `${jsdoc}export function ${name}<const T extends readonly unknown[]>(${typedParams.join(", ")}): ${returnType};\n`
+        const mappedReturn = typedSet.hasReturns ? `Map${typedSet.name}<T> | []` : returnType
+        const sig = `${jsdoc}export function ${name}<const T extends readonly unknown[]>(${typedParams.join(", ")}): ${mappedReturn};\n`
         llNs.insertText(llNs.getEnd() - 1, sig)
       } else {
         llNs.addFunction({
@@ -1282,6 +1293,22 @@ export function emitAll(
       ...(docs.length > 0 ? { docs } : {}),
     })
   }
+
+  // Fixed-tuple return types for functions that always return the same shape
+  sf.insertText(
+    sf.getFullText().length,
+    [
+      "",
+      "/** Return type for ll.GetExperienceDetails — always 6 elements. */",
+      "type ExperienceDetails = [name: string, ownerId: UUID, experienceId: UUID, state: number, stateMessage: string, groupId: UUID]",
+      "",
+      "/** Return type for ll.DetectedDamage — always 3 elements. */",
+      "type DamageDetails = [damage: number, damageType: number, originalDamage: number]",
+      "",
+      "/** Return type for ll.GetPhysicsMaterial — always 4 elements. */",
+      "type PhysicsMaterial = [gravityMultiplier: number, restitution: number, friction: number, density: number]",
+    ].join("\n"),
+  )
 
   // Emit typed list param maps and parser types for each param set
   if (typedListParams) {
@@ -1426,6 +1453,88 @@ export function emitAll(
       )
       lines.push(`        : TypedListError<\`unknown parameter flag \${K & (string | number)}\`>`)
       lines.push("    : never")
+
+      // Emit return map and recursive output mapper for sets with return types
+      const hasReturns = set.params.some((r) => r.returns && r.returns.length > 0)
+      if (hasReturns) {
+        const returnMapName = `${set.name}ReturnMap`
+        const mapperName = `Map${set.name}`
+
+        // Sub-dispatch return type (e.g. PRIM_TYPE returns [shape_flag, ...shape_params])
+        // Look for sub-dispatch on this set, or on a sibling set that shares the same constant
+        const subDispatch =
+          set.subDispatch ??
+          typedListParams.sets.find(
+            (s) => s.subDispatch && set.params.some((p) => p.name === s.subDispatch!.constant),
+          )?.subDispatch
+        const subDispatchConstant = subDispatch?.constant
+        let subReturnType: string | undefined
+        if (subDispatch) {
+          const variants = subDispatch.params.map((shape) => {
+            const shapeReturns = shape.args
+              .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)} | undefined`)
+              .join(", ")
+            return `[type: typeof ${shape.name}, ${shapeReturns}]`
+          })
+          subReturnType = variants.join(" | ")
+        }
+
+        lines.push("")
+        lines.push(`/** Maps each ${set.name} constant to the tuple of values it returns. */`)
+        lines.push(`interface ${returnMapName} {`)
+        for (const rule of set.params) {
+          if (subDispatchConstant && rule.name === subDispatchConstant && subReturnType) {
+            // Sub-dispatch: return is a union of all shape return tuples
+            lines.push(`  [${rule.name}]: ${subReturnType}`)
+            continue
+          }
+          const returns = rule.returns ?? []
+          if (returns.length === 0) {
+            // Flags with no return (e.g. PRIM_LINK_TARGET) produce no output
+            lines.push(`  [${rule.name}]: []`)
+          } else {
+            const namedReturns = returns
+              .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)} | undefined`)
+              .join(", ")
+            lines.push(`  [${rule.name}]: [${namedReturns}]`)
+          }
+        }
+        lines.push("}")
+
+        // Recursive output mapper: consumes input args, emits return values
+        lines.push("")
+        lines.push(
+          `/** Recursively maps a flat ${set.name} parameter list to the corresponding return types. */`,
+        )
+        lines.push(`type ${mapperName}<T extends readonly unknown[]> =`)
+        lines.push("  T extends readonly [] ? [] :")
+        lines.push("  T extends readonly [infer K, ...infer Rest]")
+
+        if (subDispatch) {
+          const subMapName = `${subDispatch.name}Map`
+          lines.push(`    ? K extends typeof ${subDispatch.constant}`)
+          lines.push("      ? Rest extends readonly [infer S, ...infer ShapeRest]")
+          lines.push(`        ? S extends keyof ${subMapName}`)
+          lines.push(
+            `          ? ShapeRest extends readonly [...${subMapName}[S], ...infer Remaining]`,
+          )
+          lines.push(
+            `            ? [type: S, ...{ [I in keyof ${subMapName}[S]]: ${subMapName}[S][I] | undefined }, ...${mapperName}<Remaining>]`,
+          )
+          lines.push("            : never")
+          lines.push("          : never")
+          lines.push("        : never")
+          lines.push(`      : K extends keyof ${mapName} & keyof ${returnMapName}`)
+        } else {
+          lines.push(`    ? K extends keyof ${mapName} & keyof ${returnMapName}`)
+        }
+
+        lines.push(`      ? Rest extends readonly [...${mapName}[K], ...infer Remaining]`)
+        lines.push(`        ? [...${returnMapName}[K], ...${mapperName}<Remaining>]`)
+        lines.push("        : never")
+        lines.push("      : never")
+        lines.push(`    : unknown[]`)
+      }
     }
 
     lines.push("")

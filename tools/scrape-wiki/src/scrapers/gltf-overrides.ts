@@ -9,6 +9,7 @@ export async function scrapeGltfOverrides(): Promise<TypedListParamSet[]> {
   const $ = load(html)
 
   let table: ReturnType<typeof $> | null = null
+
   $("table").each((_, t) => {
     const text = $(t).text()
     if (

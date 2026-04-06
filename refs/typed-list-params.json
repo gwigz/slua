@@ -3093,6 +3093,258 @@
           ]
         }
       ]
+    },
+    {
+      "name": "MediaParam",
+      "functions": [
+        "llGetPrimMediaParams",
+        "llGetLinkMedia"
+      ],
+      "params": [
+        {
+          "name": "PRIM_MEDIA_ALT_IMAGE_ENABLE",
+          "value": 0,
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "altImageEnable"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_CONTROLS",
+          "value": 1,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "control"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_CURRENT_URL",
+          "value": 2,
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "current_url"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_HOME_URL",
+          "value": 3,
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "home_url"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_AUTO_LOOP",
+          "value": 4,
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "autoLoop"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_AUTO_PLAY",
+          "value": 5,
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "autoPlay"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_AUTO_SCALE",
+          "value": 6,
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "autoScale"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_AUTO_ZOOM",
+          "value": 7,
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "autoZoom"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_FIRST_CLICK_INTERACT",
+          "value": 8,
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "firstClickInteract"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_WIDTH_PIXELS",
+          "value": 9,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "width"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_HEIGHT_PIXELS",
+          "value": 10,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "height"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_WHITELIST_ENABLE",
+          "value": 11,
+          "args": [],
+          "returns": [
+            {
+              "type": "boolean",
+              "name": "whitelistEnable"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_WHITELIST",
+          "value": 12,
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "CSV"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_PERMS_INTERACT",
+          "value": 13,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "perms"
+            }
+          ]
+        },
+        {
+          "name": "PRIM_MEDIA_PERMS_CONTROL",
+          "value": 14,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "perms"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ParcelMediaQuery",
+      "functions": [
+        "llParcelMediaQuery"
+      ],
+      "params": [
+        {
+          "name": "PARCEL_MEDIA_COMMAND_TEXTURE",
+          "value": 4,
+          "args": [],
+          "returns": [
+            {
+              "type": "key",
+              "name": "uuid"
+            }
+          ]
+        },
+        {
+          "name": "PARCEL_MEDIA_COMMAND_URL",
+          "value": 5,
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "url"
+            }
+          ]
+        },
+        {
+          "name": "PARCEL_MEDIA_COMMAND_TYPE",
+          "value": 10,
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "mime_type"
+            }
+          ]
+        },
+        {
+          "name": "PARCEL_MEDIA_COMMAND_SIZE",
+          "value": 11,
+          "args": [],
+          "returns": [
+            {
+              "type": "integer",
+              "name": "x"
+            },
+            {
+              "type": "integer",
+              "name": "y"
+            }
+          ]
+        },
+        {
+          "name": "PARCEL_MEDIA_COMMAND_DESC",
+          "value": 12,
+          "args": [],
+          "returns": [
+            {
+              "type": "string",
+              "name": "desc"
+            }
+          ]
+        },
+        {
+          "name": "PARCEL_MEDIA_COMMAND_LOOP_SET",
+          "value": 13,
+          "args": [],
+          "returns": [
+            {
+              "type": "float",
+              "name": "loop"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

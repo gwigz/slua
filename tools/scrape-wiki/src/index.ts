@@ -11,6 +11,8 @@ import { scrapeRezParams } from "./scrapers/rez-params.js"
 import { scrapeObjectDetails } from "./scrapers/object-details.js"
 import { scrapeParcelDetails } from "./scrapers/parcel-details.js"
 import { scrapeGltfOverrides } from "./scrapers/gltf-overrides.js"
+import { scrapeMediaParams } from "./scrapers/media-params.js"
+import { scrapeParcelMediaQuery } from "./scrapers/parcel-media-query.js"
 
 async function main() {
   const results = await Promise.all([
@@ -24,6 +26,8 @@ async function main() {
     scrapeObjectDetails(),
     scrapeParcelDetails(),
     scrapeGltfOverrides(),
+    scrapeMediaParams(),
+    scrapeParcelMediaQuery(),
   ])
 
   const sets = results.flat()

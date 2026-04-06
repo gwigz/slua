@@ -221,7 +221,7 @@ Each builder method name is derived from the LSL constant by stripping the set p
 
 ### Typed getter returns
 
-Functions like `ll.GetObjectDetails` and `ll.GetParcelDetails` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:
+Functions like `ll.GetObjectDetails`, `ll.GetParcelDetails`, `ll.GetPrimMediaParams`, `ll.GetLinkMedia`, and `ll.ParcelMediaQuery` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:
 
 ```typescript
 const [name, pos] = ll.GetObjectDetails(id, [OBJECT_NAME, OBJECT_POS])

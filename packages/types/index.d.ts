@@ -1980,8 +1980,14 @@ declare namespace ll {
    */
   export function GetLinkKey(linkNumber: number): UUID
 
-  /** Get the media parameters for a particular face on linked prim, given the desired list of parameter names. Returns a list of values in the order requested.	Returns an empty list if no media exists on the face. */
-  export function GetLinkMedia(linkNumber: number, face: number, parameters: number[]): list
+  /**
+   * Get the media parameters for a particular face on linked prim, given the desired list of parameter names. Returns a list of values in the order requested.	Returns an empty list if no media exists on the face.
+   */
+  export function GetLinkMedia<const T extends readonly MediaParamFlag[]>(
+    linkNumber: number,
+    face: number,
+    parameters: T,
+  ): MapMediaParam<T> | []
 
   /**
    * Returns the name of LinkNumber in a link set.
@@ -2128,7 +2134,7 @@ declare namespace ll {
   export function GetObjectDetails<const T extends readonly ObjectDetailFlag[]>(
     id: UUID,
     parameters: T,
-  ): MapObjectDetails<T> | []
+  ): MapObjectDetail<T> | []
 
   /**
    * Returns the key of the linked prim link_no in a linkset.
@@ -2183,7 +2189,7 @@ declare namespace ll {
   export function GetParcelDetails<const T extends readonly ParcelDetailFlag[]>(
     position: Vector,
     parcelDetails: T,
-  ): MapParcelDetails<T> | []
+  ): MapParcelDetail<T> | []
 
   /**
    * Returns a mask of the parcel flags (PARCEL_FLAG_*) for the parcel that includes the point Position.
@@ -2238,8 +2244,13 @@ declare namespace ll {
    */
   export function GetPos(): Vector
 
-  /** Returns the media parameters for a particular face on an object, given the desired list of parameter names, in the order requested. Returns an empty list if no media exists on the face. */
-  export function GetPrimMediaParams(face: number, parameters: number[]): list
+  /**
+   * Returns the media parameters for a particular face on an object, given the desired list of parameter names, in the order requested. Returns an empty list if no media exists on the face.
+   */
+  export function GetPrimMediaParams<const T extends readonly MediaParamFlag[]>(
+    face: number,
+    parameters: T,
+  ): MapMediaParam<T> | []
 
   /**
    * Returns the primitive parameters specified in the parameters list.
@@ -3107,7 +3118,9 @@ declare namespace ll {
    * Queries the media properties of the parcel containing the script, via one or more PARCEL_MEDIA_COMMAND_* arguments specified in CommandList.
    * This function will only work if the script is contained within an object owned by the land-owner (or if the land is owned by a group, only if the object has been deeded to the group).
    */
-  export function ParcelMediaQuery(queryList: number[]): list
+  export function ParcelMediaQuery<const T extends readonly ParcelMediaQueryFlag[]>(
+    queryList: T,
+  ): MapParcelMediaQuery<T> | []
 
   /**
    * Converts Text into a list, discarding Separators, keeping Spacers (Separators and Spacers must be lists of strings, maximum of 8 each).
@@ -6870,12 +6883,12 @@ interface ObjectDetailReturnMap {
 }
 
 /** Recursively maps a tuple of ObjectDetail flags to their return types. */
-type MapObjectDetails<T extends readonly ObjectDetailFlag[]> = T extends readonly []
+type MapObjectDetail<T extends readonly ObjectDetailFlag[]> = T extends readonly []
   ? []
   : T extends readonly [infer K, ...infer Rest]
     ? K extends keyof ObjectDetailReturnMap
       ? Rest extends readonly ObjectDetailFlag[]
-        ? [...ObjectDetailReturnMap[K], ...MapObjectDetails<Rest>]
+        ? [...ObjectDetailReturnMap[K], ...MapObjectDetail<Rest>]
         : never
       : never
     : ObjectDetailReturnMap[ObjectDetailFlag][number][]
@@ -6916,12 +6929,12 @@ interface ParcelDetailReturnMap {
 }
 
 /** Recursively maps a tuple of ParcelDetail flags to their return types. */
-type MapParcelDetails<T extends readonly ParcelDetailFlag[]> = T extends readonly []
+type MapParcelDetail<T extends readonly ParcelDetailFlag[]> = T extends readonly []
   ? []
   : T extends readonly [infer K, ...infer Rest]
     ? K extends keyof ParcelDetailReturnMap
       ? Rest extends readonly ParcelDetailFlag[]
-        ? [...ParcelDetailReturnMap[K], ...MapParcelDetails<Rest>]
+        ? [...ParcelDetailReturnMap[K], ...MapParcelDetail<Rest>]
         : never
       : never
     : ParcelDetailReturnMap[ParcelDetailFlag][number][]
@@ -6960,6 +6973,84 @@ type ParseGltfOverrideParams<T extends readonly unknown[]> = T extends readonly 
         : TypedListError<`invalid arguments after ${GltfOverrideParamNameMap[K & keyof GltfOverrideParamNameMap]}`>
       : TypedListError<`unknown parameter flag ${K & (string | number)}`>
     : never
+
+/** Valid constants for MediaParam functions. */
+type MediaParamFlag =
+  | typeof PRIM_MEDIA_ALT_IMAGE_ENABLE
+  | typeof PRIM_MEDIA_CONTROLS
+  | typeof PRIM_MEDIA_CURRENT_URL
+  | typeof PRIM_MEDIA_HOME_URL
+  | typeof PRIM_MEDIA_AUTO_LOOP
+  | typeof PRIM_MEDIA_AUTO_PLAY
+  | typeof PRIM_MEDIA_AUTO_SCALE
+  | typeof PRIM_MEDIA_AUTO_ZOOM
+  | typeof PRIM_MEDIA_FIRST_CLICK_INTERACT
+  | typeof PRIM_MEDIA_WIDTH_PIXELS
+  | typeof PRIM_MEDIA_HEIGHT_PIXELS
+  | typeof PRIM_MEDIA_WHITELIST_ENABLE
+  | typeof PRIM_MEDIA_WHITELIST
+  | typeof PRIM_MEDIA_PERMS_INTERACT
+  | typeof PRIM_MEDIA_PERMS_CONTROL
+
+/** Maps each MediaParam constant to the tuple of values it returns. */
+interface MediaParamReturnMap {
+  [PRIM_MEDIA_ALT_IMAGE_ENABLE]: [altImageEnable: boolean | undefined]
+  [PRIM_MEDIA_CONTROLS]: [control: number | undefined]
+  [PRIM_MEDIA_CURRENT_URL]: [currentUrl: string | undefined]
+  [PRIM_MEDIA_HOME_URL]: [homeUrl: string | undefined]
+  [PRIM_MEDIA_AUTO_LOOP]: [autoLoop: boolean | undefined]
+  [PRIM_MEDIA_AUTO_PLAY]: [autoPlay: boolean | undefined]
+  [PRIM_MEDIA_AUTO_SCALE]: [autoScale: boolean | undefined]
+  [PRIM_MEDIA_AUTO_ZOOM]: [autoZoom: boolean | undefined]
+  [PRIM_MEDIA_FIRST_CLICK_INTERACT]: [firstClickInteract: boolean | undefined]
+  [PRIM_MEDIA_WIDTH_PIXELS]: [width: number | undefined]
+  [PRIM_MEDIA_HEIGHT_PIXELS]: [height: number | undefined]
+  [PRIM_MEDIA_WHITELIST_ENABLE]: [whitelistEnable: boolean | undefined]
+  [PRIM_MEDIA_WHITELIST]: [csv: string | undefined]
+  [PRIM_MEDIA_PERMS_INTERACT]: [perms: number | undefined]
+  [PRIM_MEDIA_PERMS_CONTROL]: [perms: number | undefined]
+}
+
+/** Recursively maps a tuple of MediaParam flags to their return types. */
+type MapMediaParam<T extends readonly MediaParamFlag[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof MediaParamReturnMap
+      ? Rest extends readonly MediaParamFlag[]
+        ? [...MediaParamReturnMap[K], ...MapMediaParam<Rest>]
+        : never
+      : never
+    : MediaParamReturnMap[MediaParamFlag][number][]
+
+/** Valid constants for ParcelMediaQuery functions. */
+type ParcelMediaQueryFlag =
+  | typeof PARCEL_MEDIA_COMMAND_TEXTURE
+  | typeof PARCEL_MEDIA_COMMAND_URL
+  | typeof PARCEL_MEDIA_COMMAND_TYPE
+  | typeof PARCEL_MEDIA_COMMAND_SIZE
+  | typeof PARCEL_MEDIA_COMMAND_DESC
+  | typeof PARCEL_MEDIA_COMMAND_LOOP_SET
+
+/** Maps each ParcelMediaQuery constant to the tuple of values it returns. */
+interface ParcelMediaQueryReturnMap {
+  [PARCEL_MEDIA_COMMAND_TEXTURE]: [uuid: UUID | undefined]
+  [PARCEL_MEDIA_COMMAND_URL]: [url: string | undefined]
+  [PARCEL_MEDIA_COMMAND_TYPE]: [mimeType: string | undefined]
+  [PARCEL_MEDIA_COMMAND_SIZE]: [x: number | undefined, y: number | undefined]
+  [PARCEL_MEDIA_COMMAND_DESC]: [desc: string | undefined]
+  [PARCEL_MEDIA_COMMAND_LOOP_SET]: [loop: number | undefined]
+}
+
+/** Recursively maps a tuple of ParcelMediaQuery flags to their return types. */
+type MapParcelMediaQuery<T extends readonly ParcelMediaQueryFlag[]> = T extends readonly []
+  ? []
+  : T extends readonly [infer K, ...infer Rest]
+    ? K extends keyof ParcelMediaQueryReturnMap
+      ? Rest extends readonly ParcelMediaQueryFlag[]
+        ? [...ParcelMediaQueryReturnMap[K], ...MapParcelMediaQuery<Rest>]
+        : never
+      : never
+    : ParcelMediaQueryReturnMap[ParcelMediaQueryFlag][number][]
 
 /** Fluent builder for PrimParam lists. Compiles to a flat parameter list at build time. */
 interface PrimParamBuilder {

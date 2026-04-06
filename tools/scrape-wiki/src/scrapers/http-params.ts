@@ -9,6 +9,7 @@ export async function scrapeHttpParams(): Promise<TypedListParamSet[]> {
   const $ = load(html)
 
   let table: ReturnType<typeof $> | null = null
+
   $("table").each((_, t) => {
     const text = $(t).text()
     if (text.includes("HTTP_METHOD") && text.includes("HTTP_MIMETYPE")) {

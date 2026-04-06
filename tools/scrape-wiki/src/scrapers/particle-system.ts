@@ -12,6 +12,7 @@ export async function scrapeParticleSystem(): Promise<TypedListParamSet[]> {
 
   // Find the main rules table, contains PSYS_PART_FLAGS and PSYS_SRC_PATTERN
   let rulesTable: ReturnType<typeof $> | null = null
+
   $("table").each((_, table) => {
     const text = $(table).text()
     if (

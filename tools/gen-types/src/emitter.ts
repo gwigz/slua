@@ -1204,7 +1204,7 @@ export function emitAll(
       if (typedSet && typedSet.flagsOnly) {
         const flagType = `${typedSet.name}Flag`
         if (typedSet.hasReturns) {
-          const mapperType = `Map${typedSet.name}s`
+          const mapperType = `Map${typedSet.name}`
           const typedParams = params.map((p) => {
             if (p.type === "list" || p.type === "number[]") {
               return `${p.name}: T`
@@ -1348,7 +1348,7 @@ export function emitAll(
           }
           lines.push("}")
 
-          const mapName = `Map${set.name}s`
+          const mapName = `Map${set.name}`
           lines.push("")
           lines.push(`/** Recursively maps a tuple of ${set.name} flags to their return types. */`)
           lines.push(`type ${mapName}<T extends readonly ${flagType}[]> =`)

@@ -9,6 +9,7 @@ export async function scrapeRezParams(): Promise<TypedListParamSet[]> {
   const $ = load(html)
 
   let table: ReturnType<typeof $> | null = null
+
   $("table").each((_, t) => {
     const text = $(t).text()
     if (text.includes("REZ_PARAM") && text.includes("REZ_FLAGS") && text.includes("REZ_POS")) {

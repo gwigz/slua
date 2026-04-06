@@ -10,6 +10,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
 
   // Find setter params table: headers "Flag | V | Description | Usage"
   let paramsTable: ReturnType<typeof $> | null = null
+
   $("table").each((_, table) => {
     const headers = $(table)
       .find("tr")
@@ -17,6 +18,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
       .find("th, td")
       .map((_i, el) => $(el).text().trim())
       .get()
+
     if (headers[0] === "Flag" && headers[1] === "V" && headers[3] === "Usage") {
       paramsTable = $(table)
       return false
@@ -27,7 +29,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
 
   const params: TypedListRule[] = []
 
-  paramsTable!.find(":scope > tbody > tr, :scope > tr").each((_, row) => {
+  ;(paramsTable as ReturnType<typeof $>).find(":scope > tbody > tr, :scope > tr").each((_, row) => {
     const cells = $(row).children("td")
     if (cells.length < 4) return
 
@@ -44,6 +46,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
 
   // PRIM_TYPE shape sub-table: small table containing PRIM_TYPE_BOX and PRIM_TYPE_SCULPT
   let typeShapeTable: ReturnType<typeof $> | null = null
+
   $("table").each((_, table) => {
     const rows = $(table).find("tr")
     if (rows.length < 5 || rows.length > 30) return
@@ -55,6 +58,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
   })
 
   const typeShapes: TypedListRule[] = []
+
   if (typeShapeTable) {
     ;(typeShapeTable as ReturnType<typeof $>).find("tr").each((_, row) => {
       const cells = $(row).children("td")
@@ -81,6 +85,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
   const $g = load(getterHtml)
 
   let getterTable: ReturnType<typeof $g> | null = null
+
   $g("table").each((_, table) => {
     const headers = $g(table)
       .find("tr")
@@ -95,6 +100,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
   })
 
   const getterParams: TypedListRule[] = []
+
   if (getterTable) {
     ;(getterTable as ReturnType<typeof $g>)
       .find(":scope > tbody > tr, :scope > tr")

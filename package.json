@@ -39,6 +39,7 @@
     "typescript": "~5.9.3"
   },
   "patchedDependencies": {
-    "monaco-editor@0.52.2": "patches/monaco-editor@0.52.2.patch"
+    "monaco-editor@0.52.2": "patches/monaco-editor@0.52.2.patch",
+    "fumadocs-typescript@5.2.0": "patches/fumadocs-typescript@5.2.0.patch"
   }
 }

@@ -70,6 +70,12 @@ export const BUILDER_ROOTS: Record<string, BuilderRootDef> = {
     preListArgs: 0,
     postListArgs: 0,
   },
+  setGltfOverrides: {
+    llFunction: "SetLinkGLTFOverrides",
+    paramSet: "GltfOverrideParam",
+    preListArgs: 2,
+    postListArgs: 0,
+  },
   rezObjectWithParams: {
     llFunction: "RezObjectWithParams",
     paramSet: "RezParam",
@@ -262,6 +268,18 @@ export const BUILDER_SETS: Record<string, BuilderSetDef> = {
       maxSpeed: { constant: "CHARACTER_MAX_SPEED", argCount: 1 },
       accountForSkippedFrames: { constant: "CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES", argCount: 1 },
       stayWithinParcel: { constant: "CHARACTER_STAY_WITHIN_PARCEL", argCount: 1 },
+    },
+  },
+  GltfOverrideParam: {
+    methods: {
+      baseColorFactor: { constant: "OVERRIDE_GLTF_BASE_COLOR_FACTOR", argCount: 1 },
+      baseAlpha: { constant: "OVERRIDE_GLTF_BASE_ALPHA", argCount: 1 },
+      baseAlphaMode: { constant: "OVERRIDE_GLTF_BASE_ALPHA_MODE", argCount: 1 },
+      baseAlphaMask: { constant: "OVERRIDE_GLTF_BASE_ALPHA_MASK", argCount: 1 },
+      baseDoubleSided: { constant: "OVERRIDE_GLTF_BASE_DOUBLE_SIDED", argCount: 1 },
+      metallicFactor: { constant: "OVERRIDE_GLTF_METALLIC_FACTOR", argCount: 1 },
+      roughnessFactor: { constant: "OVERRIDE_GLTF_ROUGHNESS_FACTOR", argCount: 1 },
+      emissiveFactor: { constant: "OVERRIDE_GLTF_EMISSIVE_FACTOR", argCount: 1 },
     },
   },
   RezParam: {

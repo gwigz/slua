@@ -202,17 +202,18 @@ ll.SetLinkPrimitiveParamsFast(LINK_THIS, {
 
 #### Available builders
 
-| Builder function            | Compiles to                                  |
-| --------------------------- | -------------------------------------------- |
-| `setPrimParams(link)`       | `ll.SetLinkPrimitiveParamsFast(link, {...})` |
-| `particleSystem()`          | `ll.ParticleSystem({...})`                   |
-| `linkParticleSystem(link)`  | `ll.LinkParticleSystem(link, {...})`         |
-| `setCameraParams()`         | `ll.SetCameraParams({...})`                  |
-| `httpRequest(url, body)`    | `ll.HTTPRequest(url, {...}, body)`           |
-| `castRay(start, end)`       | `ll.CastRay(start, end, {...})`              |
-| `createCharacter()`         | `ll.CreateCharacter({...})`                  |
-| `updateCharacter()`         | `ll.UpdateCharacter({...})`                  |
-| `rezObjectWithParams(item)` | `ll.RezObjectWithParams(item, {...})`        |
+| Builder function               | Compiles to                                  |
+| ------------------------------ | -------------------------------------------- |
+| `setPrimParams(link)`          | `ll.SetLinkPrimitiveParamsFast(link, {...})` |
+| `particleSystem()`             | `ll.ParticleSystem({...})`                   |
+| `linkParticleSystem(link)`     | `ll.LinkParticleSystem(link, {...})`         |
+| `setCameraParams()`            | `ll.SetCameraParams({...})`                  |
+| `httpRequest(url, body)`       | `ll.HTTPRequest(url, {...}, body)`           |
+| `castRay(start, end)`          | `ll.CastRay(start, end, {...})`              |
+| `createCharacter()`            | `ll.CreateCharacter({...})`                  |
+| `updateCharacter()`            | `ll.UpdateCharacter({...})`                  |
+| `rezObjectWithParams(item)`    | `ll.RezObjectWithParams(item, {...})`        |
+| `setGltfOverrides(link, face)` | `ll.SetLinkGLTFOverrides(link, face, {...})` |
 
 Each builder method name is derived from the LSL constant by stripping the set prefix and converting to camelCase. For example, `PRIM_COLOR` becomes `.color()`, `PSYS_SRC_BURST_RATE` becomes `.srcBurstRate()`, and `CAMERA_FOCUS_LOCKED` becomes `.focusLocked()`.
 

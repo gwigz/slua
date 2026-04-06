@@ -2211,6 +2211,94 @@
       ]
     },
     {
+      "name": "GltfOverrideParam",
+      "functions": [
+        "llSetLinkGLTFOverrides"
+      ],
+      "params": [
+        {
+          "name": "OVERRIDE_GLTF_BASE_COLOR_FACTOR",
+          "value": 1,
+          "args": [
+            {
+              "type": "vector",
+              "name": "color"
+            }
+          ]
+        },
+        {
+          "name": "OVERRIDE_GLTF_BASE_ALPHA",
+          "value": 2,
+          "args": [
+            {
+              "type": "float",
+              "name": "alpha"
+            }
+          ]
+        },
+        {
+          "name": "OVERRIDE_GLTF_BASE_ALPHA_MODE",
+          "value": 3,
+          "args": [
+            {
+              "type": "integer",
+              "name": "alpha_mode"
+            }
+          ]
+        },
+        {
+          "name": "OVERRIDE_GLTF_BASE_ALPHA_MASK",
+          "value": 4,
+          "args": [
+            {
+              "type": "float",
+              "name": "alpha_cutoff"
+            }
+          ]
+        },
+        {
+          "name": "OVERRIDE_GLTF_BASE_DOUBLE_SIDED",
+          "value": 5,
+          "args": [
+            {
+              "type": "integer",
+              "name": "double_sided"
+            }
+          ]
+        },
+        {
+          "name": "OVERRIDE_GLTF_METALLIC_FACTOR",
+          "value": 6,
+          "args": [
+            {
+              "type": "float",
+              "name": "metallic"
+            }
+          ]
+        },
+        {
+          "name": "OVERRIDE_GLTF_ROUGHNESS_FACTOR",
+          "value": 7,
+          "args": [
+            {
+              "type": "float",
+              "name": "roughness"
+            }
+          ]
+        },
+        {
+          "name": "OVERRIDE_GLTF_EMISSIVE_FACTOR",
+          "value": 8,
+          "args": [
+            {
+              "type": "vector",
+              "name": "color"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "ObjectDetail",
       "functions": [
         "llGetObjectDetails"

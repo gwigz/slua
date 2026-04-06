@@ -211,6 +211,17 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     ],
   },
   {
+    setName: "GltfOverrideParam",
+    prefix: "OVERRIDE_GLTF_",
+    roots: [
+      {
+        name: "setGltfOverrides",
+        llFunction: "SetLinkGLTFOverrides",
+        preListArgs: ["link: number", "face: number"],
+      },
+    ],
+  },
+  {
     setName: "RezParam",
     prefix: "REZ_",
     roots: [

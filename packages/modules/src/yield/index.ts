@@ -396,7 +396,7 @@ function yieldFetch(
   let resolved = false
   const timeout = options.timeout
 
-  const requestId = httpRequest(url, options)
+  const requestId = $httpRequest(url, options)
 
   const handler = LLEvents.on(
     "http_response",

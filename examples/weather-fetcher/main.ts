@@ -44,7 +44,7 @@ Wind ${weather.wind}`
 }
 
 function setFloatText(text: string, color: Vector, alpha: number) {
-  setPrimParams(LINK_THIS).text(text, color, alpha)
+  $setPrimParams(LINK_THIS).text(text, color, alpha)
 }
 
 function updateHoverText() {

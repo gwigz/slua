@@ -7635,7 +7635,7 @@ interface PrimParamBuilder {
   link(linkTarget: number, cb: (link: PrimParamBuilder) => PrimParamBuilder): PrimParamBuilder
 }
 
-declare function setPrimParams(linkNumber: number): PrimParamBuilder
+declare function $setPrimParams(linkNumber: number): PrimParamBuilder
 
 /** Fluent builder for ParticleSystemParam lists. Compiles to a flat parameter list at build time. */
 interface ParticleSystemParamBuilder {
@@ -7668,9 +7668,9 @@ interface ParticleSystemParamBuilder {
   srcBurstSpeedMax(speedMax: number): ParticleSystemParamBuilder
 }
 
-declare function particleSystem(): ParticleSystemParamBuilder
+declare function $particleSystem(): ParticleSystemParamBuilder
 
-declare function linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
+declare function $linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
 
 /** Fluent builder for CameraParam lists. Compiles to a flat parameter list at build time. */
 interface CameraParamBuilder {
@@ -7690,9 +7690,9 @@ interface CameraParamBuilder {
   positionThreshold(meters: number): CameraParamBuilder
 }
 
-declare function setCameraParams(): CameraParamBuilder
+declare function $setCameraParams(): CameraParamBuilder
 
-/** Options object for httpRequest. All properties are optional. */
+/** Options object for $httpRequest. All properties are optional. */
 interface HttpParamOptions {
   method?: string
   mimetype?: string
@@ -7707,9 +7707,9 @@ interface HttpParamOptions {
   body?: string
 }
 
-declare function httpRequest(url: string, options: HttpParamOptions): UUID
+declare function $httpRequest(url: string, options: HttpParamOptions): UUID
 
-/** Options object for castRay. All properties are optional. */
+/** Options object for $castRay. All properties are optional. */
 interface CastRayParamOptions {
   rejectTypes?: number
   dataFlags?: number
@@ -7717,7 +7717,7 @@ interface CastRayParamOptions {
   detectPhantom?: number
 }
 
-declare function castRay<const Opts extends CastRayParamOptions>(
+declare function $castRay<const Opts extends CastRayParamOptions>(
   start: Vector,
   end: Vector,
   options: Opts,
@@ -7740,9 +7740,9 @@ interface CharacterParamBuilder {
   stayWithinParcel(stayWithinParcel: number): CharacterParamBuilder
 }
 
-declare function createCharacter(): CharacterParamBuilder
+declare function $createCharacter(): CharacterParamBuilder
 
-declare function updateCharacter(): CharacterParamBuilder
+declare function $updateCharacter(): CharacterParamBuilder
 
 /** Fluent builder for GltfOverrideParam lists. Compiles to a flat parameter list at build time. */
 interface GltfOverrideParamBuilder {
@@ -7756,7 +7756,7 @@ interface GltfOverrideParamBuilder {
   emissiveFactor(emissiveFactor: Vector | ""): GltfOverrideParamBuilder
 }
 
-declare function setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
+declare function $setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
 
 /** Fluent builder for RezParam lists. Compiles to a flat parameter list at build time. */
 interface RezParamBuilder {
@@ -7775,4 +7775,4 @@ interface RezParamBuilder {
   paramString(startParam: string): RezParamBuilder
 }
 
-declare function rezObjectWithParams(inventoryItem: string): RezParamBuilder
+declare function $rezObjectWithParams(inventoryItem: string): RezParamBuilder

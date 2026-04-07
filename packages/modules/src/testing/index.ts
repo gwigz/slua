@@ -286,7 +286,7 @@ const GLOBAL_KEYS = [
   "YIELD_KV",
   "YIELD_DIALOG",
   "YIELD_HTTP",
-  "httpRequest",
+  "$httpRequest",
   "YIELD_PERMISSIONS",
   "YIELD_SENSOR",
 ] as const

@@ -128,7 +128,7 @@ const TS_RESERVED_WORDS = new Set([
 // ---------------------------------------------------------------------------
 
 interface BuilderRootConfig {
-  /** Name of the wrapper function (e.g. "setPrimParams") */
+  /** Name of the wrapper function (e.g. "$setPrimParams") */
   name: string
   /** LSL function name without the "ll" prefix (e.g. "SetLinkPrimitiveParamsFast") */
   llFunction: string
@@ -163,7 +163,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     prefix: "PRIM_",
     roots: [
       {
-        name: "setPrimParams",
+        name: "$setPrimParams",
         llFunction: "SetLinkPrimitiveParamsFast",
         preListArgs: ["linkNumber: number"],
       },
@@ -174,9 +174,9 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     setName: "ParticleSystemParam",
     prefix: "PSYS_",
     roots: [
-      { name: "particleSystem", llFunction: "ParticleSystem", preListArgs: [] },
+      { name: "$particleSystem", llFunction: "ParticleSystem", preListArgs: [] },
       {
-        name: "linkParticleSystem",
+        name: "$linkParticleSystem",
         llFunction: "LinkParticleSystem",
         preListArgs: ["linkNumber: number"],
       },
@@ -185,14 +185,14 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
   {
     setName: "CameraParam",
     prefix: "CAMERA_",
-    roots: [{ name: "setCameraParams", llFunction: "SetCameraParams", preListArgs: [] }],
+    roots: [{ name: "$setCameraParams", llFunction: "SetCameraParams", preListArgs: [] }],
   },
   {
     setName: "HttpParam",
     prefix: "HTTP_",
     roots: [
       {
-        name: "httpRequest",
+        name: "$httpRequest",
         llFunction: "HTTPRequest",
         preListArgs: ["url: string"],
         postListArgs: ["body: string"],
@@ -206,7 +206,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     prefix: "RC_",
     roots: [
       {
-        name: "castRay",
+        name: "$castRay",
         llFunction: "CastRay",
         preListArgs: ["start: Vector", "end: Vector"],
         optionsArg: true,
@@ -218,8 +218,8 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     setName: "CharacterParam",
     prefix: "CHARACTER_",
     roots: [
-      { name: "createCharacter", llFunction: "CreateCharacter", preListArgs: [] },
-      { name: "updateCharacter", llFunction: "UpdateCharacter", preListArgs: [] },
+      { name: "$createCharacter", llFunction: "CreateCharacter", preListArgs: [] },
+      { name: "$updateCharacter", llFunction: "UpdateCharacter", preListArgs: [] },
     ],
   },
   {
@@ -228,7 +228,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     clearable: true,
     roots: [
       {
-        name: "setGltfOverrides",
+        name: "$setGltfOverrides",
         llFunction: "SetLinkGLTFOverrides",
         preListArgs: ["link: number", "face: number"],
       },
@@ -239,7 +239,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     prefix: "REZ_",
     roots: [
       {
-        name: "rezObjectWithParams",
+        name: "$rezObjectWithParams",
         llFunction: "RezObjectWithParams",
         preListArgs: ["inventoryItem: string"],
       },

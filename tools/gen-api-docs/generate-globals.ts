@@ -23,16 +23,16 @@ const OUTPUT_FILE = resolve(ROOT, "apps/web/content/docs/slua/api/globals.mdx")
 
 const SLUA_GLOBALS = new Set(["touuid", "tovector", "toquaternion", "torotation"])
 const PLUGIN_GLOBALS = new Set([
-  "castRay",
-  "createCharacter",
-  "httpRequest",
-  "linkParticleSystem",
-  "particleSystem",
-  "rezObjectWithParams",
-  "setCameraParams",
-  "setGltfOverrides",
-  "setPrimParams",
-  "updateCharacter",
+  "$castRay",
+  "$createCharacter",
+  "$httpRequest",
+  "$linkParticleSystem",
+  "$particleSystem",
+  "$rezObjectWithParams",
+  "$setCameraParams",
+  "$setGltfOverrides",
+  "$setPrimParams",
+  "$updateCharacter",
 ])
 const OMIT_GLOBALS = new Set<string>(["dangerouslyexecuterequiredmodule"])
 

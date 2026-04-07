@@ -208,7 +208,7 @@ function moveTo(targetPos: Vector) {
     ll.SetRegionPos(targetPos)
   }
 
-  setPrimParams(LINK_THIS).position(targetPos)
+  $setPrimParams(LINK_THIS).position(targetPos)
 }
 
 function followAvatar() {

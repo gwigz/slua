@@ -30,31 +30,31 @@ export interface BuilderSetDef {
 }
 
 export const BUILDER_ROOTS: Record<string, BuilderRootDef> = {
-  setPrimParams: {
+  $setPrimParams: {
     llFunction: "SetLinkPrimitiveParamsFast",
     paramSet: "PrimParam",
     preListArgs: 1,
     postListArgs: 0,
   },
-  particleSystem: {
+  $particleSystem: {
     llFunction: "ParticleSystem",
     paramSet: "ParticleSystemParam",
     preListArgs: 0,
     postListArgs: 0,
   },
-  linkParticleSystem: {
+  $linkParticleSystem: {
     llFunction: "LinkParticleSystem",
     paramSet: "ParticleSystemParam",
     preListArgs: 1,
     postListArgs: 0,
   },
-  setCameraParams: {
+  $setCameraParams: {
     llFunction: "SetCameraParams",
     paramSet: "CameraParam",
     preListArgs: 0,
     postListArgs: 0,
   },
-  httpRequest: {
+  $httpRequest: {
     llFunction: "HTTPRequest",
     paramSet: "HttpParam",
     preListArgs: 1,
@@ -63,32 +63,32 @@ export const BUILDER_ROOTS: Record<string, BuilderRootDef> = {
     postListArgNames: ["body"],
     optionsDefaults: { method: '"GET"', body: '""' },
   },
-  castRay: {
+  $castRay: {
     llFunction: "CastRay",
     paramSet: "CastRayParam",
     preListArgs: 2,
     postListArgs: 0,
     optionsArg: true,
   },
-  createCharacter: {
+  $createCharacter: {
     llFunction: "CreateCharacter",
     paramSet: "CharacterParam",
     preListArgs: 0,
     postListArgs: 0,
   },
-  updateCharacter: {
+  $updateCharacter: {
     llFunction: "UpdateCharacter",
     paramSet: "CharacterParam",
     preListArgs: 0,
     postListArgs: 0,
   },
-  setGltfOverrides: {
+  $setGltfOverrides: {
     llFunction: "SetLinkGLTFOverrides",
     paramSet: "GltfOverrideParam",
     preListArgs: 2,
     postListArgs: 0,
   },
-  rezObjectWithParams: {
+  $rezObjectWithParams: {
     llFunction: "RezObjectWithParams",
     paramSet: "RezParam",
     preListArgs: 1,

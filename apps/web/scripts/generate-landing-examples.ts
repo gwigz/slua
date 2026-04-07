@@ -283,7 +283,7 @@ function transpileBundledExample(def: ExampleDef): { ts: string; lua: string } {
   for (const d of result.diagnostics) {
     const msg = ts.flattenDiagnosticMessageText(d.messageText, "\n")
 
-    if (msg.includes("luaBundle")) {
+    if (msg.includes("luaBundle") || msg.includes("Invalid ambient identifier")) {
       continue
     }
 

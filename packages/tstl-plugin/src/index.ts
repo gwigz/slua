@@ -297,7 +297,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           }
         }
 
-        // Builder chain detection (e.g. setPrimParams(LINK_THIS).color(0, v, 1))
+        // Builder chain detection (e.g. $setPrimParams(LINK_THIS).color(0, v, 1))
         if (ts.isCallExpression(node.expression)) {
           const chain = matchBuilderChain(node.expression)
           if (chain) {
@@ -309,7 +309,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       },
 
       [ts.SyntaxKind.CallExpression]: (node: ts.CallExpression, context) => {
-        // Options-object pattern (e.g. castRay(start, end, { maxHits: 4 }))
+        // Options-object pattern (e.g. $castRay(start, end, { maxHits: 4 }))
         const optionsMatch = matchOptionsCall(node)
         if (optionsMatch) {
           return emitOptionsCall(optionsMatch, context, node)

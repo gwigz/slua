@@ -51,7 +51,7 @@ function rezBatched(count: number) {
     const batch = math.min(config.REZ_BATCH_SIZE, remaining)
 
     for (const _ of $range(1, batch)) {
-      rezObjectWithParams(config.LISTENER_OBJECT)
+      $rezObjectWithParams(config.LISTENER_OBJECT)
         .pos(pos, 0, 0)
         .rot(rot, 0)
         .paramString(startString)
@@ -245,7 +245,7 @@ function updateDiagnostics() {
   const text = `Sim-Wide Chat\n—\nPool: ${total}/${poolSize}\nAssigned: ${assigned} ⋅ Free: ${free}`
   const color = free === 0 ? new Vector(1, 0.3, 0.3) : new Vector(0.5, 1, 0.5)
 
-  setPrimParams(LINK_THIS).text(text, color, 1.0)
+  $setPrimParams(LINK_THIS).text(text, color, 1.0)
 }
 
 // Startup
@@ -272,7 +272,7 @@ function startPool() {
 
   const initialPool = config.POOL_BUFFER
 
-  setPrimParams(LINK_THIS).text(
+  $setPrimParams(LINK_THIS).text(
     `Sim-Wide Chat\n—\nRezzing ${initialPool} listeners...`,
     new Vector(1, 1, 0),
     1.0,

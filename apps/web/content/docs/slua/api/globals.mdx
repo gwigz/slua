@@ -229,66 +229,66 @@ function tovector(val: string | undefined | Vector): Vector | undefined
 
 These globals are provided by the [transpiler plugin](/docs/slua/transpiler-plugin) and are not part of the SLua runtime.
 
-### `castRay`
+### `$castRay`
 
 ```ts
-function castRay<const Opts extends CastRayParamOptions>(
+function $castRay<const Opts extends CastRayParamOptions>(
   start: Vector,
   end: Vector,
   options: Opts,
 ): CastRayResult<Opts>
 ```
 
-### `createCharacter`
+### `$createCharacter`
 
 ```ts
-function createCharacter(): CharacterParamBuilder
+function $createCharacter(): CharacterParamBuilder
 ```
 
-### `httpRequest`
+### `$httpRequest`
 
 ```ts
-function httpRequest(url: string, options: HttpParamOptions): UUID
+function $httpRequest(url: string, options: HttpParamOptions): UUID
 ```
 
-### `linkParticleSystem`
+### `$linkParticleSystem`
 
 ```ts
-function linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
+function $linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
 ```
 
-### `particleSystem`
+### `$particleSystem`
 
 ```ts
-function particleSystem(): ParticleSystemParamBuilder
+function $particleSystem(): ParticleSystemParamBuilder
 ```
 
-### `rezObjectWithParams`
+### `$rezObjectWithParams`
 
 ```ts
-function rezObjectWithParams(inventoryItem: string): RezParamBuilder
+function $rezObjectWithParams(inventoryItem: string): RezParamBuilder
 ```
 
-### `setCameraParams`
+### `$setCameraParams`
 
 ```ts
-function setCameraParams(): CameraParamBuilder
+function $setCameraParams(): CameraParamBuilder
 ```
 
-### `setGltfOverrides`
+### `$setGltfOverrides`
 
 ```ts
-function setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
+function $setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
 ```
 
-### `setPrimParams`
+### `$setPrimParams`
 
 ```ts
-function setPrimParams(linkNumber: number): PrimParamBuilder
+function $setPrimParams(linkNumber: number): PrimParamBuilder
 ```
 
-### `updateCharacter`
+### `$updateCharacter`
 
 ```ts
-function updateCharacter(): CharacterParamBuilder
+function $updateCharacter(): CharacterParamBuilder
 ```

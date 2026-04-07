@@ -489,7 +489,7 @@ describe("textBox", () => {
 describe("fetch", () => {
   it("yields and returns response object", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
-    g.httpRequest = () => "req-http"
+    g.$httpRequest = () => "req-http"
 
     setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
     const result = fetch("https://example.com", { timeout: 30 }) as any
@@ -502,7 +502,7 @@ describe("fetch", () => {
     spyOn(g.coroutine, "running").mockReturnValue(co)
     const resumeSpy = spyOn(g.coroutine, "resume")
 
-    g.httpRequest = () => "req-http"
+    g.$httpRequest = () => "req-http"
 
     setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
     fetch("https://example.com", { timeout: 30 })
@@ -521,7 +521,7 @@ describe("fetch", () => {
     spyOn(g.coroutine, "running").mockReturnValue(co)
     const resumeSpy = spyOn(g.coroutine, "resume")
 
-    g.httpRequest = () => "req-http"
+    g.$httpRequest = () => "req-http"
 
     setCoroutineYieldValue([false, "timeout"])
     fetch("https://example.com", { timeout: 30 })

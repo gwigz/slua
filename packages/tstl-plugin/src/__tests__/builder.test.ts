@@ -15,7 +15,7 @@ initFull(readFileSync(TYPES_PATH, "utf-8"), readFileSync(LANG_EXT_PATH, "utf-8")
 describe("builder chain transform", () => {
   it("single method chain", () => {
     const lua = transpile(`
-      setPrimParams(LINK_THIS)
+      $setPrimParams(LINK_THIS)
         .color(0, new Vector(1, 0, 0), 1)
     `)
 
@@ -25,7 +25,7 @@ describe("builder chain transform", () => {
 
   it("multi-method chain emits constants in order", () => {
     const lua = transpile(`
-      setPrimParams(LINK_THIS)
+      $setPrimParams(LINK_THIS)
         .color(0, new Vector(1, 0, 0), 1)
         .glow(0, 0.5)
     `)
@@ -39,7 +39,7 @@ describe("builder chain transform", () => {
 
   it(".link() callback flattens with PRIM_LINK_TARGET", () => {
     const lua = transpile(`
-      setPrimParams(LINK_THIS)
+      $setPrimParams(LINK_THIS)
         .color(0, new Vector(1, 0, 0), 1)
         .link(2, link => link
           .glow(0, 0.5)
@@ -56,7 +56,7 @@ describe("builder chain transform", () => {
 
   it(".typeBox() sub-dispatch emits PRIM_TYPE + PRIM_TYPE_BOX", () => {
     const lua = transpile(`
-      setPrimParams(LINK_THIS)
+      $setPrimParams(LINK_THIS)
         .typeBox(0, new Vector(0, 1, 0), 0, new Vector(0, 0, 0), new Vector(1, 1, 0), new Vector(0, 0, 0))
     `)
 
@@ -67,7 +67,7 @@ describe("builder chain transform", () => {
 
   it("setCameraParams with no pre-list args", () => {
     const lua = transpile(`
-      setCameraParams()
+      $setCameraParams()
         .distance(5)
         .active(true)
     `)
@@ -79,7 +79,7 @@ describe("builder chain transform", () => {
 
   it("particle system builder", () => {
     const lua = transpile(`
-      particleSystem()
+      $particleSystem()
         .partFlags(0)
         .srcPattern(1)
     `)
@@ -102,7 +102,7 @@ describe("builder chain transform", () => {
 
   it("empty chain emits call with empty list", () => {
     const lua = transpile(`
-      particleSystem()
+      $particleSystem()
     `)
 
     // Should still emit the ll call with an empty table
@@ -114,7 +114,7 @@ describe("options-object transform", () => {
   it("basic options object", () => {
     const lua = transpile(`
       declare const start: Vector, end_: Vector
-      const result = castRay(start, end_, { rejectTypes: 1, maxHits: 4 })
+      const result = $castRay(start, end_, { rejectTypes: 1, maxHits: 4 })
     `)
 
     expect(lua).toContain("ll.CastRay")
@@ -126,7 +126,7 @@ describe("options-object transform", () => {
   it("single property", () => {
     const lua = transpile(`
       declare const start: Vector, end_: Vector
-      const result = castRay(start, end_, { maxHits: 2 })
+      const result = $castRay(start, end_, { maxHits: 2 })
     `)
 
     expect(lua).toContain("ll.CastRay")
@@ -137,7 +137,7 @@ describe("options-object transform", () => {
   it("empty options", () => {
     const lua = transpile(`
       declare const start: Vector, end_: Vector
-      const result = castRay(start, end_, {})
+      const result = $castRay(start, end_, {})
     `)
 
     expect(lua).toContain("ll.CastRay")
@@ -145,7 +145,7 @@ describe("options-object transform", () => {
 
   it("httpRequest with options object", () => {
     const lua = transpile(`
-      const id = httpRequest("https://example.com", {
+      const id = $httpRequest("https://example.com", {
         method: "POST",
         mimetype: "application/json",
         body: "payload",
@@ -162,7 +162,7 @@ describe("options-object transform", () => {
 
   it("httpRequest defaults body to empty string", () => {
     const lua = transpile(`
-      const id = httpRequest("https://example.com", {})
+      const id = $httpRequest("https://example.com", {})
     `)
 
     expect(lua).toContain("ll.HTTPRequest")
@@ -172,7 +172,7 @@ describe("options-object transform", () => {
   it("dataFlags with constant", () => {
     const lua = transpile(`
       declare const start: Vector, end_: Vector
-      const result = castRay(start, end_, { dataFlags: RC_GET_NORMAL })
+      const result = $castRay(start, end_, { dataFlags: RC_GET_NORMAL })
     `)
 
     expect(lua).toContain("RC_DATA_FLAGS")

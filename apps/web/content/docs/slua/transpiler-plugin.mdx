@@ -150,7 +150,7 @@ Many LSL functions accept flat parameter lists of `[CONSTANT, ...args, CONSTANT,
 #### Prim parameters
 
 ```typescript
-setPrimParams(LINK_THIS)
+$setPrimParams(LINK_THIS)
   .color(0, new Vector(1, 0, 0), 1)
   .glow(0, 0.5)
   .fullbright(ALL_SIDES, true)
@@ -167,7 +167,7 @@ ll.SetLinkPrimitiveParamsFast(LINK_THIS, {
 Use `.link()` with a callback to scope parameters to a different link number. The callback flattens into a `PRIM_LINK_TARGET` entry:
 
 ```typescript
-setPrimParams(LINK_THIS)
+$setPrimParams(LINK_THIS)
   .color(0, new Vector(1, 0, 0), 1)
   .link(2, (link) => link.color(0, new Vector(0, 1, 0), 0.8))
 ```
@@ -183,7 +183,7 @@ ll.SetLinkPrimitiveParamsFast(LINK_THIS, {
 Shape variants are accessed via dedicated methods like `.typeBox()`, `.typeSphere()`, etc.:
 
 ```typescript
-setPrimParams(LINK_THIS).typeBox(
+$setPrimParams(LINK_THIS).typeBox(
   PRIM_HOLE_DEFAULT,
   new Vector(0, 1, 0),
   0.5,
@@ -202,18 +202,18 @@ ll.SetLinkPrimitiveParamsFast(LINK_THIS, {
 
 #### Available builders
 
-| Builder function               | Compiles to                                  |
-| ------------------------------ | -------------------------------------------- |
-| `setPrimParams(link)`          | `ll.SetLinkPrimitiveParamsFast(link, {...})` |
-| `particleSystem()`             | `ll.ParticleSystem({...})`                   |
-| `linkParticleSystem(link)`     | `ll.LinkParticleSystem(link, {...})`         |
-| `setCameraParams()`            | `ll.SetCameraParams({...})`                  |
-| `httpRequest(url, body)`       | `ll.HTTPRequest(url, {...}, body)`           |
-| `castRay(start, end)`          | `ll.CastRay(start, end, {...})`              |
-| `createCharacter()`            | `ll.CreateCharacter({...})`                  |
-| `updateCharacter()`            | `ll.UpdateCharacter({...})`                  |
-| `rezObjectWithParams(item)`    | `ll.RezObjectWithParams(item, {...})`        |
-| `setGltfOverrides(link, face)` | `ll.SetLinkGLTFOverrides(link, face, {...})` |
+| Builder function                | Compiles to                                  |
+| ------------------------------- | -------------------------------------------- |
+| `$setPrimParams(link)`          | `ll.SetLinkPrimitiveParamsFast(link, {...})` |
+| `$particleSystem()`             | `ll.ParticleSystem({...})`                   |
+| `$linkParticleSystem(link)`     | `ll.LinkParticleSystem(link, {...})`         |
+| `$setCameraParams()`            | `ll.SetCameraParams({...})`                  |
+| `$httpRequest(url, opts)`       | `ll.HTTPRequest(url, {...}, body)`           |
+| `$castRay(start, end, opts)`    | `ll.CastRay(start, end, {...})`              |
+| `$createCharacter()`            | `ll.CreateCharacter({...})`                  |
+| `$updateCharacter()`            | `ll.UpdateCharacter({...})`                  |
+| `$rezObjectWithParams(item)`    | `ll.RezObjectWithParams(item, {...})`        |
+| `$setGltfOverrides(link, face)` | `ll.SetLinkGLTFOverrides(link, face, {...})` |
 
 Each builder method name is derived from the LSL constant by stripping the set prefix and converting to camelCase. For example, `PRIM_COLOR` becomes `.color()`, `PSYS_SRC_BURST_RATE` becomes `.srcBurstRate()`, and `CAMERA_FOCUS_LOCKED` becomes `.focusLocked()`.
 
@@ -221,10 +221,10 @@ Each builder method name is derived from the LSL constant by stripping the set p
 
 #### Options object overload
 
-`castRay` and `httpRequest` support an options-object overload, which compiles to the same flat parameter list but can be used as an expression:
+`$castRay` and `$httpRequest` support an options-object overload, which compiles to the same flat parameter list but can be used as an expression:
 
 ```typescript
-const result = castRay(start, end, {
+const result = $castRay(start, end, {
   rejectTypes: RC_REJECT_AGENTS,
   maxHits: 4,
   dataFlags: RC_GET_NORMAL,
@@ -239,10 +239,10 @@ local result = ll.CastRay(start, end_, {
 })
 ```
 
-For `httpRequest`, the body is included in the options object (defaults to `""`). Method defaults to `"GET"`:
+For `$httpRequest`, the body is included in the options object (defaults to `""`). Method defaults to `"GET"`:
 
 ```typescript
-const id = httpRequest("https://example.com", {
+const id = $httpRequest("https://example.com", {
   method: "POST",
   mimetype: "application/json",
   body: payload,

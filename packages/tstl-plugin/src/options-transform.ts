@@ -18,8 +18,8 @@ interface OptionsCallMatch {
 
 /**
  * Match a call expression as an options-object pattern.
- * e.g. castRay(start, end, { maxHits: 4 })
- * e.g. httpRequest(url, { method: "POST", body: "payload" })
+ * e.g. $castRay(start, end, { maxHits: 4 })
+ * e.g. $httpRequest(url, { method: "POST", body: "payload" })
  */
 export function matchOptionsCall(node: ts.CallExpression): OptionsCallMatch | null {
   if (!ts.isIdentifier(node.expression)) return null

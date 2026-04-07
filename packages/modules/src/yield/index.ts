@@ -18,7 +18,7 @@
  * - **YIELD_KV** {@link kvRead}, {@link kvCreate}, {@link kvUpdate},
  *   {@link kvDelete}, {@link kvSize}
  * - **YIELD_DIALOG** {@link dialog}, {@link textBox}
- * - **YIELD_HTTP** {@link httpRequest}
+ * - **YIELD_HTTP** {@link fetch}
  * - **YIELD_PERMISSIONS** {@link requestPermissions}, {@link transferMoney}
  * - **YIELD_SENSOR** {@link sensor}
  *
@@ -265,7 +265,7 @@ export function kvCreate(key: string, value: string, timeout: number): YieldResu
  * @define YIELD_KV
  */
 export function kvUpdate(key: string, value: string, timeout: number): YieldResult<boolean> {
-  const [ok, raw] = yieldDataserver(ll.UpdateKeyValue(key, value, 0, ""), timeout)
+  const [ok, raw] = yieldDataserver(ll.UpdateKeyValue(key, value, false, ""), timeout)
 
   if (!ok) {
     return $multi(false, "timeout") as YieldResult<boolean>
@@ -388,16 +388,15 @@ export function textBox(channel: number, avatarId: UUID, text: string, timeout: 
  *
  * @define YIELD_HTTP
  */
-export function httpRequest(
+function yieldFetch(
   url: string,
-  params: list,
-  body: string,
-  timeout: number,
+  options: HttpParamOptions & { timeout: number },
 ): YieldResult<{ status: number; metadata: list; body: string }> {
   const co = coroutine.running()!
   let resolved = false
+  const timeout = options.timeout
 
-  const requestId = ll.HTTPRequest(url, params, body)
+  const requestId = httpRequest(url, options)
 
   const handler = LLEvents.on(
     "http_response",
@@ -503,7 +502,7 @@ export function transferMoney(
 
   const handler = LLEvents.on(
     "transaction_result",
-    (reqId: UUID, successInt: number, message: string) => {
+    (reqId: UUID, success: boolean, message: string) => {
       if (reqId !== requestId || resolved) {
         return
       }
@@ -513,7 +512,7 @@ export function transferMoney(
       LLEvents.off("transaction_result", handler)
       LLTimers.off(timer)
 
-      coroutine.resume(co, true, { success: successInt === 1, message })
+      coroutine.resume(co, true, { success, message })
     },
   )
 
@@ -595,3 +594,5 @@ export function sensor(
 
   return coroutine.yield() as unknown as YieldResult<DetectedEvent[] | null>
 }
+
+export { yieldFetch as fetch }

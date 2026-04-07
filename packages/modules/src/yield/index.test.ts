@@ -18,7 +18,7 @@ import {
   kvSize,
   dialog,
   textBox,
-  httpRequest,
+  fetch,
   requestPermissions,
   transferMoney,
   sensor,
@@ -353,7 +353,7 @@ describe("kvUpdate", () => {
     expect(kvUpdate("key", "value", 10) as any).toEqual([true, true])
   })
 
-  it("passes checked=0 and original=empty to ll.UpdateKeyValue", () => {
+  it("passes checked=false and original=empty to ll.UpdateKeyValue", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
     const calls: any[][] = []
     g.ll.UpdateKeyValue = (...args: any[]) => {
@@ -364,7 +364,7 @@ describe("kvUpdate", () => {
     setCoroutineYieldValue([true, "1,"])
     kvUpdate("key", "new-value", 10)
 
-    expect(calls[0]).toEqual(["key", "new-value", 0, ""])
+    expect(calls[0]).toEqual(["key", "new-value", false, ""])
   })
 })
 
@@ -486,12 +486,13 @@ describe("textBox", () => {
 // HTTP
 // ---------------------------------------------------------------------------
 
-describe("httpRequest", () => {
+describe("fetch", () => {
   it("yields and returns response object", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+    g.httpRequest = () => "req-http"
 
     setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
-    const result = httpRequest("https://example.com", [], "", 30) as any
+    const result = fetch("https://example.com", { timeout: 30 }) as any
 
     expect(result).toEqual([true, { status: 200, metadata: [], body: "OK" }])
   })
@@ -501,10 +502,10 @@ describe("httpRequest", () => {
     spyOn(g.coroutine, "running").mockReturnValue(co)
     const resumeSpy = spyOn(g.coroutine, "resume")
 
-    g.ll.HTTPRequest = () => "req-http"
+    g.httpRequest = () => "req-http"
 
     setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
-    httpRequest("https://example.com", [], "", 30)
+    fetch("https://example.com", { timeout: 30 })
 
     // Non-matching request
     emit("http_response", "req-other", 404, [], "Not found")
@@ -520,10 +521,10 @@ describe("httpRequest", () => {
     spyOn(g.coroutine, "running").mockReturnValue(co)
     const resumeSpy = spyOn(g.coroutine, "resume")
 
-    g.ll.HTTPRequest = () => "req-http"
+    g.httpRequest = () => "req-http"
 
     setCoroutineYieldValue([false, "timeout"])
-    httpRequest("https://example.com", [], "", 30)
+    fetch("https://example.com", { timeout: 30 })
 
     tick()
     expect(resumeSpy).toHaveBeenCalledWith(co, false, "timeout")
@@ -593,7 +594,7 @@ describe("transferMoney", () => {
     transferMoney("avatar-id" as unknown as UUID, 100, 10)
 
     // Simulate transaction result with failure
-    emit("transaction_result", "req-tx", 0, "Insufficient funds")
+    emit("transaction_result", "req-tx", false, "Insufficient funds")
     expect(resumeSpy).toHaveBeenCalledWith(co, true, {
       success: false,
       message: "Insufficient funds",

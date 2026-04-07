@@ -70,7 +70,7 @@ declare const YIELD_DIALOG: boolean
 /**
  * Compile-time flag: enable HTTP request yield wrapper.
  *
- * Guards: {@link httpRequest}.
+ * Guards: {@link fetch}.
  *
  * @define Set via `@gwigz/slua-tstl-plugin` `define` option. Code guarded
  * by this flag is stripped from the Lua output when set to `false`.

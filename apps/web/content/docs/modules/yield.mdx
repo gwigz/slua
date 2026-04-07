@@ -94,7 +94,7 @@ export type API = {
   /** Show a text box to an avatar and yield until they submit text. Returns the entered text. @remarks `YIELD_DIALOG` */
   textBox: typeof textBox,
   /** Send an HTTP request and yield until the response arrives. @remarks `YIELD_HTTP` */
-  httpRequest: typeof httpRequest,
+  fetch: typeof fetch,
   /** Request permissions from an avatar and yield until granted/denied. Returns the granted permission flags. @remarks `YIELD_PERMISSIONS` */
   requestPermissions: typeof requestPermissions,
   /** Transfer Linden dollars and yield until the transaction result arrives. @remarks `YIELD_PERMISSIONS` */
@@ -128,11 +128,14 @@ spawn(() => {
 })
 ```
 
-### httpRequest
+### fetch
 
 ```ts
 spawn(() => {
-  const [ok, res] = httpRequest("https://example.com/api", [HTTP_METHOD, "GET"], "", 30)
+  const [ok, res] = fetch("https://example.com/api", {
+    method: "GET",
+    timeout: 30,
+  })
 
   if (ok) {
     if (res.status === 200) {

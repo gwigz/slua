@@ -136,4 +136,11 @@ loadConfig("config.json", { config, type: "lljson" }, (ok) => {
 
 ### `ConfigCallback`
 
-<auto-type-table path="../../../../../packages/modules/src/config/index.ts" name="ConfigCallback" />
+<auto-type-table name="ConfigCallback" type="
+export interface ConfigCallback {
+  /** Whether the notecard was read successfully. `false` if the read timed out. */
+  ok: boolean
+  /** Error message when `ok` is `false` (e.g. `'timeout'`). */
+  error?: string
+}
+" />

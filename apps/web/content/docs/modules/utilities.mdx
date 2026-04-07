@@ -47,14 +47,14 @@ cancel()
 
 ## API
 
-<auto-type-table path="../../../../../packages/modules/src/utilities/index.ts" name="API" type="
+<auto-type-table name="API" type="
 export type API = {
   /** Delay execution until activity stops. Each call resets the timer; `fn` fires only after `seconds` of silence with the latest args. Returns `[wrapped, cancel]`. */
-  debounce: typeof debounce,
+  debounce: <A extends any[]>(fn: (...args: A) => void, seconds: number) => [wrapped: (...args: A) => void, cancel: () => void],
   /** Rate-limit to at most once per `seconds`. First call fires immediately (leading edge), last call during the window fires when the timer expires (trailing edge). Returns `[wrapped, cancel]`. */
-  throttle: typeof throttle,
+  throttle: <A extends any[]>(fn: (...args: A) => void, seconds: number) => [wrapped: (...args: A) => void, cancel: () => void],
   /** Fire immediately on the first call, then drop all subsequent calls for `seconds`. Returns `[wrapped, cancel]`. */
-  cooldown: typeof cooldown,
+  cooldown: <A extends any[]>(fn: (...args: A) => void, seconds: number) => [wrapped: (...args: A) => void, cancel: () => void],
 }
 " />
 

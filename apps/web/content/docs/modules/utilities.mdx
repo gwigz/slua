@@ -1,0 +1,103 @@
+---
+title: utilities
+description: Rate-limiting primitives for debounce, throttle, and cooldown
+---
+
+<Callout type="warn" title="Work in Progress">
+  This module is under active development and has not been battle-tested in production. The API may
+  change between releases.
+</Callout>
+
+`@gwigz/slua-modules/utilities` provides rate-limiting primitives built on
+SLua's `LLTimers` API. Each function accepts a callback and a duration in
+seconds, and returns a `[wrapped, cancel]` tuple.
+
+```ts
+import { debounce, throttle, cooldown } from "@gwigz/slua-modules/utilities"
+
+const [save, cancelSave] = debounce((id: UUID) => {
+  ll.Say(0, `saved ${id}`)
+}, 2)
+
+LLEvents.on("touch_start", (detected) => {
+  save(detected[0].getKey())
+})
+```
+
+## Choosing the right utility
+
+| Utility    | Leading | Trailing | Drops calls         | Use when                                  |
+| ---------- | ------- | -------- | ------------------- | ----------------------------------------- |
+| `debounce` | No      | Yes      | No, defers          | You want to wait until activity stops     |
+| `throttle` | Yes     | Yes      | No, defers trailing | You want at most one call per interval    |
+| `cooldown` | Yes     | No       | Yes                 | You want a simple gate that drops repeats |
+
+## Cancel
+
+All three return a `cancel` function as the second tuple value. Calling it
+clears any pending timer and resets internal state so the wrapped function can
+be reused immediately.
+
+```ts
+const [fn, cancel] = throttle(() => ll.Say(0, "hi"), 5)
+
+// later, clean up:
+cancel()
+```
+
+## API
+
+<auto-type-table path="../../../../../packages/modules/src/utilities/index.ts" name="API" type="
+export type API = {
+  /** Delay execution until activity stops. Each call resets the timer; `fn` fires only after `seconds` of silence with the latest args. Returns `[wrapped, cancel]`. */
+  debounce: typeof debounce,
+  /** Rate-limit to at most once per `seconds`. First call fires immediately (leading edge), last call during the window fires when the timer expires (trailing edge). Returns `[wrapped, cancel]`. */
+  throttle: typeof throttle,
+  /** Fire immediately on the first call, then drop all subsequent calls for `seconds`. Returns `[wrapped, cancel]`. */
+  cooldown: typeof cooldown,
+}
+" />
+
+## Examples
+
+### debounce
+
+Delay a save action until 2 seconds of silence after the last touch:
+
+```ts
+const [save, cancelSave] = debounce((id: UUID) => {
+  ll.Say(0, `saved ${id}`)
+}, 2)
+
+LLEvents.on("touch_start", (detected) => {
+  save(detected[0].getKey()) // resets the 2s timer each touch
+})
+```
+
+### throttle
+
+Rate-limit chat output to at most once per second:
+
+```ts
+const [say, cancelSay] = throttle((msg: string) => {
+  ll.Say(0, msg)
+}, 1)
+
+LLEvents.on("touch_start", () => {
+  say("touched!") // first fires immediately, trailing fires after 1s
+})
+```
+
+### cooldown
+
+Gate an activation action to once every 5 seconds, dropping any extra calls:
+
+```ts
+const [activate, cancelCooldown] = cooldown((id: UUID) => {
+  ll.Say(0, `activated by ${id}`)
+}, 5)
+
+LLEvents.on("touch_start", (detected) => {
+  activate(detected[0].getKey()) // fires once, then drops calls for 5s
+})
+```

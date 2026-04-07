@@ -3,5 +3,13 @@
   "description": "Shared runtime modules for SLua projects",
   "root": true,
   "icon": "Package",
-  "pages": ["---Introduction---", "index", "---Modules---", "config", "yield", "testing"]
+  "pages": [
+    "---Introduction---",
+    "index",
+    "---Modules---",
+    "config",
+    "utilities",
+    "yield",
+    "testing"
+  ]
 }

@@ -5,7 +5,7 @@ icon: BookOpen
 ---
 
 import { Cards, Card } from "fumadocs-ui/components/card"
-import { Settings, FlaskConical, Repeat } from "lucide-react"
+import { Settings, FlaskConical, Repeat, Timer } from "lucide-react"
 
 <Callout type="warn" title="Work in Progress">
   These modules are under active development and have not been battle-tested in production. APIs may
@@ -83,6 +83,12 @@ code is stripped. See each module's documentation for the available flags.
     href="/docs/modules/config"
     description="Typed notecard config with YAML and lljson parsers"
     icon={<Settings />}
+  />
+  <Card
+    title="utilities"
+    href="/docs/modules/utilities"
+    description="Rate-limiting primitives for debounce, throttle, and cooldown"
+    icon={<Timer />}
   />
   <Card
     title="yield"

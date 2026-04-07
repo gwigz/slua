@@ -288,7 +288,12 @@ function transpileBundledExample(def: ExampleDef): { ts: string; lua: string } {
     }
 
     if (d.category === ts.DiagnosticCategory.Error) {
-      console.error(`  Error: ${msg}`)
+      const file = d.file?.fileName ?? "unknown"
+      const line =
+        d.file && d.start !== undefined
+          ? ts.getLineAndCharacterOfPosition(d.file, d.start).line + 1
+          : "?"
+      console.error(`  Error [${file}:${line}]: ${msg}`)
     }
   }
 

@@ -224,3 +224,71 @@ Converts a string to a vector, returns nil if invalid
 ```ts
 function tovector(val: string | undefined | Vector): Vector | undefined
 ```
+
+## Plugin Globals
+
+These globals are provided by the [transpiler plugin](/docs/slua/transpiler-plugin) and are not part of the SLua runtime.
+
+### `castRay`
+
+```ts
+function castRay<const Opts extends CastRayParamOptions>(
+  start: Vector,
+  end: Vector,
+  options: Opts,
+): CastRayResult<Opts>
+```
+
+### `createCharacter`
+
+```ts
+function createCharacter(): CharacterParamBuilder
+```
+
+### `httpRequest`
+
+```ts
+function httpRequest(url: string, options: HttpParamOptions): UUID
+```
+
+### `linkParticleSystem`
+
+```ts
+function linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
+```
+
+### `particleSystem`
+
+```ts
+function particleSystem(): ParticleSystemParamBuilder
+```
+
+### `rezObjectWithParams`
+
+```ts
+function rezObjectWithParams(inventoryItem: string): RezParamBuilder
+```
+
+### `setCameraParams`
+
+```ts
+function setCameraParams(): CameraParamBuilder
+```
+
+### `setGltfOverrides`
+
+```ts
+function setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
+```
+
+### `setPrimParams`
+
+```ts
+function setPrimParams(linkNumber: number): PrimParamBuilder
+```
+
+### `updateCharacter`
+
+```ts
+function updateCharacter(): CharacterParamBuilder
+```

@@ -22,6 +22,18 @@ const TYPES_FILE = resolve(ROOT, "packages/types/index.d.ts")
 const OUTPUT_FILE = resolve(ROOT, "apps/web/content/docs/slua/api/globals.mdx")
 
 const SLUA_GLOBALS = new Set(["touuid", "tovector", "toquaternion", "torotation"])
+const PLUGIN_GLOBALS = new Set([
+  "castRay",
+  "createCharacter",
+  "httpRequest",
+  "linkParticleSystem",
+  "particleSystem",
+  "rezObjectWithParams",
+  "setCameraParams",
+  "setGltfOverrides",
+  "setPrimParams",
+  "updateCharacter",
+])
 const OMIT_GLOBALS = new Set<string>(["dangerouslyexecuterequiredmodule"])
 
 function escapeMdx(s: string): string {
@@ -94,7 +106,11 @@ function renderFunctions(fns: GlobalFunction[]): string[] {
   return lines
 }
 
-function generateMdx(luaFns: GlobalFunction[], sluaFns: GlobalFunction[]): string {
+function generateMdx(
+  luaFns: GlobalFunction[],
+  sluaFns: GlobalFunction[],
+  pluginFns: GlobalFunction[],
+): string {
   const lines: string[] = []
 
   lines.push(`---`)
@@ -110,6 +126,13 @@ function generateMdx(luaFns: GlobalFunction[], sluaFns: GlobalFunction[]): strin
   lines.push(`## SLua-specific Globals`)
   lines.push(``)
   lines.push(...renderFunctions(sluaFns))
+  lines.push(`## Plugin Globals`)
+  lines.push(``)
+  lines.push(
+    `These globals are provided by the [transpiler plugin](/docs/slua/transpiler-plugin) and are not part of the SLua runtime.`,
+  )
+  lines.push(``)
+  lines.push(...renderFunctions(pluginFns))
 
   return lines.join("\n")
 }
@@ -122,6 +145,7 @@ const allFunctions = sourceFile.getFunctions()
 
 const luaFns: GlobalFunction[] = []
 const sluaFns: GlobalFunction[] = []
+const pluginFns: GlobalFunction[] = []
 
 for (const fn of allFunctions) {
   const name = fn.getName()
@@ -136,6 +160,8 @@ for (const fn of allFunctions) {
 
   if (SLUA_GLOBALS.has(name)) {
     sluaFns.push(entry)
+  } else if (PLUGIN_GLOBALS.has(name)) {
+    pluginFns.push(entry)
   } else {
     luaFns.push(entry)
   }
@@ -144,12 +170,13 @@ for (const fn of allFunctions) {
 // Sort alphabetically
 luaFns.sort((a, b) => a.name.localeCompare(b.name))
 sluaFns.sort((a, b) => a.name.localeCompare(b.name))
+pluginFns.sort((a, b) => a.name.localeCompare(b.name))
 
 console.log(
-  `Parsed ${luaFns.length} Lua standard globals and ${sluaFns.length} SLua-specific globals`,
+  `Parsed ${luaFns.length} Lua standard globals, ${sluaFns.length} SLua-specific globals, and ${pluginFns.length} plugin globals`,
 )
 
-const mdx = generateMdx(luaFns, sluaFns)
+const mdx = generateMdx(luaFns, sluaFns, pluginFns)
 
 writeFileSync(OUTPUT_FILE, mdx)
 

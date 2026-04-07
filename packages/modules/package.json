@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-modules",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Shared runtime modules for SLua projects",
   "license": "MIT",
   "repository": {
@@ -33,7 +33,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@gwigz/slua-types": "^1.2.0"
+    "@gwigz/slua-types": "^1.4.0"
   },
   "peerDependencies": {
     "@typescript-to-lua/language-extensions": "^1.0.0"

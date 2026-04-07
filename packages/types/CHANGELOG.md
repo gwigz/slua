@@ -1,5 +1,23 @@
 # @gwigz/slua-types
 
+## 1.4.0
+
+### Minor Changes
+
+- [`f1decd2`](https://github.com/gwigz/slua/commit/f1decd288d7f3128b1e7ff0f66f7cda77ef8adae) Thanks [@gwigz](https://github.com/gwigz)! - add `setGltfOverrides` fluent builder for gltf material override parameter lists
+
+- [`02eb635`](https://github.com/gwigz/slua/commit/02eb635b9e7e595826f3ff5f7cefad42443405cb) Thanks [@gwigz](https://github.com/gwigz)! - BREAKING: replace `castRay` and `httpRequest` fluent builders with options-object overloads that compile to flat parameter lists at build time, enabling use as expressions
+
+- [`19fbb83`](https://github.com/gwigz/slua/commit/19fbb838ac5ab39353f0f144f05c8dc50627916c) Thanks [@gwigz](https://github.com/gwigz)! - BREAKING: prefix plugin globals with `$` to avoid collisions with user code (`setPrimParams` → `$setPrimParams`, `castRay` → `$castRay`, etc.)
+
+- [`7ecee67`](https://github.com/gwigz/slua/commit/7ecee67d1d9cc3721cd88034f6fd659917256e03) Thanks [@gwigz](https://github.com/gwigz)! - typed return tuples for getter functions based on flags passed in (`GetObjectDetails`, `GetParcelDetails`, `GetPrimitiveParams`, `GetLinkPrimitiveParams`, `GetPrimMediaParams`, `GetLinkMedia`, `ParcelMediaQuery`, `GetEnvironment`), plus fixed tuples for `GetExperienceDetails`, `DetectedDamage`, `GetPhysicsMaterial`, `GetParcelPrimOwners`
+
+### Patch Changes
+
+- [#24](https://github.com/gwigz/slua/pull/24) [`6d9a857`](https://github.com/gwigz/slua/commit/6d9a8570901c7c2ec4cb27fa7069bcd660ea66e1) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update SLua definitions submodule to latest upstream
+
+- [`bf54421`](https://github.com/gwigz/slua/commit/bf54421d2e299c6e8144f46e9614cfc0d118739d) Thanks [@gwigz](https://github.com/gwigz)! - compile-time constant folding for bitwise expressions with inline comment annotation
+
 ## 1.3.0
 
 ### Minor Changes

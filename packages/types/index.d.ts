@@ -321,7 +321,17 @@ declare type LLTimerOnceCallback = (this: void, scheduled: number) => void
 /** Union of timer callback types */
 declare type LLTimerCallback = LLTimerEveryCallback | LLTimerOnceCallback
 /** Date/time table structure used by os.date and os.time */
-declare type OsDateTime = {
+declare type DateTypeArg = {
+  year: number
+  month: number
+  day: number
+  hour?: number
+  min?: number
+  sec?: number
+  isdst?: boolean
+}
+/** Date/time table structure used by os.date and os.time */
+declare type DateTypeResult = {
   year: number
   month: number
   day: number
@@ -935,16 +945,16 @@ declare namespace os {
   export function clock(): number
 
   /** Returns a table or string representation of the time based on the provided format. */
-  export function date(s?: string, t?: number): string | OsDateTime | undefined
+  export function date(formatString?: string, t?: number): string
 
   /**
    * Returns the difference in seconds between two timestamps. Same as a - b.
    * @deprecated Same as a - b
    */
-  export function difftime(a: number, b?: number): number
+  export function difftime(a: number, b: number): number
 
   /** Returns the current Unix timestamp or the timestamp of the given date. */
-  export function time(t?: OsDateTime): number | undefined
+  export function time(time: DateTypeArg): number | undefined
 }
 
 /** Quaternion manipulation library. */
@@ -1362,7 +1372,7 @@ declare namespace ll {
 
   /**
    * Returns smallest integer value >= Value.
-   * @deprecated Use 'math.ceil' instead. Double precision; fastcall.
+   * @deprecated Use 'math.ceil' instead. Fastcall.
    */
   export function Ceil(value: number): number
 
@@ -1723,7 +1733,7 @@ declare namespace ll {
 
   /**
    * Returns largest integer value <= Value.
-   * @deprecated Use 'math.floor' instead. Double precision; fastcall.
+   * @deprecated Use 'math.floor' instead. Fastcall.
    */
   export function Floor(value: number): number
 
@@ -2917,14 +2927,14 @@ declare namespace ll {
   /**
    * Returns the natural logarithm of Value. Returns zero if Value <= 0.
    * Returns the base e (natural) logarithm of the specified Value.
-   * @deprecated Use 'math.log' instead. It's a fastcall.
+   * @deprecated Use 'math.log' instead. Double precision; fastcall.
    */
   export function Log(value: number): number
 
   /**
    * Returns the base 10 logarithm of Value. Returns zero if Value <= 0.
    * Returns the base 10 (common) logarithm of the specified Value.
-   * @deprecated Use 'math.log10' instead. It's a fastcall.
+   * @deprecated Use 'math.log10' instead. Double precision; fastcall.
    */
   export function Log10(value: number): number
 
@@ -3192,7 +3202,7 @@ declare namespace ll {
   /**
    * Returns the Value raised to the power Exponent, or returns 0 and triggers Math Error for imaginary results.
    * Returns the Value raised to the Exponent.
-   * @deprecated Use '^' instead. It's a fastcall.
+   * @deprecated Use '^' instead. Double precision; operator.
    */
   export function Pow(value: number, exponent: number): number
 
@@ -3479,18 +3489,21 @@ declare namespace ll {
   /**
    * Returns the forward vector defined by Rotation.
    * Returns the forward axis represented by the Rotation.
+   * @deprecated Use 'quaternion.tofwd' instead.
    */
   export function Rot2Fwd(rotation: Quaternion): Vector
 
   /**
    * Returns the left vector defined by Rotation.
    * Returns the left axis represented by the Rotation.
+   * @deprecated Use 'quaternion.toleft' instead.
    */
   export function Rot2Left(rotation: Quaternion): Vector
 
   /**
    * Returns the up vector defined by Rotation.
    * Returns the up axis represented by the Rotation.
+   * @deprecated Use 'quaternion.toup' instead.
    */
   export function Rot2Up(rotation: Quaternion): Vector
 
@@ -3528,7 +3541,7 @@ declare namespace ll {
   /**
    * Returns Value rounded to the nearest integer.
    * Returns the Value rounded to the nearest integer.
-   * @deprecated Use 'math.round' instead. It's a fastcall.
+   * @deprecated Use 'math.round' instead. Fastcall.
    */
   export function Round(value: number): number
 
@@ -4014,7 +4027,7 @@ declare namespace ll {
 
   /**
    * Returns the sine of Theta (Theta in radians).
-   * @deprecated Use 'math.sin' instead. It's a fastcall.
+   * @deprecated Use 'math.sin' instead. Double precision; fastcall.
    */
   export function Sin(theta: number): number
 
@@ -4044,7 +4057,7 @@ declare namespace ll {
   /**
    * Returns the square root of Value.
    * Triggers a math runtime error for imaginary results (if Value < 0.0).
-   * @deprecated Use 'math.sqrt' instead. It's a fastcall.
+   * @deprecated Use 'math.sqrt' instead. Double precision; fastcall.
    */
   export function Sqrt(value: number): number
 
@@ -4131,7 +4144,7 @@ declare namespace ll {
 
   /**
    * Returns the tangent of Theta (Theta in radians).
-   * @deprecated Use 'math.tan' instead. It's a fastcall.
+   * @deprecated Use 'math.tan' instead. Double precision; fastcall.
    */
   export function Tan(theta: number): number
 
@@ -4234,13 +4247,22 @@ declare namespace ll {
     originalValue: string,
   ): UUID
 
-  /** Returns the distance between Location1 and Location2. */
+  /**
+   * Returns the distance between Location1 and Location2.
+   * @deprecated Use 'vector.magnitude' instead. It's a fastcall.
+   */
   export function VecDist(location1: Vector, location2: Vector): number
 
-  /** Returns the magnitude of the vector. */
+  /**
+   * Returns the magnitude of the vector.
+   * @deprecated Use 'vector.magnitude' instead. It's a fastcall.
+   */
   export function VecMag(vector: Vector): number
 
-  /** Returns normalized vector. */
+  /**
+   * Returns normalized vector.
+   * @deprecated Use 'vector.normalize' instead. It's a fastcall.
+   */
   export function VecNorm(vector: Vector): Vector
 
   /** Returns TRUE if PublicKey, Message, and Algorithm produce the same base64-formatted Signature. */

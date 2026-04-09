@@ -409,6 +409,41 @@ declare const LLTimers: LLTimers
  */
 declare function dangerouslyexecuterequiredmodule(f: (this: void, ...args: any[]) => any[]): any[]
 /**
+ * Run the garbage collector
+ * @noSelf
+ */
+declare function collectgarbage(option?: "collect"): void
+/**
+ * Compile Luau code into a function.
+ * @noSelf
+ */
+declare function loadstring(src: string, chunkname?: string): any
+/**
+ * Get the scoped environment for the given function.
+ * @noSelf
+ */
+declare function getfenv(
+  target: ((this: void, ...args: any[]) => any[]) | number,
+): Record<string, any>
+/**
+ * Writes the contents of heap to the given file in JSON format. Intended to be used with tools/graphanalyze.py
+ * @noSelf
+ */
+declare function graphheap(path: string): void
+/**
+ * Writes the contents of user heap to the given file in JSON format. Intended to be used with tools/graphanalyze.py
+ * @noSelf
+ */
+declare function graphuserheap(path: string): void
+/**
+ * Set the scoped environment for the given function.
+ * @noSelf
+ */
+declare function setfenv(
+  target: ((this: void, ...args: any[]) => any[]) | number,
+  env: Record<string, any>,
+): void
+/**
  * Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.
  * @noSelf
  */
@@ -736,38 +771,6 @@ declare namespace debug {
 
   /** Returns a human-readable call stack starting from the specified level. */
   export function traceback(co: LuaThread, msg?: string, level?: number): string
-
-  /** Returns a table containing debug information about a function or stack frame. */
-  export function getinfo(
-    thread: LuaThread,
-    function_: ((this: void, ...args: any[]) => any[]) | number,
-    what: string,
-  ): Record<any, any>
-
-  /** Returns the name and value of a local variable at the specified stack level. */
-  export function getlocal(level: number, index: number): string | any
-
-  /** Sets the value of a local variable at the specified stack level. */
-  export function setlocal(level: number, index: number, value: any): boolean
-
-  /** Returns the name and value of an upvalue for a given function. */
-  export function getupvalue(
-    function_: (this: void, ...args: any[]) => any[],
-    index: number,
-  ): string | any
-
-  /** Sets the value of an upvalue for a given function. */
-  export function setupvalue(
-    function_: (this: void, ...args: any[]) => any[],
-    index: number,
-    value: any,
-  ): string
-
-  /** Returns the metatable of the given value, if any. */
-  export function getmetatable(value: any): Record<any, any> | undefined
-
-  /** Sets the metatable for a given value. */
-  export function setmetatable(value: any, metatable?: Record<any, any>): any
 }
 
 /** Base64 encoding/decoding library. */
@@ -1478,6 +1481,7 @@ declare namespace ll {
    * Remove a slice from the list and return the remainder, start and end are inclusive.
    * Using negative numbers for start and/or end causes the index to count backwards from the length of the list, so 0, -1 would delete the entire list.
    * If Start is larger than End the list deleted is the exclusion of the entries; so 6, 4 would delete the entire list except for the 5th list entry.
+   * @deprecated Use 'table.remove' instead. Unnecessary table copying.
    * @indexArg start
    * @indexArg end
    */
@@ -2766,6 +2770,7 @@ declare namespace ll {
    * Returns a subset of entries from ListVariable, in a range specified by the Start and End indicies (inclusive).
    * Using negative numbers for Start and/or End causes the index to count backwards from the length of the string, so 0, -1 would capture the entire string.
    * If Start is greater than End, the sub string is the exclusion of the entries.
+   * @deprecated Use 'unpack' (fastcall) or 'table.move' instead. Prefer structured tables over strided lists.
    * @indexArg start
    * @indexArg end
    */
@@ -2776,6 +2781,7 @@ declare namespace ll {
    *  Using negative numbers for Start and/or End causes the index to count backwards from the length of the list. (e.g. 0, -1 captures entire list)
    * If slice_index is less than 0, it is counted backwards from the end of the stride.
    *  Stride must be a positive integer > 0 or an empy list is returned.  If slice_index falls outside range of stride, an empty list is returned. slice_index is zero-based. (e.g. A stride of 2 has valid indices 0,1)
+   * @deprecated Prefer structured tables over strided lists.
    * @indexArg start
    * @indexArg end
    * @indexArg sliceIndex
@@ -2791,6 +2797,7 @@ declare namespace ll {
   /**
    * Copies the strided slice of the list from Start to End.
    * Returns a copy of the strided slice of the specified list from Start to End.
+   * @deprecated Prefer structured tables over strided lists.
    * @indexArg start
    * @indexArg end
    */
@@ -2827,12 +2834,14 @@ declare namespace ll {
 
   /**
    * Returns the first index where Find appears in ListVariable. Returns -1 if not found.
+   * @deprecated Use 'table.find' instead. Prefer dictionaries or single-item searches.
    * @indexReturn
    */
   export function ListFindList(listVariable: list, find: list): number | undefined
 
   /**
    * Returns the nth index where Find appears in ListVariable. Returns -1 if not found.
+   * @deprecated Use 'table.find' instead. Prefer dictionaries or single-item searches.
    * @indexArg instance
    * @indexReturn
    */
@@ -2844,6 +2853,7 @@ declare namespace ll {
 
   /**
    * Returns the first index (where Start <= index <= End) where Find appears in ListVariable. Steps through ListVariable by Stride.  Returns -1 if not found.
+   * @deprecated Prefer dictionary lookups over strided list searches.
    * @indexArg start
    * @indexArg end
    * @indexReturn
@@ -2859,6 +2869,7 @@ declare namespace ll {
   /**
    * Returns a list that contains all the elements from Target but with the elements from ListVariable inserted at Position start.
    * Returns a new list, created by inserting ListVariable into the Target list at Position. Note this does not alter the Target.
+   * @deprecated Use 'table.insert' instead. Unnecessary table copying. Fastcall.
    * @indexArg position
    */
   export function ListInsertList(target: T[], listVariable: T[], position: number): T[]
@@ -2872,6 +2883,7 @@ declare namespace ll {
   /**
    * Returns a list that is Target with Start through End removed and ListVariable inserted at Start.
    * Returns a list replacing the slice of the Target list from Start to End with the specified ListVariable. Start and End are inclusive, so 0, 1 would replace the first two entries and 0, 0 would replace only the first list entry.
+   * @deprecated Use 't[n] = x' instead. Unnecessary table copying.
    * @indexArg start
    * @indexArg end
    */
@@ -2882,6 +2894,7 @@ declare namespace ll {
 
   /**
    * Returns the specified list, sorted by the specified element into blocks of stride in ascending order (if Ascending is TRUE, otherwise descending). Note that sort only works if the first entry of each block is the same datatype.
+   * @deprecated Use 'table.sort' instead. Prefer structured tables over strided lists.
    * @indexArg sortkey
    */
   export function ListSortStrided(

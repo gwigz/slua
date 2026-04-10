@@ -176,9 +176,18 @@ export function requestInventoryData(item: string, timeout: number) {
 /**
  * Read a single notecard line and yield until the result arrives.
  *
+ * Uses sync reading when the notecard is already cached. Falls back
+ * to async reading via the dataserver when the cache returns NAK.
+ *
  * @define YIELD_DATASERVER_NOTECARD
  */
 export function readNotecardLine(name: string, line: number, timeout: number) {
+  const cached = ll.GetNotecardLineSync(name, line)
+
+  if (cached !== NAK) {
+    return $multi(true, cached) as YieldResult<string>
+  }
+
   return yieldDataserver(ll.GetNotecardLine(name, line), timeout)
 }
 
@@ -186,26 +195,37 @@ export function readNotecardLine(name: string, line: number, timeout: number) {
  * Read an entire notecard by fetching lines until EOF.
  * Returns an array of lines.
  *
- * The timeout applies per line, not for the entire read.
+ * Uses sync reading when the notecard is cached. If the notecard is
+ * not yet cached, yields once to force it into cache, then reads all
+ * remaining lines synchronously.
  *
  * @define YIELD_DATASERVER_NOTECARD
  */
-export function readNotecard(name: string, lineTimeout: number): YieldResult<string[]> {
-  const lines: string[] = []
+export function readNotecard(name: string, timeout: number): YieldResult<string[]> {
+  let lines: string[] = []
   let lineNum = 0
 
   while (true) {
-    const [ok, data] = readNotecardLine(name, lineNum, lineTimeout)
+    const line = ll.GetNotecardLineSync(name, lineNum)
 
-    if (!ok) {
-      return $multi(false, "timeout") as YieldResult<string[]>
+    if (line === NAK) {
+      const [ok] = yieldDataserver(ll.GetNotecardLine(name, 0), timeout)
+
+      if (!ok) {
+        return $multi(false, "timeout") as YieldResult<string[]>
+      }
+
+      lineNum = 0
+      lines = []
+
+      continue
     }
 
-    if (data === EOF) {
+    if (line === EOF) {
       break
     }
 
-    lines.push(data as string)
+    lines.push(line)
     lineNum++
   }
 

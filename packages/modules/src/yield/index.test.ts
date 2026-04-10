@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, spyOn } from "bun:test"
-import { setup, teardown, emit, tick, setCoroutineYieldValue } from "../testing"
+import { setup, teardown, emit, tick, notecard, setCoroutineYieldValue } from "../testing"
 import {
   spawn,
   waitFor,
@@ -232,46 +232,78 @@ describe("requestInventoryData", () => {
 })
 
 describe("readNotecardLine", () => {
-  it("yields and returns notecard line", () => {
+  it("returns cached line without yielding", () => {
+    notecard("notecard.txt", ["line 0", "line 1", "line 2"])
+
+    const result = readNotecardLine("notecard.txt", 1, 10) as any
+
+    expect(result).toEqual([true, "line 1"])
+  })
+
+  it("falls back to async when not cached", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "line content"])
-    const result = readNotecardLine("notecard.txt", 3, 10) as any
+    const result = readNotecardLine("uncached.txt", 0, 10) as any
 
     expect(result).toEqual([true, "line content"])
+  })
+
+  it("returns [false, 'timeout'] when not cached and async times out", () => {
+    spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
+    setCoroutineYieldValue([false, "timeout"])
+    const result = readNotecardLine("uncached.txt", 0, 10) as any
+
+    expect(result).toEqual([false, "timeout"])
   })
 })
 
 describe("readNotecard", () => {
-  it("reads lines until EOF", () => {
-    spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
-    let callCount = 0
-    const lines = ["line 1", "line 2", "line 3"]
-
-    spyOn(g.coroutine, "yield").mockImplementation(() => {
-      if (callCount < lines.length) {
-        return [true, lines[callCount++]]
-      }
-      return [true, EOF]
-    })
+  it("reads all lines from cache without yielding", () => {
+    notecard("notecard.txt", ["line 1", "line 2", "line 3"])
 
     const result = readNotecard("notecard.txt", 10) as any
     expect(result).toEqual([true, ["line 1", "line 2", "line 3"]])
   })
 
   it("returns empty array for empty notecard", () => {
-    spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
-    spyOn(g.coroutine, "yield").mockReturnValue([true, EOF])
+    notecard("empty.txt", [])
 
     const result = readNotecard("empty.txt", 10) as any
     expect(result).toEqual([true, []])
   })
 
-  it("returns [false, 'timeout'] on timeout", () => {
+  it("forces cache on NAK then retries sync", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
-    spyOn(g.coroutine, "yield").mockReturnValue([false, "timeout"])
+
+    let nakCount = 0
+    const lines = ["line 1", "line 2"]
+    const originalSync = g.ll.GetNotecardLineSync
+
+    g.ll.GetNotecardLineSync = (_name: string, lineNum: number) => {
+      if (nakCount === 0) {
+        nakCount++
+        return NAK
+      }
+      if (lineNum >= lines.length) return EOF
+      return lines[lineNum]
+    }
+
+    setCoroutineYieldValue([true, "line 1"])
 
     const result = readNotecard("notecard.txt", 10) as any
+    expect(result).toEqual([true, ["line 1", "line 2"]])
+
+    g.ll.GetNotecardLineSync = originalSync
+  })
+
+  it("returns [false, 'timeout'] when not cached and async times out", () => {
+    spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
+    setCoroutineYieldValue([false, "timeout"])
+
+    const result = readNotecard("uncached.txt", 10) as any
     expect(result).toEqual([false, "timeout"])
   })
 })

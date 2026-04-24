@@ -502,6 +502,35 @@ Constants must have numeric literal types (e.g. `declare const MASK: 256`, not `
 
 All bitwise operators are supported (`|`, `&`, `^`, `~`, `<<`, `>>`, `>>>`). Expressions with any non-constant operands fall through to the normal `bit32.*` calls.
 
+### `simplifyNilChecks`
+
+Rewrites `not (x ~= nil)` to `x == nil`. TSTL emits the negated form when double-negated null checks survive the AST (e.g. `!(x !== null)` in source), and the simplified form drops a `not`, a pair of parens, and matches hand-written Lua idiom.
+
+```typescript
+declare const x: string | null
+if (!(x !== null)) {
+  print("missing")
+}
+```
+
+Default output:
+
+```lua
+if not (x ~= nil) then
+    print("missing")
+end
+```
+
+Optimized output:
+
+```lua
+if x == nil then
+    print("missing")
+end
+```
+
+Only applies to `nil` comparisons — `not (x ~= 1)` and other non-nil inequalities are left alone.
+
 ## Keeping output small
 
 Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommendations for keeping output lean.

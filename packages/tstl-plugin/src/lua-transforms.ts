@@ -188,6 +188,102 @@ export function collapseDefaultParamNilChecks(file: lua.File): boolean {
 }
 
 /**
+ * Rewrite `not (x ~= nil)` to `x == nil`.
+ *
+ * TSTL emits `not (x ~= nil)` when double-negated null checks survive
+ * (e.g. `!(x !== null)` in source, or after folds that re-wrap an
+ * inequality). The simplified form saves a `not`, a pair of parens, and
+ * matches hand-written Lua idiom.
+ */
+export function simplifyNegatedInequality(file: lua.File): boolean {
+  let changed = false
+
+  function tryMatch(expr: lua.Expression): lua.Expression | undefined {
+    if (!lua.isUnaryExpression(expr)) return undefined
+    if (expr.operator !== lua.SyntaxKind.NotOperator) return undefined
+
+    let inner: lua.Expression = expr.operand
+    if (lua.isParenthesizedExpression(inner)) inner = inner.expression
+
+    if (
+      !lua.isBinaryExpression(inner) ||
+      inner.operator !== lua.SyntaxKind.InequalityOperator ||
+      !lua.isNilLiteral(inner.right)
+    ) {
+      return undefined
+    }
+
+    return lua.createBinaryExpression(inner.left, inner.right, lua.SyntaxKind.EqualityOperator)
+  }
+
+  function rewrite(expr: lua.Expression): lua.Expression {
+    // Descend first so inner `not (... ~= nil)` resolves before outer match.
+    if (lua.isBinaryExpression(expr)) {
+      expr.left = rewrite(expr.left)
+      expr.right = rewrite(expr.right)
+    } else if (lua.isUnaryExpression(expr)) {
+      expr.operand = rewrite(expr.operand)
+    } else if (lua.isParenthesizedExpression(expr)) {
+      expr.expression = rewrite(expr.expression)
+    } else if (lua.isConditionalExpression(expr)) {
+      expr.condition = rewrite(expr.condition)
+      expr.whenTrue = rewrite(expr.whenTrue)
+      expr.whenFalse = rewrite(expr.whenFalse)
+    } else if (lua.isCallExpression(expr)) {
+      expr.expression = rewrite(expr.expression) as typeof expr.expression
+      expr.params = expr.params.map(rewrite)
+    } else if (lua.isMethodCallExpression(expr)) {
+      expr.prefixExpression = rewrite(expr.prefixExpression) as typeof expr.prefixExpression
+      expr.params = expr.params.map(rewrite)
+    } else if (lua.isTableIndexExpression(expr)) {
+      expr.table = rewrite(expr.table) as typeof expr.table
+      expr.index = rewrite(expr.index)
+    } else if (lua.isTableExpression(expr)) {
+      for (const field of expr.fields) {
+        field.value = rewrite(field.value)
+        if (field.key) field.key = rewrite(field.key)
+      }
+    }
+    // FunctionExpression body is reached via walkBlocks below.
+
+    const replaced = tryMatch(expr)
+    if (replaced) {
+      changed = true
+      return replaced
+    }
+
+    return expr
+  }
+
+  walkBlocks(file, (statements) => {
+    for (const stmt of statements) {
+      if (lua.isVariableDeclarationStatement(stmt)) {
+        if (stmt.right) stmt.right = stmt.right.map(rewrite)
+      } else if (lua.isAssignmentStatement(stmt)) {
+        stmt.left = stmt.left.map((l) => rewrite(l) as lua.AssignmentLeftHandSideExpression)
+        stmt.right = stmt.right.map(rewrite)
+      } else if (lua.isIfStatement(stmt)) {
+        stmt.condition = rewrite(stmt.condition)
+      } else if (lua.isWhileStatement(stmt) || lua.isRepeatStatement(stmt)) {
+        stmt.condition = rewrite(stmt.condition)
+      } else if (lua.isForStatement(stmt)) {
+        stmt.controlVariableInitializer = rewrite(stmt.controlVariableInitializer)
+        stmt.limitExpression = rewrite(stmt.limitExpression)
+        if (stmt.stepExpression) stmt.stepExpression = rewrite(stmt.stepExpression)
+      } else if (lua.isForInStatement(stmt)) {
+        stmt.expressions = stmt.expressions.map(rewrite)
+      } else if (lua.isReturnStatement(stmt)) {
+        stmt.expressions = stmt.expressions.map(rewrite)
+      } else if (lua.isExpressionStatement(stmt)) {
+        stmt.expression = rewrite(stmt.expression)
+      }
+    }
+  })
+
+  return changed
+}
+
+/**
  * Shorten TSTL destructuring temp names: ____*_result_* -> _rN.
  * Two-pass: collect unique names in order, then rename all identifiers.
  */

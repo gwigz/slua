@@ -1119,6 +1119,42 @@ describe("optimize: defaultParams", () => {
   })
 })
 
+describe("optimize: simplifyNilChecks", () => {
+  it("rewrites `not (x ~= nil)` in an if condition", () => {
+    const lua = transpileOptimized(
+      "declare const x: string | null;\nif (!(x !== null)) { print('n') }",
+    )
+
+    expect(lua).toContain("if x == nil then")
+    expect(lua).not.toContain("not (x ~= nil)")
+  })
+
+  it("rewrites inside return expressions", () => {
+    const lua = transpileOptimized(
+      "declare const x: string | null;\nexport function f() { return !(x !== null) }",
+    )
+
+    expect(lua).toContain("return x == nil")
+    expect(lua).not.toContain("not (x ~= nil)")
+  })
+
+  it("leaves non-nil inequality untouched", () => {
+    const lua = transpileOptimized("declare const x: number;\nif (!(x !== 1)) { print('eq') }")
+
+    // `not (x ~= 1)` is left alone — only nil comparisons simplify.
+    expect(lua).toContain("not (x ~= 1)")
+  })
+
+  it("does not rewrite without simplifyNilChecks flag", () => {
+    const lua = transpileSimple(
+      "declare const x: string | null;\nif (!(x !== null)) { print('n') }",
+    )
+
+    expect(lua).toContain("not (x ~= nil)")
+    expect(lua).not.toContain("if x == nil then")
+  })
+})
+
 describe("passthrough arrow closures", () => {
   it("collapses () => fn() to fn when callee has zero params", () => {
     const lua = transpileSimple(

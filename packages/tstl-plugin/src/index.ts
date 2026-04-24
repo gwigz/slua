@@ -31,6 +31,7 @@ import {
   stripInternalJSDocTags,
   stripEmptyModuleBoilerplate,
   collapseDefaultParamNilChecks,
+  simplifyNegatedInequality,
   shortenTempNames,
   collapseFieldAccesses,
   inlineForwardDeclarations,
@@ -533,6 +534,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
         // Opt-in transforms
         if (opt.defaultParams) dirty = collapseDefaultParamNilChecks(file.luaAst) || dirty
+        if (opt.simplifyNilChecks) dirty = simplifyNegatedInequality(file.luaAst) || dirty
 
         if (opt.shortenTemps) {
           dirty = shortenTempNames(file.luaAst) || dirty

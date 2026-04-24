@@ -22,6 +22,8 @@ export interface OptimizeFlags {
   defaultParams?: boolean
   /** Fold compile-time constant bitwise expressions to a single number. */
   foldBitwise?: boolean
+  /** Rewrite `not (x ~= nil)` to `x == nil`. */
+  simplifyNilChecks?: boolean
 }
 
 export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
@@ -34,6 +36,7 @@ export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
   numericConcat: true,
   defaultParams: true,
   foldBitwise: true,
+  simplifyNilChecks: true,
 }
 
 /**

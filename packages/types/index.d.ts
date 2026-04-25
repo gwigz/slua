@@ -4864,9 +4864,16 @@ declare const KFM_REVERSE: 3
 declare const KFM_ROTATION: 1
 /** For use with KFM_DATA. */
 declare const KFM_TRANSLATION: 2
+/** Use a large brush size. */
+declare const LAND_BRUSH_LARGE: 2
+/** Use a medium brush size. */
+declare const LAND_BRUSH_MEDIUM: 1
+/** Use a small brush size */
+declare const LAND_BRUSH_SMALL: 0
 /**
  * Use a large brush size.
- * NOTE: This value is incorrect, a large brush should be 2.
+ * NOTE: This value is incorrect, a large brush should be 2. Use LAND_BRUSH_LARGE instead
+ * @deprecated Use 'LAND_BRUSH_LARGE' instead.
  */
 declare const LAND_LARGE_BRUSH: 3
 /** Action to level the land. */
@@ -4875,7 +4882,8 @@ declare const LAND_LEVEL: 0
 declare const LAND_LOWER: 2
 /**
  * Use a medium brush size.
- * NOTE: This value is incorrect, a medium brush should be 1.
+ * NOTE: This value is incorrect, a medium brush should be 1. Use LAND_BRUSH_MEDIUM instead
+ * @deprecated Use 'LAND_BRUSH_MEDIUM' instead.
  */
 declare const LAND_MEDIUM_BRUSH: 2
 declare const LAND_NOISE: 4
@@ -4884,7 +4892,8 @@ declare const LAND_RAISE: 1
 declare const LAND_REVERT: 5
 /**
  * Use a small brush size.
- * NOTE: This value is incorrect, a small brush should be 0.
+ * NOTE: This value is incorrect, a small brush should be 0. Use LAND_BRUSH_SMALL instead
+ * @deprecated Use 'LAND_BRUSH_SMALL' instead.
  */
 declare const LAND_SMALL_BRUSH: 1
 declare const LAND_SMOOTH: 3
@@ -5343,14 +5352,19 @@ declare const PRIM_HOLE_TRIANGLE: 48
 declare const PRIM_LINK_TARGET: 34
 /** [ PRIM_MATERIAL, integer PRIM_MATERIAL_* ] */
 declare const PRIM_MATERIAL: 2
+/** @deprecated Use 'DENSITY' instead. */
 declare const PRIM_MATERIAL_DENSITY: 1
 declare const PRIM_MATERIAL_FLESH: 4
+/** @deprecated Use 'FRICTION' instead. */
 declare const PRIM_MATERIAL_FRICTION: 2
 declare const PRIM_MATERIAL_GLASS: 2
+/** @deprecated Use 'GRAVITY_MULTIPLIER' instead. */
 declare const PRIM_MATERIAL_GRAVITY_MULTIPLIER: 8
+/** @deprecated Use 'PRIM_FULLBRIGHT' instead. */
 declare const PRIM_MATERIAL_LIGHT: 7
 declare const PRIM_MATERIAL_METAL: 1
 declare const PRIM_MATERIAL_PLASTIC: 5
+/** @deprecated Use 'RESTITUTION' instead. */
 declare const PRIM_MATERIAL_RESTITUTION: 4
 declare const PRIM_MATERIAL_RUBBER: 6
 declare const PRIM_MATERIAL_STONE: 0
@@ -5843,6 +5857,7 @@ declare const STATUS_BLOCK_GRAB: 64
 declare const STATUS_BLOCK_GRAB_OBJECT: 1024
 /** Argument(s) passed to function had a bounds error. */
 declare const STATUS_BOUNDS_ERROR: 1002
+/** @deprecated Not implemented. */
 declare const STATUS_CAST_SHADOWS: 512
 /**
  * Controls whether the object is returned to the owner's inventory if it wanders off the edge of the world.

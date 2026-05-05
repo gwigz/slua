@@ -100,6 +100,7 @@ export default function Playground() {
   const [initialCode] = useState(() => localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE)
   const [lua, setLua] = useState("")
   const [diagnostics, setDiagnostics] = useState<WorkerDiagnostic[]>([])
+  const [globalErrors, setGlobalErrors] = useState<WorkerDiagnostic[]>([])
   const [resetOpen, setResetOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<"typescript" | "lua">("typescript")
   const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 640px)").matches)
@@ -114,6 +115,38 @@ export default function Playground() {
     mq.addEventListener("change", handler)
 
     return () => mq.removeEventListener("change", handler)
+  }, [])
+
+  useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error("[playground] window error:", event.error ?? event.message)
+
+      const location = event.filename ? ` (${event.filename}:${event.lineno}:${event.colno})` : ""
+
+      setGlobalErrors((prev) => [
+        ...prev,
+        { message: `${event.message}${location}`, start: undefined, length: undefined },
+      ])
+    }
+
+    const handleRejection = (event: PromiseRejectionEvent) => {
+      console.error("[playground] unhandled rejection:", event.reason)
+
+      const reason = event.reason instanceof Error ? event.reason.message : String(event.reason)
+
+      setGlobalErrors((prev) => [
+        ...prev,
+        { message: `Unhandled rejection: ${reason}`, start: undefined, length: undefined },
+      ])
+    }
+
+    window.addEventListener("error", handleError)
+    window.addEventListener("unhandledrejection", handleRejection)
+
+    return () => {
+      window.removeEventListener("error", handleError)
+      window.removeEventListener("unhandledrejection", handleRejection)
+    }
   }, [])
 
   useEffect(() => {
@@ -344,9 +377,9 @@ export default function Playground() {
       )}
 
       {/* Diagnostics */}
-      {diagnostics.length > 0 && (
+      {(diagnostics.length > 0 || globalErrors.length > 0) && (
         <div className="shrink-0 max-h-36 overflow-y-auto border-t border-fd-border bg-fd-muted/40">
-          {diagnostics.map((d, i) => (
+          {[...diagnostics, ...globalErrors].map((d, i) => (
             <div
               key={i}
               className="flex items-start gap-2 px-4 py-1.5 text-xs font-mono text-red-400"

@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { PlaygroundErrorBoundary } from "~/components/playground-error-boundary"
 
 const Playground = dynamic(() => import("~/components/playground"), {
   ssr: false,
@@ -12,5 +13,9 @@ const Playground = dynamic(() => import("~/components/playground"), {
 })
 
 export function PlaygroundLoader() {
-  return <Playground />
+  return (
+    <PlaygroundErrorBoundary>
+      <Playground />
+    </PlaygroundErrorBoundary>
+  )
 }

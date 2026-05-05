@@ -7,6 +7,7 @@ const config = {
   serverExternalPackages: ["@takumi-rs/image-response", "shiki", "@shikijs/twoslash", "twoslash"],
   output: "export",
   reactStrictMode: true,
+  productionBrowserSourceMaps: true,
 }
 
 export default withMDX(config)

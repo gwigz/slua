@@ -121,7 +121,7 @@ export default defineConfig({
     outDir: resolve("public"),
     emptyOutDir: false,
     minify: true,
-    sourcemap: false,
+    sourcemap: true,
   },
   resolve: {
     dedupe: ["typescript", "typescript-to-lua"],

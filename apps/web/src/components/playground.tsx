@@ -17,6 +17,7 @@ import { Button } from "~/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
 import { PlaygroundTabs } from "~/components/playground-tabs"
 import { beforeMount as monacoBeforeMount } from "~/playground/monaco-setup"
+import { WORKER_VERSION } from "~/playground/generated/worker-version"
 import { EDITOR_OPTIONS, useMonacoTheme } from "~/playground/shared"
 import type { WorkerDiagnostic, WorkerResponse } from "~/playground/types"
 
@@ -150,7 +151,7 @@ export default function Playground() {
   }, [])
 
   useEffect(() => {
-    const worker = new Worker("/playground-worker.js")
+    const worker = new Worker(`/playground-worker.js?v=${WORKER_VERSION}`)
 
     worker.addEventListener("message", (event: MessageEvent<WorkerResponse>) => {
       setLua(event.data.lua)
@@ -158,7 +159,22 @@ export default function Playground() {
     })
 
     worker.addEventListener("error", (event: ErrorEvent) => {
-      setDiagnostics([{ message: event.message, start: undefined, length: undefined }])
+      console.error("[playground] worker error:", event)
+
+      const stack = event.error instanceof Error ? event.error.stack : undefined
+      const location =
+        event.filename && event.lineno !== undefined
+          ? ` (${event.filename}:${event.lineno}:${event.colno ?? 0})`
+          : ""
+
+      setDiagnostics([
+        {
+          message: `${event.message || "Worker error"}${location}`,
+          stack,
+          start: undefined,
+          length: undefined,
+        },
+      ])
     })
 
     workerRef.current = worker
@@ -387,7 +403,17 @@ export default function Playground() {
               <span className="shrink-0 opacity-60">
                 {d.start !== undefined ? `[${d.start}]` : ""}
               </span>
-              <span>{d.message}</span>
+              <span className="min-w-0 flex-1 wrap-break-word">
+                {d.message}
+                {d.stack && (
+                  <details className="mt-1 opacity-60">
+                    <summary className="cursor-pointer">Stack</summary>
+                    <pre className="mt-1 text-[10px] whitespace-pre-wrap wrap-break-word">
+                      {d.stack}
+                    </pre>
+                  </details>
+                )}
+              </span>
             </div>
           ))}
         </div>

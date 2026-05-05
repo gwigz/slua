@@ -15,6 +15,14 @@ Checks if the value is truthy; if not, raises an error with the optional message
 function assert<T>(value?: T, message?: string): T
 ```
 
+### `collectgarbage`
+
+Run the garbage collector
+
+```ts
+function collectgarbage(option?: "collect"): void
+```
+
 ### `error`
 
 Raises an error with the specified object and optional call stack level.
@@ -31,12 +39,36 @@ Returns the total heap size in kilobytes.
 function gcinfo(): number
 ```
 
+### `getfenv`
+
+Get the scoped environment for the given function.
+
+```ts
+function getfenv(target: ((this: void, ...args: any[]) => any[]) | number): Record<string, any>
+```
+
 ### `getmetatable`
 
 Returns the metatable for the specified object.
 
 ```ts
 function getmetatable(obj: any): Record<any, any> | undefined
+```
+
+### `graphheap`
+
+Writes the contents of heap to the given file in JSON format. Intended to be used with tools/graphanalyze.py
+
+```ts
+function graphheap(path: string): void
+```
+
+### `graphuserheap`
+
+Writes the contents of user heap to the given file in JSON format. Intended to be used with tools/graphanalyze.py
+
+```ts
+function graphuserheap(path: string): void
 ```
 
 ### `ipairs`
@@ -49,6 +81,14 @@ function ipairs<V>(
 ): LuaMultiReturn<
   [(this: void, arg0: V[], arg1: number) => LuaMultiReturn<[number | undefined, V]>, V[], number]
 >
+```
+
+### `loadstring`
+
+Compile Luau code into a function.
+
+```ts
+function loadstring(src: string, chunkname?: string): any
 ```
 
 ### `newproxy`
@@ -141,6 +181,17 @@ Returns a subset of arguments or the number of arguments.
 
 ```ts
 function select(i: string | number, args: any[]): any
+```
+
+### `setfenv`
+
+Set the scoped environment for the given function.
+
+```ts
+function setfenv(
+  target: ((this: void, ...args: any[]) => any[]) | number,
+  env: Record<string, any>,
+): void
 ```
 
 ### `setmetatable`

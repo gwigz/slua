@@ -21,6 +21,7 @@ export interface WorkerDiagnostic {
   message: string
   start: number | undefined
   length: number | undefined
+  stack?: string
 }
 
 export interface WorkerResponse {
@@ -87,9 +88,12 @@ self.addEventListener("message", (event: MessageEvent<string>) => {
 
     self.postMessage({ lua, diagnostics })
   } catch (err) {
+    const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    const stack = err instanceof Error ? err.stack : undefined
+
     self.postMessage({
       lua: "",
-      diagnostics: [{ message: String(err), start: undefined, length: undefined }],
+      diagnostics: [{ message, stack, start: undefined, length: undefined }],
     })
   }
 })

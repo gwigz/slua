@@ -20,22 +20,39 @@ const STRIP_TYPES_OPTIONS: ts.CompilerOptions = {
 export function createTsconfigResolverPlugin(options: ResolverOptions): Plugin {
   const { paths, baseUrl } = options
 
-  const matchers = Object.entries(paths)
-    .filter(([pattern]) => pattern.includes("*"))
-    .map(([pattern, substitutions]) => {
-      const starIndex = pattern.indexOf("*")
-      return {
+  const exactMatchers = new Map<string, string[]>()
+  const wildcardMatchers: Array<{
+    prefix: string
+    suffix: string
+    substitutions: string[]
+  }> = []
+
+  for (const [pattern, substitutions] of Object.entries(paths)) {
+    const starIndex = pattern.indexOf("*")
+    if (starIndex === -1) {
+      exactMatchers.set(pattern, substitutions)
+    } else {
+      wildcardMatchers.push({
         prefix: pattern.substring(0, starIndex),
         suffix: pattern.substring(starIndex + 1),
         substitutions,
-      }
-    })
+      })
+    }
+  }
 
   return {
     name: "tsconfig-resolver",
 
     resolveId(source, importer) {
-      for (const { prefix, suffix, substitutions } of matchers) {
+      const exact = exactMatchers.get(source)
+      if (exact) {
+        for (const sub of exact) {
+          const full = join(baseUrl, sub)
+          if (ts.sys.fileExists(full)) return full
+        }
+      }
+
+      for (const { prefix, suffix, substitutions } of wildcardMatchers) {
         if (source.startsWith(prefix) && source.endsWith(suffix)) {
           const wildcard = source.slice(prefix.length, source.length - suffix.length || undefined)
 

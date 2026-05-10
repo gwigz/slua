@@ -35,7 +35,7 @@ export function unused() { return unusedHelper() }
     expect(result).not.toContain("function unused")
   })
 
-  it("preserves import statements", () => {
+  it("preserves import statements when their bindings are referenced by survivors", () => {
     const source = `
 import { something } from "./other"
 export function keep() { return something() }
@@ -45,6 +45,75 @@ export function remove() { return 1 }
     expect(result).toContain("import")
     expect(result).toContain("keep")
     expect(result).not.toContain("function remove")
+  })
+
+  it("drops imports whose bindings are no longer referenced after stripping", () => {
+    const source = `
+import { used } from "./live"
+import { dead } from "./gone"
+import type { DeadType } from "./gone-type"
+export function keep() { return used() }
+export function remove(): DeadType { return dead() as DeadType }
+`
+    const result = stripDeadExports(source, new Set(["keep"]))
+    expect(result).toContain('from "./live"')
+    expect(result).not.toContain('from "./gone"')
+    expect(result).not.toContain('from "./gone-type"')
+    expect(result).not.toContain("function remove")
+  })
+
+  it("preserves side-effect-only imports", () => {
+    const source = `
+import "./side-effect"
+export function keep() { return 1 }
+`
+    const result = stripDeadExports(source, new Set(["keep"]))
+    expect(result).toContain('import "./side-effect"')
+  })
+
+  it("narrows multi-name re-exports to surviving names", () => {
+    const source = `
+export { alive, dead } from "./target"
+export { aliveToo } from "./other"
+`
+    const result = stripDeadExports(source, new Set(["alive", "aliveToo"]))
+    expect(result).toContain("alive")
+    expect(result).toContain("aliveToo")
+    expect(result).not.toContain("dead")
+  })
+
+  it("drops a re-export entirely when none of its names survive", () => {
+    const source = `
+export { a, b } from "./gone"
+export { c } from "./live"
+`
+    const result = stripDeadExports(source, new Set(["c"]))
+    expect(result).not.toContain('"./gone"')
+    expect(result).toContain('"./live"')
+  })
+
+  it("preserves type-only specifiers when narrowing a mixed clause", () => {
+    // Rollup feeds shake type-stripped sources, so type names never appear in
+    // the reachability set — they must be preserved unconditionally.
+    const source = `
+export { alive, dead, type Alive, type Dead } from "./target"
+`
+    const result = stripDeadExports(source, new Set(["alive"]))
+    expect(result).toContain("alive")
+    expect(result).toContain("Alive")
+    expect(result).toContain("Dead")
+    expect(result).not.toMatch(/\bdead\b(?! from)/)
+  })
+
+  it("preserves type-only export declarations entirely", () => {
+    const source = `
+export type { A, B } from "./types"
+export { keep } from "./live"
+`
+    const result = stripDeadExports(source, new Set(["keep"]))
+    expect(result).toContain("type")
+    expect(result).toContain("A")
+    expect(result).toContain("B")
   })
 })
 
@@ -92,6 +161,24 @@ describe("shakeModules", () => {
     expect(surviving.has("add")).toBe(true)
     expect(surviving.has("multiply")).toBe(true)
     expect(surviving.has("subtract")).toBe(true)
+  })
+})
+
+describe("shakeModules exact-match paths", () => {
+  it("resolves a non-wildcard path entry through the rollup resolver", async () => {
+    const result = await shakeModules({
+      entry: [resolve(FIXTURES, "shake-entry-exact.ts")],
+      tsconfig: resolve(FIXTURES, "tsconfig.shake-exact.json"),
+    })
+
+    const helpersFile = [...result.survivingExports.keys()].find((f) =>
+      f.includes("internal/helpers"),
+    )
+    expect(helpersFile).toBeDefined()
+
+    const surviving = result.survivingExports.get(helpersFile!)!
+    expect(surviving.has("double")).toBe(true)
+    expect(surviving.has("triple")).toBe(false)
   })
 })
 

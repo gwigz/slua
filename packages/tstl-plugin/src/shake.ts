@@ -2,6 +2,8 @@ import * as ts from "typescript"
 import { resolve, dirname } from "node:path"
 import { createTsconfigResolverPlugin } from "./shake-plugin.js"
 
+export { stripDeadExports } from "./shake-strip.js"
+
 export interface ShakeOptions {
   /** Entry file paths (same files you'd pass as luaBundleEntry). */
   entry: string[]

@@ -9,6 +9,7 @@ import {
   transpileFull as transpile,
   transpileOptimized,
   transpileWithDefine,
+  transpileWithOptimize,
   initFull,
 } from "./helpers"
 
@@ -920,8 +921,11 @@ describe("optimize: indexOf", () => {
 })
 
 describe("optimize: shortenTemps", () => {
+  const transpileShortenTemps = (code: string) =>
+    transpileWithOptimize(code, { shortenTemps: true })
+
   it("shortens destructured return temp names", () => {
-    const lua = transpileOptimized(
+    const lua = transpileShortenTemps(
       "declare function fn(): { a: number, b: number };\nconst { a, b } = fn()",
     )
 
@@ -930,7 +934,7 @@ describe("optimize: shortenTemps", () => {
   })
 
   it("assigns distinct short names for multiple destructured calls", () => {
-    const lua = transpileOptimized(
+    const lua = transpileShortenTemps(
       "declare function fn(): { a: number, b: number };\ndeclare function gn(): { c: number, d: number };\nconst { a, b } = fn();\nconst { c, d } = gn()",
     )
 
@@ -950,13 +954,13 @@ describe("optimize: shortenTemps", () => {
   })
 
   it("does not affect non-destructured code", () => {
-    const lua = transpileOptimized("declare function fn(): number;\nconst x = fn()")
+    const lua = transpileShortenTemps("declare function fn(): number;\nconst x = fn()")
 
     expect(lua).not.toContain("_r0")
   })
 
   it("collapses consecutive field accesses into multi-assignment", () => {
-    const lua = transpileOptimized(
+    const lua = transpileShortenTemps(
       "declare function fn(): { a: number, b: number };\nfunction test() { const { a, b } = fn(); return a + b }",
     )
 
@@ -964,7 +968,7 @@ describe("optimize: shortenTemps", () => {
   })
 
   it("collapses three or more fields", () => {
-    const lua = transpileOptimized(
+    const lua = transpileShortenTemps(
       "declare function fn(): { a: number, b: number, c: string };\nfunction test() { const { a, b, c } = fn(); return a }",
     )
 
@@ -972,7 +976,7 @@ describe("optimize: shortenTemps", () => {
   })
 
   it("does not collapse single field access", () => {
-    const lua = transpileOptimized(
+    const lua = transpileShortenTemps(
       "declare function fn(): { a: number, b: number };\nfunction test() { const { a } = fn(); return a }",
     )
 
@@ -1011,6 +1015,45 @@ describe("optimize: inlineLocals", () => {
 
     expect(lua).toMatch(/^\s*local x\s*$/m)
     expect(lua).not.toContain("local x = 5")
+  })
+})
+
+describe("optimize: minifyNames", () => {
+  it("renames locals and parameters while preserving property names", () => {
+    const lua = transpileWithOptimize(
+      "function test(longName: { value: number }, otherValue: number) { const resultValue = longName.value + otherValue; return resultValue }",
+      { minifyNames: true },
+    )
+
+    expect(lua).toContain("function test(a, b)")
+    expect(lua).toContain("local c = a.value + b")
+    expect(lua).toContain("return c")
+    expect(lua).toContain(".value")
+    expect(lua).not.toContain("longName")
+    expect(lua).not.toContain("otherValue")
+    expect(lua).not.toContain("resultValue")
+  })
+
+  it("does not rename globals or method names", () => {
+    const lua = transpileWithOptimize(
+      "declare namespace ll { function Say(channel: number, message: string): void }\nfunction test(messageText: string) { ll.Say(0, messageText) }",
+      { minifyNames: true },
+    )
+
+    expect(lua).toContain("ll.Say(0, a)")
+    expect(lua).toContain("function test(a)")
+    expect(lua).not.toContain("messageText")
+  })
+
+  it("preserves references before a local declaration", () => {
+    const lua = transpileWithOptimize(
+      "declare const value: number;\nfunction test() { const before = value; { const value = 2; const after = value; return after } return before }",
+      { minifyNames: true },
+    )
+
+    expect(lua).toContain("local a = value")
+    expect(lua).toContain("local a = 2")
+    expect(lua).toContain("local b = a")
   })
 })
 

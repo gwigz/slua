@@ -4,11 +4,10 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "generate": "bun src/index.ts",
+    "generate": "bun generate.ts",
     "test": "bun test"
   },
   "dependencies": {
-    "commander": "^14.0.3",
     "js-yaml": "^4.1.0",
     "ts-morph": "^28.0.0"
   },

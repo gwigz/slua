@@ -11,7 +11,7 @@
     "build": "bun run --filter '@gwigz/slua-tstl-plugin' build",
     "build:examples": "bun run build && bun run --filter '@gwigz/slua-example-*' build",
     "test": "bun test packages/ tools/",
-    "generate": "bun tools/gen-types/src/index.ts refs/lsl-definitions/slua_definitions.yaml refs/lsl-definitions/lsl_definitions.yaml --typed-list-params refs/typed-list-params.json -o packages/types/index.d.ts --builder-data packages/tstl-plugin/src/generated/builder-data.ts && oxfmt --write packages/types/index.d.ts packages/tstl-plugin/src/generated/builder-data.ts",
+    "generate": "bun tools/gen-types/generate.ts",
     "scrape": "bun run --filter '@gwigz/slua-scrape-wiki' scrape",
     "generate:docs": "bun tools/gen-api-docs/generate-ll.ts",
     "lint": "oxlint",

@@ -35,6 +35,7 @@ import {
   shortenTempNames,
   collapseFieldAccesses,
   inlineForwardDeclarations,
+  minifyLocalNames,
 } from "./lua-transforms.js"
 
 import type { ProcessedFile } from "typescript-to-lua"
@@ -542,6 +543,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         }
 
         if (opt.inlineLocals) dirty = inlineForwardDeclarations(file.luaAst) || dirty
+        if (opt.minifyNames) dirty = minifyLocalNames(file.luaAst) || dirty
 
         // Re-print if AST was modified
         if (dirty) {

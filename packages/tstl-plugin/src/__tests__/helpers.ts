@@ -151,6 +151,19 @@ export function transpileOptimized(code: string) {
   return result.code
 }
 
+export function transpileWithOptimize(
+  code: string,
+  optimize: boolean | import("../optimize").OptimizeFlags,
+) {
+  const optPlugin = createPlugin({ optimize })
+  const optOptions: tstl.CompilerOptions = {
+    ...simpleOptions,
+    luaPlugins: [{ plugin: optPlugin as tstl.Plugin }],
+  }
+
+  return transpileWith({ "main.ts": code }, optOptions, undefined).code
+}
+
 // Full transpile, includes SLua types + language extensions
 let fullOldProgram: ts.Program | undefined
 

@@ -24,6 +24,8 @@ export interface OptimizeFlags {
   foldBitwise?: boolean
   /** Rewrite `not (x ~= nil)` to `x == nil`. */
   simplifyNilChecks?: boolean
+  /** Rename local variables, local functions, and parameters to short names. */
+  minifyNames?: boolean
 }
 
 export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
@@ -37,6 +39,7 @@ export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
   defaultParams: true,
   foldBitwise: true,
   simplifyNilChecks: true,
+  minifyNames: false,
 }
 
 /**

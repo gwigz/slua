@@ -1,6 +1,7 @@
 import * as ts from "typescript"
 import * as lua from "typescript-to-lua"
 import { walkBlocks, walkIdentifiers, containsIdentifier } from "./lua-ast-walk.js"
+import { SLUA_GLOBAL_NAMES } from "./generated/slua-globals.js"
 
 const JSDOC_TAG_RE = /@(?:index(?:Arg|Return)|define)\b/
 
@@ -468,4 +469,408 @@ export function inlineForwardDeclarations(file: lua.File): boolean {
   })
 
   return changed
+}
+
+type MinifyScope = {
+  parent?: MinifyScope
+  originals: Set<string>
+  active: Set<string>
+  aliases: Map<string, string>
+  used: Set<string>
+  nextName: number
+}
+
+const LUA_RESERVED_NAMES = new Set([
+  "and",
+  "break",
+  "do",
+  "else",
+  "elseif",
+  "end",
+  "false",
+  "for",
+  "function",
+  "goto",
+  "if",
+  "in",
+  "local",
+  "nil",
+  "not",
+  "or",
+  "repeat",
+  "return",
+  "then",
+  "true",
+  "until",
+  "while",
+])
+
+const MINIFY_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+/** Rename Lua locals, params and loop variables while preserving lexical resolution. */
+export function minifyLocalNames(file: lua.File): boolean {
+  const blockNames = new WeakMap<object, Set<string>>()
+  collectBlockLocalNames(file, blockNames)
+  const root = createMinifyScope(undefined, blockNames.get(file) ?? new Set())
+  return rewriteBlockNames(file, root, blockNames, false)
+}
+
+function collectBlockLocalNames(
+  block: { statements: lua.Statement[] },
+  out: WeakMap<object, Set<string>>,
+): void {
+  const names = getBlockNameSet(block, out)
+  for (const stmt of block.statements) {
+    collectStatementLocalNames(stmt, names, out)
+  }
+}
+
+function collectStatementLocalNames(
+  stmt: lua.Statement,
+  names: Set<string>,
+  out: WeakMap<object, Set<string>>,
+): void {
+  if (lua.isVariableDeclarationStatement(stmt)) {
+    for (const id of stmt.left) names.add(id.text)
+    if (stmt.right) {
+      for (const expr of stmt.right) collectExpressionLocalNames(expr, out)
+    }
+    return
+  }
+
+  if (lua.isAssignmentStatement(stmt)) {
+    for (const expr of stmt.left) collectExpressionLocalNames(expr, out)
+    for (const expr of stmt.right) collectExpressionLocalNames(expr, out)
+    return
+  }
+
+  if (lua.isIfStatement(stmt)) {
+    collectExpressionLocalNames(stmt.condition, out)
+    collectBlockLocalNames(stmt.ifBlock, out)
+    if (stmt.elseBlock) {
+      if (lua.isIfStatement(stmt.elseBlock)) {
+        collectStatementLocalNames(stmt.elseBlock, new Set(), out)
+      } else {
+        collectBlockLocalNames(stmt.elseBlock, out)
+      }
+    }
+    return
+  }
+
+  if (lua.isDoStatement(stmt)) {
+    collectBlockLocalNames(stmt, out)
+    return
+  }
+
+  if (lua.isForStatement(stmt)) {
+    collectExpressionLocalNames(stmt.controlVariableInitializer, out)
+    collectExpressionLocalNames(stmt.limitExpression, out)
+    if (stmt.stepExpression) collectExpressionLocalNames(stmt.stepExpression, out)
+    const bodyNames = getBlockNameSet(stmt.body, out)
+    bodyNames.add(stmt.controlVariable.text)
+    collectBlockLocalNames(stmt.body, out)
+    return
+  }
+
+  if (lua.isForInStatement(stmt)) {
+    for (const expr of stmt.expressions) collectExpressionLocalNames(expr, out)
+    const bodyNames = getBlockNameSet(stmt.body, out)
+    for (const id of stmt.names) bodyNames.add(id.text)
+    collectBlockLocalNames(stmt.body, out)
+    return
+  }
+
+  if (lua.isWhileStatement(stmt) || lua.isRepeatStatement(stmt)) {
+    collectExpressionLocalNames(stmt.condition, out)
+    collectBlockLocalNames(stmt.body, out)
+    return
+  }
+
+  if (lua.isReturnStatement(stmt)) {
+    for (const expr of stmt.expressions) collectExpressionLocalNames(expr, out)
+    return
+  }
+
+  if (lua.isExpressionStatement(stmt)) {
+    collectExpressionLocalNames(stmt.expression, out)
+  }
+}
+
+function collectExpressionLocalNames(
+  expr: lua.Expression,
+  out: WeakMap<object, Set<string>>,
+): void {
+  if (lua.isFunctionExpression(expr)) {
+    const names = getBlockNameSet(expr.body, out)
+    for (const param of expr.params ?? []) names.add(param.text)
+    collectBlockLocalNames(expr.body, out)
+    return
+  }
+
+  if (lua.isBinaryExpression(expr)) {
+    collectExpressionLocalNames(expr.left, out)
+    collectExpressionLocalNames(expr.right, out)
+  } else if (lua.isUnaryExpression(expr)) {
+    collectExpressionLocalNames(expr.operand, out)
+  } else if (lua.isParenthesizedExpression(expr)) {
+    collectExpressionLocalNames(expr.expression, out)
+  } else if (lua.isConditionalExpression(expr)) {
+    collectExpressionLocalNames(expr.condition, out)
+    collectExpressionLocalNames(expr.whenTrue, out)
+    collectExpressionLocalNames(expr.whenFalse, out)
+  } else if (lua.isCallExpression(expr)) {
+    collectExpressionLocalNames(expr.expression, out)
+    for (const param of expr.params) collectExpressionLocalNames(param, out)
+  } else if (lua.isMethodCallExpression(expr)) {
+    collectExpressionLocalNames(expr.prefixExpression, out)
+    for (const param of expr.params) collectExpressionLocalNames(param, out)
+  } else if (lua.isTableIndexExpression(expr)) {
+    collectExpressionLocalNames(expr.table, out)
+    collectExpressionLocalNames(expr.index, out)
+  } else if (lua.isTableExpression(expr)) {
+    for (const field of expr.fields) {
+      collectExpressionLocalNames(field.value, out)
+      if (field.key) collectExpressionLocalNames(field.key, out)
+    }
+  } else if (lua.isTableFieldExpression(expr)) {
+    collectExpressionLocalNames(expr.value, out)
+    if (expr.key) collectExpressionLocalNames(expr.key, out)
+  }
+}
+
+function getBlockNameSet(block: object, out: WeakMap<object, Set<string>>): Set<string> {
+  let names = out.get(block)
+  if (names === undefined) {
+    names = new Set()
+    out.set(block, names)
+  }
+  return names
+}
+
+function createMinifyScope(parent: MinifyScope | undefined, originals: Set<string>): MinifyScope {
+  return {
+    parent,
+    originals,
+    active: new Set(),
+    aliases: new Map(),
+    used: new Set(originals),
+    nextName: 0,
+  }
+}
+
+function rewriteBlockNames(
+  block: { statements: lua.Statement[] },
+  scope: MinifyScope,
+  blockNames: WeakMap<object, Set<string>>,
+  activateExisting: boolean,
+): boolean {
+  let changed = false
+  if (activateExisting) {
+    for (const name of scope.originals) {
+      activateMinifiedName(name, scope)
+    }
+  }
+  for (const stmt of block.statements) {
+    changed = rewriteStatementNames(stmt, scope, blockNames) || changed
+  }
+  return changed
+}
+
+function rewriteStatementNames(
+  stmt: lua.Statement,
+  scope: MinifyScope,
+  blockNames: WeakMap<object, Set<string>>,
+): boolean {
+  let changed = false
+
+  if (lua.isVariableDeclarationStatement(stmt)) {
+    if (stmt.right) {
+      for (const expr of stmt.right)
+        changed = rewriteExpressionNames(expr, scope, blockNames) || changed
+    }
+    for (const id of stmt.left) changed = activateIdentifier(id, scope) || changed
+  } else if (lua.isAssignmentStatement(stmt)) {
+    for (const expr of stmt.left)
+      changed = rewriteExpressionNames(expr, scope, blockNames) || changed
+    for (const expr of stmt.right)
+      changed = rewriteExpressionNames(expr, scope, blockNames) || changed
+  } else if (lua.isIfStatement(stmt)) {
+    changed = rewriteExpressionNames(stmt.condition, scope, blockNames) || changed
+    changed =
+      rewriteBlockNames(
+        stmt.ifBlock,
+        createMinifyScope(scope, blockNames.get(stmt.ifBlock) ?? new Set()),
+        blockNames,
+        false,
+      ) || changed
+    if (stmt.elseBlock) {
+      if (lua.isIfStatement(stmt.elseBlock)) {
+        changed = rewriteStatementNames(stmt.elseBlock, scope, blockNames) || changed
+      } else {
+        changed =
+          rewriteBlockNames(
+            stmt.elseBlock,
+            createMinifyScope(scope, blockNames.get(stmt.elseBlock) ?? new Set()),
+            blockNames,
+            false,
+          ) || changed
+      }
+    }
+  } else if (lua.isDoStatement(stmt)) {
+    changed =
+      rewriteBlockNames(
+        stmt,
+        createMinifyScope(scope, blockNames.get(stmt) ?? new Set()),
+        blockNames,
+        false,
+      ) || changed
+  } else if (lua.isForStatement(stmt)) {
+    changed = rewriteExpressionNames(stmt.controlVariableInitializer, scope, blockNames) || changed
+    changed = rewriteExpressionNames(stmt.limitExpression, scope, blockNames) || changed
+    if (stmt.stepExpression)
+      changed = rewriteExpressionNames(stmt.stepExpression, scope, blockNames) || changed
+    const bodyScope = createMinifyScope(scope, blockNames.get(stmt.body) ?? new Set())
+    changed = activateIdentifier(stmt.controlVariable, bodyScope) || changed
+    changed = rewriteBlockNames(stmt.body, bodyScope, blockNames, false) || changed
+  } else if (lua.isForInStatement(stmt)) {
+    for (const expr of stmt.expressions)
+      changed = rewriteExpressionNames(expr, scope, blockNames) || changed
+    const bodyScope = createMinifyScope(scope, blockNames.get(stmt.body) ?? new Set())
+    for (const id of stmt.names) changed = activateIdentifier(id, bodyScope) || changed
+    changed = rewriteBlockNames(stmt.body, bodyScope, blockNames, false) || changed
+  } else if (lua.isWhileStatement(stmt) || lua.isRepeatStatement(stmt)) {
+    changed = rewriteExpressionNames(stmt.condition, scope, blockNames) || changed
+    changed =
+      rewriteBlockNames(
+        stmt.body,
+        createMinifyScope(scope, blockNames.get(stmt.body) ?? new Set()),
+        blockNames,
+        false,
+      ) || changed
+  } else if (lua.isReturnStatement(stmt)) {
+    for (const expr of stmt.expressions)
+      changed = rewriteExpressionNames(expr, scope, blockNames) || changed
+  } else if (lua.isExpressionStatement(stmt)) {
+    changed = rewriteExpressionNames(stmt.expression, scope, blockNames) || changed
+  }
+
+  return changed
+}
+
+function rewriteExpressionNames(
+  expr: lua.Expression,
+  scope: MinifyScope,
+  blockNames: WeakMap<object, Set<string>>,
+): boolean {
+  let changed = false
+
+  if (lua.isIdentifier(expr)) {
+    const alias = resolveMinifiedName(expr.text, scope)
+    if (alias !== undefined && alias !== expr.text) {
+      expr.text = alias
+      return true
+    }
+    return false
+  }
+
+  if (lua.isFunctionExpression(expr)) {
+    const fnScope = createMinifyScope(scope, blockNames.get(expr.body) ?? new Set())
+    for (const param of expr.params ?? []) changed = activateIdentifier(param, fnScope) || changed
+    return rewriteBlockNames(expr.body, fnScope, blockNames, false) || changed
+  }
+
+  if (lua.isBinaryExpression(expr)) {
+    changed = rewriteExpressionNames(expr.left, scope, blockNames) || changed
+    changed = rewriteExpressionNames(expr.right, scope, blockNames) || changed
+  } else if (lua.isUnaryExpression(expr)) {
+    changed = rewriteExpressionNames(expr.operand, scope, blockNames) || changed
+  } else if (lua.isParenthesizedExpression(expr)) {
+    changed = rewriteExpressionNames(expr.expression, scope, blockNames) || changed
+  } else if (lua.isConditionalExpression(expr)) {
+    changed = rewriteExpressionNames(expr.condition, scope, blockNames) || changed
+    changed = rewriteExpressionNames(expr.whenTrue, scope, blockNames) || changed
+    changed = rewriteExpressionNames(expr.whenFalse, scope, blockNames) || changed
+  } else if (lua.isCallExpression(expr)) {
+    changed = rewriteExpressionNames(expr.expression, scope, blockNames) || changed
+    for (const param of expr.params)
+      changed = rewriteExpressionNames(param, scope, blockNames) || changed
+  } else if (lua.isMethodCallExpression(expr)) {
+    changed = rewriteExpressionNames(expr.prefixExpression, scope, blockNames) || changed
+    for (const param of expr.params)
+      changed = rewriteExpressionNames(param, scope, blockNames) || changed
+  } else if (lua.isTableIndexExpression(expr)) {
+    changed = rewriteExpressionNames(expr.table, scope, blockNames) || changed
+    changed = rewriteExpressionNames(expr.index, scope, blockNames) || changed
+  } else if (lua.isTableExpression(expr)) {
+    for (const field of expr.fields) {
+      changed = rewriteExpressionNames(field.value, scope, blockNames) || changed
+      if (field.key) changed = rewriteExpressionNames(field.key, scope, blockNames) || changed
+    }
+  } else if (lua.isTableFieldExpression(expr)) {
+    changed = rewriteExpressionNames(expr.value, scope, blockNames) || changed
+    if (expr.key) changed = rewriteExpressionNames(expr.key, scope, blockNames) || changed
+  }
+
+  return changed
+}
+
+function activateIdentifier(id: lua.Identifier, scope: MinifyScope): boolean {
+  const before = id.text
+  id.text = activateMinifiedName(id.text, scope)
+  return id.text !== before
+}
+
+function activateMinifiedName(name: string, scope: MinifyScope): string {
+  scope.active.add(name)
+  if (
+    name === "_" ||
+    name.length <= 1 ||
+    LUA_RESERVED_NAMES.has(name) ||
+    name.startsWith("____exports")
+  ) {
+    return name
+  }
+
+  let alias = scope.aliases.get(name)
+  if (alias !== undefined) return alias
+
+  alias = nextMinifiedName(scope)
+  scope.aliases.set(name, alias)
+  return alias
+}
+
+function resolveMinifiedName(name: string, scope: MinifyScope): string | undefined {
+  let current: MinifyScope | undefined = scope
+  while (current !== undefined) {
+    if (current.active.has(name)) return current.aliases.get(name) ?? name
+    current = current.parent
+  }
+  return undefined
+}
+
+function nextMinifiedName(scope: MinifyScope): string {
+  while (true) {
+    const candidate = minifiedNameForIndex(scope.nextName++)
+    if (
+      LUA_RESERVED_NAMES.has(candidate) ||
+      SLUA_GLOBAL_NAMES.has(candidate) ||
+      scope.originals.has(candidate) ||
+      scope.used.has(candidate)
+    ) {
+      continue
+    }
+
+    scope.used.add(candidate)
+    return candidate
+  }
+}
+
+function minifiedNameForIndex(index: number): string {
+  let n = index
+  let out = ""
+  do {
+    out = MINIFY_ALPHABET[n % MINIFY_ALPHABET.length] + out
+    n = Math.floor(n / MINIFY_ALPHABET.length) - 1
+  } while (n >= 0)
+  return out
 }

@@ -50,7 +50,7 @@
     "serve": "^14.2.6",
     "stream-browserify": "^3.0.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.9.3",
+    "typescript": "6.0.2",
     "vite": "^8.0.0"
   }
 }

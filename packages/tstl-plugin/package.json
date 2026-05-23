@@ -33,11 +33,14 @@
   },
   "dependencies": {
     "@gwigz/slua-types": "^1.4.0",
-    "typescript-to-lua": "^1.33.0"
+    "typescript-to-lua": "^1.36.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0"
   },
   "peerDependencies": {
     "rollup": "^4.0.0",
-    "typescript": "~5.9.3"
+    "typescript": "~6.0.2"
   },
   "peerDependenciesMeta": {
     "rollup": {

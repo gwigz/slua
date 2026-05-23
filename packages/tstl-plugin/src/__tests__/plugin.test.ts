@@ -1035,6 +1035,15 @@ describe("optimize: shortenTemps", () => {
     expect(lua).not.toContain("____fn_result")
   })
 
+  it("shortens the endsWith variable-needle temp", () => {
+    const lua = transpileShortenTemps(
+      "interface String { endsWith(s: string): boolean }\ndeclare const s: string;\ndeclare const x: string;\nconst b = s.endsWith(x)",
+    )
+
+    expect(lua).toContain("_r0")
+    expect(lua).not.toContain("____ends")
+  })
+
   it("assigns distinct short names for multiple destructured calls", () => {
     const lua = transpileShortenTemps(
       "declare function fn(): { a: number, b: number };\ndeclare function gn(): { c: number, d: number };\nconst { a, b } = fn();\nconst { c, d } = gn()",

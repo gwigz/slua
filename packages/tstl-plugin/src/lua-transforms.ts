@@ -285,13 +285,15 @@ export function simplifyNegatedInequality(file: lua.File): boolean {
 }
 
 /**
- * Shorten TSTL destructuring temp names: ____*_result_* -> _rN.
+ * Shorten generated temp names (`____<name>_<n>`) to `_rN` — covers TSTL's
+ * destructuring/result temps and the plugin's own (e.g. `____ends_N`). The
+ * trailing `_\d+` is required so reserved names like `____exports` are untouched.
  * Two-pass: collect unique names in order, then rename all identifiers.
  */
 export function shortenTempNames(file: lua.File): boolean {
   const seen = new Map<string, string>()
   let counter = 0
-  const tempRe = /^____\w+_result_\d+$/
+  const tempRe = /^____\w+_\d+$/
 
   // Pass 1: collect unique temp names in order of first occurrence
   walkIdentifiers(file, (id) => {

@@ -78,6 +78,10 @@
       }
     ],
     "no-shadow": ["warn", { "allow": ["ok", "error", "value"] }],
+    "typescript/strict-boolean-expressions": [
+      "error",
+      { "allowNumber": false, "allowString": false }
+    ],
     "oxc/no-async-await": "error",
     "eslint-js/no-restricted-syntax": [
       "error",

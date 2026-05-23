@@ -39,6 +39,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     devDependencies["@gwigz/slua-oxlint-config"] = VERSIONS["@gwigz/slua-oxlint-config"]
     devDependencies["oxlint"] = VERSIONS["oxlint"]
     devDependencies["oxlint-plugin-eslint"] = VERSIONS["oxlint-plugin-eslint"]
+    devDependencies["oxlint-tsgolint"] = VERSIONS["oxlint-tsgolint"]
   }
 
   if (extras.formatting) {
@@ -53,7 +54,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     scripts.format = "stylua --syntax luau out/"
   }
   if (extras.linting) {
-    scripts.lint = "oxlint"
+    scripts.lint = "oxlint --type-aware"
   }
   if (extras.formatting) {
     scripts.fmt = "oxfmt --write ."

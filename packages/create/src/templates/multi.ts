@@ -45,6 +45,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
     devDependencies["@gwigz/slua-oxlint-config"] = VERSIONS["@gwigz/slua-oxlint-config"]
     devDependencies["oxlint"] = VERSIONS["oxlint"]
     devDependencies["oxlint-plugin-eslint"] = VERSIONS["oxlint-plugin-eslint"]
+    devDependencies["oxlint-tsgolint"] = VERSIONS["oxlint-tsgolint"]
   }
 
   if (extras.formatting) {
@@ -61,7 +62,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   }
 
   if (extras.linting) {
-    scripts.lint = "oxlint"
+    scripts.lint = "oxlint --type-aware"
   }
   if (extras.formatting) {
     scripts.fmt = "oxfmt --write ."

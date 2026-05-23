@@ -17,7 +17,16 @@
   "dependencies": {
     "oxlint-plugin-eslint": "^1.57.0"
   },
+  "devDependencies": {
+    "oxlint-tsgolint": "^0.23.0"
+  },
   "peerDependencies": {
-    "oxlint": ">=1.57.0"
+    "oxlint": ">=1.57.0",
+    "oxlint-tsgolint": ">=0.23.0"
+  },
+  "peerDependenciesMeta": {
+    "oxlint-tsgolint": {
+      "optional": true
+    }
   }
 }

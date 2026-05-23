@@ -9,8 +9,9 @@ export const VERSIONS = {
   "@johnnymorganz/stylua-bin": "^2.4.0",
   "@types/node": "^25.5.0",
   tsx: "^4.21.0",
-  "@gwigz/slua-oxlint-config": "^0.1.1",
+  "@gwigz/slua-oxlint-config": "^0.2.0",
   "oxlint-plugin-eslint": "^1.57.0",
+  "oxlint-tsgolint": "^0.23.0",
   oxlint: "^1.57.0",
   oxfmt: "^0.42.0",
 } as const

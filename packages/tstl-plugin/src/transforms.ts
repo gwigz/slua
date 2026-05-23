@@ -288,23 +288,65 @@ export const CALL_TRANSFORMS: CallTransform[] = [
       )
     },
   },
-  // str.endsWith(search) -> string.sub(str, -#search) == search  (literal only; empty -> true)
-  // Non-literal needles fall back to TSTL's lualib helper.
+  // str.endsWith(search)
+  //   literal  -> string.sub(str, -#search) == search  (empty -> true)
+  //   variable -> e == "" or string.sub(str, -#e) == e  (e = hoisted needle)
+  // Handled natively (no lualib helper) so the playground and build agree.
   {
-    match: (node, checker) =>
-      isMethodCall(node, checker, isStringType, "endsWith", 1) &&
-      ts.isStringLiteralLike(node.arguments[0]),
+    match: (node, checker) => isMethodCall(node, checker, isStringType, "endsWith", 1),
     emit: (node, context) => {
       const str = context.transformExpression(
         (node.expression as ts.PropertyAccessExpression).expression,
       )
 
-      // The `match` guard guarantees a string-literal needle.
-      const arg = node.arguments[0] as ts.StringLiteralLike
+      const arg = node.arguments[0]
 
-      return arg.text === ""
-        ? tstl.createBooleanLiteral(true, node)
-        : affixCompare(str, arg, true, node)
+      // Literal needle: compare the suffix directly.
+      if (ts.isStringLiteralLike(arg)) {
+        return arg.text === ""
+          ? tstl.createBooleanLiteral(true, node)
+          : affixCompare(str, arg, true, node)
+      }
+
+      // Variable needle: hoist it to a temp (single eval), guard the empty
+      // case (`"".endsWith(x)` is true in JS when x is empty), then compare
+      // the suffix: `e == "" or string.sub(str, -#e) == e`.
+      const needle = tstl.createIdentifier(context.createTempName("ends"))
+      context.addPrecedingStatements(
+        tstl.createVariableDeclarationStatement(needle, context.transformExpression(arg), node),
+      )
+
+      const isEmpty = tstl.createBinaryExpression(
+        tstl.cloneIdentifier(needle),
+        tstl.createStringLiteral(""),
+        tstl.SyntaxKind.EqualityOperator,
+        node,
+      )
+
+      const suffix = createNamespacedCall(
+        "string",
+        "sub",
+        [
+          str,
+          tstl.createUnaryExpression(
+            tstl.createUnaryExpression(
+              tstl.cloneIdentifier(needle),
+              tstl.SyntaxKind.LengthOperator,
+            ),
+            tstl.SyntaxKind.NegationOperator,
+          ),
+        ],
+        node,
+      )
+
+      const suffixMatches = tstl.createBinaryExpression(
+        suffix,
+        tstl.cloneIdentifier(needle),
+        tstl.SyntaxKind.EqualityOperator,
+        node,
+      )
+
+      return tstl.createBinaryExpression(isEmpty, suffixMatches, tstl.SyntaxKind.OrOperator, node)
     },
   },
   // str.substring(start) -> string.sub(str, start + 1)

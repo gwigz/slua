@@ -552,12 +552,16 @@ describe("string Luau stdlib transforms", () => {
     expect(lua).not.toContain("string.sub")
   })
 
-  it("does not transform endsWith with a variable needle", () => {
+  it("translates endsWith with a variable needle to a native suffix compare", () => {
     const lua = transpileSimple(
       "interface String { endsWith(searchString: string): boolean }\ndeclare const s: string;\ndeclare const x: string;\nconst b = s.endsWith(x)",
     )
 
-    expect(lua).not.toContain("string.sub")
+    // hoisted temp (single eval), empty guard, native string.sub — no lualib helper
+    expect(lua).toContain("= x")
+    expect(lua).toMatch(/== "" or string\.sub\(s, -#/)
+    expect(lua).not.toContain("__TS__StringEndsWith")
+    expect(lua).not.toContain(":endsWith")
   })
 
   it("translates substring(start) to string.sub with constant folding", () => {

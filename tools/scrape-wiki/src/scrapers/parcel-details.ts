@@ -26,5 +26,6 @@ export async function scrapeParcelDetails(): Promise<TypedListParamSet[]> {
     name: "ParcelDetail",
     functions: ["llGetParcelDetails"],
     returns,
+    descCol: 2,
   })
 }

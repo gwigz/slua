@@ -1,5 +1,10 @@
 import { load } from "cheerio"
-import { parseInlineParam, loadConstantValues, fetchHtml } from "../parse-params.js"
+import {
+  parseInlineParam,
+  loadConstantValues,
+  fetchHtml,
+  cleanDescription,
+} from "../parse-params.js"
 import type { TypedListParamSet, TypedListRule } from "../types.js"
 
 const WIKI_URL = "https://wiki.secondlife.com/wiki/LlParticleSystem"
@@ -51,7 +56,10 @@ export async function scrapeParticleSystem(): Promise<TypedListParamSet[]> {
     const paramText = cells.eq(1).text().trim()
     const args = parseInlineParam(paramText)
 
-    params.push({ name: flag, value, args })
+    // Column 2 is "Description" (column 3 is the value)
+    const comment = cells.length > 2 ? cleanDescription(cells.eq(2).text()) : ""
+
+    params.push({ name: flag, value, args, ...(comment ? { comment } : {}) })
   })
 
   return [

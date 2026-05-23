@@ -1,5 +1,5 @@
-import { fetchHtml, parseRawParams } from "../parse-params.js"
-import type { TypedListArg, TypedListParamSet } from "../types.js"
+import { fetchHtml, parseRawParams, cleanDescription } from "../parse-params.js"
+import type { TypedListParamSet, TypedListRule } from "../types.js"
 
 const PREFIX_PATTERNS = ["SKY_", "WATER_", "ENVIRONMENT_DAYINFO"]
 
@@ -25,7 +25,7 @@ export async function scrapeEnvironment(): Promise<TypedListParamSet[]> {
 
   if (!table) throw new Error("Could not find environment params table on wiki page")
 
-  const params: { name: string; value: number; args: never[]; returns: TypedListArg[] }[] = []
+  const params: TypedListRule[] = []
 
   ;(table as ReturnType<typeof $>).find("tr").each((_, row) => {
     const cells = $(row).children("td")
@@ -41,8 +41,11 @@ export async function scrapeEnvironment(): Promise<TypedListParamSet[]> {
     const returnText = cells.eq(2).text().trim()
     const returns = returnText ? parseRawParams(returnText) : []
 
+    // Column 3: description
+    const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
+
     if (returns.length > 0) {
-      params.push({ name: flag, value, args: [], returns })
+      params.push({ name: flag, value, args: [], returns, ...(comment ? { comment } : {}) })
     }
   })
 

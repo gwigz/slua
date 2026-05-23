@@ -16,7 +16,8 @@
               "type": "string",
               "name": "name"
             }
-          ]
+          ],
+          "comment": "Sets the prim's name."
         },
         {
           "name": "PRIM_DESC",
@@ -26,7 +27,8 @@
               "type": "string",
               "name": "description"
             }
-          ]
+          ],
+          "comment": "Sets the prim's description."
         },
         {
           "name": "PRIM_SLICE",
@@ -36,7 +38,8 @@
               "type": "vector",
               "name": "slice"
             }
-          ]
+          ],
+          "comment": "Sets the prim's slice (a shape attribute)."
         },
         {
           "name": "PRIM_PHYSICS_SHAPE_TYPE",
@@ -46,7 +49,8 @@
               "type": "integer",
               "name": "type"
             }
-          ]
+          ],
+          "comment": "Sets the prim's physics shape type."
         },
         {
           "name": "PRIM_MATERIAL",
@@ -56,7 +60,8 @@
               "type": "integer",
               "name": "flag"
             }
-          ]
+          ],
+          "comment": "Sets the prim's material."
         },
         {
           "name": "PRIM_PHYSICS",
@@ -66,7 +71,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Sets the object's physics status."
         },
         {
           "name": "PRIM_TEMP_ON_REZ",
@@ -76,7 +82,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Sets the object's temporary attribute."
         },
         {
           "name": "PRIM_PHANTOM",
@@ -86,7 +93,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Sets the object's phantom status."
         },
         {
           "name": "PRIM_POSITION",
@@ -96,7 +104,8 @@
               "type": "vector",
               "name": "position"
             }
-          ]
+          ],
+          "comment": "Sets the prim's position."
         },
         {
           "name": "PRIM_POS_LOCAL",
@@ -106,7 +115,8 @@
               "type": "vector",
               "name": "position"
             }
-          ]
+          ],
+          "comment": "Sets the prim's local position."
         },
         {
           "name": "PRIM_ROTATION",
@@ -116,7 +126,8 @@
               "type": "rotation",
               "name": "rot"
             }
-          ]
+          ],
+          "comment": "Sets the prim's global rotation."
         },
         {
           "name": "PRIM_ROT_LOCAL",
@@ -126,7 +137,8 @@
               "type": "rotation",
               "name": "rot"
             }
-          ]
+          ],
+          "comment": "Sets the prim's local rotation."
         },
         {
           "name": "PRIM_SIZE",
@@ -136,7 +148,8 @@
               "type": "vector",
               "name": "size"
             }
-          ]
+          ],
+          "comment": "Sets the prim's size."
         },
         {
           "name": "PRIM_TEXTURE",
@@ -162,7 +175,8 @@
               "type": "float",
               "name": "rotation_in_radians"
             }
-          ]
+          ],
+          "comment": "Sets the prim's texture attributes."
         },
         {
           "name": "PRIM_RENDER_MATERIAL",
@@ -176,7 +190,8 @@
               "type": "string",
               "name": "render_material"
             }
-          ]
+          ],
+          "comment": "Sets the prim's render_material. Setting this param will also clear most PRIM_GLTF_* properties on the face, with the exceptions of repeats, offsets, and rotation_in_radians"
         },
         {
           "name": "PRIM_TEXT",
@@ -194,7 +209,8 @@
               "type": "float",
               "name": "alpha"
             }
-          ]
+          ],
+          "comment": "Sets the prim's floating text."
         },
         {
           "name": "PRIM_COLOR",
@@ -212,7 +228,8 @@
               "type": "float",
               "name": "alpha"
             }
-          ]
+          ],
+          "comment": "Sets the face's color."
         },
         {
           "name": "PRIM_BUMP_SHINY",
@@ -230,7 +247,8 @@
               "type": "integer",
               "name": "bump"
             }
-          ]
+          ],
+          "comment": "Sets the face's shiny & bump."
         },
         {
           "name": "PRIM_POINT_LIGHT",
@@ -256,7 +274,8 @@
               "type": "float",
               "name": "falloff"
             }
-          ]
+          ],
+          "comment": "Sets the prim as a point light."
         },
         {
           "name": "PRIM_REFLECTION_PROBE",
@@ -278,7 +297,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Sets the prim as a reflection probe."
         },
         {
           "name": "PRIM_FULLBRIGHT",
@@ -292,7 +312,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Sets the face's full bright flag."
         },
         {
           "name": "PRIM_FLEXIBLE",
@@ -326,7 +347,8 @@
               "type": "vector",
               "name": "force"
             }
-          ]
+          ],
+          "comment": "Sets the prim as flexible."
         },
         {
           "name": "PRIM_TEXGEN",
@@ -340,7 +362,8 @@
               "type": "integer",
               "name": "type"
             }
-          ]
+          ],
+          "comment": "Sets the face's texture mode."
         },
         {
           "name": "PRIM_GLOW",
@@ -354,7 +377,8 @@
               "type": "float",
               "name": "intensity"
             }
-          ]
+          ],
+          "comment": "Sets the face's glow attribute."
         },
         {
           "name": "PRIM_OMEGA",
@@ -372,7 +396,8 @@
               "type": "float",
               "name": "gain"
             }
-          ]
+          ],
+          "comment": "Sets the prim's spin to the specified axis and rate."
         },
         {
           "name": "PRIM_NORMAL",
@@ -398,7 +423,8 @@
               "type": "float",
               "name": "rotation_in_radians"
             }
-          ]
+          ],
+          "comment": "Sets the prim's normal map attributes."
         },
         {
           "name": "PRIM_SPECULAR",
@@ -436,7 +462,8 @@
               "type": "integer",
               "name": "environment"
             }
-          ]
+          ],
+          "comment": "Sets the prim's specular map attributes."
         },
         {
           "name": "PRIM_ALPHA_MODE",
@@ -454,7 +481,8 @@
               "type": "integer",
               "name": "mask_cutoff"
             }
-          ]
+          ],
+          "comment": "Sets the prim's diffuse texture alpha rendering mode attributes."
         },
         {
           "name": "PRIM_LINK_TARGET",
@@ -464,7 +492,8 @@
               "type": "integer",
               "name": "link_target"
             }
-          ]
+          ],
+          "comment": "Sets the next linknumber to use in the linkset."
         },
         {
           "name": "PRIM_CAST_SHADOWS",
@@ -474,7 +503,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Sets the prim's cast shadow attribute. (DEPRECATED)"
         },
         {
           "name": "PRIM_ALLOW_UNSIT",
@@ -484,7 +514,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Avatars are allowed to manually stand up when seated on this prim. Only valid for prims in a valid experience."
         },
         {
           "name": "PRIM_SCRIPTED_SIT_ONLY",
@@ -494,7 +525,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Avatars are not permitted to manually sit on this prim."
         },
         {
           "name": "PRIM_SIT_TARGET",
@@ -512,7 +544,8 @@
               "type": "rotation",
               "name": "rot"
             }
-          ]
+          ],
+          "comment": "The sit target, if any defined for this prim."
         },
         {
           "name": "PRIM_PROJECTOR",
@@ -534,7 +567,8 @@
               "type": "float",
               "name": "ambiance"
             }
-          ]
+          ],
+          "comment": "Light projector settings for this prim."
         },
         {
           "name": "PRIM_CLICK_ACTION",
@@ -544,7 +578,8 @@
               "type": "integer",
               "name": "action"
             }
-          ]
+          ],
+          "comment": "Click action for this prim"
         },
         {
           "name": "PRIM_GLTF_BASE_COLOR",
@@ -590,7 +625,8 @@
               "type": "integer",
               "name": "double_sided"
             }
-          ]
+          ],
+          "comment": "Sets the prim's GLTF Material Base Color map attributes. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF. gltf_alpha_mode Flags V Description PRIM_GLTF_ALPHA_MODE_OPAQUE 0 Ignore the alpha value and render the material as opaque. PRIM_GLTF_ALPHA_MODE_BLEND 1 Render the material with transparency determined by the alpha value. Blending is done in linear color space. As is the case for Blinn-Phong as well, this mode suffers from depth sorting and performance issues. Use alpha mask instead when possible. PRIM_GLTF_ALPHA_MODE_MASK 2 Render the material as fully opaque where the alpha value is greater than the alpha cutoff, and otherwise render the material as fully transparent."
         },
         {
           "name": "PRIM_GLTF_NORMAL",
@@ -616,7 +652,8 @@
               "type": "float",
               "name": "rotation_in_radians"
             }
-          ]
+          ],
+          "comment": "Sets the prim's GLTF Material Normal map attributes. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF."
         },
         {
           "name": "PRIM_GLTF_METALLIC_ROUGHNESS",
@@ -650,7 +687,8 @@
               "type": "float",
               "name": "roughness_factor"
             }
-          ]
+          ],
+          "comment": "Sets the prim's GLTF ORM map attributes (Occlusion, Roughness, Metallic). This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF."
         },
         {
           "name": "PRIM_GLTF_EMISSIVE",
@@ -680,7 +718,8 @@
               "type": "vector",
               "name": "linear_emissive_tint"
             }
-          ]
+          ],
+          "comment": "Sets the prim's GLTF Material Emissive map attributes. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF."
         },
         {
           "name": "PRIM_SIT_FLAGS",
@@ -690,7 +729,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Sets the flags on the prim's sit target Flag Description SIT_FLAG_SIT_TARGET 0x1 Read-only flag to indicate whether the link has a sit target. Use llSitTarget, llLinkSitTarget, or PRIM_SIT_TARGET to disable or enable this flag. Use llGetLinkSitFlags, or llGetLinkPrimitiveParams with PRIM_SIT_FLAGS to read this flag. SIT_FLAG_ALLOW_UNSIT 0x2 Allow an avatar to manually unsit from a sit target. Only applies to agents who had been seated via an LSL script. See llSitOnLink. SIT_FLAG_SCRIPTED_ONLY 0x4 Only allow scripted sits on this sit target. SIT_FLAG_NO_COLLIDE 0x10 Disable the avatar's collision volume when they are seated on this sit target. SIT_FLAG_NO_DAMAGE 0x20 Do not distribute damage to agents sitting on this sit target."
         },
         {
           "name": "PRIM_DAMAGE",
@@ -704,7 +744,8 @@
               "type": "integer",
               "name": "damage_type"
             }
-          ]
+          ],
+          "comment": "Sets the damage and damage type delivered by a prim on collision."
         },
         {
           "name": "PRIM_HEALTH",
@@ -714,7 +755,8 @@
               "type": "float",
               "name": "health"
             }
-          ]
+          ],
+          "comment": "Sets the health value for this prim."
         }
       ],
       "subDispatch": {
@@ -1020,7 +1062,8 @@
               "type": "string",
               "name": "name"
             }
-          ]
+          ],
+          "comment": "Name: llGetObjectName"
         },
         {
           "name": "PRIM_DESC",
@@ -1031,7 +1074,8 @@
               "type": "string",
               "name": "description"
             }
-          ]
+          ],
+          "comment": "Description: llGetObjectDesc"
         },
         {
           "name": "PRIM_TYPE",
@@ -1042,7 +1086,8 @@
               "type": "integer",
               "name": "flag"
             }
-          ]
+          ],
+          "comment": "Gets the prim shape. [Would you like to know more?][Hide]"
         },
         {
           "name": "PRIM_SLICE",
@@ -1053,7 +1098,8 @@
               "type": "vector",
               "name": "slice"
             }
-          ]
+          ],
+          "comment": "Gets the prim's slice (a shape attribute)."
         },
         {
           "name": "PRIM_PHYSICS_SHAPE_TYPE",
@@ -1064,7 +1110,8 @@
               "type": "integer",
               "name": "type"
             }
-          ]
+          ],
+          "comment": "Gets the prim's physics shape type."
         },
         {
           "name": "PRIM_MATERIAL",
@@ -1075,7 +1122,8 @@
               "type": "integer",
               "name": "material"
             }
-          ]
+          ],
+          "comment": "Gets the prim's material. The material determines the default collision sound, sprite, friction coefficient and restitution coefficient."
         },
         {
           "name": "PRIM_PHYSICS",
@@ -1086,7 +1134,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Physics status llGetStatus"
         },
         {
           "name": "PRIM_TEMP_ON_REZ",
@@ -1097,7 +1146,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Temporary attribute"
         },
         {
           "name": "PRIM_PHANTOM",
@@ -1108,7 +1158,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "Phantom status llGetStatus"
         },
         {
           "name": "PRIM_POSITION",
@@ -1119,7 +1170,8 @@
               "type": "vector",
               "name": "position"
             }
-          ]
+          ],
+          "comment": "Position, llGetPos"
         },
         {
           "name": "PRIM_POS_LOCAL",
@@ -1130,7 +1182,8 @@
               "type": "vector",
               "name": "position"
             }
-          ]
+          ],
+          "comment": "Local position, llGetLocalPos"
         },
         {
           "name": "PRIM_ROTATION",
@@ -1141,7 +1194,8 @@
               "type": "rotation",
               "name": "rot"
             }
-          ]
+          ],
+          "comment": "Global rotation, llGetRot"
         },
         {
           "name": "PRIM_ROT_LOCAL",
@@ -1152,7 +1206,8 @@
               "type": "rotation",
               "name": "rot"
             }
-          ]
+          ],
+          "comment": "Local rotation, llGetLocalRot"
         },
         {
           "name": "PRIM_SIZE",
@@ -1163,7 +1218,8 @@
               "type": "vector",
               "name": "size"
             }
-          ]
+          ],
+          "comment": "Size, llGetScale"
         },
         {
           "name": "PRIM_TEXTURE",
@@ -1191,7 +1247,8 @@
               "type": "float",
               "name": "rotation_in_radians"
             }
-          ]
+          ],
+          "comment": "Texture: llGetTexture Repeats: llGetTextureScale Offset: llGetTextureOffset Rotation: llGetTextureRot"
         },
         {
           "name": "PRIM_RENDER_MATERIAL",
@@ -1207,7 +1264,8 @@
               "type": "string",
               "name": "render_material"
             }
-          ]
+          ],
+          "comment": "Material: llGetRenderMaterial"
         },
         {
           "name": "PRIM_TEXT",
@@ -1226,7 +1284,8 @@
               "type": "float",
               "name": "alpha"
             }
-          ]
+          ],
+          "comment": "Floating Text: NA"
         },
         {
           "name": "PRIM_COLOR",
@@ -1246,7 +1305,8 @@
               "type": "float",
               "name": "alpha"
             }
-          ]
+          ],
+          "comment": "Alpha: llGetAlpha Color: llGetColor"
         },
         {
           "name": "PRIM_BUMP_SHINY",
@@ -1360,7 +1420,8 @@
               "type": "float",
               "name": "falloff"
             }
-          ]
+          ],
+          "comment": "linear_color param accepts color in Linear space - use llsRGB2Linear to convert regular LSL color into Linear space."
         },
         {
           "name": "PRIM_REFLECTION_PROBE",
@@ -1383,7 +1444,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Gets the prim's reflection probe parameters."
         },
         {
           "name": "PRIM_GLOW",
@@ -1418,7 +1480,8 @@
               "type": "float",
               "name": "gain"
             }
-          ]
+          ],
+          "comment": "llTargetOmega"
         },
         {
           "name": "PRIM_NORMAL",
@@ -1516,7 +1579,8 @@
               "type": "integer",
               "name": "link_target"
             }
-          ]
+          ],
+          "comment": "Multiple llGetLinkPrimitiveParams calls."
         },
         {
           "name": "PRIM_CAST_SHADOWS",
@@ -1527,7 +1591,8 @@
               "type": "boolean",
               "name": "enabled"
             }
-          ]
+          ],
+          "comment": "DEPRECATED: Shadow casting for the primitive"
         },
         {
           "name": "PRIM_ALLOW_UNSIT",
@@ -1568,7 +1633,8 @@
               "type": "rotation",
               "name": "rot"
             }
-          ]
+          ],
+          "comment": "Sit target, llSitTarget. The position can be ZERO_VECTOR."
         },
         {
           "name": "PRIM_PROJECTOR",
@@ -1591,7 +1657,8 @@
               "type": "float",
               "name": "ambiance"
             }
-          ]
+          ],
+          "comment": "Light projector settings, the texture may be NULL_KEY. (Write only, for now. See here)"
         },
         {
           "name": "PRIM_CLICK_ACTION",
@@ -1602,7 +1669,8 @@
               "type": "integer",
               "name": "action"
             }
-          ]
+          ],
+          "comment": "sets the default action to take when a user clicks on this prim. Flag Description Cursor CLICK_ACTION_NONE 0 Performs the default action: when the prim is touched, touch events are triggered CLICK_ACTION_TOUCH 0 When the prim is touched, touch events are triggered CLICK_ACTION_SIT 1 When the prim is touched, the avatar sits upon it CLICK_ACTION_BUY 2 When the prim is touched, the buy dialog is opened CLICK_ACTION_PAY 3 When the prim is touched, the pay dialog is opened CLICK_ACTION_OPEN 4 When the prim is touched, the object inventory dialog is opened CLICK_ACTION_PLAY 5 Play or pause parcel media on touch CLICK_ACTION_OPEN_MEDIA 6 Play parcel media on touch, no pause CLICK_ACTION_ZOOM 7 Zoom the avatar camera on this object (Viewer 2) CLICK_ACTION_DISABLED 8 No click action. No touches detected or passed. CLICK_ACTION_IGNORE 9 Clicks go through the object to whatever is behind it. No touches detected."
         },
         {
           "name": "PRIM_GLTF_BASE_COLOR",
@@ -1650,7 +1718,8 @@
               "type": "integer",
               "name": "double_sided"
             }
-          ]
+          ],
+          "comment": "linear_color param accepts color in Linear space - use llsRGB2Linear to convert regular LSL color into Linear space. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF. gltf_alpha_mode Flags V Description PRIM_GLTF_ALPHA_MODE_OPAQUE 0 Ignore the alpha value and render the material as opaque. PRIM_GLTF_ALPHA_MODE_BLEND 1 Render the material with transparency determined by the alpha value. Blending is done in linear color space. As is the case for Blinn-Phong as well, this mode suffers from depth sorting and performance issues. Use alpha mask instead when possible. PRIM_GLTF_ALPHA_MODE_MASK 2 Render the material as fully opaque where the alpha value is greater than the alpha cutoff, and otherwise render the material as fully transparent."
         },
         {
           "name": "PRIM_GLTF_NORMAL",
@@ -1678,7 +1747,8 @@
               "type": "float",
               "name": "rotation_in_radians"
             }
-          ]
+          ],
+          "comment": "This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF."
         },
         {
           "name": "PRIM_GLTF_METALLIC_ROUGHNESS",
@@ -1714,7 +1784,8 @@
               "type": "float",
               "name": "roughness_factor"
             }
-          ]
+          ],
+          "comment": "This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF."
         },
         {
           "name": "PRIM_GLTF_EMISSIVE",
@@ -1746,7 +1817,8 @@
               "type": "vector",
               "name": "emissive_tint"
             }
-          ]
+          ],
+          "comment": "emissive_tint param accepts color in Linear space - use llsRGB2Linear to convert regular LSL color into Linear space. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string (\"\") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string (\"\") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF."
         },
         {
           "name": "PRIM_SIT_FLAGS",
@@ -1757,7 +1829,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Gets the sit flags currently set on this prim. Flag Description SIT_FLAG_SIT_TARGET 0x1 Read-only flag to indicate whether the link has a sit target. Use llSitTarget, llLinkSitTarget, or PRIM_SIT_TARGET to disable or enable this flag. Use llGetLinkSitFlags, or llGetLinkPrimitiveParams with PRIM_SIT_FLAGS to read this flag. SIT_FLAG_ALLOW_UNSIT 0x2 Allow an avatar to manually unsit from a sit target. Only applies to agents who had been seated via an LSL script. See llSitOnLink. SIT_FLAG_SCRIPTED_ONLY 0x4 Only allow scripted sits on this sit target. SIT_FLAG_NO_COLLIDE 0x10 Disable the avatar's collision volume when they are seated on this sit target. SIT_FLAG_NO_DAMAGE 0x20 Do not distribute damage to agents sitting on this sit target."
         },
         {
           "name": "PRIM_DAMAGE",
@@ -1772,7 +1845,8 @@
               "type": "integer",
               "name": "damage_type"
             }
-          ]
+          ],
+          "comment": "Gets the damage and damage type delivered by a prim on collision."
         },
         {
           "name": "PRIM_HEALTH",
@@ -1783,7 +1857,8 @@
               "type": "float",
               "name": "health"
             }
-          ]
+          ],
+          "comment": "Gets the health of a prim"
         }
       ]
     },
@@ -1801,7 +1876,8 @@
               "type": "string",
               "name": "method"
             }
-          ]
+          ],
+          "comment": "\"GET\", \"POST\", \"PUT\" and \"DELETE\""
         },
         {
           "name": "HTTP_MIMETYPE",
@@ -1811,7 +1887,8 @@
               "type": "string",
               "name": "MIME_type"
             }
-          ]
+          ],
+          "comment": "text/* MIME types should specify a charset. To emulate HTML forms use application/x-www-form-urlencoded. This allows you to set the body to a properly escaped (llEscapeURL) sequence of <name,value> pairs in the form var=value&var2=value2 and have them automatically parsed by web frameworks. MIME types must be specified in the format: type/subtype[;option=value] Some valid examples are \"text/html\" \"text/plain;charset=utf-8\" \"application/xhtml+xml\" \"application/json\" \"application/x-www-form-urlencoded\" \"application/rss+xml\" \"multipart/mixed; boundary=\"---1234567890---\"\""
         },
         {
           "name": "HTTP_BODY_MAXLENGTH",
@@ -1821,7 +1898,8 @@
               "type": "integer",
               "name": "length"
             }
-          ]
+          ],
+          "comment": "Sets the maximum (UTF-8 encoded) byte length of the HTTP response body. The maximum that can be set depends upon which VM is used. Mono Max: 16384 LSO Max: 4096 ⚠️ Warning: Applies to the Outgoing pipeline only (HTTP calls invoked by llHTTPRequest,and responses from http_response). Tip: When you only need to request a small amount of data from a remote source, consider using the Content-Range header instead."
         },
         {
           "name": "HTTP_VERIFY_CERT",
@@ -1831,7 +1909,8 @@
               "type": "integer",
               "name": "verify"
             }
-          ]
+          ],
+          "comment": "If TRUE, the server SSL certificate must be verifiable using one of the standard certificate authorities[1] when making HTTPS requests. If FALSE, any server SSL certificate will be accepted."
         },
         {
           "name": "HTTP_VERBOSE_THROTTLE",
@@ -1841,7 +1920,8 @@
               "type": "integer",
               "name": "noisy"
             }
-          ]
+          ],
+          "comment": "If TRUE, shout error messages to DEBUG_CHANNEL if the outgoing request rate exceeds the server limit. If FALSE, the error messages are suppressed (llHTTPRequest will still return NULL_KEY)."
         },
         {
           "name": "HTTP_CUSTOM_HEADER",
@@ -1855,7 +1935,8 @@
               "type": "string",
               "name": "value"
             }
-          ]
+          ],
+          "comment": "Add an extra custom HTTP header to the request. The first string is the name of the parameter to change, e.g. \"Pragma\", and the second string is the value, e.g. \"no-cache\". Multiple custom headers may be configured per request, as long as the combined custom header length is no greater than 4096 characters. Note that certain headers, such as the default headers, are blocked for security reasons."
         },
         {
           "name": "HTTP_PRAGMA_NO_CACHE",
@@ -1865,7 +1946,8 @@
               "type": "integer",
               "name": "send_header"
             }
-          ]
+          ],
+          "comment": "Sends \"Pragma: no-cache\" header (TRUE), or does not send a \"Pragma\" header (FALSE)."
         },
         {
           "name": "HTTP_USER_AGENT",
@@ -1875,7 +1957,8 @@
               "type": "string",
               "name": "user"
             }
-          ]
+          ],
+          "comment": "The user agent value is appended to the one generated by LSL itself. It should follow the syntax from the HTTP standard like: \"My-Script-Name/1.0 (Mozilla compatible)\". Note: Spaces are not allowed in HTTP User Agent token values, so \"My Script Name/1.0\" will produce a script error; change the spaces to hyphens (\"-\")"
         },
         {
           "name": "HTTP_ACCEPT",
@@ -1885,7 +1968,8 @@
               "type": "string",
               "name": "MIME_type"
             }
-          ]
+          ],
+          "comment": "HTTP_ACCEPT parameters can be passed to limit the number of mime types that are sent in the Accept: header of the HTTP request. Specified mime types may include character set and q parameters. This parameter may be specified multiple times. The specified mime type must be one already recognized by llHTTPRequest. These include any text/ mime type, or the following application mime types: “application/xhtml+xml”, “application/atom+xml”, “application/json”, “application/xml”, “application/llsd+xml”, “application/x-javascript”, “application/javascript”, “application/x-www-form-urlencoded”, or “application/rss+xml”. The Content-Type header in the response is checked against the specified HTTP_ACCEPT parameters. If the value of the header is not in the list of acceptable mime types, llHTTPRequest will return 415 as a result code and the body will be \"Unsupported or unknown Content-Type.\""
         },
         {
           "name": "HTTP_EXTENDED_ERROR",
@@ -1895,7 +1979,8 @@
               "type": "integer",
               "name": "extended"
             }
-          ]
+          ],
+          "comment": "If TRUE llHTTPRequest will always return a key. If there was an error making the HTTP request. Detailed error information will be returned through the http_response event using the provided key. Error information is delivered in a JSON block as described in RFC 7807. Details about extended return codes can be found below."
         }
       ]
     },
@@ -1914,7 +1999,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Various flags controlling the behavior of the particle system. The value may be specified as an integer in decimal or hex format, or by ORing together (using the | operator) one or more of the following flag constants:"
         },
         {
           "name": "PSYS_SRC_PATTERN",
@@ -1924,7 +2010,8 @@
               "type": "integer",
               "name": "pattern"
             }
-          ]
+          ],
+          "comment": "Specifies the general emission pattern."
         },
         {
           "name": "PSYS_SRC_BURST_RADIUS",
@@ -1934,7 +2021,8 @@
               "type": "float",
               "name": "radius"
             }
-          ]
+          ],
+          "comment": "Specifies the distance from the emitter where particles will be created. This rule is ignored when the PSYS_PART_FOLLOW_SRC_MASK flag is set. A test in http://forums-archive.secondlife.com/327/f5/226722/1.html indicates that the maximum value is 50.00"
         },
         {
           "name": "PSYS_SRC_ANGLE_BEGIN",
@@ -1944,7 +2032,8 @@
               "type": "float",
               "name": "angle_begin"
             }
-          ]
+          ],
+          "comment": "Specifies a half angle, in radians, of a circular or spherical \"dimple\" or conic section (starting from the emitter facing) within which particles will NOT be emitted. Valid values are the same as for PSYS_SRC_ANGLE_END, though the effects are reversed accordingly. If the pattern is PSYS_SRC_PATTERN_ANGLE, the presentation is a 2D flat circular section. If PSYS_SRC_PATTERN_ANGLE_CONE or PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY is used, the presentation is a 3D spherical section. Note that the value of this parameter and PSYS_SRC_ANGLE_END are internally re-ordered such that this parameter gets the smaller of the two values."
         },
         {
           "name": "PSYS_SRC_ANGLE_END",
@@ -1954,7 +2043,8 @@
               "type": "float",
               "name": "angle_end"
             }
-          ]
+          ],
+          "comment": "Specifies a half angle, in radians, of a circular or spherical \"dimple\" or conic section (starting from the emitter facing) within which particles WILL be emitted. Valid values are 0.0, which will result in particles being emitted in a straight line in the direction of the emitter facing, to PI, which will result in particles being emitted in a full circular or spherical arc around the emitter, not including the \"dimple\" or conic section defined by PSYS_SRC_ANGLE_BEGIN. If the pattern is PSYS_SRC_PATTERN_ANGLE, the presentation is a 2D flat circular section. If PSYS_SRC_PATTERN_ANGLE_CONE or PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY is used, the presentation is a 3D spherical section. Note that the value of this parameter and PSYS_SRC_ANGLE_BEGIN are internally re-ordered such that this parameter gets the larger of the two values."
         },
         {
           "name": "PSYS_SRC_INNERANGLE",
@@ -1964,7 +2054,8 @@
               "type": "float",
               "name": "angle_inner"
             }
-          ]
+          ],
+          "comment": "DEPRECATED: Use PSYS_SRC_ANGLE_BEGIN instead. Works similar to its replacement rule, except the edge of the section is aligned with the emitter facing, rather than its center."
         },
         {
           "name": "PSYS_SRC_OUTERANGLE",
@@ -1974,7 +2065,8 @@
               "type": "float",
               "name": "angle_outer"
             }
-          ]
+          ],
+          "comment": "DEPRECATED: Use PSYS_SRC_ANGLE_END instead. Works similar to its replacement rule, except the edge of the section is aligned with the emitter facing, rather than the section's center."
         },
         {
           "name": "PSYS_SRC_TARGET_KEY",
@@ -1984,7 +2076,8 @@
               "type": "key",
               "name": "target"
             }
-          ]
+          ],
+          "comment": "Specifies the key of a target object, prim, or agent towards which the particles will change course and move (if PSYS_PART_TARGET_POS_MASK is specified) or will move in a straight line (if PSYS_PART_TARGET_LINEAR_MASK is specified). They will attempt to end up at the geometric center of the target at the end of their lifetime. Requires the PSYS_PART_TARGET_POS_MASK or PSYS_PART_TARGET_LINEAR_MASK flag be set. caveat 4"
         },
         {
           "name": "PSYS_PART_START_COLOR",
@@ -1994,7 +2087,8 @@
               "type": "vector",
               "name": "color_start"
             }
-          ]
+          ],
+          "comment": "A vector specifying the color of the particles upon emission."
         },
         {
           "name": "PSYS_PART_END_COLOR",
@@ -2004,7 +2098,8 @@
               "type": "vector",
               "name": "color_end"
             }
-          ]
+          ],
+          "comment": "A vector specifying the color the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_COLOR_MASK flag is set."
         },
         {
           "name": "PSYS_PART_START_ALPHA",
@@ -2014,7 +2109,8 @@
               "type": "float",
               "name": "alpha_start"
             }
-          ]
+          ],
+          "comment": "Specifies the alpha of the particles upon emission. Valid values are in the range 0.0 to 1.0. Lower values are more transparent; higher ones are more opaque."
         },
         {
           "name": "PSYS_PART_END_ALPHA",
@@ -2024,7 +2120,8 @@
               "type": "float",
               "name": "alpha_end"
             }
-          ]
+          ],
+          "comment": "Specifies the alpha the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_COLOR_MASK flag is set. Valid values are the same as PSYS_PART_START_ALPHA."
         },
         {
           "name": "PSYS_PART_START_SCALE",
@@ -2034,7 +2131,8 @@
               "type": "vector",
               "name": "scale_start"
             }
-          ]
+          ],
+          "comment": "Specifies the scale or size of the particles upon emission. Valid values for each direction are 0.03125 to 4.0, in meters. The actual particle size is always a multiple of 0.03125. Smaller changes don't have any effect. Since particles are essentially 2D sprites, the Z component of the vector is ignored and can be set to 0.0."
         },
         {
           "name": "PSYS_PART_END_SCALE",
@@ -2044,7 +2142,8 @@
               "type": "vector",
               "name": "scale_end"
             }
-          ]
+          ],
+          "comment": "Specifies the scale or size the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_SCALE_MASK flag is set. Valid values are the same as PSYS_PART_START_SCALE."
         },
         {
           "name": "PSYS_SRC_TEXTURE",
@@ -2054,7 +2153,8 @@
               "type": "string",
               "name": "texture"
             }
-          ]
+          ],
+          "comment": "Specifies the name of a texture in the emitter prim's inventory to use for each particle. Alternatively, you may specify an asset key UUID for a texture. If using llLinkParticleSystem and texture is not a UUID, texture must be in the emitter prim (not necessarily with the script)."
         },
         {
           "name": "PSYS_PART_START_GLOW",
@@ -2064,7 +2164,8 @@
               "type": "float",
               "name": "glow_start"
             }
-          ]
+          ],
+          "comment": "Specifies the glow of the particles upon emission. Valid values are in the range of 0.0 (no glow) to 1.0 (full glow)."
         },
         {
           "name": "PSYS_PART_END_GLOW",
@@ -2074,7 +2175,8 @@
               "type": "float",
               "name": "glow_end"
             }
-          ]
+          ],
+          "comment": "Specifies the glow that the particles transition to during their lifetime. Valid values are the same as PSYS_PART_START_GLOW."
         },
         {
           "name": "PSYS_PART_BLEND_FUNC_SOURCE",
@@ -2084,7 +2186,8 @@
               "type": "integer",
               "name": "bf_source"
             }
-          ]
+          ],
+          "comment": "Specifies how blending function uses the incoming particle's color and alpha information to produce the rendered result. Defaults to PSYS_PART_BF_SOURCE_ALPHA."
         },
         {
           "name": "PSYS_PART_BLEND_FUNC_DEST",
@@ -2094,7 +2197,8 @@
               "type": "integer",
               "name": "bf_dest"
             }
-          ]
+          ],
+          "comment": "Specifies how blending function uses the current framebuffer's color and alpha information to produce the rendered result. Defaults to PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA. To make particles blend with the background in a less opaque and more luminescent way use PSYS_PART_BF_ONE for dest and the default for source. Most other blending combinations will render the invisible/alpha portion of your particle texture, unless the invisible area of your texture is all black (or, in some cases, unless it is all white)."
         },
         {
           "name": "PSYS_SRC_MAX_AGE",
@@ -2104,7 +2208,8 @@
               "type": "float",
               "name": "duration_system"
             }
-          ]
+          ],
+          "comment": "Specifies the length of time, in seconds, that the emitter will operate upon coming into view range (if the particle system is already set) or upon execution of this function (if already in view range). Upon expiration, no more particles will be emitted, except as specified above. Zero will give the particle system an infinite duration. (caveat 1)"
         },
         {
           "name": "PSYS_PART_MAX_AGE",
@@ -2114,7 +2219,8 @@
               "type": "float",
               "name": "duration_particle"
             }
-          ]
+          ],
+          "comment": "Specifies the lifetime of each particle emitted, in seconds. Maximum is 30.0 seconds. During this time, the particle will appear, change appearance and move according to the parameters specified in the other sections, and then disappear."
         },
         {
           "name": "PSYS_SRC_BURST_RATE",
@@ -2124,7 +2230,8 @@
               "type": "float",
               "name": "burst_sleep"
             }
-          ]
+          ],
+          "comment": "Specifies the time interval, in seconds, between \"bursts\" of particles being emitted. Specifying a value of 0.0 will cause the emission of particles as fast as the viewer can do so."
         },
         {
           "name": "PSYS_SRC_BURST_PART_COUNT",
@@ -2134,7 +2241,8 @@
               "type": "integer",
               "name": "burst_particle_count"
             }
-          ]
+          ],
+          "comment": "Specifies the number of particles emitted in each \"burst\"."
         },
         {
           "name": "PSYS_SRC_ACCEL",
@@ -2144,7 +2252,8 @@
               "type": "vector",
               "name": "acceleration"
             }
-          ]
+          ],
+          "comment": "Specifies a directional acceleration vector applied to each particle as it is emitted, in meters per second squared. Valid values are 0.0 to 100.0 for each direction both positive and negative, as region coordinates."
         },
         {
           "name": "PSYS_SRC_OMEGA",
@@ -2154,7 +2263,8 @@
               "type": "vector",
               "name": "omega"
             }
-          ]
+          ],
+          "comment": "Sets how far to rotate the \"pattern\" after each particle burst. (Burst frequency is set with PSYS_SRC_BURST_RATE.) Omega values are approximately 'radians per burst' around the prim's global (not local) X, Y, Z axes. For precise and predictable pattern rotation, rotate the prim instead of using PSYS_SRC_OMEGA. Omega has no visible effect on drop, explode and certain specific angle and angle cone patterns, depending on prim orientation. Pattern rotation can be used with prim orientation and llTargetOmega() but won't produce consistent results. (caveat 2 and caveat 3)"
         },
         {
           "name": "PSYS_SRC_BURST_SPEED_MIN",
@@ -2164,7 +2274,8 @@
               "type": "float",
               "name": "speed_min"
             }
-          ]
+          ],
+          "comment": "Specifies the minimum value of a random range of values which is selected for each particle in a burst as its initial speed upon emission, in meters per second. Note that the value of this parameter and PSYS_SRC_BURST_SPEED_MAX are internally re-ordered such that this parameter gets the smaller of the two values."
         },
         {
           "name": "PSYS_SRC_BURST_SPEED_MAX",
@@ -2174,7 +2285,8 @@
               "type": "float",
               "name": "speed_max"
             }
-          ]
+          ],
+          "comment": "Specifies the maximum value of a random range of values which is selected for each particle in a burst as its initial speed upon emission, in meters per second. Note that the value of this parameter and PSYS_SRC_BURST_SPEED_MIN are internally re-ordered such that this parameter gets the larger of the two values."
         }
       ]
     },
@@ -2192,7 +2304,8 @@
               "type": "boolean",
               "name": "isActive"
             }
-          ]
+          ],
+          "comment": "Turns on or off scripted control of the camera."
         },
         {
           "name": "CAMERA_BEHINDNESS_ANGLE",
@@ -2202,7 +2315,8 @@
               "type": "float",
               "name": "degrees"
             }
-          ]
+          ],
+          "comment": "Sets the angle in degrees within which the camera is not constrained by changes in target rotation."
         },
         {
           "name": "CAMERA_BEHINDNESS_LAG",
@@ -2212,7 +2326,8 @@
               "type": "float",
               "name": "seconds"
             }
-          ]
+          ],
+          "comment": "Sets how strongly the camera is forced to stay behind the target if outside of behindness angle."
         },
         {
           "name": "CAMERA_DISTANCE",
@@ -2222,7 +2337,8 @@
               "type": "float",
               "name": "meters"
             }
-          ]
+          ],
+          "comment": "Sets how far away the camera wants to be from its target."
         },
         {
           "name": "CAMERA_FOCUS",
@@ -2232,7 +2348,8 @@
               "type": "vector",
               "name": "position"
             }
-          ]
+          ],
+          "comment": "Sets camera focus (target position) in region coordinates."
         },
         {
           "name": "CAMERA_FOCUS_LAG",
@@ -2242,7 +2359,8 @@
               "type": "float",
               "name": "seconds"
             }
-          ]
+          ],
+          "comment": "How much the camera lags as it tries to aim towards the target."
         },
         {
           "name": "CAMERA_FOCUS_LOCKED",
@@ -2252,7 +2370,8 @@
               "type": "integer",
               "name": "isLocked"
             }
-          ]
+          ],
+          "comment": "Locks the camera focus so it will not move."
         },
         {
           "name": "CAMERA_FOCUS_OFFSET",
@@ -2262,7 +2381,8 @@
               "type": "vector",
               "name": "meters"
             }
-          ]
+          ],
+          "comment": "Adjusts the camera focus position relative to the target."
         },
         {
           "name": "CAMERA_FOCUS_THRESHOLD",
@@ -2272,7 +2392,8 @@
               "type": "float",
               "name": "meters"
             }
-          ]
+          ],
+          "comment": "Sets the radius of a sphere around the camera's target position within which its focus is not affected by target motion."
         },
         {
           "name": "CAMERA_PITCH",
@@ -2282,7 +2403,8 @@
               "type": "float",
               "name": "degrees"
             }
-          ]
+          ],
+          "comment": "Adjusts the angular amount that the camera aims straight ahead vs. straight down, maintaining the same distance; analogous to 'incidence'.\""
         },
         {
           "name": "CAMERA_POSITION",
@@ -2292,7 +2414,8 @@
               "type": "vector",
               "name": "position"
             }
-          ]
+          ],
+          "comment": "Sets camera position in region coordinates."
         },
         {
           "name": "CAMERA_POSITION_LAG",
@@ -2302,7 +2425,8 @@
               "type": "float",
               "name": "seconds"
             }
-          ]
+          ],
+          "comment": "How much the camera lags as it tries to move towards its 'ideal' position."
         },
         {
           "name": "CAMERA_POSITION_LOCKED",
@@ -2312,7 +2436,8 @@
               "type": "integer",
               "name": "isLocked"
             }
-          ]
+          ],
+          "comment": "Locks the camera position so it will not move."
         },
         {
           "name": "CAMERA_POSITION_THRESHOLD",
@@ -2322,7 +2447,8 @@
               "type": "float",
               "name": "meters"
             }
-          ]
+          ],
+          "comment": "Sets the radius of a sphere around the camera's ideal position within which it is not affected by target motion."
         }
       ]
     },
@@ -2340,7 +2466,8 @@
               "type": "integer",
               "name": "filter"
             }
-          ]
+          ],
+          "comment": "Mask used to ignore specific types of objects (and avatars)."
         },
         {
           "name": "RC_DATA_FLAGS",
@@ -2350,7 +2477,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Described in the RC_DATA_FLAGS section."
         },
         {
           "name": "RC_MAX_HITS",
@@ -2360,7 +2488,8 @@
               "type": "integer",
               "name": "max_hits"
             }
-          ]
+          ],
+          "comment": "Maximum number of hits to return. Maximum value is 256. To avoid performance issues, keep it small."
         },
         {
           "name": "RC_DETECT_PHANTOM",
@@ -2370,7 +2499,8 @@
               "type": "integer",
               "name": "detect_phantom"
             }
-          ]
+          ],
+          "comment": "Set to TRUE (or nonzero) to detect phantom AND volume detect objects. It is not possible to detect only phantom objects or only volume detect objects. If set to TRUE, phantom and volume detect objects will always be detected, even if RC_REJECT_NONPHYSICAL and RC_REJECT_PHYSICAL are set in RC_REJECT_TYPES."
         }
       ]
     },
@@ -2389,7 +2519,8 @@
               "type": "integer",
               "name": "desired_speed"
             }
-          ]
+          ],
+          "comment": "Speed of pursuit in meters per second."
         },
         {
           "name": "CHARACTER_RADIUS",
@@ -2399,7 +2530,8 @@
               "type": "integer",
               "name": "radius"
             }
-          ]
+          ],
+          "comment": "Set collision capsule radius."
         },
         {
           "name": "CHARACTER_LENGTH",
@@ -2409,7 +2541,8 @@
               "type": "integer",
               "name": "length"
             }
-          ]
+          ],
+          "comment": "Set collision capsule length If the value is less than twice the radius plus 0.1m, it will be set to twice the radius plus 0.1m."
         },
         {
           "name": "CHARACTER_ORIENTATION",
@@ -2419,7 +2552,8 @@
               "type": "integer",
               "name": "orientation"
             }
-          ]
+          ],
+          "comment": "Set the character orientation."
         },
         {
           "name": "CHARACTER_TYPE",
@@ -2429,7 +2563,8 @@
               "type": "integer",
               "name": "type"
             }
-          ]
+          ],
+          "comment": "Specifies which walkability coefficient will be used by this character."
         },
         {
           "name": "CHARACTER_AVOIDANCE_MODE",
@@ -2439,7 +2574,8 @@
               "type": "integer",
               "name": "avoidance_mode"
             }
-          ]
+          ],
+          "comment": "Allows you to specify that a character should not try to avoid other characters, should not try to avoid dynamic obstacles (relatively fast moving objects and avatars), or both. This is framed in the positive sense ([CHARACTER_AVOIDANCE_MODE, AVOID_CHARACTERS] would create a character that avoided other characters but not agents or moving vehicles). Setting this parameter to AVOID_NONE causes the character to not avoid either category."
         },
         {
           "name": "CHARACTER_MAX_ACCEL",
@@ -2449,7 +2585,8 @@
               "type": "integer",
               "name": "max_accel"
             }
-          ]
+          ],
+          "comment": "The character's maximum acceleration rate."
         },
         {
           "name": "CHARACTER_MAX_DECEL",
@@ -2459,7 +2596,8 @@
               "type": "integer",
               "name": "max_decel"
             }
-          ]
+          ],
+          "comment": "The character's maximum deceleration rate."
         },
         {
           "name": "CHARACTER_DESIRED_TURN_SPEED",
@@ -2469,7 +2607,8 @@
               "type": "integer",
               "name": "desired_turn_speed"
             }
-          ]
+          ],
+          "comment": "The character's maximum speed while turning--note that this is only loosely enforced (i.e., a character may turn at higher speeds under certain conditions)"
         },
         {
           "name": "CHARACTER_MAX_TURN_RADIUS",
@@ -2479,7 +2618,8 @@
               "type": "float",
               "name": "max_turn_radius"
             }
-          ]
+          ],
+          "comment": "The character's turn radius when traveling at CHARACTER_DESIRED_TURN_SPEED"
         },
         {
           "name": "CHARACTER_MAX_SPEED",
@@ -2489,7 +2629,8 @@
               "type": "integer",
               "name": "max_speed"
             }
-          ]
+          ],
+          "comment": "The character's maximum speed. Affects speed when avoiding dynamic obstacles and when traversing low-walkability objects in TRAVERSAL_TYPE_FAST mode."
         },
         {
           "name": "CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES",
@@ -2499,7 +2640,8 @@
               "type": "integer",
               "name": "account_for_skipped_frames"
             }
-          ]
+          ],
+          "comment": "TRUE matches pre-existing behavior. If set to FALSE, character will not attempt to catch up on lost time when pathfinding performance is low, potentially providing more reliable movement (albeit while potentially appearing to be more stuttery)."
         },
         {
           "name": "CHARACTER_STAY_WITHIN_PARCEL",
@@ -2509,7 +2651,8 @@
               "type": "integer",
               "name": "stay_within_parcel"
             }
-          ]
+          ],
+          "comment": "FALSE matches traditional behavior. If set to TRUE, treat the parcel boundaries as one-way obstacles (will re-enter but can't leave on it's own)."
         }
       ]
     },
@@ -2527,7 +2670,8 @@
               "type": "integer",
               "name": "param"
             }
-          ]
+          ],
+          "comment": "Start parameter passed into the rezzed object's on_rez(integer) event."
         },
         {
           "name": "REZ_FLAGS",
@@ -2537,7 +2681,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Flags applied to rezzed object when it is created in the world. Flags parameter integer value description REZ_FLAG_TEMP 0x0001 Object is rezzed as temporary. REZ_FLAG_PHYSICAL 0x0002 Object is rezzed as physical. REZ_FLAG_PHANTOM 0x0004 Object is rezzed as phantom REZ_FLAG_DIE_ON_COLLIDE 0x0008 The object will die after its first collision. REZ_FLAG_DIE_ON_NOENTRY 0x0010 Object will die if it attempts to enter a parcel that it can't. REZ_FLAG_NO_COLLIDE_OWNER 0x0020 Object will not trigger a collision event if colliding with its owner.† REZ_FLAG_NO_COLLIDE_FAMILY 0x0040 Object will not trigger collision events when colliding with other object rezzed by the same rezzer.† REZ_FLAG_BLOCK_GRAB_OBJECT 0x0080 Grabbing is disabled for this object. † Disabling collisions only disables collision events and damage. The object will still cause a physics collision and may push the objects."
         },
         {
           "name": "REZ_POS",
@@ -2555,7 +2700,8 @@
               "type": "integer",
               "name": "at_root"
             }
-          ]
+          ],
+          "comment": "Position to rez the new object in the world. If relative is FALSE the position is in region coordinates. If relative is TRUE, the position will be relative to the rezzing object. If at_root is FALSE, the center of the object will be at the position specified by pos(llRezObject). Set at_root to TRUE to set the position of the root prim(llRezAtRoot)."
         },
         {
           "name": "REZ_ROT",
@@ -2569,7 +2715,8 @@
               "type": "integer",
               "name": "relative"
             }
-          ]
+          ],
+          "comment": "The initial rotation to apply to the object. If relative is TRUE, the rotation is relative to the rezzing object, otherwise it is absolute."
         },
         {
           "name": "REZ_VEL",
@@ -2587,7 +2734,8 @@
               "type": "integer",
               "name": "inherit"
             }
-          ]
+          ],
+          "comment": "The initial velocity to apply to the object. If local is TRUE the velocity is in the local object coordinate frame, otherwise it is in world coordinates. If inherit is TRUE the object also inherits it's rezzer's velocity."
         },
         {
           "name": "REZ_ACCEL",
@@ -2601,7 +2749,8 @@
               "type": "integer",
               "name": "local"
             }
-          ]
+          ],
+          "comment": "A constant force to apply to the object. If local is TRUE, the force vector is in local coordinates."
         },
         {
           "name": "REZ_OMEGA",
@@ -2623,7 +2772,8 @@
               "type": "float",
               "name": "gain"
             }
-          ]
+          ],
+          "comment": "Spin the object around the specified axis. If local is TRUE that axis is in local coordinates, otherwise they are global."
         },
         {
           "name": "REZ_DAMAGE",
@@ -2633,7 +2783,8 @@
               "type": "float",
               "name": "damage"
             }
-          ]
+          ],
+          "comment": "The amount of damage applied to an agent upon collision with this object."
         },
         {
           "name": "REZ_SOUND",
@@ -2651,7 +2802,8 @@
               "type": "integer",
               "name": "loop"
             }
-          ]
+          ],
+          "comment": "A sound to attach to this object. It will be played at the specified volume. If loop is TRUE the sound will loop continuously for the life of the object. The sound parameter may be either a sound file in the rezzer's inventory or the UUID of a sound asset."
         },
         {
           "name": "REZ_SOUND_COLLIDE",
@@ -2665,7 +2817,8 @@
               "type": "float",
               "name": "volume"
             }
-          ]
+          ],
+          "comment": "A sound to play upon collision with another object, the ground or an avatar. The sound parameter may be either a sound file in the rezzer's inventory or the UUID of a sound asset."
         },
         {
           "name": "REZ_LOCK_AXES",
@@ -2675,7 +2828,8 @@
               "type": "vector",
               "name": "locks"
             }
-          ]
+          ],
+          "comment": "Prevent the object from spinning on certain axes. Setting the vector's coordinate to non-zero will prevent the object from spinning on that axis. For instance REZ_LOCK_AXES, <1.0, 1.0, 0.0> will allow the object to only rotate around its Z-axis."
         },
         {
           "name": "REZ_DAMAGE_TYPE",
@@ -2685,7 +2839,8 @@
               "type": "integer",
               "name": "damage_type"
             }
-          ]
+          ],
+          "comment": "The damage type to apply when this prim collides with another object. Can match one of the DAMAGE_TYPE_* constants, be a custom damage type or repurpose the damage field."
         },
         {
           "name": "REZ_PARAM_STRING",
@@ -2695,7 +2850,8 @@
               "type": "string",
               "name": "start_param"
             }
-          ]
+          ],
+          "comment": "Pass an initialization string to the root prim of the newly rezzed object that may be read with llGetStartString from within the rezzed object. Maximum string length is 1024 bytes."
         }
       ]
     },
@@ -2714,7 +2870,8 @@
               "type": "string",
               "name": "name"
             }
-          ]
+          ],
+          "comment": "Gets the prim's name. If id is an avatar, the Legacy Name is returned."
         },
         {
           "name": "OBJECT_DESC",
@@ -2725,7 +2882,8 @@
               "type": "string",
               "name": "desc"
             }
-          ]
+          ],
+          "comment": "Gets the prim's description. If id is an avatar, an empty string is returned."
         },
         {
           "name": "OBJECT_POS",
@@ -2736,7 +2894,8 @@
               "type": "vector",
               "name": "pos"
             }
-          ]
+          ],
+          "comment": "Gets the prim's position in region coordinates. If id is an avatar outside the region (see above), this position is relative to the region the script is running in."
         },
         {
           "name": "OBJECT_ROT",
@@ -2747,7 +2906,8 @@
               "type": "rotation",
               "name": "rot"
             }
-          ]
+          ],
+          "comment": "Gets the prim's rotation."
         },
         {
           "name": "OBJECT_VELOCITY",
@@ -2758,7 +2918,8 @@
               "type": "vector",
               "name": "velocity"
             }
-          ]
+          ],
+          "comment": "Gets the object's velocity."
         },
         {
           "name": "OBJECT_OWNER",
@@ -2769,7 +2930,8 @@
               "type": "key",
               "name": "owner"
             }
-          ]
+          ],
+          "comment": "Gets an object's owner key. If id is an avatar, that avatar's key is returned (which is the same as id). If id is group-owned, a NULL_KEY is returned."
         },
         {
           "name": "OBJECT_GROUP",
@@ -2780,7 +2942,8 @@
               "type": "key",
               "name": "group"
             }
-          ]
+          ],
+          "comment": "Gets the prim's group key. If id is an avatar, a NULL_KEY is returned, which means a workaround is required to get an avatar's active group.[1]"
         },
         {
           "name": "OBJECT_CREATOR",
@@ -2791,7 +2954,8 @@
               "type": "key",
               "name": "creator"
             }
-          ]
+          ],
+          "comment": "Gets the prim's creator key. If id is an avatar, a NULL_KEY is returned."
         },
         {
           "name": "OBJECT_RUNNING_SCRIPT_COUNT",
@@ -2802,7 +2966,8 @@
               "type": "integer",
               "name": "runningScriptCount"
             }
-          ]
+          ],
+          "comment": "Gets the number of running scripts attached to the object or agent."
         },
         {
           "name": "OBJECT_TOTAL_SCRIPT_COUNT",
@@ -2813,7 +2978,8 @@
               "type": "integer",
               "name": "totalScriptCount"
             }
-          ]
+          ],
+          "comment": "Gets the number of scripts, both running and stopped, attached to the object or agent."
         },
         {
           "name": "OBJECT_SCRIPT_MEMORY",
@@ -2824,7 +2990,8 @@
               "type": "integer",
               "name": "scriptMemory"
             }
-          ]
+          ],
+          "comment": "Gets the amount of script memory used by the object or agent, in bytes, or its upper limit. See page for more info."
         },
         {
           "name": "OBJECT_SCRIPT_TIME",
@@ -2835,7 +3002,8 @@
               "type": "float",
               "name": "scriptTime"
             }
-          ]
+          ],
+          "comment": "Gets the total amount of average script CPU time used by the object or agent, in seconds. See page for more info."
         },
         {
           "name": "OBJECT_PRIM_EQUIVALENCE",
@@ -2846,7 +3014,8 @@
               "type": "integer",
               "name": "primEquivalence"
             }
-          ]
+          ],
+          "comment": "Gets the prim equivalence of the object."
         },
         {
           "name": "OBJECT_SERVER_COST",
@@ -2857,7 +3026,8 @@
               "type": "float",
               "name": "serverCost"
             }
-          ]
+          ],
+          "comment": "Gets the server cost of the object."
         },
         {
           "name": "OBJECT_STREAMING_COST",
@@ -2868,7 +3038,8 @@
               "type": "float",
               "name": "streamingCost"
             }
-          ]
+          ],
+          "comment": "Gets the streaming (download) cost of the object."
         },
         {
           "name": "OBJECT_PHYSICS_COST",
@@ -2879,7 +3050,8 @@
               "type": "float",
               "name": "physicsCost"
             }
-          ]
+          ],
+          "comment": "Gets the physics cost of the object."
         },
         {
           "name": "OBJECT_CHARACTER_TIME",
@@ -2890,7 +3062,8 @@
               "type": "float",
               "name": "characterTime"
             }
-          ]
+          ],
+          "comment": "Gets the average CPU time (in seconds) used by the object for navigation, if the object is a pathfinding character. Returns 0 for non-characters."
         },
         {
           "name": "OBJECT_ROOT",
@@ -2901,7 +3074,8 @@
               "type": "key",
               "name": "root"
             }
-          ]
+          ],
+          "comment": "Gets the id of the root prim of the object requested. If id is an avatar, returns the id of the root prim of the linkset the avatar is sitting on and linked to (or the avatar's own id if the avatar is not sitting on an object within the region)."
         },
         {
           "name": "OBJECT_ATTACHED_POINT",
@@ -2912,7 +3086,8 @@
               "type": "integer",
               "name": "attachedPoint"
             }
-          ]
+          ],
+          "comment": "Gets the attachment point to which the object is attached. It returns an integer matching one of the ATTACH_* constants."
         },
         {
           "name": "OBJECT_PATHFINDING_TYPE",
@@ -2923,7 +3098,8 @@
               "type": "integer",
               "name": "pathfindingType"
             }
-          ]
+          ],
+          "comment": "Gets the pathfinding setting of the object in the region. It returns an integer matching one of the OPT_* constants."
         },
         {
           "name": "OBJECT_PHYSICS",
@@ -2934,7 +3110,8 @@
               "type": "boolean",
               "name": "physics"
             }
-          ]
+          ],
+          "comment": "Gets the integer boolean detailing if physics is enabled or disabled on the object. If id is an avatar or attachment, 0 is returned."
         },
         {
           "name": "OBJECT_PHANTOM",
@@ -2945,7 +3122,8 @@
               "type": "boolean",
               "name": "phantom"
             }
-          ]
+          ],
+          "comment": "Gets the integer boolean detailing if phantom is enabled or disabled on the object. If id is an avatar or attachment, 0 is returned."
         },
         {
           "name": "OBJECT_TEMP_ON_REZ",
@@ -2956,7 +3134,8 @@
               "type": "boolean",
               "name": "tempOnRez"
             }
-          ]
+          ],
+          "comment": "Gets the integer boolean detailing if temporary is enabled or disabled on the object."
         },
         {
           "name": "OBJECT_RENDER_WEIGHT",
@@ -2967,7 +3146,8 @@
               "type": "integer",
               "name": "renderWeight"
             }
-          ]
+          ],
+          "comment": "Gets the avatar's render weight. If id is an object, 0 is returned. If id is an avatar whose render weight is unknown to the simulator, -1 is returned. The maximum render weight reported by the server is 500000[1]."
         },
         {
           "name": "OBJECT_HOVER_HEIGHT",
@@ -2978,7 +3158,8 @@
               "type": "float",
               "name": "hoverHeight"
             }
-          ]
+          ],
+          "comment": "Gets the hover height of the avatar. If id is not an avatar, 0.0 is returned. Normal values are in the range [-2.0, 2.0] with a default of 0.0. This value does not reflect the avatar shape's \"Hover\" slider, only the dynamic viewer setting."
         },
         {
           "name": "OBJECT_BODY_SHAPE_TYPE",
@@ -2989,7 +3170,8 @@
               "type": "float",
               "name": "bodyShapeType"
             }
-          ]
+          ],
+          "comment": "Gets a float which describes the sex setting of the avatar's currently worn shape. If id is not an avatar, -1.0 is returned. Normal operational values are in the range [0.0, 1.0]. 0.0 is standard female setting, 1.0 is standard male setting. Intermediate values with visible differences are possible with manually crafted shapes."
         },
         {
           "name": "OBJECT_LAST_OWNER_ID",
@@ -3000,7 +3182,8 @@
               "type": "key",
               "name": "lastOwnerId"
             }
-          ]
+          ],
+          "comment": "Gets the UUID of the object's previous owner, if known. For group-owned objects, this is the avatar that deeded the object. Returns NULL_KEY for avatars, or objects that were never transferred. A rezzed object taken back to inventory, then re-rezzed, will return its current owner key."
         },
         {
           "name": "OBJECT_CLICK_ACTION",
@@ -3011,7 +3194,8 @@
               "type": "integer",
               "name": "clickAction"
             }
-          ]
+          ],
+          "comment": "Gets the click action of the prim. It returns an integer matching one of the CLICK_ACTION_* constants."
         },
         {
           "name": "OBJECT_OMEGA",
@@ -3022,7 +3206,8 @@
               "type": "vector",
               "name": "omega"
             }
-          ]
+          ],
+          "comment": "Gets the object's rotational velocity (radians per second)."
         },
         {
           "name": "OBJECT_PRIM_COUNT",
@@ -3033,7 +3218,8 @@
               "type": "integer",
               "name": "primCount"
             }
-          ]
+          ],
+          "comment": "Gets the object's prim count"
         },
         {
           "name": "OBJECT_TOTAL_INVENTORY_COUNT",
@@ -3044,7 +3230,8 @@
               "type": "integer",
               "name": "totalInventoryCount"
             }
-          ]
+          ],
+          "comment": "Gets the object's total number of inventory items."
         },
         {
           "name": "OBJECT_REZZER_KEY",
@@ -3055,7 +3242,8 @@
               "type": "key",
               "name": "rezzerKey"
             }
-          ]
+          ],
+          "comment": "Gets the key of the object that rezzed this object be it an object or an avatar."
         },
         {
           "name": "OBJECT_GROUP_TAG",
@@ -3066,7 +3254,8 @@
               "type": "string",
               "name": "groupTag"
             }
-          ]
+          ],
+          "comment": "Gets the avatar's group tag text. If id is not an avatar, an empty string is returned."
         },
         {
           "name": "OBJECT_TEMP_ATTACHED",
@@ -3077,7 +3266,8 @@
               "type": "boolean",
               "name": "tempAttached"
             }
-          ]
+          ],
+          "comment": "Gets the integer boolean detailing if the object is temporarily attached."
         },
         {
           "name": "OBJECT_ATTACHED_SLOTS_AVAILABLE",
@@ -3088,7 +3278,8 @@
               "type": "integer",
               "name": "attachedSlotsAvailable"
             }
-          ]
+          ],
+          "comment": "Gets the avatar's available attachment slot count. If id is not an avatar, 0 is returned."
         },
         {
           "name": "OBJECT_CREATION_TIME",
@@ -3099,7 +3290,8 @@
               "type": "string",
               "name": "creationTime"
             }
-          ]
+          ],
+          "comment": "Gets the object's creation time. This time is established with raw material rezzing through the build menu and with mesh uploads. This time is NOT established with inventory rezzes, scripted rezzes, object modifying, copying or transferring. If id is an avatar, an empty string is returned."
         },
         {
           "name": "OBJECT_SELECT_COUNT",
@@ -3110,7 +3302,8 @@
               "type": "integer",
               "name": "selectCount"
             }
-          ]
+          ],
+          "comment": "Gets the total number of agents selecting any links in the object. If id is an avatar, 0 is returned."
         },
         {
           "name": "OBJECT_SIT_COUNT",
@@ -3121,7 +3314,8 @@
               "type": "integer",
               "name": "sitCount"
             }
-          ]
+          ],
+          "comment": "Gets the total number of agents sitting on any links in the object. If id is an avatar, 0 is returned."
         },
         {
           "name": "OBJECT_ANIMATED_COUNT",
@@ -3132,7 +3326,8 @@
               "type": "integer",
               "name": "animatedCount"
             }
-          ]
+          ],
+          "comment": "Gets the integer boolean detailing if the object's root is set to \"Animated Mesh\" or gets the total number of \"Animated Mesh\" attachments worn by an agent."
         },
         {
           "name": "OBJECT_ANIMATED_SLOTS_AVAILABLE",
@@ -3143,7 +3338,8 @@
               "type": "integer",
               "name": "animatedSlotsAvailable"
             }
-          ]
+          ],
+          "comment": "Gets the avatar's available \"Animated Mesh\" attachment slot count. If id is not an avatar, 0 is returned."
         },
         {
           "name": "OBJECT_ACCOUNT_LEVEL",
@@ -3154,7 +3350,8 @@
               "type": "integer",
               "name": "accountLevel"
             }
-          ]
+          ],
+          "comment": "Gets the account level of an avatar. If id is not an avatar, -1 is returned. 0 is Basic account level. 1 is Premium account level. 5 is Plus account level. 10 is Premium Plus account level."
         },
         {
           "name": "OBJECT_MATERIAL",
@@ -3165,7 +3362,8 @@
               "type": "integer",
               "name": "material"
             }
-          ]
+          ],
+          "comment": "Retrieves the physics material set on this object. It returns an integer matching one of the PRIM_MATERIAL_* constants."
         },
         {
           "name": "OBJECT_MASS",
@@ -3176,7 +3374,8 @@
               "type": "float",
               "name": "mass"
             }
-          ]
+          ],
+          "comment": "Gets the mass (in Kilograms) of this object's linkset."
         },
         {
           "name": "OBJECT_TEXT",
@@ -3187,7 +3386,8 @@
               "type": "string",
               "name": "text"
             }
-          ]
+          ],
+          "comment": "Gets the floating text displayed above this object."
         },
         {
           "name": "OBJECT_REZ_TIME",
@@ -3198,7 +3398,8 @@
               "type": "string",
               "name": "rezTime"
             }
-          ]
+          ],
+          "comment": "Retrieves the time that this object was rezzed."
         },
         {
           "name": "OBJECT_LINK_NUMBER",
@@ -3209,7 +3410,8 @@
               "type": "integer",
               "name": "linkNumber"
             }
-          ]
+          ],
+          "comment": "Get this object's index in the linkset."
         },
         {
           "name": "OBJECT_SCALE",
@@ -3220,7 +3422,8 @@
               "type": "vector",
               "name": "scale"
             }
-          ]
+          ],
+          "comment": "Get the size of this object."
         },
         {
           "name": "OBJECT_TEXT_COLOR",
@@ -3231,7 +3434,8 @@
               "type": "vector",
               "name": "textColor"
             }
-          ]
+          ],
+          "comment": "Gets the color of the floating text displayed above this object."
         },
         {
           "name": "OBJECT_TEXT_ALPHA",
@@ -3242,7 +3446,8 @@
               "type": "float",
               "name": "textAlpha"
             }
-          ]
+          ],
+          "comment": "Gets the alpha value of the floating text displayed above this object."
         },
         {
           "name": "OBJECT_HEALTH",
@@ -3253,7 +3458,8 @@
               "type": "float",
               "name": "health"
             }
-          ]
+          ],
+          "comment": "Retrieves the health of an avatar or prim."
         },
         {
           "name": "OBJECT_DAMAGE",
@@ -3264,7 +3470,8 @@
               "type": "float",
               "name": "damage"
             }
-          ]
+          ],
+          "comment": "Retrieves the amount of damage a prim inflicts on collision."
         },
         {
           "name": "OBJECT_DAMAGE_TYPE",
@@ -3275,7 +3482,8 @@
               "type": "integer",
               "name": "damageType"
             }
-          ]
+          ],
+          "comment": "Retrieves the type of damage a prim inflicts on collision. It returns an integer that can match one of the DAMAGE_TYPE_* constants, be a custom damage type or be repurposed by a combat system."
         },
         {
           "name": "OBJECT_PERMS",
@@ -3302,7 +3510,8 @@
               "type": "integer",
               "name": "nextOwner"
             }
-          ]
+          ],
+          "comment": "Retrieves the permissions for this object as 5 integers."
         },
         {
           "name": "OBJECT_PERMS_COMBINED",
@@ -3329,7 +3538,8 @@
               "type": "integer",
               "name": "nextOwner"
             }
-          ]
+          ],
+          "comment": "Retrieves the permissions for this object combined with all of its inventory items as 5 integers."
         }
       ]
     },
@@ -3348,7 +3558,8 @@
               "type": "string",
               "name": "name"
             }
-          ]
+          ],
+          "comment": "The name of the parcel."
         },
         {
           "name": "PARCEL_DETAILS_DESC",
@@ -3359,7 +3570,8 @@
               "type": "string",
               "name": "desc"
             }
-          ]
+          ],
+          "comment": "The description of the parcel."
         },
         {
           "name": "PARCEL_DETAILS_OWNER",
@@ -3370,7 +3582,8 @@
               "type": "key",
               "name": "owner"
             }
-          ]
+          ],
+          "comment": "The parcel owner's key."
         },
         {
           "name": "PARCEL_DETAILS_GROUP",
@@ -3381,7 +3594,8 @@
               "type": "key",
               "name": "group"
             }
-          ]
+          ],
+          "comment": "The parcel group's key."
         },
         {
           "name": "PARCEL_DETAILS_AREA",
@@ -3392,7 +3606,8 @@
               "type": "integer",
               "name": "area"
             }
-          ]
+          ],
+          "comment": "The parcel's area, in sqm."
         },
         {
           "name": "PARCEL_DETAILS_ID",
@@ -3403,7 +3618,8 @@
               "type": "key",
               "name": "id"
             }
-          ]
+          ],
+          "comment": "The parcel's key."
         },
         {
           "name": "PARCEL_DETAILS_SEE_AVATARS",
@@ -3414,7 +3630,8 @@
               "type": "boolean",
               "name": "seeAvatars"
             }
-          ]
+          ],
+          "comment": "The parcel's avatar visibility setting[2]"
         },
         {
           "name": "PARCEL_DETAILS_PRIM_CAPACITY",
@@ -3425,7 +3642,8 @@
               "type": "integer",
               "name": "primCapacity"
             }
-          ]
+          ],
+          "comment": "The total prim capacity on this and all same-owner parcels, sim-wide. See llGetParcelMaxPrims for same-parcel-only and/or sim-wide reporting."
         },
         {
           "name": "PARCEL_DETAILS_PRIM_USED",
@@ -3436,7 +3654,8 @@
               "type": "integer",
               "name": "primUsed"
             }
-          ]
+          ],
+          "comment": "The total prim usage on this and all same-owner parcels, sim-wide. See llGetParcelPrimCount to get prim count by parcel owner, group, temp, etc. for same-parcel-only and/or sim-wide reporting."
         },
         {
           "name": "PARCEL_DETAILS_LANDING_POINT",
@@ -3447,7 +3666,8 @@
               "type": "vector",
               "name": "landingPoint"
             }
-          ]
+          ],
+          "comment": "Landing point set for this parcel, if any."
         },
         {
           "name": "PARCEL_DETAILS_LANDING_LOOKAT",
@@ -3458,7 +3678,8 @@
               "type": "vector",
               "name": "landingLookat"
             }
-          ]
+          ],
+          "comment": "Look at vector set for the landing point on this parcel, if any."
         },
         {
           "name": "PARCEL_DETAILS_TP_ROUTING",
@@ -3469,7 +3690,8 @@
               "type": "integer",
               "name": "tpRouting"
             }
-          ]
+          ],
+          "comment": "Teleport routing for this parcel. 0 = TP_ROUTING_BLOCKED 1 = TP_ROUTING_LANDINGP 2 = TP_ROUTING_FREE Note that routing rules are only enforced if the landing point is set."
         },
         {
           "name": "PARCEL_DETAILS_FLAGS",
@@ -3480,7 +3702,8 @@
               "type": "integer",
               "name": "flags"
             }
-          ]
+          ],
+          "comment": "Parcel flags set for this parcel. See llGetParcelFlags for a listing of the flags and their meaning."
         },
         {
           "name": "PARCEL_DETAILS_SCRIPT_DANGER",
@@ -3491,7 +3714,8 @@
               "type": "boolean",
               "name": "scriptDanger"
             }
-          ]
+          ],
+          "comment": "Is the script in danger in the indicated parcel. See llScriptDanger for a discussion of script danger."
         }
       ]
     },
@@ -3509,7 +3733,8 @@
               "type": "vector",
               "name": "base_color_factor"
             }
-          ]
+          ],
+          "comment": "Set the tinting color used for the base color. Color is specified in linear RGB. Use llsRGB2Linear to convert colors from Blinn-Phong to PBR."
         },
         {
           "name": "OVERRIDE_GLTF_BASE_ALPHA",
@@ -3519,7 +3744,8 @@
               "type": "float",
               "name": "base_alpha"
             }
-          ]
+          ],
+          "comment": "Sets the alpha for the face(s). Only impacts the rendering when the alpha mode is set to PRIM_GLTF_ALPHA_MODE_BLEND."
         },
         {
           "name": "OVERRIDE_GLTF_BASE_ALPHA_MODE",
@@ -3529,7 +3755,8 @@
               "type": "integer",
               "name": "base_alpha_mode"
             }
-          ]
+          ],
+          "comment": "Set the alpha mode on the face(s). Must be one of the valid blend modes GLTF Alpha Mode value description PRIM_GLTF_ALPHA_MODE_OPAQUE 0 Ignore the alpha value and render the material as opaque. PRIM_GLTF_ALPHA_MODE_BLEND 1 Render the material with transparency determined by the alpha value. Blending is done in linear color space. As is the case for Blinn-Phong as well, this mode suffers from depth sorting and performance issues. Use alpha mask instead when possible. PRIM_GLTF_ALPHA_MODE_MASK 2 Render the material as fully opaque where the alpha value is greater than the alpha cutoff, and otherwise render the material as fully transparent."
         },
         {
           "name": "OVERRIDE_GLTF_BASE_ALPHA_MASK",
@@ -3539,7 +3766,8 @@
               "type": "float",
               "name": "base_alpha_mask"
             }
-          ]
+          ],
+          "comment": "Sets the alpha cutoff level on the face(s) when alpha mode is set to mask."
         },
         {
           "name": "OVERRIDE_GLTF_BASE_DOUBLE_SIDED",
@@ -3549,7 +3777,8 @@
               "type": "integer",
               "name": "base_double_sided"
             }
-          ]
+          ],
+          "comment": "If set to TRUE then the texture on the face(s) will be rendered as double sided."
         },
         {
           "name": "OVERRIDE_GLTF_METALLIC_FACTOR",
@@ -3559,7 +3788,8 @@
               "type": "float",
               "name": "metallic_factor"
             }
-          ]
+          ],
+          "comment": "Adjusts the metallic factor on the specified face(s). Value should be between 0 and 1."
         },
         {
           "name": "OVERRIDE_GLTF_ROUGHNESS_FACTOR",
@@ -3569,7 +3799,8 @@
               "type": "float",
               "name": "roughness_factor"
             }
-          ]
+          ],
+          "comment": "Adjust the roughness factor on the specified face(s). Value should be between 0 and 1."
         },
         {
           "name": "OVERRIDE_GLTF_EMISSIVE_FACTOR",
@@ -3579,7 +3810,8 @@
               "type": "vector",
               "name": "emissive_factor"
             }
-          ]
+          ],
+          "comment": "Set the tint used for the emissive texture on the face(s). Note that this is specified in linear RGB."
         }
       ]
     },
@@ -3599,7 +3831,8 @@
               "type": "boolean",
               "name": "altImageEnable"
             }
-          ]
+          ],
+          "comment": "Gets the default image state (the image that the user sees before a piece of media is active) for the chosen face. The default image is specified by Second Life's server for that media type. Note: This flag is not currently implemented."
         },
         {
           "name": "PRIM_MEDIA_CONTROLS",
@@ -3610,7 +3843,8 @@
               "type": "integer",
               "name": "control"
             }
-          ]
+          ],
+          "comment": "Gets the style of controls. Can be either PRIM_MEDIA_CONTROLS_STANDARD or PRIM_MEDIA_CONTROLS_MINI."
         },
         {
           "name": "PRIM_MEDIA_CURRENT_URL",
@@ -3621,7 +3855,8 @@
               "type": "string",
               "name": "current_url"
             }
-          ]
+          ],
+          "comment": "Gets the current url displayed on the chosen face. Changing this URL causes navigation. 1024 characters Max"
         },
         {
           "name": "PRIM_MEDIA_HOME_URL",
@@ -3632,7 +3867,8 @@
               "type": "string",
               "name": "home_url"
             }
-          ]
+          ],
+          "comment": "Gets the home url for the chosen face. 1024 characters max"
         },
         {
           "name": "PRIM_MEDIA_AUTO_LOOP",
@@ -3643,7 +3879,8 @@
               "type": "boolean",
               "name": "autoLoop"
             }
-          ]
+          ],
+          "comment": "Gets whether auto-looping is enabled."
         },
         {
           "name": "PRIM_MEDIA_AUTO_PLAY",
@@ -3654,7 +3891,8 @@
               "type": "boolean",
               "name": "autoPlay"
             }
-          ]
+          ],
+          "comment": "Gets whether the media auto-plays when a Resident can view it."
         },
         {
           "name": "PRIM_MEDIA_AUTO_SCALE",
@@ -3665,7 +3903,8 @@
               "type": "boolean",
               "name": "autoScale"
             }
-          ]
+          ],
+          "comment": "Gets whether auto-scaling is enabled. Auto-scaling forces the media to the full size of the texture."
         },
         {
           "name": "PRIM_MEDIA_AUTO_ZOOM",
@@ -3676,7 +3915,8 @@
               "type": "boolean",
               "name": "autoZoom"
             }
-          ]
+          ],
+          "comment": "Gets whether clicking the media triggers auto-zoom and auto-focus on the media."
         },
         {
           "name": "PRIM_MEDIA_FIRST_CLICK_INTERACT",
@@ -3687,7 +3927,8 @@
               "type": "boolean",
               "name": "firstClickInteract"
             }
-          ]
+          ],
+          "comment": "Gets whether the first click interaction is enabled. Note: This flag appears not to work."
         },
         {
           "name": "PRIM_MEDIA_WIDTH_PIXELS",
@@ -3698,7 +3939,8 @@
               "type": "integer",
               "name": "width"
             }
-          ]
+          ],
+          "comment": "Gets the width of the media in pixels."
         },
         {
           "name": "PRIM_MEDIA_HEIGHT_PIXELS",
@@ -3709,7 +3951,8 @@
               "type": "integer",
               "name": "height"
             }
-          ]
+          ],
+          "comment": "Gets the height of the media in pixels."
         },
         {
           "name": "PRIM_MEDIA_WHITELIST_ENABLE",
@@ -3720,7 +3963,8 @@
               "type": "boolean",
               "name": "whitelistEnable"
             }
-          ]
+          ],
+          "comment": "Gets whether navigation is restricted to URLs in PRIM_MEDIA_WHITELIST."
         },
         {
           "name": "PRIM_MEDIA_WHITELIST",
@@ -3731,7 +3975,8 @@
               "type": "string",
               "name": "CSV"
             }
-          ]
+          ],
+          "comment": "Gets the whitelist as a string of escaped, comma-separated URLs. This string can hold up to 64 URLs or 1024 characters, whichever comes first."
         },
         {
           "name": "PRIM_MEDIA_PERMS_INTERACT",
@@ -3742,7 +3987,8 @@
               "type": "integer",
               "name": "perms"
             }
-          ]
+          ],
+          "comment": "Gets the permissions mask that control who can interact with the object: PRIM_MEDIA_PERM_NONE PRIM_MEDIA_PERM_OWNER PRIM_MEDIA_PERM_GROUP PRIM_MEDIA_PERM_ANYONE"
         },
         {
           "name": "PRIM_MEDIA_PERMS_CONTROL",
@@ -3753,7 +3999,8 @@
               "type": "integer",
               "name": "perms"
             }
-          ]
+          ],
+          "comment": "Gets the permissions mask that control who can see the media control bar above the object: PRIM_MEDIA_PERM_NONE PRIM_MEDIA_PERM_OWNER PRIM_MEDIA_PERM_GROUP PRIM_MEDIA_PERM_ANYONE"
         }
       ]
     },
@@ -3772,7 +4019,8 @@
               "type": "key",
               "name": "uuid"
             }
-          ]
+          ],
+          "comment": "Used to get or set the parcel's media texture."
         },
         {
           "name": "PARCEL_MEDIA_COMMAND_URL",
@@ -3783,7 +4031,8 @@
               "type": "string",
               "name": "url"
             }
-          ]
+          ],
+          "comment": "Used to get or set the parcel's media url."
         },
         {
           "name": "PARCEL_MEDIA_COMMAND_TYPE",
@@ -3794,7 +4043,8 @@
               "type": "string",
               "name": "mime_type"
             }
-          ]
+          ],
+          "comment": "Used to get or set the parcel media MIME type (e.g. \"text/html\"). (1.19.1 RC0 or later)"
         },
         {
           "name": "PARCEL_MEDIA_COMMAND_SIZE",
@@ -3809,7 +4059,8 @@
               "type": "integer",
               "name": "y"
             }
-          ]
+          ],
+          "comment": "Used to get or set the parcel media pixel resolution. (1.19.1 RC0 or later)"
         },
         {
           "name": "PARCEL_MEDIA_COMMAND_DESC",
@@ -3820,7 +4071,8 @@
               "type": "string",
               "name": "desc"
             }
-          ]
+          ],
+          "comment": "Used to get or set the parcel media description. (1.19.1 RC0 or later)"
         },
         {
           "name": "PARCEL_MEDIA_COMMAND_LOOP_SET",
@@ -3831,7 +4083,8 @@
               "type": "float",
               "name": "loop"
             }
-          ]
+          ],
+          "comment": "Used to get or set the parcel's media loop duration. (1.19.1 RC0 or later)"
         }
       ]
     },
@@ -3858,7 +4111,8 @@
               "type": "float",
               "name": "sky4"
             }
-          ]
+          ],
+          "comment": "Altitudes for sky transitions in the region."
         },
         {
           "name": "SKY_AMBIENT",
@@ -3869,7 +4123,8 @@
               "type": "vector",
               "name": "ambient_color"
             }
-          ]
+          ],
+          "comment": "The ambient color of the environment."
         },
         {
           "name": "SKY_TEXTURE_DEFAULTS",
@@ -3888,7 +4143,8 @@
               "type": "integer",
               "name": "rainbow_is_default"
             }
-          ]
+          ],
+          "comment": "Checks if the textures are currently set to use the default. For default values, the returned integer is 1. If the texture uses something other than the default, the returned value is 0."
         },
         {
           "name": "SKY_CLOUDS",
@@ -3927,7 +4183,8 @@
               "type": "integer",
               "name": "is_default"
             }
-          ]
+          ],
+          "comment": "Environmental cloud information. color: The color used for the clouds. coverage: The coverage percentage. scale: The scaling applied to the cloud textures. variance: A randomizing factor applied to the main cloud layer scroll: The scroll speed of the clouds. X is east/west Y is north/south Z is unused density: The X/Y and D parameter used to generate cloud density detail: The X/Y and D parameter used to generate cloud details. is_default: 1 if the clouds are using the default texture."
         },
         {
           "name": "SKY_DOME",
@@ -3946,7 +4203,8 @@
               "type": "float",
               "name": "max_altitude"
             }
-          ]
+          ],
+          "comment": "Sky dome information. offset radius maximum altitude"
         },
         {
           "name": "SKY_GAMMA",
@@ -3957,7 +4215,8 @@
               "type": "float",
               "name": "gamma"
             }
-          ]
+          ],
+          "comment": "The gamma value applied to the scene. In viewer versions 7.0+, this value has been repurposed into the \"HDR Scale\" value in the EEP editor. (Thus, this will return the value of the HDR Scale slider)."
         },
         {
           "name": "SKY_GLOW",
@@ -3972,7 +4231,8 @@
               "type": "float",
               "name": "glow_focus"
             }
-          ]
+          ],
+          "comment": "Glow applied to the sun and moon. size of glow effect focus of glow effect"
         },
         {
           "name": "SKY_MOON",
@@ -4007,7 +4267,8 @@
               "type": "vector",
               "name": "diffuse_color"
             }
-          ]
+          ],
+          "comment": "Detailed moon information rot: The current rotation applied to the moon. scale: The current scale applied to the moon's texture brightness: The moon's brightness is_default_texture: 1 if the moon texture is set to the default. 0 otherwise direction: A unit vector pointing at the moon. ambient_color: The ambient color of the moon diffuse_color: The diffuse color applied to the moon."
         },
         {
           "name": "SKY_STAR_BRIGHTNESS",
@@ -4053,7 +4314,8 @@
               "type": "vector",
               "name": "diffuse_color"
             }
-          ]
+          ],
+          "comment": "Detailed sun information rot: The current rotation applied to the sun. scale: The current scale applied to the sun's texture sun_color: is_default_texture: 1 if the sun texture is set to the default. 0 otherwise direction: A unit vector pointing at the sun. ambient_color: The ambient color of the sun. diffuse_color: The diffuse color applied to the sun."
         },
         {
           "name": "SKY_PLANET",
@@ -4072,7 +4334,8 @@
               "type": "float",
               "name": "sky_top_radius"
             }
-          ]
+          ],
+          "comment": "Planet information used in rendering the sky planet_radius sky_bottom_radius sky_top_radius"
         },
         {
           "name": "SKY_REFRACTION",
@@ -4091,7 +4354,8 @@
               "type": "float",
               "name": "ice_level"
             }
-          ]
+          ],
+          "comment": "Sky refraction parameters for rainbows and optical effects. moisture_level droplet_radius ice_level"
         },
         {
           "name": "SKY_LIGHT",
@@ -4110,7 +4374,8 @@
               "type": "vector",
               "name": "total_ambient"
             }
-          ]
+          ],
+          "comment": "Miscellaneous lighting values light_direction: A unit vector indicating the direction of the dominant light source. fade_color: A color vector representing the current color of the light emitted from the dominant light source (in sRGB space). total_ambient: A color vector representing the current ambient color in use in the scene (in sRGB space)."
         },
         {
           "name": "SKY_REFLECTION_PROBE_AMBIANCE",
@@ -4121,7 +4386,8 @@
               "type": "float",
               "name": "ambiance"
             }
-          ]
+          ],
+          "comment": "Minimum ambiance value for all reflection probes. range = [0.0, 10.0] Caveat: This parameter will be supported in the upcoming GLTF Materials project. Currently it will only work in supported testing areas with a supported test viewer."
         },
         {
           "name": "WATER_BLUR_MULTIPLIER",
@@ -4132,7 +4398,8 @@
               "type": "float",
               "name": "multiplier"
             }
-          ]
+          ],
+          "comment": "Multiplier applied to blur the scene when under water."
         },
         {
           "name": "WATER_FOG",
@@ -4151,7 +4418,8 @@
               "type": "float",
               "name": "modulation"
             }
-          ]
+          ],
+          "comment": "Fog parameters applied when underwater color: The color of the underwater fog density: Density exponent applied to the fog modulation:"
         },
         {
           "name": "WATER_FRESNEL",
@@ -4166,7 +4434,8 @@
               "type": "float",
               "name": "scale"
             }
-          ]
+          ],
+          "comment": "Fresnel scattering applied to the surface of the water. offset scale"
         },
         {
           "name": "WATER_TEXTURE_DEFAULTS",
@@ -4181,7 +4450,8 @@
               "type": "integer",
               "name": "transparent_is_default"
             }
-          ]
+          ],
+          "comment": "Checks if the textures are currently set to use the default. For default values the returned integer is 1, if the texture uses something other than the default this value is 0."
         },
         {
           "name": "WATER_NORMAL_SCALE",
@@ -4192,7 +4462,8 @@
               "type": "vector",
               "name": "scale"
             }
-          ]
+          ],
+          "comment": "Scaling applied to the water normal map."
         },
         {
           "name": "WATER_REFRACTION",
@@ -4207,7 +4478,8 @@
               "type": "float",
               "name": "scale_below"
             }
-          ]
+          ],
+          "comment": "Refraction factors when looking through the surface of the water. scale_above scale_below"
         },
         {
           "name": "WATER_WAVE_DIRECTION",
@@ -4222,7 +4494,8 @@
               "type": "vector",
               "name": "small_wave"
             }
-          ]
+          ],
+          "comment": "Vector for the directions of the waves Y represents north/south and X represents movement east/west. large_wave: Large wave speed and direction. small_wave: Small wave speed and direction."
         },
         {
           "name": "ENVIRONMENT_DAYINFO",
@@ -4241,7 +4514,8 @@
               "type": "float",
               "name": "secs_since_midnight"
             }
-          ]
+          ],
+          "comment": "Current time and day information day_length: Number of seconds in the environments day cycle. day_offset: Number of seconds day cycle is offset from GMT. secs_since_midnight: Number of seconds elapsed since the last day cycle midnight."
         }
       ]
     }

@@ -1,5 +1,5 @@
 import { load } from "cheerio"
-import { parseUsageString, parseRawParams, fetchHtml } from "../parse-params.js"
+import { parseUsageString, parseRawParams, fetchHtml, cleanDescription } from "../parse-params.js"
 import type { TypedListParamSet, TypedListRule } from "../types.js"
 
 const SETTER_URL = "https://wiki.secondlife.com/wiki/LlSetPrimitiveParams"
@@ -35,13 +35,19 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
 
     const flag = cells.eq(0).text().trim()
     const value = parseInt(cells.eq(1).text().trim(), 10)
+    const comment = cleanDescription(cells.eq(2).text())
     const usage = cells.eq(3).text().trim()
 
     if (!flag.startsWith("PRIM_") || isNaN(value)) return
     if (usage.includes("flag_parameters")) return
     if (flag.includes("LEGACY")) return
 
-    params.push({ name: flag, value, args: parseUsageString(usage) })
+    params.push({
+      name: flag,
+      value,
+      args: parseUsageString(usage),
+      ...(comment ? { comment } : {}),
+    })
   })
 
   // PRIM_TYPE shape sub-table: small table containing PRIM_TYPE_BOX and PRIM_TYPE_SCULPT
@@ -111,6 +117,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
         const paramCell = cells.eq(0).text().trim()
         const valueCell = cells.eq(1).text().trim()
         const returnCell = cells.eq(2).text().trim()
+        const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
 
         const constMatch = paramCell.match(/\[\s*(PRIM_\w+)/)
         if (!constMatch) return
@@ -130,6 +137,7 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
           value,
           args,
           ...(returns.length > 0 ? { returns } : {}),
+          ...(comment ? { comment } : {}),
         })
       })
   }

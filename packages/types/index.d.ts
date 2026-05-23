@@ -4515,19 +4515,33 @@ declare const AVOID_DYNAMIC_OBSTACLES: 2
 declare const AVOID_NONE: 0
 /** Cause llMapBeacon to optionally display and focus the world map on the avatar's viewer. */
 declare const BEACON_MAP: 1
+/** Turns on or off scripted control of the camera. */
 declare const CAMERA_ACTIVE: 12
+/** Sets the angle in degrees within which the camera is not constrained by changes in target rotation. */
 declare const CAMERA_BEHINDNESS_ANGLE: 8
+/** Sets how strongly the camera is forced to stay behind the target if outside of behindness angle. */
 declare const CAMERA_BEHINDNESS_LAG: 9
+/** Sets how far away the camera wants to be from its target. */
 declare const CAMERA_DISTANCE: 7
+/** Sets camera focus (target position) in region coordinates. */
 declare const CAMERA_FOCUS: 17
+/** How much the camera lags as it tries to aim towards the target. */
 declare const CAMERA_FOCUS_LAG: 6
+/** Locks the camera focus so it will not move. */
 declare const CAMERA_FOCUS_LOCKED: 22
+/** Adjusts the camera focus position relative to the target. */
 declare const CAMERA_FOCUS_OFFSET: 1
+/** Sets the radius of a sphere around the camera's target position within which its focus is not affected by target motion. */
 declare const CAMERA_FOCUS_THRESHOLD: 11
+/** Adjusts the angular amount that the camera aims straight ahead vs. straight down, maintaining the same distance; analogous to 'incidence'." */
 declare const CAMERA_PITCH: 0
+/** Sets camera position in region coordinates. */
 declare const CAMERA_POSITION: 13
+/** How much the camera lags as it tries to move towards its 'ideal' position. */
 declare const CAMERA_POSITION_LAG: 5
+/** Locks the camera position so it will not move. */
 declare const CAMERA_POSITION_LOCKED: 21
+/** Sets the radius of a sphere around the camera's ideal position within which it is not affected by target motion. */
 declare const CAMERA_POSITION_THRESHOLD: 10
 /** The object inventory has changed because an item was added through the llAllowInventoryDrop interface. */
 declare const CHANGED_ALLOWED_DROP: 64
@@ -4554,9 +4568,9 @@ declare const CHANGED_SHAPE: 4
 declare const CHANGED_TELEPORT: 512
 /** The texture offset, scale rotation, or simply the object texture has changed. */
 declare const CHANGED_TEXTURE: 16
-/** If set to false, character will not attempt to catch up on lost time when pathfinding performance is low, potentially providing more reliable movement (albeit while potentially appearing to be more stuttery). Default is true to match pre-existing behavior. */
+/** TRUE matches pre-existing behavior. If set to FALSE, character will not attempt to catch up on lost time when pathfinding performance is low, potentially providing more reliable movement (albeit while potentially appearing to be more stuttery). */
 declare const CHARACTER_ACCOUNT_FOR_SKIPPED_FRAMES: 14
-/** Allows you to specify that a character should not try to avoid other characters, should not try to avoid dynamic obstacles (relatively fast moving objects and avatars), or both. */
+/** Allows you to specify that a character should not try to avoid other characters, should not try to avoid dynamic obstacles (relatively fast moving objects and avatars), or both. This is framed in the positive sense ([CHARACTER_AVOIDANCE_MODE, AVOID_CHARACTERS] would create a character that avoided other characters but not agents or moving vehicles). Setting this parameter to AVOID_NONE causes the character to not avoid either category. */
 declare const CHARACTER_AVOIDANCE_MODE: 5
 /** Makes the character jump. Requires an additional parameter, the height to jump, between 0.1m and 2.0m. This must be provided as the first element of the llExecCharacterCmd option list. */
 declare const CHARACTER_CMD_JUMP: 1
@@ -4565,28 +4579,25 @@ declare const CHARACTER_CMD_SMOOTH_STOP: 2
 declare const CHARACTER_CMD_STOP: 0
 /** Speed of pursuit in meters per second. */
 declare const CHARACTER_DESIRED_SPEED: 1
-/** The character's maximum speed while turning about the Z axis. - Note that this is only loosely enforced. */
+/** The character's maximum speed while turning--note that this is only loosely enforced (i.e., a character may turn at higher speeds under certain conditions) */
 declare const CHARACTER_DESIRED_TURN_SPEED: 12
-/** Set collision capsule length - cannot be less than two times the radius. */
+/** Set collision capsule length If the value is less than twice the radius plus 0.1m, it will be set to twice the radius plus 0.1m. */
 declare const CHARACTER_LENGTH: 3
 /** The character's maximum acceleration rate. */
 declare const CHARACTER_MAX_ACCEL: 8
 /** The character's maximum deceleration rate. */
 declare const CHARACTER_MAX_DECEL: 9
-/** The character's maximum speed. */
+/** The character's maximum speed. Affects speed when avoiding dynamic obstacles and when traversing low-walkability objects in TRAVERSAL_TYPE_FAST mode. */
 declare const CHARACTER_MAX_SPEED: 13
-/** The character's turn radius when travelling at CHARACTER_MAX_TURN_SPEED. */
+/** The character's turn radius when traveling at CHARACTER_DESIRED_TURN_SPEED */
 declare const CHARACTER_MAX_TURN_RADIUS: 10
-/** Valid options are: VERTICAL, HORIZONTAL. */
+/** Set the character orientation. */
 declare const CHARACTER_ORIENTATION: 4
 /** Set collision capsule radius. */
 declare const CHARACTER_RADIUS: 2
-/**
- * Determines whether a character can leave its starting parcel.
- * Takes a boolean parameter. If TRUE, the character cannot voluntarilly leave the parcel, but can return to it.
- */
+/** FALSE matches traditional behavior. If set to TRUE, treat the parcel boundaries as one-way obstacles (will re-enter but can't leave on it's own). */
 declare const CHARACTER_STAY_WITHIN_PARCEL: 15
-/** Specifies which walk-ability coefficient will be used by this character. */
+/** Specifies which walkability coefficient will be used by this character. */
 declare const CHARACTER_TYPE: 6
 declare const CHARACTER_TYPE_A: 0
 declare const CHARACTER_TYPE_B: 1
@@ -4719,7 +4730,7 @@ declare const DEREZ_DIE: 0
 declare const DEREZ_MAKE_TEMP: 1
 /** The object is returned to the inventory of the rezzer. */
 declare const DEREZ_TO_INVENTORY: 2
-/** Day length, offset and progression. */
+/** Current time and day information day_length: Number of seconds in the environments day cycle. day_offset: Number of seconds day cycle is offset from GMT. secs_since_midnight: Number of seconds elapsed since the last day cycle midnight. */
 declare const ENVIRONMENT_DAYINFO: 200
 /** Could not find agent with the specified ID */
 declare const ENV_INVALID_AGENT: -4
@@ -4803,24 +4814,26 @@ declare const GCNP_STATIC: 1
 /** Used with llSetPhysicsMaterial to enable the gravity multiplier value. Must be between -1.0 and +28.0 */
 declare const GRAVITY_MULTIPLIER: 8
 declare const HORIZONTAL: 1
-/** Provide a string value to be included in the HTTPaccepts header value. This replaces the default Second Life HTTP accepts header. */
+/** HTTP_ACCEPT parameters can be passed to limit the number of mime types that are sent in the Accept: header of the HTTP request. Specified mime types may include character set and q parameters. This parameter may be specified multiple times. The specified mime type must be one already recognized by llHTTPRequest. These include any text/ mime type, or the following application mime types: “application/xhtml+xml”, “application/atom+xml”, “application/json”, “application/xml”, “application/llsd+xml”, “application/x-javascript”, “application/javascript”, “application/x-www-form-urlencoded”, or “application/rss+xml”. The Content-Type header in the response is checked against the specified HTTP_ACCEPT parameters. If the value of the header is not in the list of acceptable mime types, llHTTPRequest will return 415 as a result code and the body will be "Unsupported or unknown Content-Type." */
 declare const HTTP_ACCEPT: 8
+/** Sets the maximum (UTF-8 encoded) byte length of the HTTP response body. The maximum that can be set depends upon which VM is used. Mono Max: 16384 LSO Max: 4096 ⚠️ Warning: Applies to the Outgoing pipeline only (HTTP calls invoked by llHTTPRequest,and responses from http_response). Tip: When you only need to request a small amount of data from a remote source, consider using the Content-Range header instead. */
 declare const HTTP_BODY_MAXLENGTH: 2
 declare const HTTP_BODY_TRUNCATED: 0
-/** Add an extra custom HTTP header to the request. The first string is the name of the parameter to change, e.g. "Pragma", and the second string is the value, e.g. "no-cache". Up to 8 custom headers may be configured per request. Note that certain headers, such as the default headers, are blocked for security reasons. */
+/** Add an extra custom HTTP header to the request. The first string is the name of the parameter to change, e.g. "Pragma", and the second string is the value, e.g. "no-cache". Multiple custom headers may be configured per request, as long as the combined custom header length is no greater than 4096 characters. Note that certain headers, such as the default headers, are blocked for security reasons. */
 declare const HTTP_CUSTOM_HEADER: 5
-/** Report extended error information through http_response event. */
+/** If TRUE llHTTPRequest will always return a key. If there was an error making the HTTP request. Detailed error information will be returned through the http_response event using the provided key. Error information is delivered in a JSON block as described in RFC 7807. Details about extended return codes can be found below. */
 declare const HTTP_EXTENDED_ERROR: 9
+/** "GET", "POST", "PUT" and "DELETE" */
 declare const HTTP_METHOD: 0
+/** text/* MIME types should specify a charset. To emulate HTML forms use application/x-www-form-urlencoded. This allows you to set the body to a properly escaped (llEscapeURL) sequence of <name,value> pairs in the form var=value&var2=value2 and have them automatically parsed by web frameworks. MIME types must be specified in the format: type/subtype[;option=value] Some valid examples are "text/html" "text/plain;charset=utf-8" "application/xhtml+xml" "application/json" "application/x-www-form-urlencoded" "application/rss+xml" "multipart/mixed; boundary="---1234567890---"" */
 declare const HTTP_MIMETYPE: 1
-/**
- * Allows enabling/disabling of the "Pragma: no-cache" header.
- * Usage: [HTTP_PRAGMA_NO_CACHE, integer SendHeader]. When SendHeader is TRUE, the "Pragma: no-cache" header is sent by the script. This matches the default behavior. When SendHeader is FALSE, no "Pragma" header is sent by the script.
- */
+/** Sends "Pragma: no-cache" header (TRUE), or does not send a "Pragma" header (FALSE). */
 declare const HTTP_PRAGMA_NO_CACHE: 6
-/** Provide a string value to be included in the HTTPUser-Agent header value. This is appended to the default value. */
+/** The user agent value is appended to the one generated by LSL itself. It should follow the syntax from the HTTP standard like: "My-Script-Name/1.0 (Mozilla compatible)". Note: Spaces are not allowed in HTTP User Agent token values, so "My Script Name/1.0" will produce a script error; change the spaces to hyphens ("-") */
 declare const HTTP_USER_AGENT: 7
+/** If TRUE, shout error messages to DEBUG_CHANNEL if the outgoing request rate exceeds the server limit. If FALSE, the error messages are suppressed (llHTTPRequest will still return NULL_KEY). */
 declare const HTTP_VERBOSE_THROTTLE: 4
+/** If TRUE, the server SSL certificate must be verifiable using one of the standard certificate authorities[1] when making HTTPS requests. If FALSE, any server SSL certificate will be accepted. */
 declare const HTTP_VERIFY_CERT: 3
 declare const IMG_USE_BAKED_AUX1: UUID
 declare const IMG_USE_BAKED_AUX2: UUID
@@ -4975,140 +4988,114 @@ declare const MASK_OWNER: 1
 declare const NAK: string
 declare const NAVIGATE_TO_GOAL_REACHED_DIST: 2
 declare const NULL_KEY: UUID
-/**
- * Retrieves the account level of an avatar.
- * Returns 0 when the avatar has a basic account,
- *  1 when the avatar has a premium account,
- *  10 when the avatar has a premium plus account,
- *  or -1 if the object is not an avatar.
- */
+/** Gets the account level of an avatar. If id is not an avatar, -1 is returned. 0 is Basic account level. 1 is Premium account level. 5 is Plus account level. 10 is Premium Plus account level. */
 declare const OBJECT_ACCOUNT_LEVEL: 41
-/** This is a flag used with llGetObjectDetails to get the number of associated animated objects */
+/** Gets the integer boolean detailing if the object's root is set to "Animated Mesh" or gets the total number of "Animated Mesh" attachments worn by an agent. */
 declare const OBJECT_ANIMATED_COUNT: 39
-/** This is a flag used with llGetObjectDetails to get the number of additional animated object attachments allowed. */
+/** Gets the avatar's available "Animated Mesh" attachment slot count. If id is not an avatar, 0 is returned. */
 declare const OBJECT_ANIMATED_SLOTS_AVAILABLE: 40
-/**
- * Gets the attachment point to which the object is attached.
- * Returns 0 if the object is not an attachment (or is an avatar, etc).
- */
+/** Gets the attachment point to which the object is attached. It returns an integer matching one of the ATTACH_* constants. */
 declare const OBJECT_ATTACHED_POINT: 19
-/**
- * Returns the number of attachment slots available.
- * Returns 0 if the object is not an avatar or none are available.
- */
+/** Gets the avatar's available attachment slot count. If id is not an avatar, 0 is returned. */
 declare const OBJECT_ATTACHED_SLOTS_AVAILABLE: 35
-/**
- * This is a flag used with llGetObjectDetails to get the body type of the avatar, based on shape data.
- * If no data is available, -1.0 is returned.
- * This is normally between 0 and 1.0, with 0.5 and larger considered 'male'
- */
+/** Gets a float which describes the sex setting of the avatar's currently worn shape. If id is not an avatar, -1.0 is returned. Normal operational values are in the range [0.0, 1.0]. 0.0 is standard female setting, 1.0 is standard male setting. Intermediate values with visible differences are possible with manually crafted shapes. */
 declare const OBJECT_BODY_SHAPE_TYPE: 26
-/** Units in seconds */
+/** Gets the average CPU time (in seconds) used by the object for navigation, if the object is a pathfinding character. Returns 0 for non-characters. */
 declare const OBJECT_CHARACTER_TIME: 17
-/**
- * This is a flag used with llGetObjectDetails to get the click action.
- * The default is 0
- */
+/** Gets the click action of the prim. It returns an integer matching one of the CLICK_ACTION_* constants. */
 declare const OBJECT_CLICK_ACTION: 28
-/** This is a flag used with llGetObjectDetails to get the time this object was created */
+/** Gets the object's creation time. This time is established with raw material rezzing through the build menu and with mesh uploads. This time is NOT established with inventory rezzes, scripted rezzes, object modifying, copying or transferring. If id is an avatar, an empty string is returned. */
 declare const OBJECT_CREATION_TIME: 36
-/** Gets the object's creator key. If id is an avatar, a NULL_KEY is returned. */
+/** Gets the prim's creator key. If id is an avatar, a NULL_KEY is returned. */
 declare const OBJECT_CREATOR: 8
-/** Gets the damage value assigned to this object. */
+/** Retrieves the amount of damage a prim inflicts on collision. */
 declare const OBJECT_DAMAGE: 51
-/** Gets the damage type, if any, assigned to this object. */
+/** Retrieves the type of damage a prim inflicts on collision. It returns an integer that can match one of the DAMAGE_TYPE_* constants, be a custom damage type or be repurposed by a combat system. */
 declare const OBJECT_DAMAGE_TYPE: 52
-/** Gets the object's description. If id is an avatar, an empty string is returned. */
+/** Gets the prim's description. If id is an avatar, an empty string is returned. */
 declare const OBJECT_DESC: 2
-/** Gets the prims's group key. If id is an avatar, a NULL_KEY is returned. */
+/** Gets the prim's group key. If id is an avatar, a NULL_KEY is returned, which means a workaround is required to get an avatar's active group.[1] */
 declare const OBJECT_GROUP: 7
-/** Gets the agent's current group role tag. If id is an object, an empty is returned. */
+/** Gets the avatar's group tag text. If id is not an avatar, an empty string is returned. */
 declare const OBJECT_GROUP_TAG: 33
-/** Gets current health value for the object. */
+/** Retrieves the health of an avatar or prim. */
 declare const OBJECT_HEALTH: 50
-/**
- * This is a flag used with llGetObjectDetails to get hover height of the avatar
- * If no data is available, 0.0 is returned.
- */
+/** Gets the hover height of the avatar. If id is not an avatar, 0.0 is returned. Normal values are in the range [-2.0, 2.0] with a default of 0.0. This value does not reflect the avatar shape's "Hover" slider, only the dynamic viewer setting. */
 declare const OBJECT_HOVER_HEIGHT: 25
-/** Gets the object's last owner ID. */
+/** Gets the UUID of the object's previous owner, if known. For group-owned objects, this is the avatar that deeded the object. Returns NULL_KEY for avatars, or objects that were never transferred. A rezzed object taken back to inventory, then re-rezzed, will return its current owner key. */
 declare const OBJECT_LAST_OWNER_ID: 27
-/** Gets the object's link number or 0 if unlinked. */
+/** Get this object's index in the linkset. */
 declare const OBJECT_LINK_NUMBER: 46
-/** Get the object's mass */
+/** Gets the mass (in Kilograms) of this object's linkset. */
 declare const OBJECT_MASS: 43
-/** Get an object's material setting. */
+/** Retrieves the physics material set on this object. It returns an integer matching one of the PRIM_MATERIAL_* constants. */
 declare const OBJECT_MATERIAL: 42
-/** Gets the object's name. */
+/** Gets the prim's name. If id is an avatar, the Legacy Name is returned. */
 declare const OBJECT_NAME: 1
-/** Gets an object's angular velocity. */
+/** Gets the object's rotational velocity (radians per second). */
 declare const OBJECT_OMEGA: 29
-/** Gets an object's owner's key. If id is group owned, a NULL_KEY is returned. */
+/** Gets an object's owner key. If id is an avatar, that avatar's key is returned (which is the same as id). If id is group-owned, a NULL_KEY is returned. */
 declare const OBJECT_OWNER: 6
-/** Returns the pathfinding setting of any object in the region. It returns an integer matching one of the OPT_* constants. */
+/** Gets the pathfinding setting of the object in the region. It returns an integer matching one of the OPT_* constants. */
 declare const OBJECT_PATHFINDING_TYPE: 20
-/** Gets the objects permissions */
+/** Retrieves the permissions for this object as 5 integers. */
 declare const OBJECT_PERMS: 53
-/** Gets the object's permissions including any inventory. */
+/** Retrieves the permissions for this object combined with all of its inventory items as 5 integers. */
 declare const OBJECT_PERMS_COMBINED: 54
-/**
- * Returns boolean, detailing if phantom is enabled or disabled on the object.
- * If id is an avatar or attachment, 0 is returned.
- */
+/** Gets the integer boolean detailing if phantom is enabled or disabled on the object. If id is an avatar or attachment, 0 is returned. */
 declare const OBJECT_PHANTOM: 22
-/**
- * Returns boolean, detailing if physics is enabled or disabled on the object.
- * If id is an avatar or attachment, 0 is returned.
- */
+/** Gets the integer boolean detailing if physics is enabled or disabled on the object. If id is an avatar or attachment, 0 is returned. */
 declare const OBJECT_PHYSICS: 21
+/** Gets the physics cost of the object. */
 declare const OBJECT_PHYSICS_COST: 16
-/** Gets the object's position in region coordinates. */
+/** Gets the prim's position in region coordinates. If id is an avatar outside the region (see above), this position is relative to the region the script is running in. */
 declare const OBJECT_POS: 3
-/** Gets the prim count of the object.  The script and target object  must be owned by the same owner */
+/** Gets the object's prim count */
 declare const OBJECT_PRIM_COUNT: 30
+/** Gets the prim equivalence of the object. */
 declare const OBJECT_PRIM_EQUIVALENCE: 13
-/**
- * This is a flag used with llGetObjectDetails to get the Avatar_Rendering_Cost of an avatar, based on values reported by nearby viewers.
- * If no data is available, -1 is returned.
- * The maximum render weight stored by the simulator is 500000. When called against an object, 0 is returned.
- */
+/** Gets the avatar's render weight. If id is an object, 0 is returned. If id is an avatar whose render weight is unknown to the simulator, -1 is returned. The maximum render weight reported by the server is 500000[1]. */
 declare const OBJECT_RENDER_WEIGHT: 24
 declare const OBJECT_RETURN_PARCEL: 1
 declare const OBJECT_RETURN_PARCEL_OWNER: 2
 declare const OBJECT_RETURN_REGION: 4
+/** Gets the key of the object that rezzed this object be it an object or an avatar. */
 declare const OBJECT_REZZER_KEY: 32
-/** Get the time when an object was rezzed. */
+/** Retrieves the time that this object was rezzed. */
 declare const OBJECT_REZ_TIME: 45
-/**
- * Gets the id of the root prim of the object requested.
- * If id is an avatar, return the id of the root prim of the linkset the avatar is sitting on (or the avatar's own id if the avatar is not sitting on an object within the region).
- */
+/** Gets the id of the root prim of the object requested. If id is an avatar, returns the id of the root prim of the linkset the avatar is sitting on and linked to (or the avatar's own id if the avatar is not sitting on an object within the region). */
 declare const OBJECT_ROOT: 18
-/** Gets the object's rotation. */
+/** Gets the prim's rotation. */
 declare const OBJECT_ROT: 4
+/** Gets the number of running scripts attached to the object or agent. */
 declare const OBJECT_RUNNING_SCRIPT_COUNT: 9
-/** Gets the object's size. */
+/** Get the size of this object. */
 declare const OBJECT_SCALE: 47
+/** Gets the amount of script memory used by the object or agent, in bytes, or its upper limit. See page for more info. */
 declare const OBJECT_SCRIPT_MEMORY: 11
+/** Gets the total amount of average script CPU time used by the object or agent, in seconds. See page for more info. */
 declare const OBJECT_SCRIPT_TIME: 12
-/** This is a flag used with llGetObjectDetails to get the number of avatars selecting any part of the object */
+/** Gets the total number of agents selecting any links in the object. If id is an avatar, 0 is returned. */
 declare const OBJECT_SELECT_COUNT: 37
+/** Gets the server cost of the object. */
 declare const OBJECT_SERVER_COST: 14
-/** This is a flag used with llGetObjectDetails to get the number of avatars sitting on the object */
+/** Gets the total number of agents sitting on any links in the object. If id is an avatar, 0 is returned. */
 declare const OBJECT_SIT_COUNT: 38
+/** Gets the streaming (download) cost of the object. */
 declare const OBJECT_STREAMING_COST: 15
-/** Returns boolean, indicating if object is a temp attachment. */
+/** Gets the integer boolean detailing if the object is temporarily attached. */
 declare const OBJECT_TEMP_ATTACHED: 34
-/** Returns boolean, detailing if temporary is enabled or disabled on the object. */
+/** Gets the integer boolean detailing if temporary is enabled or disabled on the object. */
 declare const OBJECT_TEMP_ON_REZ: 23
-/** Gets an objects hover text. */
+/** Gets the floating text displayed above this object. */
 declare const OBJECT_TEXT: 44
-/** Gets the alpha of an objects hover text. */
+/** Gets the alpha value of the floating text displayed above this object. */
 declare const OBJECT_TEXT_ALPHA: 49
-/** Gets the color of an objects hover text. */
+/** Gets the color of the floating text displayed above this object. */
 declare const OBJECT_TEXT_COLOR: 48
-/** Gets the total inventory count of the object.  The script and target object must be owned by the same owner */
+/** Gets the object's total number of inventory items. */
 declare const OBJECT_TOTAL_INVENTORY_COUNT: 31
+/** Gets the number of scripts, both running and stopped, attached to the object or agent. */
 declare const OBJECT_TOTAL_SCRIPT_COUNT: 10
 declare const OBJECT_UNKNOWN_DETAIL: -1
 /** Gets the object's velocity. */
@@ -5129,13 +5116,21 @@ declare const OPT_OTHER: -1
 declare const OPT_STATIC_OBSTACLE: 4
 /** Returned for walkable objects. */
 declare const OPT_WALKABLE: 3
+/** Sets the alpha for the face(s). Only impacts the rendering when the alpha mode is set to PRIM_GLTF_ALPHA_MODE_BLEND. */
 declare const OVERRIDE_GLTF_BASE_ALPHA: 2
+/** Sets the alpha cutoff level on the face(s) when alpha mode is set to mask. */
 declare const OVERRIDE_GLTF_BASE_ALPHA_MASK: 4
+/** Set the alpha mode on the face(s). Must be one of the valid blend modes GLTF Alpha Mode value description PRIM_GLTF_ALPHA_MODE_OPAQUE 0 Ignore the alpha value and render the material as opaque. PRIM_GLTF_ALPHA_MODE_BLEND 1 Render the material with transparency determined by the alpha value. Blending is done in linear color space. As is the case for Blinn-Phong as well, this mode suffers from depth sorting and performance issues. Use alpha mask instead when possible. PRIM_GLTF_ALPHA_MODE_MASK 2 Render the material as fully opaque where the alpha value is greater than the alpha cutoff, and otherwise render the material as fully transparent. */
 declare const OVERRIDE_GLTF_BASE_ALPHA_MODE: 3
+/** Set the tinting color used for the base color. Color is specified in linear RGB. Use llsRGB2Linear to convert colors from Blinn-Phong to PBR. */
 declare const OVERRIDE_GLTF_BASE_COLOR_FACTOR: 1
+/** If set to TRUE then the texture on the face(s) will be rendered as double sided. */
 declare const OVERRIDE_GLTF_BASE_DOUBLE_SIDED: 5
+/** Set the tint used for the emissive texture on the face(s). Note that this is specified in linear RGB. */
 declare const OVERRIDE_GLTF_EMISSIVE_FACTOR: 8
+/** Adjusts the metallic factor on the specified face(s). Value should be between 0 and 1. */
 declare const OVERRIDE_GLTF_METALLIC_FACTOR: 6
+/** Adjust the roughness factor on the specified face(s). Value should be between 0 and 1. */
 declare const OVERRIDE_GLTF_ROUGHNESS_FACTOR: 7
 declare const PARCEL_COUNT_GROUP: 2
 declare const PARCEL_COUNT_OTHER: 3
@@ -5143,33 +5138,33 @@ declare const PARCEL_COUNT_OWNER: 1
 declare const PARCEL_COUNT_SELECTED: 4
 declare const PARCEL_COUNT_TEMP: 5
 declare const PARCEL_COUNT_TOTAL: 0
-/** The parcel's area, in square meters. (5 chars.). */
+/** The parcel's area, in sqm. */
 declare const PARCEL_DETAILS_AREA: 4
-/** The description of the parcel. (127 chars). */
+/** The description of the parcel. */
 declare const PARCEL_DETAILS_DESC: 1
-/** Flags set on the parcel */
+/** Parcel flags set for this parcel. See llGetParcelFlags for a listing of the flags and their meaning. */
 declare const PARCEL_DETAILS_FLAGS: 12
-/** The parcel group's key. (36 chars.). */
+/** The parcel group's key. */
 declare const PARCEL_DETAILS_GROUP: 3
-/** The parcel's key. (36 chars.). */
+/** The parcel's key. */
 declare const PARCEL_DETAILS_ID: 5
-/** Lookat vector set for teleport routing. */
+/** Look at vector set for the landing point on this parcel, if any. */
 declare const PARCEL_DETAILS_LANDING_LOOKAT: 10
-/** The parcel's landing point, if any. */
+/** Landing point set for this parcel, if any. */
 declare const PARCEL_DETAILS_LANDING_POINT: 9
-/** The name of the parcel. (63 chars.). */
+/** The name of the parcel. */
 declare const PARCEL_DETAILS_NAME: 0
-/** The parcel owner's key. (36 chars.). */
+/** The parcel owner's key. */
 declare const PARCEL_DETAILS_OWNER: 2
-/** The parcel's prim capacity. */
+/** The total prim capacity on this and all same-owner parcels, sim-wide. See llGetParcelMaxPrims for same-parcel-only and/or sim-wide reporting. */
 declare const PARCEL_DETAILS_PRIM_CAPACITY: 7
-/** The number of prims used on this parcel. */
+/** The total prim usage on this and all same-owner parcels, sim-wide. See llGetParcelPrimCount to get prim count by parcel owner, group, temp, etc. for same-parcel-only and/or sim-wide reporting. */
 declare const PARCEL_DETAILS_PRIM_USED: 8
-/** There are restrictions on this parcel that may impact script execution. */
+/** Is the script in danger in the indicated parcel. See llScriptDanger for a discussion of script danger. */
 declare const PARCEL_DETAILS_SCRIPT_DANGER: 13
-/** The parcel's avatar visibility setting. (1 char.). */
+/** The parcel's avatar visibility setting[2] */
 declare const PARCEL_DETAILS_SEE_AVATARS: 6
-/** Parcel's teleport routing setting. */
+/** Teleport routing for this parcel. 0 = TP_ROUTING_BLOCKED 1 = TP_ROUTING_LANDINGP 2 = TP_ROUTING_FREE Note that routing rules are only enforced if the landing point is set. */
 declare const PARCEL_DETAILS_TP_ROUTING: 11
 declare const PARCEL_FLAG_ALLOW_ALL_OBJECT_ENTRY: 134217728
 declare const PARCEL_FLAG_ALLOW_CREATE_GROUP_OBJECTS: 67108864
@@ -5190,21 +5185,23 @@ declare const PARCEL_FLAG_USE_BAN_LIST: 1024
 declare const PARCEL_FLAG_USE_LAND_PASS_LIST: 2048
 declare const PARCEL_MEDIA_COMMAND_AGENT: 7
 declare const PARCEL_MEDIA_COMMAND_AUTO_ALIGN: 9
-/** Use this to get or set the parcel media description. */
+/** Used to get or set the parcel media description. (1.19.1 RC0 or later) */
 declare const PARCEL_MEDIA_COMMAND_DESC: 12
 declare const PARCEL_MEDIA_COMMAND_LOOP: 3
-/** Used to get or set the parcel's media looping variable. */
+/** Used to get or set the parcel's media loop duration. (1.19.1 RC0 or later) */
 declare const PARCEL_MEDIA_COMMAND_LOOP_SET: 13
 declare const PARCEL_MEDIA_COMMAND_PAUSE: 1
 declare const PARCEL_MEDIA_COMMAND_PLAY: 2
-/** Use this to get or set the parcel media pixel resolution. */
+/** Used to get or set the parcel media pixel resolution. (1.19.1 RC0 or later) */
 declare const PARCEL_MEDIA_COMMAND_SIZE: 11
 declare const PARCEL_MEDIA_COMMAND_STOP: 0
+/** Used to get or set the parcel's media texture. */
 declare const PARCEL_MEDIA_COMMAND_TEXTURE: 4
 declare const PARCEL_MEDIA_COMMAND_TIME: 6
-/** Use this to get or set the parcel media MIME type (e.g. "text/html"). */
+/** Used to get or set the parcel media MIME type (e.g. "text/html"). (1.19.1 RC0 or later) */
 declare const PARCEL_MEDIA_COMMAND_TYPE: 10
 declare const PARCEL_MEDIA_COMMAND_UNLOAD: 8
+/** Used to get or set the parcel's media url. */
 declare const PARCEL_MEDIA_COMMAND_URL: 5
 /** The agent authorized to purchase the parcel. */
 declare const PARCEL_SALE_AGENT: 2
@@ -5276,17 +5273,9 @@ declare const PI: number
 declare const PING_PONG: 8
 /** 1.57079633 - The number of radians in a quarter circle. */
 declare const PI_BY_TWO: number
-/**
- * Prim parameter for restricting manual standing for seated avatars in an experience.
- * Ignored if the avatar was not seated via a call to llSitOnLink.
- */
+/** Avatars are allowed to manually stand up when seated on this prim. Only valid for prims in a valid experience. */
 declare const PRIM_ALLOW_UNSIT: 39
-/**
- * Prim parameter for materials using integer face, integer alpha_mode, integer alpha_cutoff.
- * Defines how the alpha channel of the diffuse texture should be rendered.
- * Valid options for alpha_mode are PRIM_ALPHA_MODE_BLEND, _NONE, _MASK, and _EMISSIVE.
- * alpha_cutoff is used only for PRIM_ALPHA_MODE_MASK.
- */
+/** Sets the prim's diffuse texture alpha rendering mode attributes. */
 declare const PRIM_ALPHA_MODE: 38
 /**
  * Prim parameter setting for PRIM_ALPHA_MODE.
@@ -5319,6 +5308,7 @@ declare const PRIM_BUMP_DISKS: 10
 declare const PRIM_BUMP_GRAVEL: 11
 declare const PRIM_BUMP_LARGETILE: 14
 declare const PRIM_BUMP_NONE: 0
+/** Sets the face's shiny & bump. */
 declare const PRIM_BUMP_SHINY: 19
 declare const PRIM_BUMP_SIDING: 13
 declare const PRIM_BUMP_STONE: 9
@@ -5327,26 +5317,26 @@ declare const PRIM_BUMP_SUCTION: 16
 declare const PRIM_BUMP_TILE: 8
 declare const PRIM_BUMP_WEAVE: 17
 declare const PRIM_BUMP_WOOD: 3
-/** @deprecated Not implemented. */
+/**
+ * Sets the prim's cast shadow attribute. (DEPRECATED)
+ * @deprecated Not implemented.
+ */
 declare const PRIM_CAST_SHADOWS: 24
-/** [PRIM_CLICK_ACTION, integer CLICK_ACTION_*] */
+/** Click action for this prim */
 declare const PRIM_CLICK_ACTION: 43
 /** Collision sound uuid and volume for this prim */
 declare const PRIM_COLLISION_SOUND: 53
-/** [PRIM_COLOR, integer face, vector color, float alpha]integer face – face number or ALL_SIDESvector color – color in RGB <R, G, B> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)float alpha – from 0.0 (clear) to 1.0 (solid) (0.0 <= alpha <= 1.0) */
+/** Sets the face's color. */
 declare const PRIM_COLOR: 18
-/** Damage and damage type assigned to this prim. */
+/** Sets the damage and damage type delivered by a prim on collision. */
 declare const PRIM_DAMAGE: 51
-/** [PRIM_DESC, string description] */
+/** Sets the prim's description. */
 declare const PRIM_DESC: 28
-/** [ PRIM_FLEXIBLE, integer boolean, integer softness, float gravity, float friction, float wind, float tension, vector force ]integer boolean – TRUE enables, FALSE disablesinteger softness – ranges from 0 to 3float gravity – ranges from -10.0 to 10.0float friction – ranges from 0.0 to 10.0float wind – ranges from 0.0 to 10.0float tension – ranges from 0.0 to 10.0vector force */
+/** Sets the prim as flexible. */
 declare const PRIM_FLEXIBLE: 21
-/** [ PRIM_FULLBRIGHT, integer face, integer boolean ] */
+/** Sets the face's full bright flag. */
 declare const PRIM_FULLBRIGHT: 20
-/**
- * PRIM_GLOW is used to get or set the glow status of the face.
- * [ PRIM_GLOW, integer face, float intensity ]
- */
+/** Sets the face's glow attribute. */
 declare const PRIM_GLOW: 25
 /** Prim parameter setting for PRIM_GLTF_BASE_COLOR alpha mode "BLEND". */
 declare const PRIM_GLTF_ALPHA_MODE_BLEND: 1
@@ -5354,27 +5344,23 @@ declare const PRIM_GLTF_ALPHA_MODE_BLEND: 1
 declare const PRIM_GLTF_ALPHA_MODE_MASK: 2
 /** Prim parameter setting for PRIM_GLTF_BASE_COLOR alpha mode "OPAQUE". */
 declare const PRIM_GLTF_ALPHA_MODE_OPAQUE: 0
-/**
- * Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color, integer alpha_mode, float alpha_cutoff, boolean double_sided.
- * Valid options for alpha_mode are PRIM_ALPHA_MODE_BLEND, _NONE, and _MASK.
- * alpha_cutoff is used only for PRIM_ALPHA_MODE_MASK.
- */
+/** Sets the prim's GLTF Material Base Color map attributes. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string ("") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string ("") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF. gltf_alpha_mode Flags V Description PRIM_GLTF_ALPHA_MODE_OPAQUE 0 Ignore the alpha value and render the material as opaque. PRIM_GLTF_ALPHA_MODE_BLEND 1 Render the material with transparency determined by the alpha value. Blending is done in linear color space. As is the case for Blinn-Phong as well, this mode suffers from depth sorting and performance issues. Use alpha mask instead when possible. PRIM_GLTF_ALPHA_MODE_MASK 2 Render the material as fully opaque where the alpha value is greater than the alpha cutoff, and otherwise render the material as fully transparent. */
 declare const PRIM_GLTF_BASE_COLOR: 48
-/** Prim parameter for GLTF materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color */
+/** Sets the prim's GLTF Material Emissive map attributes. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string ("") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string ("") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF. */
 declare const PRIM_GLTF_EMISSIVE: 46
-/** Prim parameter for GLTF materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, float metallic_factor, float roughness_factor */
+/** Sets the prim's GLTF ORM map attributes (Occlusion, Roughness, Metallic). This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string ("") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string ("") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF. */
 declare const PRIM_GLTF_METALLIC_ROUGHNESS: 47
-/** Prim parameter for GLTF materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians */
+/** Sets the prim's GLTF Material Normal map attributes. This parameter's arguments are GLTF overrides. ⚠️ Warning: Setting an argument to the empty string ("") will clear the respective override. GLTF texture transforms are always overrides, so setting them to the empty string ("") will clear them. See this example for a workaround. The SL team is open to feedback on LSL improvements for GLTF. */
 declare const PRIM_GLTF_NORMAL: 45
-/** Health value for this prim */
+/** Sets the health value for this prim. */
 declare const PRIM_HEALTH: 52
 declare const PRIM_HOLE_CIRCLE: 16
 declare const PRIM_HOLE_DEFAULT: 0
 declare const PRIM_HOLE_SQUARE: 32
 declare const PRIM_HOLE_TRIANGLE: 48
-/** [ PRIM_LINK_TARGET, integer link_target ]Used to get or set multiple links with a single PrimParameters call. */
+/** Sets the next linknumber to use in the linkset. */
 declare const PRIM_LINK_TARGET: 34
-/** [ PRIM_MATERIAL, integer PRIM_MATERIAL_* ] */
+/** Sets the prim's material. */
 declare const PRIM_MATERIAL: 2
 /** @deprecated Use 'DENSITY' instead. */
 declare const PRIM_MATERIAL_DENSITY: 1
@@ -5393,29 +5379,29 @@ declare const PRIM_MATERIAL_RESTITUTION: 4
 declare const PRIM_MATERIAL_RUBBER: 6
 declare const PRIM_MATERIAL_STONE: 0
 declare const PRIM_MATERIAL_WOOD: 3
-/** Boolean. Gets/Sets the default image state (the image that the user sees before a piece of media is active) for the chosen face. The default image is specified by Second Life's server for that media type. */
+/** Gets the default image state (the image that the user sees before a piece of media is active) for the chosen face. The default image is specified by Second Life's server for that media type. Note: This flag is not currently implemented. */
 declare const PRIM_MEDIA_ALT_IMAGE_ENABLE: 0
-/** Boolean. Gets/Sets whether auto-looping is enabled. */
+/** Gets whether auto-looping is enabled. */
 declare const PRIM_MEDIA_AUTO_LOOP: 4
-/** Boolean. Gets/Sets whether the media auto-plays when a Resident can view it. */
+/** Gets whether the media auto-plays when a Resident can view it. */
 declare const PRIM_MEDIA_AUTO_PLAY: 5
-/** Boolean. Gets/Sets whether auto-scaling is enabled. Auto-scaling forces the media to the full size of the texture. */
+/** Gets whether auto-scaling is enabled. Auto-scaling forces the media to the full size of the texture. */
 declare const PRIM_MEDIA_AUTO_SCALE: 6
-/** Boolean. Gets/Sets whether clicking the media triggers auto-zoom and auto-focus on the media. */
+/** Gets whether clicking the media triggers auto-zoom and auto-focus on the media. */
 declare const PRIM_MEDIA_AUTO_ZOOM: 7
-/** Integer. Gets/Sets the style of controls. Can be either PRIM_MEDIA_CONTROLS_STANDARD or PRIM_MEDIA_CONTROLS_MINI. */
+/** Gets the style of controls. Can be either PRIM_MEDIA_CONTROLS_STANDARD or PRIM_MEDIA_CONTROLS_MINI. */
 declare const PRIM_MEDIA_CONTROLS: 1
 /** Mini web navigation controls; does not include an address bar. */
 declare const PRIM_MEDIA_CONTROLS_MINI: 1
 /** Standard web navigation controls. */
 declare const PRIM_MEDIA_CONTROLS_STANDARD: 0
-/** String. Gets/Sets the current url displayed on the chosen face. Changing this URL causes navigation. 1024 characters Maximum. */
+/** Gets the current url displayed on the chosen face. Changing this URL causes navigation. 1024 characters Max */
 declare const PRIM_MEDIA_CURRENT_URL: 2
-/** Boolean. Gets/Sets whether the first click interaction is enabled. */
+/** Gets whether the first click interaction is enabled. Note: This flag appears not to work. */
 declare const PRIM_MEDIA_FIRST_CLICK_INTERACT: 8
-/** Integer. Gets/Sets the height of the media in pixels. */
+/** Gets the height of the media in pixels. */
 declare const PRIM_MEDIA_HEIGHT_PIXELS: 10
-/** String. Gets/Sets the home URL for the chosen face. 1024 characters maximum. */
+/** Gets the home url for the chosen face. 1024 characters max */
 declare const PRIM_MEDIA_HOME_URL: 3
 declare const PRIM_MEDIA_MAX_HEIGHT_PIXELS: 2048
 declare const PRIM_MEDIA_MAX_URL_LENGTH: 1024
@@ -5423,29 +5409,29 @@ declare const PRIM_MEDIA_MAX_WHITELIST_COUNT: 64
 declare const PRIM_MEDIA_MAX_WHITELIST_SIZE: 1024
 declare const PRIM_MEDIA_MAX_WIDTH_PIXELS: 2048
 declare const PRIM_MEDIA_PARAM_MAX: 14
-/** Integer. Gets/Sets the permissions mask that control who can see the media control bar above the object:: PRIM_MEDIA_PERM_ANYONE, PRIM_MEDIA_PERM_GROUP, PRIM_MEDIA_PERM_NONE, PRIM_MEDIA_PERM_OWNER */
+/** Gets the permissions mask that control who can see the media control bar above the object: PRIM_MEDIA_PERM_NONE PRIM_MEDIA_PERM_OWNER PRIM_MEDIA_PERM_GROUP PRIM_MEDIA_PERM_ANYONE */
 declare const PRIM_MEDIA_PERMS_CONTROL: 14
-/** Integer. Gets/Sets the permissions mask that control who can interact with the object: PRIM_MEDIA_PERM_ANYONE, PRIM_MEDIA_PERM_GROUP, PRIM_MEDIA_PERM_NONE, PRIM_MEDIA_PERM_OWNER */
+/** Gets the permissions mask that control who can interact with the object: PRIM_MEDIA_PERM_NONE PRIM_MEDIA_PERM_OWNER PRIM_MEDIA_PERM_GROUP PRIM_MEDIA_PERM_ANYONE */
 declare const PRIM_MEDIA_PERMS_INTERACT: 13
 declare const PRIM_MEDIA_PERM_ANYONE: 4
 declare const PRIM_MEDIA_PERM_GROUP: 2
 declare const PRIM_MEDIA_PERM_NONE: 0
 declare const PRIM_MEDIA_PERM_OWNER: 1
-/** String. Gets/Sets the white-list as a string of escaped, comma-separated URLs. This string can hold up to 64 URLs or 1024 characters, whichever comes first. */
+/** Gets the whitelist as a string of escaped, comma-separated URLs. This string can hold up to 64 URLs or 1024 characters, whichever comes first. */
 declare const PRIM_MEDIA_WHITELIST: 12
-/** Boolean. Gets/Sets whether navigation is restricted to URLs in PRIM_MEDIA_WHITELIST. */
+/** Gets whether navigation is restricted to URLs in PRIM_MEDIA_WHITELIST. */
 declare const PRIM_MEDIA_WHITELIST_ENABLE: 11
-/** Integer. Gets/Sets the width of the media in pixels. */
+/** Gets the width of the media in pixels. */
 declare const PRIM_MEDIA_WIDTH_PIXELS: 9
-/** [ PRIM_NAME, string name ] */
+/** Sets the prim's name. */
 declare const PRIM_NAME: 27
-/** Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians */
+/** Sets the prim's normal map attributes. */
 declare const PRIM_NORMAL: 37
-/** [ PRIM_OMEGA, vector axis, float spinrate, float gain ]vector axis – arbitrary axis to rotate the object aroundfloat spinrate – rate of rotation in radians per secondfloat gain – also modulates the final spinrate and disables the rotation behavior if zero */
+/** Sets the prim's spin to the specified axis and rate. */
 declare const PRIM_OMEGA: 32
-/** [ PRIM_PHANTOM, integer boolean ] */
+/** Sets the object's phantom status. */
 declare const PRIM_PHANTOM: 5
-/** [ PRIM_PHYSICS, integer boolean ] */
+/** Sets the object's physics status. */
 declare const PRIM_PHYSICS: 3
 /** Use the convex hull of the prim shape for physics (this is the default for mesh objects). */
 declare const PRIM_PHYSICS_SHAPE_CONVEX: 2
@@ -5453,17 +5439,17 @@ declare const PRIM_PHYSICS_SHAPE_CONVEX: 2
 declare const PRIM_PHYSICS_SHAPE_NONE: 1
 /** Use the normal prim shape for physics (this is the default for all non-mesh objects). */
 declare const PRIM_PHYSICS_SHAPE_PRIM: 0
-/** Allows you to set the physics shape type of a prim via lsl. Permitted values are:PRIM_PHYSICS_SHAPE_NONE, PRIM_PHYSICS_SHAPE_PRIM, PRIM_PHYSICS_SHAPE_CONVEX */
+/** Sets the prim's physics shape type. */
 declare const PRIM_PHYSICS_SHAPE_TYPE: 30
-/** [ PRIM_POINT_LIGHT, integer boolean, vector linear_color, float intensity, float radius, float falloff ]integer boolean – TRUE enables, FALSE disablesvector linear_color – linear color in RGB <R, G, B&> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white)float intensity – ranges from 0.0 to 1.0float radius – ranges from 0.1 to 20.0float falloff – ranges from 0.01 to 2.0 */
+/** Sets the prim as a point light. */
 declare const PRIM_POINT_LIGHT: 23
-/** [ PRIM_POSITION, vector position ]vector position – position in region or local coordinates depending upon the situation */
+/** Sets the prim's position. */
 declare const PRIM_POSITION: 6
-/** [ PRIM_POS_LOCAL, vector position ]vector position - position in local coordinates */
+/** Sets the prim's local position. */
 declare const PRIM_POS_LOCAL: 33
-/** [ PRIM_PROJECTOR, string texture, float fov, float focus, float ambiance ] */
+/** Light projector settings for this prim. */
 declare const PRIM_PROJECTOR: 42
-/** Allows you to configure the object as a custom-placed reflection probe, for image-based lighting (IBL). Only objects in the influence volume of the reflection probe object are affected. */
+/** Sets the prim as a reflection probe. */
 declare const PRIM_REFLECTION_PROBE: 44
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe is a box. When unset, the reflection probe is a sphere. */
 declare const PRIM_REFLECTION_PROBE_BOX: 1
@@ -5471,16 +5457,13 @@ declare const PRIM_REFLECTION_PROBE_BOX: 1
 declare const PRIM_REFLECTION_PROBE_DYNAMIC: 2
 /** This is a flag option used with llGetPrimitiveParams and related functions when the parameter is PRIM_REFLECTION_PROBE. When set, the reflection probe acts as a mirror. */
 declare const PRIM_REFLECTION_PROBE_MIRROR: 4
-/** [ PRIM_RENDER_MATERIAL, integer face, string material ] */
+/** Sets the prim's render_material. Setting this param will also clear most PRIM_GLTF_* properties on the face, with the exceptions of repeats, offsets, and rotation_in_radians */
 declare const PRIM_RENDER_MATERIAL: 49
-/** [ PRIM_ROT_LOCAL, rotation global_rot ] */
+/** Sets the prim's global rotation. */
 declare const PRIM_ROTATION: 8
-/** [ PRIM_ROT_LOCAL, rotation local_rot ] */
+/** Sets the prim's local rotation. */
 declare const PRIM_ROT_LOCAL: 29
-/**
- * Prim parameter for restricting manual sitting on this prim.
- * Sitting must be initiated via call to llSitOnLink.
- */
+/** Avatars are not permitted to manually sit on this prim. */
 declare const PRIM_SCRIPTED_SIT_ONLY: 40
 /** Mesh is animated. */
 declare const PRIM_SCULPT_FLAG_ANIMESH: 32
@@ -5498,24 +5481,27 @@ declare const PRIM_SHINY_HIGH: 3
 declare const PRIM_SHINY_LOW: 1
 declare const PRIM_SHINY_MEDIUM: 2
 declare const PRIM_SHINY_NONE: 0
+/** Sets the flags on the prim's sit target Flag Description SIT_FLAG_SIT_TARGET 0x1 Read-only flag to indicate whether the link has a sit target. Use llSitTarget, llLinkSitTarget, or PRIM_SIT_TARGET to disable or enable this flag. Use llGetLinkSitFlags, or llGetLinkPrimitiveParams with PRIM_SIT_FLAGS to read this flag. SIT_FLAG_ALLOW_UNSIT 0x2 Allow an avatar to manually unsit from a sit target. Only applies to agents who had been seated via an LSL script. See llSitOnLink. SIT_FLAG_SCRIPTED_ONLY 0x4 Only allow scripted sits on this sit target. SIT_FLAG_NO_COLLIDE 0x10 Disable the avatar's collision volume when they are seated on this sit target. SIT_FLAG_NO_DAMAGE 0x20 Do not distribute damage to agents sitting on this sit target. */
 declare const PRIM_SIT_FLAGS: 50
-/** [ PRIM_SIT_TARGET, integer boolean, vector offset, rotation rot ] */
+/** The sit target, if any defined for this prim. */
 declare const PRIM_SIT_TARGET: 41
-/** [ PRIM_SIZE, vector size ] */
+/** Sets the prim's size. */
 declare const PRIM_SIZE: 7
-/** [ PRIM_SLICE, vector slice ] */
+/** Sets the prim's slice (a shape attribute). */
 declare const PRIM_SLICE: 35
-/** Prim parameter for materials using integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color, integer glossy, integer environment */
+/** Sets the prim's specular map attributes. */
 declare const PRIM_SPECULAR: 36
+/** Sets the object's temporary attribute. */
 declare const PRIM_TEMP_ON_REZ: 4
-/** [ PRIM_TEXGEN, integer face, PRIM_TEXGEN_* ] */
+/** Sets the face's texture mode. */
 declare const PRIM_TEXGEN: 22
 declare const PRIM_TEXGEN_DEFAULT: 0
 declare const PRIM_TEXGEN_PLANAR: 1
-/** [ PRIM_TEXT, string text, vector color, float alpha ] */
+/** Sets the prim's floating text. */
 declare const PRIM_TEXT: 26
-/** [ PRIM_TEXTURE, integer face, string texture, vector repeats, vector offsets, float rotation_in_radians ] */
+/** Sets the prim's texture attributes. */
 declare const PRIM_TEXTURE: 17
+/** Gets the prim shape. [Would you like to know more?][Hide] */
 declare const PRIM_TYPE: 9
 declare const PRIM_TYPE_BOX: 0
 declare const PRIM_TYPE_CYLINDER: 1
@@ -5537,20 +5523,23 @@ declare const PSYS_PART_BF_ONE_MINUS_SOURCE_COLOR: 5
 declare const PSYS_PART_BF_SOURCE_ALPHA: 7
 declare const PSYS_PART_BF_SOURCE_COLOR: 3
 declare const PSYS_PART_BF_ZERO: 1
+/** Specifies how blending function uses the current framebuffer's color and alpha information to produce the rendered result. Defaults to PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA. To make particles blend with the background in a less opaque and more luminescent way use PSYS_PART_BF_ONE for dest and the default for source. Most other blending combinations will render the invisible/alpha portion of your particle texture, unless the invisible area of your texture is all black (or, in some cases, unless it is all white). */
 declare const PSYS_PART_BLEND_FUNC_DEST: 25
+/** Specifies how blending function uses the incoming particle's color and alpha information to produce the rendered result. Defaults to PSYS_PART_BF_SOURCE_ALPHA. */
 declare const PSYS_PART_BLEND_FUNC_SOURCE: 24
 /** Particles bounce off of a plane at the objects Z height. */
 declare const PSYS_PART_BOUNCE_MASK: 4
 /** The particle glows. */
 declare const PSYS_PART_EMISSIVE_MASK: 256
-/** A float which determines the ending alpha of the object. */
+/** Specifies the alpha the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_COLOR_MASK flag is set. Valid values are the same as PSYS_PART_START_ALPHA. */
 declare const PSYS_PART_END_ALPHA: 4
-/** A vector <r, g, b> which determines the ending color of the object. */
+/** A vector specifying the color the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_COLOR_MASK flag is set. */
 declare const PSYS_PART_END_COLOR: 3
+/** Specifies the glow that the particles transition to during their lifetime. Valid values are the same as PSYS_PART_START_GLOW. */
 declare const PSYS_PART_END_GLOW: 27
-/** A vector <sx, sy, z>, which is the ending size of the particle billboard in meters (z is ignored). */
+/** Specifies the scale or size the particles transition to during their lifetime. Only used if the PSYS_PART_INTERP_SCALE_MASK flag is set. Valid values are the same as PSYS_PART_START_SCALE. */
 declare const PSYS_PART_END_SCALE: 6
-/** Each particle that is emitted by the particle system is simulated based on the following flags. To use multiple flags, bitwise or (|) them together. */
+/** Various flags controlling the behavior of the particle system. The value may be specified as an integer in decimal or hex format, or by ORing together (using the | operator) one or more of the following flag constants: */
 declare const PSYS_PART_FLAGS: 0
 /** The particle position is relative to the source objects position. */
 declare const PSYS_PART_FOLLOW_SRC_MASK: 16
@@ -5560,47 +5549,48 @@ declare const PSYS_PART_FOLLOW_VELOCITY_MASK: 32
 declare const PSYS_PART_INTERP_COLOR_MASK: 1
 /** Interpolate the particle scale from the start value to the end value. */
 declare const PSYS_PART_INTERP_SCALE_MASK: 2
-/** Age in seconds of a particle at which it dies. */
+/** Specifies the lifetime of each particle emitted, in seconds. Maximum is 30.0 seconds. During this time, the particle will appear, change appearance and move according to the parameters specified in the other sections, and then disappear. */
 declare const PSYS_PART_MAX_AGE: 7
 declare const PSYS_PART_RIBBON_MASK: 1024
-/** A float which determines the starting alpha of the object. */
+/** Specifies the alpha of the particles upon emission. Valid values are in the range 0.0 to 1.0. Lower values are more transparent; higher ones are more opaque. */
 declare const PSYS_PART_START_ALPHA: 2
-/** A vector <r, g, b> which determines the starting color of the object. */
+/** A vector specifying the color of the particles upon emission. */
 declare const PSYS_PART_START_COLOR: 1
+/** Specifies the glow of the particles upon emission. Valid values are in the range of 0.0 (no glow) to 1.0 (full glow). */
 declare const PSYS_PART_START_GLOW: 26
-/** A vector <sx, sy, z>, which is the starting size of the particle billboard in meters (z is ignored). */
+/** Specifies the scale or size of the particles upon emission. Valid values for each direction are 0.03125 to 4.0, in meters. The actual particle size is always a multiple of 0.03125. Smaller changes don't have any effect. Since particles are essentially 2D sprites, the Z component of the vector is ignored and can be set to 0.0. */
 declare const PSYS_PART_START_SCALE: 5
 declare const PSYS_PART_TARGET_LINEAR_MASK: 128
 /** The particle heads towards the location of the target object as defined by PSYS_SRC_TARGET_KEY. */
 declare const PSYS_PART_TARGET_POS_MASK: 64
 /** Particles have their velocity damped towards the wind velocity. */
 declare const PSYS_PART_WIND_MASK: 8
-/** A vector <x, y, z> which is the acceleration to apply on particles. */
+/** Specifies a directional acceleration vector applied to each particle as it is emitted, in meters per second squared. Valid values are 0.0 to 100.0 for each direction both positive and negative, as region coordinates. */
 declare const PSYS_SRC_ACCEL: 8
-/** Area in radians specifying where particles will NOT be created (for ANGLE patterns) */
+/** Specifies a half angle, in radians, of a circular or spherical "dimple" or conic section (starting from the emitter facing) within which particles will NOT be emitted. Valid values are the same as for PSYS_SRC_ANGLE_END, though the effects are reversed accordingly. If the pattern is PSYS_SRC_PATTERN_ANGLE, the presentation is a 2D flat circular section. If PSYS_SRC_PATTERN_ANGLE_CONE or PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY is used, the presentation is a 3D spherical section. Note that the value of this parameter and PSYS_SRC_ANGLE_END are internally re-ordered such that this parameter gets the smaller of the two values. */
 declare const PSYS_SRC_ANGLE_BEGIN: 22
-/** Area in radians filled with particles (for ANGLE patterns) (if lower than PSYS_SRC_ANGLE_BEGIN, acts as PSYS_SRC_ANGLE_BEGIN itself, and PSYS_SRC_ANGLE_BEGIN acts as PSYS_SRC_ANGLE_END). */
+/** Specifies a half angle, in radians, of a circular or spherical "dimple" or conic section (starting from the emitter facing) within which particles WILL be emitted. Valid values are 0.0, which will result in particles being emitted in a straight line in the direction of the emitter facing, to PI, which will result in particles being emitted in a full circular or spherical arc around the emitter, not including the "dimple" or conic section defined by PSYS_SRC_ANGLE_BEGIN. If the pattern is PSYS_SRC_PATTERN_ANGLE, the presentation is a 2D flat circular section. If PSYS_SRC_PATTERN_ANGLE_CONE or PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY is used, the presentation is a 3D spherical section. Note that the value of this parameter and PSYS_SRC_ANGLE_BEGIN are internally re-ordered such that this parameter gets the larger of the two values. */
 declare const PSYS_SRC_ANGLE_END: 23
-/** How many particles to release in a burst. */
+/** Specifies the number of particles emitted in each "burst". */
 declare const PSYS_SRC_BURST_PART_COUNT: 15
-/** What distance from the center of the object to create the particles. */
+/** Specifies the distance from the emitter where particles will be created. This rule is ignored when the PSYS_PART_FOLLOW_SRC_MASK flag is set. A test in http://forums-archive.secondlife.com/327/f5/226722/1.html indicates that the maximum value is 50.00 */
 declare const PSYS_SRC_BURST_RADIUS: 16
-/** How often to release a particle burst (float seconds). */
+/** Specifies the time interval, in seconds, between "bursts" of particles being emitted. Specifying a value of 0.0 will cause the emission of particles as fast as the viewer can do so. */
 declare const PSYS_SRC_BURST_RATE: 13
-/** Maximum speed that a particle should be moving. */
+/** Specifies the maximum value of a random range of values which is selected for each particle in a burst as its initial speed upon emission, in meters per second. Note that the value of this parameter and PSYS_SRC_BURST_SPEED_MIN are internally re-ordered such that this parameter gets the larger of the two values. */
 declare const PSYS_SRC_BURST_SPEED_MAX: 18
-/** Minimum speed that a particle should be moving. */
+/** Specifies the minimum value of a random range of values which is selected for each particle in a burst as its initial speed upon emission, in meters per second. Note that the value of this parameter and PSYS_SRC_BURST_SPEED_MAX are internally re-ordered such that this parameter gets the smaller of the two values. */
 declare const PSYS_SRC_BURST_SPEED_MIN: 17
-/** Specifies the inner angle of the arc created by the PSYS_SRC_PATTERN_ANGLE or PSYS_SRC_PATTERN_ANGLE_CONE source pattern.The area specified will NOT have particles in it. */
+/** DEPRECATED: Use PSYS_SRC_ANGLE_BEGIN instead. Works similar to its replacement rule, except the edge of the section is aligned with the emitter facing, rather than its center. */
 declare const PSYS_SRC_INNERANGLE: 10
-/** How long this particle system should last, 0.0 means forever. */
+/** Specifies the length of time, in seconds, that the emitter will operate upon coming into view range (if the particle system is already set) or upon execution of this function (if already in view range). Upon expiration, no more particles will be emitted, except as specified above. Zero will give the particle system an infinite duration. (caveat 1) */
 declare const PSYS_SRC_MAX_AGE: 19
 declare const PSYS_SRC_OBJ_REL_MASK: 1
-/** Sets the angular velocity to rotate the axis that SRC_PATTERN_ANGLE and SRC_PATTERN_ANGLE_CONE use. */
+/** Sets how far to rotate the "pattern" after each particle burst. (Burst frequency is set with PSYS_SRC_BURST_RATE.) Omega values are approximately 'radians per burst' around the prim's global (not local) X, Y, Z axes. For precise and predictable pattern rotation, rotate the prim instead of using PSYS_SRC_OMEGA. Omega has no visible effect on drop, explode and certain specific angle and angle cone patterns, depending on prim orientation. Pattern rotation can be used with prim orientation and llTargetOmega() but won't produce consistent results. (caveat 2 and caveat 3) */
 declare const PSYS_SRC_OMEGA: 21
-/** Specifies the outer angle of the arc created by the PSYS_SRC_PATTERN_ANGLE or PSYS_SRC_PATTERN_ANGLE_CONE source pattern.The area between the outer and inner angle will be filled with particles. */
+/** DEPRECATED: Use PSYS_SRC_ANGLE_END instead. Works similar to its replacement rule, except the edge of the section is aligned with the emitter facing, rather than the section's center. */
 declare const PSYS_SRC_OUTERANGLE: 11
-/** The pattern which is used to generate particles.Use one of the following values: PSYS_SRC_PATTERN Values. */
+/** Specifies the general emission pattern. */
 declare const PSYS_SRC_PATTERN: 9
 /** Shoot particles across a 2 dimensional area defined by the arc created from PSYS_SRC_OUTERANGLE. There will be an open area defined by PSYS_SRC_INNERANGLE within the larger arc. */
 declare const PSYS_SRC_PATTERN_ANGLE: 4
@@ -5611,9 +5601,9 @@ declare const PSYS_SRC_PATTERN_ANGLE_CONE_EMPTY: 16
 declare const PSYS_SRC_PATTERN_DROP: 1
 /** Shoot particles out in all directions, using the burst parameters. */
 declare const PSYS_SRC_PATTERN_EXPLODE: 2
-/** The key of a target object to move towards if PSYS_PART_TARGET_POS_MASK is enabled. */
+/** Specifies the key of a target object, prim, or agent towards which the particles will change course and move (if PSYS_PART_TARGET_POS_MASK is specified) or will move in a straight line (if PSYS_PART_TARGET_LINEAR_MASK is specified). They will attempt to end up at the geometric center of the target at the end of their lifetime. Requires the PSYS_PART_TARGET_POS_MASK or PSYS_PART_TARGET_LINEAR_MASK flag be set. caveat 4 */
 declare const PSYS_SRC_TARGET_KEY: 20
-/** An asset name for the texture to use for the particles. */
+/** Specifies the name of a texture in the emitter prim's inventory to use for each particle. Alternatively, you may specify an asset key UUID for a texture. If using llLinkParticleSystem and texture is not a UUID, texture must be in the emitter prim (not necessarily with the script). */
 declare const PSYS_SRC_TEXTURE: 12
 /** PUBLIC_CHANNEL is an integer constant that, when passed to llSay, llWhisper, or llShout as a channel parameter, will print text to the publicly heard chat channel. */
 declare const PUBLIC_CHANNEL: 0
@@ -5652,16 +5642,20 @@ declare const RAD_TO_DEG: number
 declare const RCERR_CAST_TIME_EXCEEDED: -3
 declare const RCERR_SIM_PERF_LOW: -2
 declare const RCERR_UNKNOWN: -1
+/** Described in the RC_DATA_FLAGS section. */
 declare const RC_DATA_FLAGS: 2
+/** Set to TRUE (or nonzero) to detect phantom AND volume detect objects. It is not possible to detect only phantom objects or only volume detect objects. If set to TRUE, phantom and volume detect objects will always be detected, even if RC_REJECT_NONPHYSICAL and RC_REJECT_PHYSICAL are set in RC_REJECT_TYPES. */
 declare const RC_DETECT_PHANTOM: 1
 declare const RC_GET_LINK_NUM: 4
 declare const RC_GET_NORMAL: 1
 declare const RC_GET_ROOT_KEY: 2
+/** Maximum number of hits to return. Maximum value is 256. To avoid performance issues, keep it small. */
 declare const RC_MAX_HITS: 3
 declare const RC_REJECT_AGENTS: 1
 declare const RC_REJECT_LAND: 8
 declare const RC_REJECT_NONPHYSICAL: 4
 declare const RC_REJECT_PHYSICAL: 2
+/** Mask used to ignore specific types of objects (and avatars). */
 declare const RC_REJECT_TYPES: 0
 declare const REGION_FLAG_ALLOW_DAMAGE: 1
 declare const REGION_FLAG_ALLOW_DIRECT_TELEPORT: 1048576
@@ -5685,13 +5679,13 @@ declare const REQUIRE_LINE_OF_SIGHT: 2
 declare const RESTITUTION: 4
 /** Play animation in reverse direction. */
 declare const REVERSE: 4
-/** Acceleration forced applied to the rezzed object. [vector force, integer rel] */
+/** A constant force to apply to the object. If local is TRUE, the force vector is in local coordinates. */
 declare const REZ_ACCEL: 5
-/** Damage applied by the object when it collides with an agent. [float damage] */
+/** The amount of damage applied to an agent upon collision with this object. */
 declare const REZ_DAMAGE: 8
-/** Set the damage type applied when this object collides. [integer damage_type] */
+/** The damage type to apply when this prim collides with another object. Can match one of the DAMAGE_TYPE_* constants, be a custom damage type or repurpose the damage field. */
 declare const REZ_DAMAGE_TYPE: 12
-/** Rez flags to set on the newly rezzed object. [integer flags] */
+/** Flags applied to rezzed object when it is created in the world. Flags parameter integer value description REZ_FLAG_TEMP 0x0001 Object is rezzed as temporary. REZ_FLAG_PHYSICAL 0x0002 Object is rezzed as physical. REZ_FLAG_PHANTOM 0x0004 Object is rezzed as phantom REZ_FLAG_DIE_ON_COLLIDE 0x0008 The object will die after its first collision. REZ_FLAG_DIE_ON_NOENTRY 0x0010 Object will die if it attempts to enter a parcel that it can't. REZ_FLAG_NO_COLLIDE_OWNER 0x0020 Object will not trigger a collision event if colliding with its owner.† REZ_FLAG_NO_COLLIDE_FAMILY 0x0040 Object will not trigger collision events when colliding with other object rezzed by the same rezzer.† REZ_FLAG_BLOCK_GRAB_OBJECT 0x0080 Grabbing is disabled for this object. † Disabling collisions only disables collision events and damage. The object will still cause a physics collision and may push the objects. */
 declare const REZ_FLAGS: 1
 /** Prevent grabbing the object. */
 declare const REZ_FLAG_BLOCK_GRAB_OBJECT: 128
@@ -5709,24 +5703,24 @@ declare const REZ_FLAG_PHANTOM: 4
 declare const REZ_FLAG_PHYSICAL: 2
 /** Flag the object as temp on rez. */
 declare const REZ_FLAG_TEMP: 1
-/** Prevent the object from rotating around some axes. [vector locks] */
+/** Prevent the object from spinning on certain axes. Setting the vector's coordinate to non-zero will prevent the object from spinning on that axis. For instance REZ_LOCK_AXES, <1.0, 1.0, 0.0> will allow the object to only rotate around its Z-axis. */
 declare const REZ_LOCK_AXES: 11
-/** Omega applied to the rezzed object. [vector axis, integer rel, float spin, float gain] */
+/** Spin the object around the specified axis. If local is TRUE that axis is in local coordinates, otherwise they are global. */
 declare const REZ_OMEGA: 7
-/** Integer value to pass to the object as its rez parameter. [integer param] */
+/** Start parameter passed into the rezzed object's on_rez(integer) event. */
 declare const REZ_PARAM: 0
-/** A string value to pass to the object as its rez parameter. [string param] */
+/** Pass an initialization string to the root prim of the newly rezzed object that may be read with llGetStartString from within the rezzed object. Maximum string length is 1024 bytes. */
 declare const REZ_PARAM_STRING: 13
-/** Position at which to rez the new object. [vector position, integer rel, integer atroot] */
+/** Position to rez the new object in the world. If relative is FALSE the position is in region coordinates. If relative is TRUE, the position will be relative to the rezzing object. If at_root is FALSE, the center of the object will be at the position specified by pos(llRezObject). Set at_root to TRUE to set the position of the root prim(llRezAtRoot). */
 declare const REZ_POS: 2
-/** Rotation applied to newly rezzed object. [rotation rot, integer rel] */
+/** The initial rotation to apply to the object. If relative is TRUE, the rotation is relative to the rezzing object, otherwise it is absolute. */
 declare const REZ_ROT: 3
-/** Sound attached to the rezzed object. [string name, float volume, integer loop] */
+/** A sound to attach to this object. It will be played at the specified volume. If loop is TRUE the sound will loop continuously for the life of the object. The sound parameter may be either a sound file in the rezzer's inventory or the UUID of a sound asset. */
 declare const REZ_SOUND: 9
-/** Sound played by the object on a collision. [string name, float volume] */
+/** A sound to play upon collision with another object, the ground or an avatar. The sound parameter may be either a sound file in the rezzer's inventory or the UUID of a sound asset. */
 declare const REZ_SOUND_COLLIDE: 10
 declare const REZ_TORQUE: 6
-/** Initial velocity of rezzed object. [vector vel, integer rel, integer inherit] */
+/** The initial velocity to apply to the object. If local is TRUE the velocity is in the local object coordinate frame, otherwise it is in world coordinates. If inherit is TRUE the object also inherits it's rezzer's velocity. */
 declare const REZ_VEL: 4
 /** Animate texture rotation. */
 declare const ROTATE: 32
@@ -5818,49 +5812,49 @@ declare const SIT_NO_SIT_TARGET: -3
 /** Avatar seated successfully. */
 declare const SIT_OK: 1
 declare const SKY_ABSORPTION_CONFIG: 16
-/** The ambient color of the environment */
+/** The ambient color of the environment. */
 declare const SKY_AMBIENT: 0
 /** Blue settings for environment */
 declare const SKY_BLUE: 22
-/** Settings controlling cloud density and configuration */
+/** Environmental cloud information. color: The color used for the clouds. coverage: The coverage percentage. scale: The scaling applied to the cloud textures. variance: A randomizing factor applied to the main cloud layer scroll: The scroll speed of the clouds. X is east/west Y is north/south Z is unused density: The X/Y and D parameter used to generate cloud density detail: The X/Y and D parameter used to generate cloud details. is_default: 1 if the clouds are using the default texture. */
 declare const SKY_CLOUDS: 2
 /** Texture ID used by clouds */
 declare const SKY_CLOUD_TEXTURE: 19
 /** Counts for density profiles of each type. */
 declare const SKY_DENSITY_PROFILE_COUNTS: 3
-/** Sky dome information. */
+/** Sky dome information. offset radius maximum altitude */
 declare const SKY_DOME: 4
-/** The gamma value applied to the scene. */
+/** The gamma value applied to the scene. In viewer versions 7.0+, this value has been repurposed into the "HDR Scale" value in the EEP editor. (Thus, this will return the value of the HDR Scale slider). */
 declare const SKY_GAMMA: 5
-/** Glow color applied to the sun and moon. */
+/** Glow applied to the sun and moon. size of glow effect focus of glow effect */
 declare const SKY_GLOW: 6
 /** Haze settings for environment */
 declare const SKY_HAZE: 23
-/** Miscellaneous lighting values. */
+/** Miscellaneous lighting values light_direction: A unit vector indicating the direction of the dominant light source. fade_color: A color vector representing the current color of the light emitted from the dominant light source (in sRGB space). total_ambient: A color vector representing the current ambient color in use in the scene (in sRGB space). */
 declare const SKY_LIGHT: 8
 /** MIE scatting profile parameters. */
 declare const SKY_MIE_CONFIG: 17
-/** Environmental moon details. */
+/** Detailed moon information rot: The current rotation applied to the moon. scale: The current scale applied to the moon's texture brightness: The moon's brightness is_default_texture: 1 if the moon texture is set to the default. 0 otherwise direction: A unit vector pointing at the moon. ambient_color: The ambient color of the moon diffuse_color: The diffuse color applied to the moon. */
 declare const SKY_MOON: 9
 /** Environmental moon texture. */
 declare const SKY_MOON_TEXTURE: 20
-/** Planet information used in rendering the sky. */
+/** Planet information used in rendering the sky planet_radius sky_bottom_radius sky_top_radius */
 declare const SKY_PLANET: 10
 /** Rayleigh scatting profile parameters. */
 declare const SKY_RAYLEIGH_CONFIG: 18
-/** Settings the ambience of the reflection probe. */
+/** Minimum ambiance value for all reflection probes. range = [0.0, 10.0] Caveat: This parameter will be supported in the upcoming GLTF Materials project. Currently it will only work in supported testing areas with a supported test viewer. */
 declare const SKY_REFLECTION_PROBE_AMBIANCE: 24
-/** Sky refraction parameters for rainbows and optical effects. */
+/** Sky refraction parameters for rainbows and optical effects. moisture_level droplet_radius ice_level */
 declare const SKY_REFRACTION: 11
 /** Brightness value for the stars. */
 declare const SKY_STAR_BRIGHTNESS: 13
-/** Detailed sun information */
+/** Detailed sun information rot: The current rotation applied to the sun. scale: The current scale applied to the sun's texture sun_color: is_default_texture: 1 if the sun texture is set to the default. 0 otherwise direction: A unit vector pointing at the sun. ambient_color: The ambient color of the sun. diffuse_color: The diffuse color applied to the sun. */
 declare const SKY_SUN: 14
 /** Environmental sun texture */
 declare const SKY_SUN_TEXTURE: 21
-/** Is the environment using the default textures. */
+/** Checks if the textures are currently set to use the default. For default values, the returned integer is 1. If the texture uses something other than the default, the returned value is 0. */
 declare const SKY_TEXTURE_DEFAULTS: 1
-/** Track elevations for this region. */
+/** Altitudes for sky transitions in the region. */
 declare const SKY_TRACKS: 15
 /** Slide in the X direction, instead of playing separate frames. */
 declare const SMOOTH: 16
@@ -6134,21 +6128,21 @@ declare const VEHICLE_VERTICAL_ATTRACTION_EFFICIENCY: 36
 declare const VEHICLE_VERTICAL_ATTRACTION_TIMESCALE: 37
 declare const VERTICAL: 0
 declare const WANDER_PAUSE_AT_WAYPOINTS: 0
-/** Blur factor. */
+/** Multiplier applied to blur the scene when under water. */
 declare const WATER_BLUR_MULTIPLIER: 100
-/** Fog properties when underwater. */
+/** Fog parameters applied when underwater color: The color of the underwater fog density: Density exponent applied to the fog modulation: */
 declare const WATER_FOG: 101
-/** Fresnel scattering applied to the surface of the water. */
+/** Fresnel scattering applied to the surface of the water. offset scale */
 declare const WATER_FRESNEL: 102
 /** Scaling applied to the water normal map. */
 declare const WATER_NORMAL_SCALE: 104
 /** Normal map used for environmental waves. */
 declare const WATER_NORMAL_TEXTURE: 107
-/** Refraction factors when looking through the surface of the water. */
+/** Refraction factors when looking through the surface of the water. scale_above scale_below */
 declare const WATER_REFRACTION: 105
-/** Is the environment using the default wave map. */
+/** Checks if the textures are currently set to use the default. For default values the returned integer is 1, if the texture uses something other than the default this value is 0. */
 declare const WATER_TEXTURE_DEFAULTS: 103
-/** Vectors for the directions of the waves. */
+/** Vector for the directions of the waves Y represents north/south and X represents movement east/west. large_wave: Large wave speed and direction. small_wave: Small wave speed and direction. */
 declare const WATER_WAVE_DIRECTION: 106
 /** The region currently has experiences disabled. */
 declare const XP_ERROR_EXPERIENCES_DISABLED: 2

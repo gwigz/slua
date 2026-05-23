@@ -1,5 +1,5 @@
 import { load } from "cheerio"
-import { fetchHtml } from "../parse-params.js"
+import { fetchHtml, cleanDescription } from "../parse-params.js"
 import type { TypedListParamSet, TypedListRule } from "../types.js"
 
 const WIKI_URL = "https://wiki.secondlife.com/wiki/LlSetLinkGLTFOverrides"
@@ -40,7 +40,10 @@ export async function scrapeGltfOverrides(): Promise<TypedListParamSet[]> {
         ? [{ type: typeText, name: flag.replace(/^OVERRIDE_GLTF_/, "").toLowerCase() }]
         : []
 
-    params.push({ name: flag, value, args })
+    // Column 3 is "description"
+    const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
+
+    params.push({ name: flag, value, args, ...(comment ? { comment } : {}) })
   })
 
   return [

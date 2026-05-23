@@ -1132,6 +1132,15 @@ export function emitAll(
     { name: string; flagsOnly: boolean; hasReturns: boolean }
   >()
   const setFlagsOnly = new Map<string, boolean>()
+  // Scraped wiki descriptions, keyed by constant name. First write wins so the
+  // richer setter prose ("Sets the prim's name.") beats a later getter set's
+  // cross-reference description for the same constant.
+  const constantComments = new Map<string, string>()
+  const addConstantComment = (name: string, comment: string | undefined) => {
+    if (comment && !constantComments.has(name)) {
+      constantComments.set(name, comment)
+    }
+  }
   if (typedListParams) {
     for (const set of typedListParams.sets) {
       const flagsOnly = set.params.every((r) => r.args.length === 0) && !set.subDispatch
@@ -1139,10 +1148,12 @@ export function emitAll(
       setFlagsOnly.set(set.name, flagsOnly)
       for (const rule of set.params) {
         literalConstants.set(rule.name, rule.value)
+        addConstantComment(rule.name, rule.comment)
       }
       if (set.subDispatch) {
         for (const rule of set.subDispatch.params) {
           literalConstants.set(rule.name, rule.value)
+          addConstantComment(rule.name, rule.comment)
         }
         const dispatchConst = lsl.constants[set.subDispatch.constant]
         if (dispatchConst) {
@@ -1280,7 +1291,10 @@ export function emitAll(
   const lslConstants = Object.entries(lsl.constants).filter(([, c]) => !c["slua-removed"])
 
   for (const [name, c] of lslConstants) {
-    const docs = buildDocs(c.tooltip, c["slua-deprecated"] ?? c.deprecated)
+    // Prefer the scraped wiki description over the YAML tooltip, which for
+    // typed-list constants is just the usage string (or empty).
+    const comment = constantComments.get(name) ?? c.tooltip
+    const docs = buildDocs(comment, c["slua-deprecated"] ?? c.deprecated)
     const literalValue = literalConstants.get(name)
 
     // Determine the type annotation: prefer typed-list-params literal, then

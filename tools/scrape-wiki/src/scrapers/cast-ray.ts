@@ -1,5 +1,5 @@
 import { load } from "cheerio"
-import { parseRawParams, fetchHtml } from "../parse-params.js"
+import { parseRawParams, fetchHtml, cleanDescription } from "../parse-params.js"
 import type { TypedListParamSet, TypedListRule } from "../types.js"
 
 const WIKI_URL = "https://wiki.secondlife.com/wiki/LlCastRay"
@@ -42,7 +42,10 @@ export async function scrapeCastRay(): Promise<TypedListParamSet[]> {
     const inner = paramText.replace(/^\[?\s*/, "").replace(/\s*\]?\s*$/, "")
     const args = parseRawParams(inner)
 
-    params.push({ name: flag, value, args })
+    // Column 4 is "Description"
+    const comment = cells.length > 4 ? cleanDescription(cells.eq(4).text()) : ""
+
+    params.push({ name: flag, value, args, ...(comment ? { comment } : {}) })
   })
 
   return [

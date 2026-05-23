@@ -46,6 +46,20 @@ export function loadConstantValues(prefix: string): Record<string, number> {
 }
 
 /**
+ * Normalize a wiki "Description" cell into a single-line JSDoc-friendly comment.
+ *
+ * Cheerio's .text() strips block tags without inserting whitespace, so two
+ * sentences split by a <br> come through as "name.If id is...". Collapse runs
+ * of whitespace, then re-space sentence boundaries that got glued together.
+ */
+export function cleanDescription(text: string): string {
+  return text
+    .replace(/\s+/g, " ")
+    .replace(/([.!?,;:])([A-Z])/g, "$1 $2")
+    .trim()
+}
+
+/**
  * Fetch a URL and return the HTML text, throwing on non-OK responses.
  */
 export async function fetchHtml(url: string): Promise<string> {
@@ -65,6 +79,8 @@ export async function scrapeConstantList(opts: {
   name: string
   functions: string[]
   returns?: Record<string, TypedListArg[]>
+  /** Zero-based index of the table column holding the flag description, if any. */
+  descCol?: number
 }): Promise<TypedListParamSet[]> {
   const { load } = await import("cheerio")
   const html = await fetchHtml(opts.url)
@@ -92,11 +108,17 @@ export async function scrapeConstantList(opts: {
 
     if (!flag.startsWith(opts.prefix) || isNaN(value)) return
 
+    const comment =
+      opts.descCol != null && cells.length > opts.descCol
+        ? cleanDescription(cells.eq(opts.descCol).text())
+        : ""
+
     params.push({
       name: flag,
       value,
       args: [],
       returns: opts.returns?.[flag],
+      ...(comment ? { comment } : {}),
     })
   })
 

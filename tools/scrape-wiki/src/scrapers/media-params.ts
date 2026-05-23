@@ -1,4 +1,4 @@
-import { fetchHtml, parseInlineParam } from "../parse-params.js"
+import { fetchHtml, parseInlineParam, cleanDescription } from "../parse-params.js"
 import type { TypedListArg, TypedListParamSet } from "../types.js"
 
 /**
@@ -57,9 +57,13 @@ export async function scrapeMediaParams(): Promise<TypedListParamSet[]> {
     const value = parseInt(cells.eq(1).text().trim(), 10)
     if (isNaN(value)) return
 
+    // Column 3: description
+    const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
+    const commentField = comment ? { comment } : {}
+
     // Check for manual override first
     if (returnOverrides[flag]) {
-      params.push({ name: flag, value, args: [], returns: returnOverrides[flag] })
+      params.push({ name: flag, value, args: [], returns: returnOverrides[flag], ...commentField })
       return
     }
 
@@ -69,7 +73,7 @@ export async function scrapeMediaParams(): Promise<TypedListParamSet[]> {
     if (returnMatch) {
       const parsed = parseInlineParam(returnMatch[1])
       if (parsed.length > 0) {
-        params.push({ name: flag, value, args: [], returns: parsed })
+        params.push({ name: flag, value, args: [], returns: parsed, ...commentField })
         return
       }
     }

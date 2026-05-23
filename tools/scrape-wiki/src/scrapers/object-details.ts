@@ -74,5 +74,6 @@ export async function scrapeObjectDetails(): Promise<TypedListParamSet[]> {
     name: "ObjectDetail",
     functions: ["llGetObjectDetails"],
     returns,
+    descCol: 2,
   })
 }

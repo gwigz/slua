@@ -1,5 +1,5 @@
-import { fetchHtml, parseInlineParam } from "../parse-params.js"
-import type { TypedListArg, TypedListParamSet } from "../types.js"
+import { fetchHtml, parseInlineParam, cleanDescription } from "../parse-params.js"
+import type { TypedListArg, TypedListParamSet, TypedListRule } from "../types.js"
 
 /**
  * Scrape PARCEL_MEDIA_COMMAND_* constants from the llParcelMediaQuery wiki page.
@@ -26,7 +26,7 @@ export async function scrapeParcelMediaQuery(): Promise<TypedListParamSet[]> {
 
   if (!table) throw new Error("Could not find parcel media query table on wiki page")
 
-  const params: { name: string; value: number; args: never[]; returns: TypedListArg[] }[] = []
+  const params: TypedListRule[] = []
 
   ;(table as ReturnType<typeof $>).find("tr").each((_, row) => {
     const cells = $(row).children("td")
@@ -49,8 +49,11 @@ export async function scrapeParcelMediaQuery(): Promise<TypedListParamSet[]> {
       returns.push(...parsed)
     }
 
+    // Column 3: description
+    const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
+
     if (returns.length > 0) {
-      params.push({ name: flag, value, args: [], returns })
+      params.push({ name: flag, value, args: [], returns, ...(comment ? { comment } : {}) })
     }
   })
 

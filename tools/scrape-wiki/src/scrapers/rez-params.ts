@@ -1,5 +1,5 @@
 import { load } from "cheerio"
-import { parseRawParams, fetchHtml } from "../parse-params.js"
+import { parseRawParams, fetchHtml, cleanDescription } from "../parse-params.js"
 import type { TypedListParamSet, TypedListRule } from "../types.js"
 
 const WIKI_URL = "https://wiki.secondlife.com/wiki/LlRezObjectWithParams"
@@ -36,7 +36,10 @@ export async function scrapeRezParams(): Promise<TypedListParamSet[]> {
 
     const args = parseRawParams(valuesText)
 
-    params.push({ name: flag, value, args })
+    // Column 3: description
+    const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
+
+    params.push({ name: flag, value, args, ...(comment ? { comment } : {}) })
   })
 
   return [

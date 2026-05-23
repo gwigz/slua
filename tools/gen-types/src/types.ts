@@ -139,6 +139,8 @@ export interface TypedListRule {
   name: string
   value: number
   args: TypedListArg[]
+  returns?: TypedListArg[]
+  comment?: string
 }
 
 export interface TypedListSubDispatch {

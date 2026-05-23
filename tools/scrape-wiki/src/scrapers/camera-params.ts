@@ -1,5 +1,10 @@
 import { load } from "cheerio"
-import { parseInlineParam, loadConstantValues, fetchHtml } from "../parse-params.js"
+import {
+  parseInlineParam,
+  loadConstantValues,
+  fetchHtml,
+  cleanDescription,
+} from "../parse-params.js"
 import type { TypedListParamSet, TypedListRule } from "../types.js"
 
 const WIKI_URL = "https://wiki.secondlife.com/wiki/LlSetCameraParams"
@@ -37,7 +42,10 @@ export async function scrapeCameraParams(): Promise<TypedListParamSet[]> {
     const paramText = cells.eq(2).text().trim()
     const args = parseInlineParam(paramText)
 
-    params.push({ name: flag, value, args })
+    // Column 5 is "Description"
+    const comment = cells.length > 5 ? cleanDescription(cells.eq(5).text()) : ""
+
+    params.push({ name: flag, value, args, ...(comment ? { comment } : {}) })
   })
 
   return [

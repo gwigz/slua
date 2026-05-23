@@ -394,15 +394,31 @@ describe("string ll.* transforms", () => {
     const lua = transpileSimple('declare const s: string;\nconst i = s.indexOf("x")')
 
     expect(lua).not.toContain("ll.SubStringIndex")
-    expect(lua).toContain('string.find(s, "x", 1, true)')
+    // clean literal -> plain-text flag dropped
+    expect(lua).toContain('string.find(s, "x")')
     expect(lua).toContain("or 0) - 1")
+  })
+
+  it("keeps the plain-text flag for indexOf with a magic-char literal", () => {
+    const lua = transpileSimple('declare const s: string;\nconst i = s.indexOf("a.b")')
+
+    expect(lua).toContain('string.find(s, "a.b", 1, true)')
+  })
+
+  it("keeps the plain-text flag for indexOf with a variable needle", () => {
+    const lua = transpileSimple(
+      "declare const s: string;\ndeclare const x: string;\nconst i = s.indexOf(x)",
+    )
+
+    expect(lua).toContain("string.find(s, x, 1, true)")
   })
 
   it("translates indexOf with literal fromIndex to string.find with constant folding", () => {
     const lua = transpileSimple('declare const s: string;\nconst i = s.indexOf("x", 5)')
 
     expect(lua).not.toContain("ll.SubStringIndex")
-    expect(lua).toContain('string.find(s, "x", 6, true)')
+    // clean literal -> keep start index, drop the plain-text flag
+    expect(lua).toContain('string.find(s, "x", 6)')
     expect(lua).toContain("(string.find(")
     expect(lua).toContain("or 0) - 1")
   })
@@ -412,20 +428,43 @@ describe("string ll.* transforms", () => {
       'declare const s: string;\ndeclare const n: number;\nconst i = s.indexOf("x", n)',
     )
 
-    expect(lua).toContain('string.find(s, "x", n + 1, true)')
+    expect(lua).toContain('string.find(s, "x", n + 1)')
     expect(lua).toContain("or 0) - 1")
+  })
+
+  it("keeps the plain-text flag for indexOf(magic, fromIndex)", () => {
+    const lua = transpileSimple(
+      'declare const s: string;\ndeclare const n: number;\nconst i = s.indexOf("a.b", n)',
+    )
+
+    expect(lua).toContain('string.find(s, "a.b", n + 1, true)')
   })
 })
 
 describe("string Luau stdlib transforms", () => {
-  it("translates includes to string.find", () => {
+  it("translates includes to string.find (clean literal drops plain-text flag)", () => {
     const lua = transpileSimple(
       'interface String { includes(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.includes("x")',
     )
 
-    expect(lua).toContain("string.find(s,")
-    expect(lua).toContain("true")
-    expect(lua).toContain("~= nil")
+    expect(lua).toContain('string.find(s, "x") ~= nil')
+    expect(lua).not.toContain("true")
+  })
+
+  it("keeps the plain-text flag for includes with a magic-char literal", () => {
+    const lua = transpileSimple(
+      'interface String { includes(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.includes("a%b")',
+    )
+
+    expect(lua).toContain('string.find(s, "a%b", 1, true) ~= nil')
+  })
+
+  it("keeps the plain-text flag for includes with a variable needle", () => {
+    const lua = transpileSimple(
+      "interface String { includes(searchString: string): boolean }\ndeclare const s: string;\ndeclare const x: string;\nconst b = s.includes(x)",
+    )
+
+    expect(lua).toContain("string.find(s, x, 1, true) ~= nil")
   })
 
   it("translates split(sep) to string.split", () => {
@@ -452,14 +491,39 @@ describe("string Luau stdlib transforms", () => {
     expect(lua).toContain("string.rep(s, 3)")
   })
 
-  it("translates startsWith to string.find == 1", () => {
+  it("translates startsWith with a literal to string.sub compare", () => {
     const lua = transpileSimple(
       'interface String { startsWith(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.startsWith("pre")',
     )
 
-    expect(lua).toContain("string.find(s,")
-    expect(lua).toContain("true")
-    expect(lua).toContain("== 1")
+    expect(lua).toContain('string.sub(s, 1, 3) == "pre"')
+    expect(lua).not.toContain("string.find")
+  })
+
+  it("uses the literal byte length for startsWith with multi-byte chars", () => {
+    const lua = transpileSimple(
+      'interface String { startsWith(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.startsWith("é")',
+    )
+
+    // assert the literal too, since the length is only correct if TSTL emits it as raw UTF-8
+    expect(lua).toContain('string.sub(s, 1, 2) == "é"')
+  })
+
+  it("folds startsWith with an empty literal to true", () => {
+    const lua = transpileSimple(
+      'interface String { startsWith(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.startsWith("")',
+    )
+
+    expect(lua).toContain("b = true")
+    expect(lua).not.toContain("string.sub")
+  })
+
+  it("falls back to string.find == 1 for startsWith with a variable needle", () => {
+    const lua = transpileSimple(
+      "interface String { startsWith(searchString: string): boolean }\ndeclare const s: string;\ndeclare const x: string;\nconst b = s.startsWith(x)",
+    )
+
+    expect(lua).toContain("string.find(s, x, 1, true) == 1")
   })
 
   it("does not transform startsWith with position argument", () => {
@@ -468,6 +532,32 @@ describe("string Luau stdlib transforms", () => {
     )
 
     expect(lua).not.toContain("string.find")
+    expect(lua).not.toContain("string.sub")
+  })
+
+  it("translates endsWith with a literal to string.sub compare", () => {
+    const lua = transpileSimple(
+      'interface String { endsWith(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.endsWith("ing")',
+    )
+
+    expect(lua).toContain('string.sub(s, -3) == "ing"')
+  })
+
+  it("folds endsWith with an empty literal to true", () => {
+    const lua = transpileSimple(
+      'interface String { endsWith(searchString: string): boolean }\ndeclare const s: string;\nconst b = s.endsWith("")',
+    )
+
+    expect(lua).toContain("b = true")
+    expect(lua).not.toContain("string.sub")
+  })
+
+  it("does not transform endsWith with a variable needle", () => {
+    const lua = transpileSimple(
+      "interface String { endsWith(searchString: string): boolean }\ndeclare const s: string;\ndeclare const x: string;\nconst b = s.endsWith(x)",
+    )
+
+    expect(lua).not.toContain("string.sub")
   })
 
   it("translates substring(start) to string.sub with constant folding", () => {
@@ -865,7 +955,8 @@ describe("optimize: indexOf", () => {
   it("translates s.indexOf(x) >= 0 to bare string.find", () => {
     const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") >= 0')
 
-    expect(lua).toContain('string.find(s, "x", 1, true)')
+    // clean literal -> plain-text flag dropped
+    expect(lua).toContain('string.find(s, "x")')
     expect(lua).not.toContain("or 0")
     expect(lua).not.toContain("- 1")
   })
@@ -873,21 +964,28 @@ describe("optimize: indexOf", () => {
   it("translates s.indexOf(x) !== -1 to bare string.find", () => {
     const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") !== -1')
 
-    expect(lua).toContain('string.find(s, "x", 1, true)')
+    expect(lua).toContain('string.find(s, "x")')
     expect(lua).not.toContain("or 0")
     expect(lua).not.toContain("- 1")
+  })
+
+  it("keeps the plain-text flag for s.indexOf(magic) >= 0", () => {
+    const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("a.b") >= 0')
+
+    expect(lua).toContain('string.find(s, "a.b", 1, true)')
+    expect(lua).not.toContain("or 0")
   })
 
   it("translates s.indexOf(x) === -1 to not string.find", () => {
     const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") === -1')
 
-    expect(lua).toContain('not string.find(s, "x", 1, true)')
+    expect(lua).toContain('not string.find(s, "x")')
   })
 
   it("translates s.indexOf(x) < 0 to not string.find", () => {
     const lua = transpileOptimized('declare const s: string;\nconst b = s.indexOf("x") < 0')
 
-    expect(lua).toContain('not string.find(s, "x", 1, true)')
+    expect(lua).toContain('not string.find(s, "x")')
   })
 
   it("translates arr.indexOf(x) >= 0 to bare table.find", () => {

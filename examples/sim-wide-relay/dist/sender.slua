@@ -148,11 +148,11 @@ local function parseLines(lines)
 	for ____, line in ipairs(lines) do
 		local trimmed = ll.StringTrim(line, STRING_TRIM)
 
-		if trimmed == "" or string.find(trimmed, "#", 1, true) == 1 then
+		if trimmed == "" or string.sub(trimmed, 1, 1) == "#" then
 			continue
 		end
 
-		local sepIndex = (string.find(trimmed, ":", 1, true) or 0) - 1
+		local sepIndex = (string.find(trimmed, ":") or 0) - 1
 
 		if sepIndex == -1 then
 			continue
@@ -386,11 +386,11 @@ end
 local function formatRelayMessage(speakerId, message)
 	local link = profileLink(speakerId)
 
-	if string.find(message, "/me'", 1, true) == 1 then
+	if string.sub(message, 1, 4) == "/me'" then
 		return ("/me " .. link) .. string.sub(message, 4)
 	end
 
-	if string.find(message, "/me ", 1, true) == 1 then
+	if string.sub(message, 1, 4) == "/me " then
 		return (("/me " .. link) .. " ") .. string.sub(message, 5)
 	end
 
@@ -618,7 +618,7 @@ local function startListening()
 end
 
 LLEvents:on("link_message", function(_link, _num, text, avatarKey)
-	if not (string.find(text, "block ", 1, true) == 1) and not (string.find(text, "unblock ", 1, true) == 1) then
+	if not (string.sub(text, 1, 6) == "block ") and not (string.sub(text, 1, 8) == "unblock ") then
 		return
 	end
 
@@ -640,7 +640,7 @@ LLEvents:on("listen", function(channel, _name, id, text)
 		return
 	end
 
-	if string.find(payload, "CHAT|", 1, true) == 1 then
+	if string.sub(payload, 1, 5) == "CHAT|" then
 		local speakerKey = string.sub(payload, 6, 41)
 
 		if table.find(config.IGNORED_AVATARS, speakerKey) ~= nil then
@@ -652,7 +652,7 @@ LLEvents:on("listen", function(channel, _name, id, text)
 		return
 	end
 
-	if string.find(payload, "SAY|", 1, true) == 1 then
+	if string.sub(payload, 1, 4) == "SAY|" then
 		local avatar = uuid.create(string.sub(payload, 5, 40))
 		local speakerId = string.sub(payload, 42, 77)
 		local message = string.sub(payload, 79)
@@ -662,7 +662,7 @@ LLEvents:on("listen", function(channel, _name, id, text)
 		return
 	end
 
-	if string.find(payload, "CMD|", 1, true) == 1 then
+	if string.sub(payload, 1, 4) == "CMD|" then
 		local avatarId = uuid.create(string.sub(payload, 5, 40))
 		local cmdText = string.sub(payload, 42)
 

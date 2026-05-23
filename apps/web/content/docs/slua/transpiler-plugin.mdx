@@ -38,7 +38,8 @@ String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib 
 | `str.indexOf(x)`       | `(string.find(str, x, 1, true) or 0) - 1`        |
 | `str.indexOf(x, from)` | `(string.find(str, x, from + 1, true) or 0) - 1` |
 | `str.includes(x)`      | `string.find(str, x, 1, true) ~= nil`            |
-| `str.startsWith(x)`    | `string.find(str, x, 1, true) == 1`              |
+| `str.startsWith(x)`    | `string.sub(str, 1, #x) == x`                    |
+| `str.endsWith(x)`      | `string.sub(str, -#x) == x`                      |
 | `str.split(sep)`       | `string.split(str, sep)`                         |
 | `str.repeat(n)`        | `string.rep(str, n)`                             |
 | `str.substring(start)` | `string.sub(str, start + 1)`                     |
@@ -47,6 +48,10 @@ String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib 
 | `str.replaceAll(a, b)` | `ll.ReplaceSubString(str, a, b, 0)`              |
 
 > `str.indexOf(x, fromIndex)` adjusts the `fromIndex` to 1-based (constant-folded for literals). `str.startsWith(x, position)` with a second argument falls through to TSTL's default handling. Similarly, `str.split()` with no separator is not transformed.
+
+> **Plain-text literals.** For `indexOf`, `includes`, and the `startsWith` fallback, the `1, true` plain-text arguments to `string.find` are only emitted when the needle could contain Luau pattern characters.
+
+> **`startsWith` / `endsWith` literals.** With a string-literal needle, both compile to a `string.sub` comparison. Empty literal folds to `true`. A non-literal `startsWith(x)` falls back to `string.find(str, x, 1, true) == 1`, and a non-literal `endsWith(x)` falls back to TSTL's default `endsWith` helper.
 
 ### Array methods
 
@@ -383,7 +388,7 @@ Emits bare `string.find` / `table.find` for `indexOf` presence checks instead of
 | `arr.indexOf(x) >= 0`   | `table.find(arr, x)`             |
 | `arr.indexOf(x) === -1` | `not table.find(arr, x)`         |
 
-Bare `indexOf` calls without a comparison still emit `(find or 0) - 1` to retain 0-index style responses.
+Bare `indexOf` calls without a comparison still emit `(find or 0) - 1` to retain 0-index style responses. As with the other `string.find` paths, the `1, true` arguments are dropped when `x` is a magic-free string literal.
 
 ### `shortenTemps`
 

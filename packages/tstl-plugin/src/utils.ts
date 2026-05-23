@@ -282,18 +282,36 @@ export function createNamespacedCall(
   )
 }
 
-/** Creates a `string.find(str, search, 1, true)` plain-text search call. */
+/** Luau pattern magic characters: `^$()%.[]*+-?`. */
+const PATTERN_MAGIC = /[%$()*+.?^[\]-]/
+
+/**
+ * True when `search` is a string literal containing no Luau pattern-magic
+ * characters, so `string.find` can safely omit the plain-text (4th) argument.
+ * Runtime values can't be validated at compile time, so they keep the flag.
+ */
+export function isPlainFindLiteral(search: tstl.Expression): boolean {
+  return (
+    search.kind === tstl.SyntaxKind.StringLiteral &&
+    !PATTERN_MAGIC.test((search as tstl.StringLiteral).value)
+  )
+}
+
+/**
+ * Creates a `string.find(str, search, 1, true)` plain-text search call.
+ * When `search` is a magic-free string literal, the `1, true` arguments are
+ * dropped.
+ */
 export function createStringFindCall(
   str: tstl.Expression,
   search: tstl.Expression,
   node?: ts.Node,
 ): tstl.CallExpression {
-  return createNamespacedCall(
-    "string",
-    "find",
-    [str, search, tstl.createNumericLiteral(1), tstl.createBooleanLiteral(true)],
-    node,
-  )
+  const args: tstl.Expression[] = isPlainFindLiteral(search)
+    ? [str, search]
+    : [str, search, tstl.createNumericLiteral(1), tstl.createBooleanLiteral(true)]
+
+  return createNamespacedCall("string", "find", args, node)
 }
 
 /** Escapes a string for literal use inside `new RegExp(...)`. */

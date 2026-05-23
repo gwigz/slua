@@ -138,11 +138,11 @@ local function parseLines(lines)
 	for ____, line in ipairs(lines) do
 		local trimmed = ll.StringTrim(line, STRING_TRIM)
 
-		if trimmed == "" or string.find(trimmed, "#", 1, true) == 1 then
+		if trimmed == "" or string.sub(trimmed, 1, 1) == "#" then
 			continue
 		end
 
-		local sepIndex = (string.find(trimmed, ":", 1, true) or 0) - 1
+		local sepIndex = (string.find(trimmed, ":") or 0) - 1
 
 		if sepIndex == -1 then
 			continue

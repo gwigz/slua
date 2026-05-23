@@ -8,7 +8,38 @@ import {
   isArrayType,
   createNamespacedCall,
   createStringFindCall,
+  isPlainFindLiteral,
 } from "./utils.js"
+
+/** UTF-8 byte length of `s` — Luau `#`/`string.sub` are byte-indexed. */
+function utf8ByteLength(s: string): number {
+  return new TextEncoder().encode(s).length
+}
+
+/**
+ * Builds `string.sub(str, ...) == "<literal>"` for a literal prefix/suffix check.
+ * `fromEnd` selects the suffix form `string.sub(str, -n)` over the prefix form
+ * `string.sub(str, 1, n)`, where `n` is the literal's UTF-8 byte length.
+ */
+function affixCompare(
+  str: tstl.Expression,
+  literal: ts.StringLiteralLike,
+  fromEnd: boolean,
+  node: ts.Node,
+): tstl.Expression {
+  const n = utf8ByteLength(literal.text)
+
+  const subArgs = fromEnd
+    ? [str, tstl.createNumericLiteral(-n)]
+    : [str, tstl.createNumericLiteral(1), tstl.createNumericLiteral(n)]
+
+  return tstl.createBinaryExpression(
+    createNamespacedCall("string", "sub", subArgs, node),
+    tstl.createStringLiteral(literal.text, literal),
+    tstl.SyntaxKind.EqualityOperator,
+    node,
+  )
+}
 
 export type CallTransform = {
   match: (node: ts.CallExpression, checker: ts.TypeChecker) => boolean
@@ -163,12 +194,13 @@ export const CALL_TRANSFORMS: CallTransform[] = [
             node,
           )
 
-      const findCall = createNamespacedCall(
-        "string",
-        "find",
-        [str, search, init, tstl.createBooleanLiteral(true)],
-        node,
-      )
+      // Built inline (not via createStringFindCall) because of the custom `init`
+      // start index; magic-free literals still drop the plain-text flag.
+      const findArgs: tstl.Expression[] = isPlainFindLiteral(search)
+        ? [str, search, init]
+        : [str, search, init, tstl.createBooleanLiteral(true)]
+
+      const findCall = createNamespacedCall("string", "find", findArgs, node)
 
       const findOrZero = tstl.createBinaryExpression(
         findCall,
@@ -229,7 +261,9 @@ export const CALL_TRANSFORMS: CallTransform[] = [
       return createNamespacedCall("string", "rep", [str, n], node)
     },
   },
-  // str.startsWith(search) -> string.find(str, search, 1, true) == 1  (1-arg only)
+  // str.startsWith(search)  (1-arg only)
+  //   literal -> string.sub(str, 1, #search) == search  (empty -> true)
+  //   else    -> string.find(str, search, 1, true) == 1
   {
     match: (node, checker) => isMethodCall(node, checker, isStringType, "startsWith", 1),
     emit: (node, context) => {
@@ -237,14 +271,40 @@ export const CALL_TRANSFORMS: CallTransform[] = [
         (node.expression as ts.PropertyAccessExpression).expression,
       )
 
-      const search = context.transformExpression(node.arguments[0])
+      const arg = node.arguments[0]
+
+      // Literal needle: compare the prefix directly, avoiding the pattern engine.
+      if (ts.isStringLiteralLike(arg)) {
+        return arg.text === ""
+          ? tstl.createBooleanLiteral(true, node)
+          : affixCompare(str, arg, false, node)
+      }
 
       return tstl.createBinaryExpression(
-        createStringFindCall(str, search, node),
+        createStringFindCall(str, context.transformExpression(arg), node),
         tstl.createNumericLiteral(1),
         tstl.SyntaxKind.EqualityOperator,
         node,
       )
+    },
+  },
+  // str.endsWith(search) -> string.sub(str, -#search) == search  (literal only; empty -> true)
+  // Non-literal needles fall back to TSTL's lualib helper.
+  {
+    match: (node, checker) =>
+      isMethodCall(node, checker, isStringType, "endsWith", 1) &&
+      ts.isStringLiteralLike(node.arguments[0]),
+    emit: (node, context) => {
+      const str = context.transformExpression(
+        (node.expression as ts.PropertyAccessExpression).expression,
+      )
+
+      // The `match` guard guarantees a string-literal needle.
+      const arg = node.arguments[0] as ts.StringLiteralLike
+
+      return arg.text === ""
+        ? tstl.createBooleanLiteral(true, node)
+        : affixCompare(str, arg, true, node)
     },
   },
   // str.substring(start) -> string.sub(str, start + 1)

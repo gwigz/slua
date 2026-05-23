@@ -156,7 +156,7 @@ function rawget<K, V>(t: Record<K, V>, k: K): V | undefined
 Returns the length of a table or string bypassing metatables.
 
 ```ts
-function rawlen<K, V>(t: Record<any, any> | string): number
+function rawlen<K, V>(t: Record<K, V> | string): number
 ```
 
 ### `rawset`

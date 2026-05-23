@@ -36,6 +36,7 @@
     "twoslash": "^0.3.6"
   },
   "devDependencies": {
+    "@gwigz/slua-modules": "workspace:*",
     "@gwigz/slua-tstl-plugin": "workspace:*",
     "@gwigz/tstl-bundle-flatten": "^1.0.0",
     "@tailwindcss/postcss": "^4.2.2",

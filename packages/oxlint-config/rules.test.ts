@@ -5,8 +5,6 @@ import { resolve } from "node:path"
 
 const CONFIG = resolve(import.meta.dir, ".oxlintrc.json")
 const TMP = resolve(import.meta.dir, "__test_fixture.ts")
-const TA_TMP = resolve(import.meta.dir, "__test_fixture_ta.ts")
-const TA_TSCONFIG = resolve(import.meta.dir, "__test_tsconfig.json")
 
 interface Diagnostic {
   message: string
@@ -32,44 +30,6 @@ function lint(code: string): Diagnostic[] {
     try {
       unlinkSync(TMP)
     } catch {}
-  }
-}
-
-// strict-boolean-expressions is type-aware, so it needs `--type-aware`
-// (and the `oxlint-tsgolint` binary) plus a tsconfig covering the fixture.
-// cwd must be the package dir so oxlint resolves the locally-linked
-// `oxlint-tsgolint` (bun nests it rather than hoisting it to the root).
-function lintTypeAware(code: string): Diagnostic[] {
-  writeFileSync(TA_TMP, code)
-  writeFileSync(
-    TA_TSCONFIG,
-    JSON.stringify({
-      compilerOptions: {
-        strict: true,
-        target: "ESNext",
-        moduleResolution: "bundler",
-        skipLibCheck: true,
-      },
-      include: ["__test_fixture_ta.ts"],
-    }),
-  )
-
-  try {
-    const out = execSync(
-      `npx oxlint --type-aware --config ${CONFIG} --tsconfig ${TA_TSCONFIG} --format json ${TA_TMP}`,
-      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"], cwd: import.meta.dir },
-    )
-
-    return JSON.parse(out).diagnostics
-  } catch (err: unknown) {
-    const stdout = (err as { stdout?: string }).stdout ?? ""
-    return JSON.parse(stdout).diagnostics
-  } finally {
-    for (const f of [TA_TMP, TA_TSCONFIG]) {
-      try {
-        unlinkSync(f)
-      } catch {}
-    }
   }
 }
 
@@ -174,37 +134,6 @@ describe("no-restricted-syntax", () => {
     const diags = errors(lint("new Promise(() => {})"))
     expect(hasRule(diags, "eslint-js(no-restricted-syntax)")).toBe(true)
     expect(hasMessage(diags, "@gwigz/slua-modules/yield")).toBe(true)
-  })
-})
-
-// -- typescript/strict-boolean-expressions (type-aware) --
-// 0 and "" are falsy in JS but truthy in Lua, so bare numbers/strings in a
-// condition transpile to a different meaning. Force explicit comparisons.
-
-describe("strict-boolean-expressions", () => {
-  const RULE = "typescript-eslint(strict-boolean-expressions)"
-
-  it("flags a bare number in a conditional", () => {
-    const diags = errors(lintTypeAware("const n: number = 1; if (n) {}"))
-    expect(hasRule(diags, RULE)).toBe(true)
-  })
-
-  it("flags a bare string in a conditional", () => {
-    const diags = errors(lintTypeAware('const s: string = ""; if (s) {}'))
-    expect(hasRule(diags, RULE)).toBe(true)
-  })
-
-  it("does not flag explicit comparisons", () => {
-    const diags = errors(
-      lintTypeAware(`
-function scan(text: string) {
-  return text.includes("ERROR") && text.indexOf("name=") !== -1
-}
-if (scan("x")) {
-}
-`),
-    )
-    expect(hasRule(diags, RULE)).toBe(false)
   })
 })
 

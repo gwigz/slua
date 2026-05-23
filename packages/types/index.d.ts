@@ -396,6 +396,15 @@ declare interface LLTimers {
   off(callback: LLTimerCallback): boolean
 }
 
+/**
+ * Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast
+ * @noSelf
+ */
+declare interface PrimParamsSetterType {
+  /** Call ll.SetLinkPrimitiveParamsFast with my instance list */
+  apply(link?: number): void
+}
+
 /** rotation is an alias for quaternion. */
 declare const rotation: typeof quaternion
 /** Event registration and management singleton for Second Life events. */
@@ -517,7 +526,7 @@ declare function rawset<K, V>(t: Record<K, V>, k: K, v: V): Record<K, V>
  * Returns the length of a table or string bypassing metatables.
  * @noSelf
  */
-declare function rawlen<K, V>(t: Record<any, any> | string): number
+declare function rawlen<K, V>(t: Record<K, V> | string): number
 /**
  * Returns a subset of arguments or the number of arguments.
  * @noSelf
@@ -812,6 +821,13 @@ declare namespace lljson {
   export const empty_object: any[]
 }
 
+/** Utilities for working with prims / objects */
+/** @noSelf */
+declare namespace llprim {
+  /** Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast */
+  export const ParamsSetter: PrimParamsSetterTypeMeta
+}
+
 /** Mathematical functions library. */
 /** @noSelf */
 declare namespace math {
@@ -944,7 +960,7 @@ declare namespace math {
 /** Operating system facilities library. */
 /** @noSelf */
 declare namespace os {
-  /** Returns a high-precision timestamp in seconds for measuring durations. */
+  /** Returns a high-precision timestamp in seconds for measuring durations. Has a resolution of 0.0001s (222 ticks per server frame, 3 ticks per script time slice). 6-11x slower to look up than ll.GetTime. */
   export function clock(): number
 
   /** Returns a table or string representation of the time based on the provided format. */
@@ -1819,11 +1835,11 @@ declare namespace ll {
   /** Returns the object's attachment point, or 0 if not attached. */
   export function GetAttached(): number
 
-  /** Returns a list of keys of all visible (not HUD) attachments on the avatar identified by the ID argument */
-  export function GetAttachedList(id: UUID): UUID[]
+  /** Returns a list of keys of all visible (not HUD) attachments on the avatar identified by the ID argument, or a list containing 1 string on error. */
+  export function GetAttachedList(id: UUID): UUID[] | string[]
 
-  /** Retrieves a list of attachments on an avatar. */
-  export function GetAttachedListFiltered(agentId: UUID, options: list): UUID[]
+  /** Retrieves a list of attachments on an avatar, or a list containing 1 string on error. */
+  export function GetAttachedListFiltered(agentId: UUID, options: list): UUID[] | string[]
 
   /** Returns the bounding box around the object (including any linked prims) relative to its root prim, as a list in the format [ (vector) min_corner, (vector) max_corner ]. */
   export function GetBoundingBox(id: UUID): Vector[]
@@ -1866,7 +1882,7 @@ declare namespace ll {
 
   /**
    * Returns the current date in the UTC time zone in the format YYYY-MM-DD.
-   * Returns the current UTC date as YYYY-MM-DD.
+   * Returns the current UTC date as YYYY-MM-DD. Equivilant to os.date("%Y-%m-%d") in lua.
    */
   export function GetDate(): string
 
@@ -2446,13 +2462,16 @@ declare namespace ll {
    */
   export function GetTextureScale(face: number): Vector
 
-  /** Returns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime. */
+  /** Returns the time in seconds since the last region reset, script reset, or call to either llResetTime or llGetAndResetTime. Has a resolution of 0.022s (1 server frame), and is 6-11x faster to look up than lua's os.clock */
   export function GetTime(): number
 
   /** Returns the time in seconds since environmental midnight on the parcel. */
   export function GetTimeOfDay(): number
 
-  /** Returns a time-stamp (UTC time zone) in the format: YYYY-MM-DDThh:mm:ss.ff..fZ. */
+  /**
+   * Returns a time-stamp (UTC time zone) in the format: YYYY-MM-DDThh:mm:ss.ff..fZ.
+   *  Almost equivilant to os.date("%Y-%m-%dT%XZ") in lua, except for the milliseconds
+   */
   export function GetTimestamp(): string
 
   /**
@@ -2461,7 +2480,10 @@ declare namespace ll {
    */
   export function GetTorque(): Vector
 
-  /** Returns the number of seconds elapsed since 00:00 hours, Jan 1, 1970 UTC from the system clock. */
+  /**
+   * Returns the number of seconds elapsed since 00:00 hours, Jan 1, 1970 UTC from the system clock.
+   * @deprecated Use 'os.time' instead. Int32 will wrap on 2038-01-19
+   */
   export function GetUnixTime(): number
 
   /**
@@ -4713,6 +4735,8 @@ declare const ENV_NO_EXPERIENCE_LAND: -7
 declare const ENV_NO_EXPERIENCE_PERMISSION: -2
 /** Script does not have permission to modify environment. */
 declare const ENV_NO_PERMISSIONS: -9
+/** Environment modified successfully. */
+declare const ENV_OK: 1
 /** Could not validate values for environment. */
 declare const ENV_THROTTLE: -8
 /** Could not validate values for environment. */
@@ -5791,6 +5815,8 @@ declare const SIT_NO_ACCESS: -6
 declare const SIT_NO_EXPERIENCE_PERMISSION: -2
 /** No available sit target in linkset for forced sit. */
 declare const SIT_NO_SIT_TARGET: -3
+/** Avatar seated successfully. */
+declare const SIT_OK: 1
 declare const SKY_ABSORPTION_CONFIG: 16
 /** The ambient color of the environment */
 declare const SKY_AMBIENT: 0

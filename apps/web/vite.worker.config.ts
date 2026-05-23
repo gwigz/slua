@@ -150,7 +150,7 @@ export default defineConfig({
     },
     outDir: resolve("public"),
     emptyOutDir: false,
-    minify: true,
+    minify: "esbuild",
     sourcemap: true,
   },
   resolve: {

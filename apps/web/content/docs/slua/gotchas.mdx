@@ -1,0 +1,75 @@
+---
+title: Gotchas
+description: Subtle issues to keep an eye out for
+icon: TriangleAlert
+---
+
+TSTL converts TypeScript syntax faithfully, but a few runtime semantics differ
+between JavaScript and Lua. These differences survive transpiling and can
+quietly change behavior, so they are worth knowing.
+
+## Truthiness
+
+In JavaScript, `0`, `""`, `NaN`, `null`, and `undefined` are all falsy. In Lua,
+only `nil` and `false` are falsy, which means `0` and `""` are **truthy**. Any
+condition that relies on a number or string being falsy means something
+different once transpiled.
+
+```typescript
+const pos = text.indexOf("name=")
+
+if (pos) {
+  // ...
+}
+```
+
+`indexOf` returns `0` when the match is at the start (falsy in JS) and `-1` when
+there is no match (truthy in JS), so this branch is already misleading in
+JavaScript. In Lua it is worse: both `0` and `-1` are truthy, so the branch
+always runs. Compare explicitly instead:
+
+```typescript
+if (pos !== -1) {
+  // ...
+}
+```
+
+The same applies to strings (`if (str.length > 0)`, not `if (str)`) and numeric
+counters (`if (count !== 0)`, not `if (count)`).
+
+<Callout type="info" title="Enforce with oxlint">
+  [`@gwigz/slua-oxlint-config`](/docs/slua/transpiler-plugin#keeping-output-small) enables
+  `strict-boolean-expressions` to flag bare numbers and strings used as conditions. It is
+  type-aware, so run `oxlint --type-aware`.
+</Callout>
+
+## `null` and `undefined` are both `nil`
+
+Both `null` and `undefined` translate to `nil`, so they are indistinguishable at
+runtime. `x === null` and `x === undefined` compile to the same `x == nil`
+check, and a missing table key reads back as `undefined`.
+
+## Strings are bytes, not characters
+
+Lua strings are byte arrays, so `.length` and indexing count UTF-8 bytes rather
+than code points. A character outside ASCII is more than one byte:
+
+```typescript
+"héllo".length // 5 in JavaScript, 6 in SLua (é is two bytes)
+```
+
+The same applies to `slice`, `substring`, `indexOf`, and friends. For
+character-aware work, use the [`utf8`](/docs/slua/api/stdlib/utf8) library.
+
+## Object key order is not guaranteed
+
+`for...in` and `Object.keys()` iterate with Lua's `pairs`, which has no defined
+order. JavaScript preserves insertion order for string keys; SLua does not. Sort
+the keys yourself if order matters.
+
+## Arrays can't hold `nil`
+
+Arrays are plain Lua tables, and storing `undefined` (which becomes `nil`)
+punches a hole in them. `.length` (`#`) and iteration stop at the first hole, so
+the values after it are effectively lost. Rebuild the array with `filter`
+instead of assigning `undefined` to an element.

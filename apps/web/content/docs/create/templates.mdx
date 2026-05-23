@@ -76,6 +76,10 @@ shared config, which catches TypeScript patterns that don't work in SLua or
 pull in large TSTL runtime helpers (`delete`, `Map`/`Set`, `.splice()`,
 `async`/`await`, browser/Node APIs, and more).
 
+It also catches numbers and strings used directly as conditions, which behave
+differently in Lua (`0` and `""` are truthy there). That check is type-aware, so
+the `lint` script runs `oxlint --type-aware`.
+
 ### Formatting (`oxfmt`)
 
 Adds `oxfmt` for consistent TypeScript source formatting.

@@ -9,3 +9,13 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # Bump tightly-coupled packages together so they never land out of sync.
+    groups:
+      fumadocs:
+        patterns:
+          - "fumadocs*"
+      # typescript-to-lua pins an exact `typescript` peer, so they must move together.
+      typescript:
+        patterns:
+          - "typescript"
+          - "typescript-to-lua"

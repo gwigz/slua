@@ -1,6 +1,7 @@
 import ts from "typescript"
 import * as tstl from "typescript-to-lua"
-import sluaPlugin from "@gwigz/slua-tstl-plugin"
+import createPlugin from "@gwigz/slua-tstl-plugin"
+import type { WorkerRequest } from "../types"
 import sluaTypes from "@gwigz/slua-types/index.d.ts?raw"
 import langExt from "@typescript-to-lua/language-extensions/index.d.ts?raw"
 import lualibFiles from "virtual:tstl-lualib"
@@ -37,7 +38,6 @@ const TSTL_OPTIONS: tstl.CompilerOptions = {
   noImplicitGlobalVariables: true,
   noLib: true,
   strict: true,
-  luaPlugins: [{ plugin: sluaPlugin as tstl.Plugin }],
 }
 
 function flattenMessage(msg: string | import("typescript").DiagnosticMessageChain): string {
@@ -58,8 +58,8 @@ function isTstlKeywordDiagnostic(msg: string | ts.DiagnosticMessageChain) {
   return text.includes("Invalid ambient identifier name 'bit32'")
 }
 
-self.addEventListener("message", (event: MessageEvent<string>) => {
-  const code = event.data
+self.addEventListener("message", (event: MessageEvent<WorkerRequest>) => {
+  const { code, optimize } = event.data
 
   try {
     const result = tstl.transpileVirtualProject(
@@ -69,7 +69,7 @@ self.addEventListener("message", (event: MessageEvent<string>) => {
         "language-extensions.d.ts": langExt,
         "slua.d.ts": sluaTypes,
       },
-      TSTL_OPTIONS,
+      { ...TSTL_OPTIONS, luaPlugins: [{ plugin: createPlugin({ optimize }) }] },
     )
 
     const lua = formatLua(

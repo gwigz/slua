@@ -2,7 +2,15 @@
 
 import { useEffect, useRef, useState } from "react"
 import Editor, { type OnMount } from "@monaco-editor/react"
-import { IconExternalLink, IconInfoCircle, IconRotate } from "@tabler/icons-react"
+import {
+  IconAdjustments,
+  IconCheck,
+  IconExternalLink,
+  IconInfoCircle,
+  IconLink,
+  IconRotate,
+} from "@tabler/icons-react"
+import type { OptimizeFlags } from "@gwigz/slua-tstl-plugin"
 import {
   Dialog,
   DialogClose,
@@ -14,12 +22,16 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog"
 import { Button } from "~/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
+import { Toggle } from "~/components/ui/toggle"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
 import { PlaygroundTabs } from "~/components/playground-tabs"
 import { beforeMount as monacoBeforeMount } from "~/playground/monaco-setup"
 import { WORKER_VERSION } from "~/playground/generated/worker-version"
 import { EDITOR_OPTIONS, useMonacoTheme } from "~/playground/shared"
-import type { WorkerDiagnostic, WorkerResponse } from "~/playground/types"
+import { DEFAULT_OPTIMIZE, OPTIMIZE_OPTIONS } from "~/playground/optimize-options"
+import { encodeShared, decodeShared } from "~/playground/share"
+import type { WorkerDiagnostic, WorkerRequest, WorkerResponse } from "~/playground/types"
 
 const CREDITS = [
   {
@@ -95,10 +107,35 @@ ll.Listen(67, "", owner, "")
 `
 
 const STORAGE_KEY = "slua.playground-code"
+const OPTIMIZE_KEY = "slua.playground-optimize"
+
+function loadOptimize(): OptimizeFlags {
+  try {
+    const saved = localStorage.getItem(OPTIMIZE_KEY)
+    return saved ? { ...DEFAULT_OPTIMIZE, ...JSON.parse(saved) } : { ...DEFAULT_OPTIMIZE }
+  } catch {
+    return { ...DEFAULT_OPTIMIZE }
+  }
+}
+
+// Once the user edits, the URL no longer reflects a shared snapshot.
+function clearShareHash() {
+  if (window.location.hash) {
+    window.history.replaceState(null, "", window.location.pathname + window.location.search)
+  }
+}
 
 export default function Playground() {
   const monacoTheme = useMonacoTheme()
-  const [initialCode] = useState(() => localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE)
+  // A shared link (#code/...) takes priority over the locally-saved draft.
+  const [shared] = useState(() => decodeShared(window.location.hash))
+  const [initialCode] = useState(
+    () => shared?.code ?? localStorage.getItem(STORAGE_KEY) ?? DEFAULT_CODE,
+  )
+  const [optimize, setOptimize] = useState<OptimizeFlags>(() =>
+    shared?.optimize ? { ...DEFAULT_OPTIMIZE, ...shared.optimize } : loadOptimize(),
+  )
+  const [copied, setCopied] = useState(false)
   const [lua, setLua] = useState("")
   const [diagnostics, setDiagnostics] = useState<WorkerDiagnostic[]>([])
   const [globalErrors, setGlobalErrors] = useState<WorkerDiagnostic[]>([])
@@ -108,6 +145,8 @@ export default function Playground() {
   const workerRef = useRef<Worker | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null)
+  const optimizeRef = useRef(optimize)
+  const didMountRef = useRef(false)
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 640px)")
@@ -180,7 +219,7 @@ export default function Playground() {
     workerRef.current = worker
 
     // Transpile the initial code on mount
-    worker.postMessage(initialCode)
+    worker.postMessage({ code: initialCode, optimize: optimizeRef.current } satisfies WorkerRequest)
 
     return () => {
       if (debounceRef.current) {
@@ -195,17 +234,37 @@ export default function Playground() {
     editorRef.current = editor
   }
 
+  async function handleShare() {
+    const code = editorRef.current?.getValue() ?? initialCode
+    const hash = encodeShared({ code, optimize })
+    const url = `${window.location.origin}${window.location.pathname}${hash}`
+
+    window.history.replaceState(null, "", url)
+
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // clipboard blocked; the URL bar still holds the shareable link
+    }
+  }
+
   function handleChange(value: string | undefined) {
     const code = value ?? ""
 
     localStorage.setItem(STORAGE_KEY, code)
+    clearShareHash()
 
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
 
     debounceRef.current = setTimeout(() => {
-      workerRef.current?.postMessage(code)
+      workerRef.current?.postMessage({
+        code,
+        optimize: optimizeRef.current,
+      } satisfies WorkerRequest)
     }, 300)
   }
 
@@ -216,10 +275,33 @@ export default function Playground() {
       editorRef.current.setValue(DEFAULT_CODE)
     }
 
-    workerRef.current?.postMessage(DEFAULT_CODE)
+    workerRef.current?.postMessage({
+      code: DEFAULT_CODE,
+      optimize: optimizeRef.current,
+    } satisfies WorkerRequest)
 
     setActiveTab("typescript")
     setResetOpen(false)
+  }
+
+  // Re-transpile when optimize flags change (and persist them).
+  useEffect(() => {
+    optimizeRef.current = optimize
+    localStorage.setItem(OPTIMIZE_KEY, JSON.stringify(optimize))
+
+    if (!didMountRef.current) {
+      didMountRef.current = true
+      return
+    }
+
+    workerRef.current?.postMessage({
+      code: editorRef.current?.getValue() ?? initialCode,
+      optimize,
+    } satisfies WorkerRequest)
+  }, [optimize, initialCode])
+
+  function setFlag(key: keyof OptimizeFlags, value: boolean) {
+    setOptimize((prev) => ({ ...prev, [key]: value }))
   }
 
   return (
@@ -228,6 +310,64 @@ export default function Playground() {
         <PlaygroundTabs activeTab="typescript" />
         <TooltipProvider>
           <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    className="text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+                  >
+                    {copied ? (
+                      <IconCheck size={18} className="text-fd-accent-foreground" />
+                    ) : (
+                      <IconLink size={18} />
+                    )}
+                  </button>
+                }
+              />
+              <TooltipContent>{copied ? "Link copied!" : "Copy share link"}</TooltipContent>
+            </Tooltip>
+            <Popover>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <PopoverTrigger className="text-fd-muted-foreground hover:text-fd-foreground transition-colors">
+                      <IconAdjustments size={18} />
+                    </PopoverTrigger>
+                  }
+                />
+                <TooltipContent>Optimizations</TooltipContent>
+              </Tooltip>
+              <PopoverContent align="end" className="w-64 p-0">
+                <div className="flex items-center justify-between border-b border-fd-border px-3 py-2">
+                  <span className="text-sm font-medium">Optimizations</span>
+                  <button
+                    type="button"
+                    className="text-xs text-fd-muted-foreground hover:text-fd-foreground transition-colors"
+                    onClick={() => setOptimize({ ...DEFAULT_OPTIMIZE })}
+                  >
+                    Reset
+                  </button>
+                </div>
+                <div className="max-h-80 overflow-y-auto p-1">
+                  {OPTIMIZE_OPTIONS.map((opt) => (
+                    <Toggle
+                      key={opt.key}
+                      pressed={optimize[opt.key] ?? false}
+                      onPressedChange={(pressed) => setFlag(opt.key, pressed)}
+                      title={opt.description}
+                      className="w-full justify-between gap-3 rounded-sm border-0 px-2 py-1.5 font-normal"
+                    >
+                      <span>{opt.label}</span>
+                      {(optimize[opt.key] ?? false) && (
+                        <IconCheck size={14} className="text-fd-accent-foreground" />
+                      )}
+                    </Toggle>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
             <Dialog open={resetOpen} onOpenChange={setResetOpen}>
               <Tooltip>
                 <TooltipTrigger

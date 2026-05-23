@@ -36,7 +36,12 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         <MDX
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths
-            a: createRelativeLink(source, page),
+            // STOPGAP: fumadocs-mdx 15 source and fumadocs-ui 16.9 LoaderConfig
+            // don't type-align; runtime shape is compatible. Revisit on fumadocs migration.
+            a: createRelativeLink(
+              source as unknown as Parameters<typeof createRelativeLink>[0],
+              page,
+            ),
           })}
         />
       </DocsBody>

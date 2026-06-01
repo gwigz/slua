@@ -36,7 +36,7 @@
     "oxfmt": "^0.52.0",
     "oxlint": "^1.59.0",
     "rollup": "^4.60.1",
-    "typescript": "6.0.2"
+    "typescript": "6.0.3"
   },
   "patchedDependencies": {
     "monaco-editor@0.52.2": "patches/monaco-editor@0.52.2.patch"

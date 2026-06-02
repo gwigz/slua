@@ -514,7 +514,7 @@ describe("emitAll (end-to-end)", () => {
   it("contains builtin functions", () => {
     expect(output).toContain("declare function print(")
     expect(output).toContain("declare function assert")
-    expect(output).toContain("declare function tostring(")
+    expect(output).toContain("declare function tostring<T>(")
     expect(output).toContain("declare function tonumber(")
   })
 

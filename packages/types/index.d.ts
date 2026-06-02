@@ -413,20 +413,30 @@ declare const LLEvents: LLEvents
 declare const LLTimers: LLTimers
 
 /**
- * Dangerously executes a required module function
+ * Checks if the value is truthy; if not, raises an error with the optional message.
  * @noSelf
  */
-declare function dangerouslyexecuterequiredmodule(f: (this: void, ...args: any[]) => any[]): any[]
+declare function assert<T>(value?: T, errorMessage?: string): T
 /**
  * Run the garbage collector
  * @noSelf
  */
 declare function collectgarbage(option?: "collect"): void
 /**
- * Compile Luau code into a function.
+ * Dangerously executes a required module function
  * @noSelf
  */
-declare function loadstring(src: string, chunkname?: string): any
+declare function dangerouslyexecuterequiredmodule(f: (this: void, ...args: any[]) => any[]): any[]
+/**
+ * Raises an error with the specified object and optional call stack level.
+ * @noSelf
+ */
+declare function error<T>(message: T, level?: number): never
+/**
+ * Returns the total heap size in kilobytes.
+ * @noSelf
+ */
+declare function gcinfo(): number
 /**
  * Get the scoped environment for the given function.
  * @noSelf
@@ -434,6 +444,11 @@ declare function loadstring(src: string, chunkname?: string): any
 declare function getfenv(
   target: ((this: void, ...args: any[]) => any[]) | number,
 ): Record<string, any>
+/**
+ * Returns the metatable for the specified object.
+ * @noSelf
+ */
+declare function getmetatable<T>(obj: T): getmetatable<T>
 /**
  * Writes the contents of heap to the given file in JSON format. Intended to be used with tools/graphanalyze.py
  * @noSelf
@@ -445,13 +460,112 @@ declare function graphheap(path: string): void
  */
 declare function graphuserheap(path: string): void
 /**
+ * Returns an iterator for numeric key-value pairs in the table.
+ * @noSelf
+ */
+declare function ipairs<V>(
+  tab: V[],
+): LuaMultiReturn<
+  [(this: void, arg0: V[], arg1: number) => LuaMultiReturn<[number | undefined, V]>, V[], number]
+>
+/**
+ * Compile Luau code into a function.
+ * @noSelf
+ */
+declare function loadstring(src: string, chunkname?: string): any
+/**
+ * Creates a new untyped userdata object with an optional metatable.
+ * @noSelf
+ */
+declare function newproxy(mt?: boolean): any
+/**
+ * Returns the next key-value pair in the table traversal order.
+ * @noSelf
+ */
+declare function next<K, V>(t: Record<K, V>, i?: K): LuaMultiReturn<[K | undefined, V]>
+/**
+ * Returns an iterator for all key-value pairs in the table.
+ * @noSelf
+ */
+declare function pairs<K, V>(
+  t: Record<K, V>,
+): LuaMultiReturn<
+  [
+    (this: void, arg0: Record<K, V>, arg1: K | undefined) => LuaMultiReturn<[K | undefined, V]>,
+    Record<K, V>,
+    K,
+  ]
+>
+/**
+ * Calls function f with parameters args, returning success and function results or an error.
+ * @noSelf
+ */
+declare function pcall(f: (...args: any[]) => any, ...args: any[]): any
+/**
+ * Prints all arguments to standard output using Tab as a separator.
+ * @noSelf
+ */
+declare function print(...args: any[]): void
+/**
+ * Returns true if a and b have the same type and value.
+ * @noSelf
+ */
+declare function rawequal<T1, T2>(a: T1, b: T2): boolean
+/**
+ * Performs a table lookup bypassing metatables.
+ * @noSelf
+ */
+declare function rawget<K, V>(t: Record<K, V>, k: K): V | undefined
+/**
+ * Returns the length of a table or string bypassing metatables.
+ * @noSelf
+ */
+declare function rawlen<K, V>(t: Record<K, V> | string): number
+/**
+ * Assigns a value to a table field bypassing metatables.
+ * @noSelf
+ */
+declare function rawset<K, V>(t: Record<K, V>, k: K, v: V): Record<K, V>
+/**
+ * Execute the named external module.
+ * @noSelf
+ */
+declare function require(target: any): any
+/**
+ * Returns a subset of arguments or the number of arguments.
+ * @noSelf
+ */
+declare function select(i: string | number, ...args: any[]): any[]
+/**
  * Set the scoped environment for the given function.
  * @noSelf
  */
-declare function setfenv(
-  target: ((this: void, ...args: any[]) => any[]) | number,
-  env: Record<string, any>,
-): void
+declare function setfenv(target: number | ((...args: any[]) => any), env: Record<string, any>): any
+/**
+ * Changes the metatable for the given table.
+ * @noSelf
+ */
+declare function setmetatable<T, MT>(t: T, mt: MT): setmetatable<T, MT>
+/**
+ * Converts the input string to a number in the specified base.
+ * @noSelf
+ */
+declare function tonumber(value: string | undefined | number, base?: number): number | undefined
+/**
+ * Converts a string to a quaternion, returns nil if invalid
+ * @noSelf
+ */
+declare function toquaternion(value: string | undefined | Quaternion): Quaternion | undefined
+/**
+ * Converts a string to a rotation (quaternion), returns nil if invalid
+ * @noSelf
+ */
+declare function torotation(value: string | undefined | Quaternion): Quaternion | undefined
+/**
+ * Converts the input object to a string.
+ * @noSelf
+ */
+declare function tostring<T>(value: T): string
 /**
  * Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.
  * @noSelf
@@ -463,137 +577,24 @@ declare function touuid(val: string | undefined | buffer | UUID): UUID | undefin
  */
 declare function tovector(val: string | undefined | Vector): Vector | undefined
 /**
- * Converts a string to a quaternion, returns nil if invalid
- * @noSelf
- */
-declare function toquaternion(val: string | undefined | Quaternion): Quaternion | undefined
-/**
- * Converts a string to a rotation (quaternion), returns nil if invalid
- * @noSelf
- */
-declare function torotation(val: string | undefined | Quaternion): Quaternion | undefined
-/**
- * Checks if the value is truthy; if not, raises an error with the optional message.
- * @noSelf
- */
-declare function assert<T>(value?: T, message?: string): T
-/**
- * Raises an error with the specified object and optional call stack level.
- * @noSelf
- */
-declare function error(obj: any, level?: number): never
-/**
- * Returns the total heap size in kilobytes.
- * @noSelf
- */
-declare function gcinfo(): number
-/**
- * Returns the metatable for the specified object.
- * @noSelf
- */
-declare function getmetatable(obj: any): Record<any, any> | undefined
-/**
- * Returns the next key-value pair in the table traversal order.
- * @noSelf
- */
-declare function next<K, V>(t: Record<K, V>, i?: K): LuaMultiReturn<[K, V]> | undefined
-/**
- * Creates a new untyped userdata object with an optional metatable.
- * @noSelf
- */
-declare function newproxy(mt?: boolean): any
-/**
- * Prints all arguments to standard output using Tab as a separator.
- * @noSelf
- */
-declare function print(...args: any[]): void
-/**
- * Returns true if a and b have the same type and value.
- * @noSelf
- */
-declare function rawequal(a: any, b: any): boolean
-/**
- * Performs a table lookup bypassing metatables.
- * @noSelf
- */
-declare function rawget<K, V>(t: Record<K, V>, k: K): V | undefined
-/**
- * Assigns a value to a table field bypassing metatables.
- * @noSelf
- */
-declare function rawset<K, V>(t: Record<K, V>, k: K, v: V): Record<K, V>
-/**
- * Returns the length of a table or string bypassing metatables.
- * @noSelf
- */
-declare function rawlen<K, V>(t: Record<K, V> | string): number
-/**
- * Returns a subset of arguments or the number of arguments.
- * @noSelf
- */
-declare function select(i: string | number, ...args: any[]): any
-/**
- * Changes the metatable for the given table.
- * @noSelf
- */
-declare function setmetatable(t: Record<any, any>, mt?: Record<any, any>): void
-/**
- * Converts the input string to a number in the specified base.
- * @noSelf
- */
-declare function tonumber(s: string, base?: number): number | undefined
-/**
- * Converts the input object to a string.
- * @noSelf
- */
-declare function tostring(obj: any): string
-/**
  * Returns the type of the object as a string.
  * @noSelf
  */
-declare function type(obj: any): string
+declare function type<T>(obj: T): string
 /**
- * Returns an iterator for numeric key-value pairs in the table.
+ * Returns values from an array in the specified index range.
  * @noSelf
  */
-declare function ipairs<V>(
-  t: V[],
-): LuaMultiReturn<
-  [(this: void, arg0: V[], arg1: number) => LuaMultiReturn<[number | undefined, V]>, V[], number]
->
-/**
- * Returns an iterator for all key-value pairs in the table.
- * @noSelf
- */
-declare function pairs<K, V>(
-  t: Record<K, V>,
-): LuaMultiReturn<
-  [(this: void, arg0: Record<K, V>, arg1: K) => LuaMultiReturn<[K | undefined, V]>, Record<K, V>, K]
->
-/**
- * Calls function f with parameters args, returning success and function results or an error.
- * @noSelf
- */
-declare function pcall(f: (...args: any[]) => any, ...args: any[][]): any
+declare function unpack<V>(tab: V[], i?: number, j?: number): V[]
 /**
  * Calls function f with parameters args, handling errors with e if they occur.
  * @noSelf
  */
 declare function xpcall<E>(
   f: (...args: any[]) => any,
-  e: (...args: any[]) => any,
-  ...args: any[][]
+  err: (...args: any[]) => any,
+  ...args: any[]
 ): any
-/**
- * Execute the named external module.
- * @noSelf
- */
-declare function require(target: string): any
-/**
- * Returns values from an array in the specified index range.
- * @noSelf
- */
-declare function unpack<V>(a: V[], f?: number, t?: number): V[]
 
 /** Bitwise operations library. */
 /** @noSelf */
@@ -1046,7 +1047,7 @@ declare namespace string {
   /** Returns the number of bytes in the string. Identical to #s */
   export function len(s: string): number
 
-  /** Returns a lowercase version of the input string. */
+  /** Returns a lowercase version of the input string. Only works with ASCII. Use ll.ToLower for strings that may contain Unicode. */
   export function lower(s: string): string
 
   /** Finds and returns matches for a pattern in the input string. */
@@ -1073,7 +1074,7 @@ declare namespace string {
   /** Decodes a binary string using a pack format. */
   export function unpack(fmt: string, s: string, init?: number): any[]
 
-  /** Returns an uppercase version of the input string. */
+  /** Returns an uppercase version of the input string. Only works with ASCII. Use ll.ToUpper for strings that may contain Unicode. */
   export function upper(s: string): string
 }
 

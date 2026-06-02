@@ -97,8 +97,10 @@ local function __TS__ObjectAssign(target, ...)
 	for i = 1, #sources do
 		local source = sources[i]
 
-		for key in pairs(source) do
-			target[key] = source[key]
+		if type(source) == "table" then
+			for key in pairs(source) do
+				target[key] = source[key]
+			end
 		end
 	end
 
@@ -509,21 +511,21 @@ local function handleCommand(avatarId, text)
 			return
 		end
 
-		local ____setBlockList_0 = setBlockList
+		local _r0 = setBlockList
 
-		local function ____opt_fn_0(_, i)
+		local function _r1(_, i)
 			return i ~= index
 		end
 
-		local ____opt_0 = {}
+		local _r2 = {}
 
-		for _, ____opt_v_0 in ipairs(blocks) do
-			if ____opt_fn_0(____opt_v_0) then
-				____opt_0[#____opt_0 + 1] = ____opt_v_0
+		for _, _r3 in ipairs(blocks) do
+			if _r1(_r3) then
+				_r2[#_r2 + 1] = _r3
 			end
 		end
 
-		____setBlockList_0(avatarKey, ____opt_0)
+		_r0(avatarKey, _r2)
 
 		sendCommandResponse(avatarId, "Unblocked " .. profileLink(unblockTarget))
 

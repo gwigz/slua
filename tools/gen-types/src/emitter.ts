@@ -479,6 +479,10 @@ function buildParams(params: ParameterDef[] | undefined, skipSelf: boolean) {
         return { name: "args", isRestParameter: true, type: `${inner}[]` }
       }
 
+      if (p.type && /^[A-Z]\w*\.\.\.$/.test(p.type.trim())) {
+        return { name: "args", isRestParameter: true, type: "any[]" }
+      }
+
       const type = p.type ? mapType(p.type) : "any"
 
       return { name: "args", isRestParameter: true, type: `${type}[]` }

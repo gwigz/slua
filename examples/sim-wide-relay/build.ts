@@ -20,6 +20,7 @@ const BASE_OPTIONS: tstl.CompilerOptions = {
   lib: ["lib.esnext.d.ts"],
   types: ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
   baseUrl: resolve("."),
+  ignoreDeprecations: "6.0",
   paths: {
     "@gwigz/slua-modules/*": ["../../packages/modules/src/*/index.ts"],
   },

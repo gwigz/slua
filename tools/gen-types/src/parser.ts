@@ -3,9 +3,7 @@ import yaml from "js-yaml"
 const KEY_RENAMES: Record<string, string> = {
   "base-classes": "baseClasses",
   "builtin-constants": "builtinConstants",
-  "builtin-functions": "builtinFunctions",
   "builtin-types": "builtinTypes",
-  "global-functions": "globalFunctions",
   "global-variables": "globalVariables",
   "type-aliases": "typeAliases",
   "return-type": "returnType",
@@ -39,7 +37,7 @@ export function parseSluaDefinitions(yamlContent: string) {
     typeAliases: (raw.typeAliases as any[]) ?? [],
     classes: (raw.classes as any[]) ?? [],
     globalVariables: (raw.globalVariables as any[]) ?? [],
-    globalFunctions: (raw.globalFunctions as any[]) ?? [],
+    globalFunctions: (raw.functions as any[]) ?? (raw.globalFunctions as any[]) ?? [],
     modules: (raw.modules as any[]) ?? [],
     constants: (raw.constants as any[]) ?? [],
     builtinTypes: (raw.builtinTypes as Record<string, any>) ?? {},

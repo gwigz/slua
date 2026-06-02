@@ -448,7 +448,7 @@ declare function getfenv(
  * Returns the metatable for the specified object.
  * @noSelf
  */
-declare function getmetatable<T>(obj: T): getmetatable<T>
+declare function getmetatable<T>(obj: T): Record<string, any> | undefined
 /**
  * Writes the contents of heap to the given file in JSON format. Intended to be used with tools/graphanalyze.py
  * @noSelf
@@ -545,7 +545,7 @@ declare function setfenv(target: number | ((...args: any[]) => any), env: Record
  * Changes the metatable for the given table.
  * @noSelf
  */
-declare function setmetatable<T, MT>(t: T, mt: MT): setmetatable<T, MT>
+declare function setmetatable<T, MT>(t: T, mt: MT): T
 /**
  * Converts the input string to a number in the specified base.
  * @noSelf

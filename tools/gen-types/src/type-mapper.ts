@@ -37,6 +37,12 @@ const LUAU_TYPE_ALIASES: Record<string, string> = {
   rotation: "Quaternion",
 }
 
+// Luau "magic" type functions have no TypeScript equivalent, so map them to a concrete type.
+const MAGIC_TYPE_FUNCTIONS: Record<string, (args: string[]) => string> = {
+  setmetatable: (args) => mapType(args[0] ?? "any"),
+  getmetatable: () => "Record<string, any> | undefined",
+}
+
 /**
  * Check if a string has balanced parentheses and braces.
  */
@@ -297,22 +303,18 @@ function containsVariadicPack(type: string) {
 export function mapType(luauType: string): string {
   const input = luauType.trim()
 
-  // 0. Empty or whitespace
   if (input === "") {
     return "any"
   }
 
-  // 1. Void: "()" or "void"
   if (input === "()" || input === "void") {
     return "void"
   }
 
-  // 2. Variadic type packs: "A...", "R...", "R1..." -> simplify to any[]
   if (/^[A-Z]\w*\.\.\.$/.test(input)) {
     return "any[]"
   }
 
-  // 3. Variadic: "...any" etc. -- only valid in parameter position
   if (input.startsWith("...")) {
     const varType = input.slice(3).trim()
 
@@ -324,9 +326,6 @@ export function mapType(luauType: string): string {
     return `...args: ${mapType(varType)}[]`
   }
 
-  // 4. Optional: "T?" -- detect trailing `?` at the outermost level
-  //    The `?` must be after a balanced expression (e.g. "number?", "{[any]: any}?",
-  //    "((a: V, b: V) -> boolean)?")
   if (input.endsWith("?") && !input.includes("|")) {
     const base = input.slice(0, -1).trim()
 
@@ -343,29 +342,31 @@ export function mapType(luauType: string): string {
     }
   }
 
-  // 5. Primitives map
   if (input in PRIMITIVES) {
     return PRIMITIVES[input]
   }
 
-  // 5a. Luau type aliases (e.g. vector -> Vector, quaternion -> Quaternion)
   if (input in LUAU_TYPE_ALIASES) {
     return LUAU_TYPE_ALIASES[input]
   }
 
-  // 6. Passthrough types
+  const magicMatch = input.match(/^([a-z]\w*)<(.+)>$/)
+  if (magicMatch && magicMatch[1] in MAGIC_TYPE_FUNCTIONS) {
+    const args = splitTopLevel(magicMatch[2], ",").map((a) => a.trim())
+
+    return MAGIC_TYPE_FUNCTIONS[magicMatch[1]](args)
+  }
+
   if (PASSTHROUGH_TYPES.has(input)) {
     return input
   }
 
-  // 7. String literals (e.g. "" or "running") -- pass through as-is
   if (input.startsWith('"') && input.endsWith('"')) {
     return input
   }
 
-  // 8. Unions: "A | B | C" -- split on top-level "|"
-  //    MUST come before function type check, because `A | (B) -> C` has a
-  //    top-level `->` that would incorrectly match as a function type.
+  // Must come before the function-type check: `A | (B) -> C` has a top-level
+  // `->` that would otherwise match as a function type.
   const unionParts = splitTopLevel(input, " | ")
 
   if (unionParts.length > 1) {
@@ -383,8 +384,6 @@ export function mapType(luauType: string): string {
       .join(" | ")
   }
 
-  // 9. Function types: "(params) -> returnType"
-  //    We need to find the top-level "->" that separates params from return.
   const arrowIdx = findTopLevelArrow(input)
 
   if (arrowIdx !== -1) {
@@ -414,7 +413,6 @@ export function mapType(luauType: string): string {
     return `(${params}) => ${mappedReturn}`
   }
 
-  // 10. Brace types: arrays, structs, union arrays, tables
   if (input.startsWith("{") && input.endsWith("}")) {
     const inner = input.slice(1, -1).trim()
 
@@ -455,8 +453,6 @@ export function mapType(luauType: string): string {
     return `${mapType(inner)}[]`
   }
 
-  // 11. Parenthesized single type: "(T)" -> just map T
-  //     But NOT "(A, B)" which is a tuple -- that's handled by mapReturnType
   if (input.startsWith("(") && input.endsWith(")")) {
     const inner = input.slice(1, -1).trim()
 
@@ -474,7 +470,6 @@ export function mapType(luauType: string): string {
     return `LuaMultiReturn<[${mapped.join(", ")}]>`
   }
 
-  // 12. Fallback: return as-is
   return input
 }
 

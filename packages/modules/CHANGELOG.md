@@ -1,5 +1,18 @@
 # @gwigz/slua-modules
 
+## 0.5.0
+
+### Minor Changes
+
+- [`be8cebb`](https://github.com/gwigz/slua/commit/be8cebbf9c40bb98725fdfc7e2eddbf6c8c03eb7) Thanks [@gwigz](https://github.com/gwigz)! - add utilities module with debounce, throttle, and cooldown
+
+### Patch Changes
+
+- [`3ce1aa6`](https://github.com/gwigz/slua/commit/3ce1aa64b76bbea025cce9e37a3dfb71c865ca2c) Thanks [@gwigz](https://github.com/gwigz)! - use sync notecard reading in yield module with async fallback on cache miss
+
+- Updated dependencies [[`6225982`](https://github.com/gwigz/slua/commit/6225982123548d13b5e92ffacc5f339bf1b6299d), [`b09c9b3`](https://github.com/gwigz/slua/commit/b09c9b3eeb0c8d65bdd97045394d30574c34907e)]:
+  - @gwigz/slua-types@1.4.1
+
 ## 0.4.0
 
 ### Minor Changes

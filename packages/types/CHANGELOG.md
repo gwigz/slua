@@ -1,5 +1,13 @@
 # @gwigz/slua-types
 
+## 1.4.1
+
+### Patch Changes
+
+- [#39](https://github.com/gwigz/slua/pull/39) [`6225982`](https://github.com/gwigz/slua/commit/6225982123548d13b5e92ffacc5f339bf1b6299d) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update SLua definitions submodule to latest upstream
+
+- [`b09c9b3`](https://github.com/gwigz/slua/commit/b09c9b3eeb0c8d65bdd97045394d30574c34907e) Thanks [@gwigz](https://github.com/gwigz)! - add wiki descriptions as jsdoc on typed-list constants (prim, http, camera, cast ray, etc.)
+
 ## 1.4.0
 
 ### Minor Changes

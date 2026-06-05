@@ -5239,19 +5239,31 @@ declare const PAY_HIDE: -1
 declare const PERMISSION_DEBIT: 2
 /** If this permission enabled, the object can successfully call the llTakeControls library call. */
 declare const PERMISSION_TAKE_CONTROLS: 4
-/** (not yet implemented) */
+/**
+ * (Not yet implemented)
+ * @deprecated Not implemented.
+ */
 declare const PERMISSION_REMAP_CONTROLS: 8
 /** If this permission is enabled, the object can successfully call llStartAnimation for the avatar that owns this. */
 declare const PERMISSION_TRIGGER_ANIMATION: 16
 /** If this permission is enabled, the object can successfully call llAttachToAvatar to attach to the given avatar. */
 declare const PERMISSION_ATTACH: 32
-/** (not yet implemented) */
+/**
+ * (Not yet implemented)
+ * @deprecated Not implemented.
+ */
 declare const PERMISSION_RELEASE_OWNERSHIP: 64
 /** If this permission is enabled, the object can successfully call llCreateLink, llBreakLink, and llBreakAllLinks to change links to other objects. */
 declare const PERMISSION_CHANGE_LINKS: 128
-/** (not yet implemented) */
+/**
+ * (Not yet implemented)
+ * @deprecated Not implemented.
+ */
 declare const PERMISSION_CHANGE_JOINTS: 256
-/** (not yet implemented) */
+/**
+ * (Not yet implemented)
+ * @deprecated Not implemented.
+ */
 declare const PERMISSION_CHANGE_PERMISSIONS: 512
 declare const PERMISSION_TRACK_CAMERA: 1024
 declare const PERMISSION_CONTROL_CAMERA: 2048

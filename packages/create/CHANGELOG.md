@@ -1,5 +1,11 @@
 # @gwigz/slua-create
 
+## 0.2.0
+
+### Minor Changes
+
+- [`8b146e3`](https://github.com/gwigz/slua/commit/8b146e3730f547426cb1991a66223ea003e60651) Thanks [@gwigz](https://github.com/gwigz)! - lint script now runs `oxlint --type-aware`
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,26 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.6.0
+
+### Minor Changes
+
+- [`0fa449d`](https://github.com/gwigz/slua/commit/0fa449d288f936d2f266b3177379257179cda260) Thanks [@gwigz](https://github.com/gwigz)! - add `simplifyNilChecks` optimize flag to rewrite `not (x ~= nil)` as `x == nil`
+
+- [`2de3436`](https://github.com/gwigz/slua/commit/2de3436709e66565f5ba1622c34741c8e823949e) Thanks [@gwigz](https://github.com/gwigz)! - optimized string transforms for literal needles:
+  - drop the `1, true` plain-text args from `string.find` (`indexOf`/`includes`/`startsWith`) when the needle is a magic-free string literal ([#69](https://github.com/gwigz/slua/issues/69))
+  - compile `startsWith`/`endsWith` with a literal needle to a `string.sub` comparison, empty literal folds to `true` ([#68](https://github.com/gwigz/slua/issues/68))
+
+### Patch Changes
+
+- [`0b86fd0`](https://github.com/gwigz/slua/commit/0b86fd01cdb2c48d0dc5a0f2fa2eb97daa4a09f2) Thanks [@gwigz](https://github.com/gwigz)! - generate the minifier's reserved global-name set from the SLua definitions
+
+- [`5869ca1`](https://github.com/gwigz/slua/commit/5869ca116ddc01d9139f6601f1298dadb7e18aa8) Thanks [@gwigz](https://github.com/gwigz)! - transpile variable `str.endsWith(x)` to a native suffix compare instead of the `__TS__StringEndsWith` lualib helper
+
+- [`02ca356`](https://github.com/gwigz/slua/commit/02ca356b57b75c0b7b7696e79a791da74faf0ec1) Thanks [@gwigz](https://github.com/gwigz)! - extend `shortenTemps` to cover all plugin-generated `____<name>_<n>` temps, not just TSTL destructuring results
+
+- Updated dependencies [[`6225982`](https://github.com/gwigz/slua/commit/6225982123548d13b5e92ffacc5f339bf1b6299d), [`b09c9b3`](https://github.com/gwigz/slua/commit/b09c9b3eeb0c8d65bdd97045394d30574c34907e)]:
+  - @gwigz/slua-types@1.4.1
+
 ## 1.5.0
 
 ### Minor Changes

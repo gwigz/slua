@@ -5027,6 +5027,8 @@ declare const OBJECT_HOVER_HEIGHT: 25
 declare const OBJECT_LAST_OWNER_ID: 27
 /** Get this object's index in the linkset. */
 declare const OBJECT_LINK_NUMBER: 46
+/** Returns boolean, indicating if object is locked. */
+declare const OBJECT_LOCKED: 55
 /** Gets the mass (in Kilograms) of this object's linkset. */
 declare const OBJECT_MASS: 43
 /** Retrieves the physics material set on this object. It returns an integer matching one of the PRIM_MATERIAL_* constants. */
@@ -5101,6 +5103,8 @@ declare const OBJECT_TOTAL_SCRIPT_COUNT: 10
 declare const OBJECT_UNKNOWN_DETAIL: -1
 /** Gets the object's velocity. */
 declare const OBJECT_VELOCITY: 5
+/** Returns boolean, indicating if object is VolumeDetect. */
+declare const OBJECT_VOLUME_DETECT: 56
 /** Returned for avatars. */
 declare const OPT_AVATAR: 1
 /** Returned for pathfinding characters. */

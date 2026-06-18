@@ -20,7 +20,7 @@
     "fmt:check": "oxfmt --check .",
     "changeset": "bunx changeset",
     "ci:version": "bunx changeset version && bun update",
-    "ci:publish": "bunx changeset publish --access public",
+    "ci:publish": "bunx changeset publish",
     "prepare": "husky"
   },
   "dependencies": {

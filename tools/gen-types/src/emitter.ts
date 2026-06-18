@@ -22,6 +22,7 @@ import type {
   ClassDef,
   GlobalVariable,
   FunctionDef,
+  MethodDef,
   ModuleDef,
   TypedListParams,
   TypedListRule,
@@ -726,15 +727,28 @@ function addGlobalVariable(sf: SourceFile, gv: GlobalVariable) {
   })
 }
 
-function addGlobalFunction(sf: SourceFile, fn: FunctionDef) {
-  if (TS_RESERVED_WORDS.has(fn.name)) {
-    return
-  }
+/**
+ * Expand a function's upstream `overloads` into ordered TypeScript signatures.
+ * Alternate overloads come first (most specific) so TypeScript resolves them
+ * before the general main signature, which is emitted last. Functions without
+ * overloads yield a single signature.
+ */
+function functionSignatures(fn: FunctionDef) {
+  const build = (def: FunctionDef | MethodDef) => ({
+    parameters: buildParams(def.parameters, false),
+    returnType: mapReturnType(def.returnType ?? "void"),
+    typeParameters: cleanTypeParams(def.typeParameters),
+    docs: buildDocs(def.comment ?? fn.comment, def.deprecated ?? fn.deprecated),
+  })
 
-  const docs = buildDocs(fn.comment, fn.deprecated)
+  return [...(fn.overloads ?? []).map(build), build(fn)]
+}
 
-  // Always add @noSelf so TSTL never inserts a spurious `self` argument,
-  // regardless of the consumer's `noImplicitSelf` setting.
+/**
+ * Append the @noSelf tag so TSTL never inserts a spurious `self` argument,
+ * regardless of the consumer's `noImplicitSelf` setting.
+ */
+function withNoSelf(docs: ReturnType<typeof buildDocs>) {
   if (docs.length > 0) {
     const last = docs[docs.length - 1]
     last.tags = [...(last.tags ?? []), { tagName: "noSelf" }]
@@ -742,14 +756,24 @@ function addGlobalFunction(sf: SourceFile, fn: FunctionDef) {
     docs.push({ tags: [{ tagName: "noSelf" }] })
   }
 
-  sf.addFunction({
-    name: fn.name,
-    hasDeclareKeyword: true,
-    parameters: buildParams(fn.parameters, false),
-    returnType: mapReturnType(fn.returnType ?? "void"),
-    typeParameters: cleanTypeParams(fn.typeParameters),
-    docs,
-  })
+  return docs
+}
+
+function addGlobalFunction(sf: SourceFile, fn: FunctionDef) {
+  if (TS_RESERVED_WORDS.has(fn.name)) {
+    return
+  }
+
+  for (const sig of functionSignatures(fn)) {
+    sf.addFunction({
+      name: fn.name,
+      hasDeclareKeyword: true,
+      parameters: sig.parameters,
+      returnType: sig.returnType,
+      typeParameters: sig.typeParameters,
+      docs: withNoSelf(sig.docs),
+    })
+  }
 }
 
 function addModule(sf: SourceFile, mod: ModuleDef, className?: string) {
@@ -847,19 +871,30 @@ function addModuleMembers(ns: ModuleDeclaration, mod: ModuleDef) {
         continue
       }
 
-      const disabled = DISABLED_FUNCTIONS.has(`${mod.name}.${fn.name}`)
-      const docs = buildDocs(fn.comment, fn.deprecated)
+      if (DISABLED_FUNCTIONS.has(`${mod.name}.${fn.name}`)) {
+        const docs = buildDocs(fn.comment, fn.deprecated)
 
-      ns.addFunction({
-        name: fn.name,
-        isExported: true,
-        parameters: disabled
-          ? [{ name: "args", isRestParameter: true, type: "never[]" }]
-          : buildParams(fn.parameters, false),
-        returnType: mapReturnType(fn.returnType ?? "void"),
-        typeParameters: cleanTypeParams(fn.typeParameters),
-        ...(docs.length > 0 ? { docs } : {}),
-      })
+        ns.addFunction({
+          name: fn.name,
+          isExported: true,
+          parameters: [{ name: "args", isRestParameter: true, type: "never[]" }],
+          returnType: mapReturnType(fn.returnType ?? "void"),
+          typeParameters: cleanTypeParams(fn.typeParameters),
+          ...(docs.length > 0 ? { docs } : {}),
+        })
+        continue
+      }
+
+      for (const sig of functionSignatures(fn)) {
+        ns.addFunction({
+          name: fn.name,
+          isExported: true,
+          parameters: sig.parameters,
+          returnType: sig.returnType,
+          typeParameters: sig.typeParameters,
+          ...(sig.docs.length > 0 ? { docs: sig.docs } : {}),
+        })
+      }
     }
   }
 

@@ -418,6 +418,11 @@ declare const LLTimers: LLTimers
  */
 declare function assert<T>(value?: T, errorMessage?: string): T
 /**
+ * Alias for gcinfo
+ * @noSelf
+ */
+declare function collectgarbage(option: "count"): number
+/**
  * Run the garbage collector
  * @noSelf
  */
@@ -772,12 +777,21 @@ declare namespace coroutine {
 /** Debug library for introspection. */
 /** @noSelf */
 declare namespace debug {
+  /** Returns information about a stack level */
+  export function info(level: number, s: string): any[]
+
+  /** Returns information about a function */
+  export function info(func: (this: void, ...args: any[]) => any[], s: string): any[]
+
   /** Returns information about a stack frame or function based on specified format. */
   export function info(
     co: LuaThread | ((this: void, ...args: any[]) => any[]) | number,
     level: number,
     s: string,
   ): any[]
+
+  /** Returns a string with a traceback of the current call stack */
+  export function traceback(message?: string, level?: number): string
 
   /** Returns a human-readable call stack starting from the specified level. */
   export function traceback(co: LuaThread, msg?: string, level?: number): string
@@ -788,6 +802,9 @@ declare namespace debug {
 declare namespace llbase64 {
   /** Encodes a string or buffer to base64 */
   export function encode(data: string | buffer): string
+
+  /** Decodes a base64 string to a buffer if asBuffer is true */
+  export function decode(data: string, asBuffer: true): buffer
 
   /** Decodes a base64 string to a string, or buffer if asBuffer is true. The output is truncated at the first decoding error. */
   export function decode(data: string, asBuffer?: false): string
@@ -965,6 +982,9 @@ declare namespace os {
   export function clock(): number
 
   /** Returns a table or string representation of the time based on the provided format. */
+  export function date(formatString: "*t" | "!*t", t?: number): DateTypeResult
+
+  /** Returns a table or string representation of the time based on the provided format. */
   export function date(formatString?: string, t?: number): string
 
   /**
@@ -972,6 +992,9 @@ declare namespace os {
    * @deprecated Same as a - b
    */
   export function difftime(a: number, b: number): number
+
+  /** Returns the current Unix timestamp or the timestamp of the given date. */
+  export function time(): number
 
   /** Returns the current Unix timestamp or the timestamp of the given date. */
   export function time(time: DateTypeArg): number | undefined
@@ -1110,6 +1133,9 @@ declare namespace table {
 
   /** Returns the highest numeric key in the table. */
   export function maxn(t: any[]): number
+
+  /** Inserts an element at the end of a list */
+  export function insert<V>(a: V[], value: V): void
 
   /** Inserts an element at the specified index, or at the end of the array. */
   export function insert<V>(a: V[], i: number, v: V): void

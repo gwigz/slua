@@ -24,6 +24,8 @@ export interface MethodDef {
   comment?: string
   parameters: ParameterDef[]
   returnType?: string
+  typeParameters?: string[]
+  deprecated?: boolean | { reason?: string; use?: string }
   overloads?: MethodDef[]
 }
 

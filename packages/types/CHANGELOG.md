@@ -1,5 +1,13 @@
 # @gwigz/slua-types
 
+## 1.4.2
+
+### Patch Changes
+
+- [#83](https://github.com/gwigz/slua/pull/83) [`00d8c12`](https://github.com/gwigz/slua/commit/00d8c12322d2e239c5b94cf1d854a072bada1820) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update SLua definitions submodule to latest upstream
+
+- [`227c625`](https://github.com/gwigz/slua/commit/227c625155a8f57f204dcfddf2186f4d8bba91e6) Thanks [@gwigz](https://github.com/gwigz)! - emit upstream function overloads (fixes `os.time` return type)
+
 ## 1.4.1
 
 ### Patch Changes

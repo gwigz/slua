@@ -24,7 +24,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@gwigz/tstl-bundle-flatten": "^1.0.1",
+    "@gwigz/tstl-bundle-flatten": "^1.0.2",
     "@typescript-to-lua/language-extensions": "^1.19.0",
     "typescript-to-lua": "^1.37.0"
   },
@@ -35,7 +35,7 @@
     "husky": "^9.1.7",
     "oxfmt": "^0.54.0",
     "oxlint": "^1.70.0",
-    "rollup": "^4.62.0",
+    "rollup": "^4.62.2",
     "typescript": "6.0.3"
   },
   "patchedDependencies": {

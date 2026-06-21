@@ -1,5 +1,11 @@
 # @gwigz/slua-types
 
+## 1.4.3
+
+### Patch Changes
+
+- [`af56963`](https://github.com/gwigz/slua/commit/af569634b3a7f46da23fd04dc31946a0b31148b2) Thanks [@gwigz](https://github.com/gwigz)! - allow `""` on gltf prim-param overrides (base color, emissive, normal, metallic roughness) to clear/keep them
+
 ## 1.4.2
 
 ### Patch Changes

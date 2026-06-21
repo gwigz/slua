@@ -20,8 +20,8 @@ export function toValidPackageName(name: string): string {
     .replace(/[-.]$/, "")
 }
 
-export function validateDirectory(value: string): string | undefined {
-  if (!value.trim()) return "Please enter a directory path"
+export function validateDirectory(value: string | undefined): string | undefined {
+  if (!value?.trim()) return "Please enter a directory path"
 
   return undefined
 }

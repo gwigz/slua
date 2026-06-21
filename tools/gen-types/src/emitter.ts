@@ -248,6 +248,26 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
   },
 ]
 
+// GLTF material prim-params accept "" on each override argument — except the leading
+// `face` — to clear/keep that override (SL's documented behaviour). They live inside the
+// otherwise non-clearable PrimParam set, so they're flagged per-param rather than per-set
+// (unlike the OVERRIDE_GLTF_ builder, whose whole set is `clearable`).
+const CLEARABLE_PRIM_PARAMS = new Set([
+  "PRIM_GLTF_BASE_COLOR",
+  "PRIM_GLTF_EMISSIVE",
+  "PRIM_GLTF_NORMAL",
+  "PRIM_GLTF_METALLIC_ROUGHNESS",
+])
+
+function argAcceptsEmptyString(
+  setClearable: boolean | undefined,
+  ruleName: string,
+  argName: string,
+): boolean {
+  if (toCamelCase(argName) === "face") return false
+  return setClearable === true || CLEARABLE_PRIM_PARAMS.has(ruleName)
+}
+
 // ---------------------------------------------------------------------------
 // LSL type -> TS type
 // ---------------------------------------------------------------------------
@@ -1418,7 +1438,8 @@ export function emitAll(
         const namedArgs = rule.args
           .map((a) => {
             const t = mapListArgType(a.type)
-            return `${toCamelCase(a.name)}: ${clearable ? `${t} | ""` : t}`
+            const clear = argAcceptsEmptyString(clearable, rule.name, a.name)
+            return `${toCamelCase(a.name)}: ${clear ? `${t} | ""` : t}`
           })
           .join(", ")
         lines.push(`  [${rule.name}]: [${namedArgs}]`)
@@ -1652,7 +1673,8 @@ export function emitAll(
           const args = rule.args
             .map((a) => {
               const t = mapListArgType(a.type)
-              return `${toCamelCase(a.name)}: ${config.clearable ? `${t} | ""` : t}`
+              const clear = argAcceptsEmptyString(config.clearable, rule.name, a.name)
+              return `${toCamelCase(a.name)}: ${clear ? `${t} | ""` : t}`
             })
             .join(", ")
           methods.push(`  ${methodName}(${args}): ${interfaceName}`)

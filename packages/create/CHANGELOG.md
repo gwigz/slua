@@ -1,5 +1,11 @@
 # @gwigz/slua-create
 
+## 0.2.1
+
+### Patch Changes
+
+- [`6453e2b`](https://github.com/gwigz/slua/commit/6453e2b522e44fa26a5adca9b3b109c6ef94a221) Thanks [@gwigz](https://github.com/gwigz)! - fix directory prompt `validate` type to accept `undefined` so the package builds
+
 ## 0.2.0
 
 ### Minor Changes

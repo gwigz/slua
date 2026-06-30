@@ -36,7 +36,7 @@
     "typescript-to-lua": "^1.36.0"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0"
+    "@types/node": "^26.0.1"
   },
   "peerDependencies": {
     "rollup": "^4.0.0",

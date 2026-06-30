@@ -41,7 +41,7 @@
     "@gwigz/tstl-bundle-flatten": "^1.0.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/mdx": "^2.0.13",
-    "@types/node": "^25.5.0",
+    "@types/node": "^26.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "browserify-zlib": "^0.2.0",

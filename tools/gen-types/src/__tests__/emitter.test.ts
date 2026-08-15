@@ -400,6 +400,16 @@ describe("emitModule", () => {
 // End-to-end test with real YAML
 // ---------------------------------------------------------------------------
 
+// parameter names track upstream YAML and get renamed occasionally, so
+// end-to-end assertions match any camelCase name against the expected types
+const anyParam = (type: string) => `[a-zA-Z0-9]+: ${type.replace(/[[\]]/g, "\\$&")}`
+
+const callbackSignature = (event: string, ...types: string[]) =>
+  new RegExp(`${event}: \\(${types.map(anyParam).join(", ")}\\) => void`)
+
+const functionSignature = (name: string, types: string[], returns: string) =>
+  new RegExp(`export function ${name}\\(${types.map(anyParam).join(", ")}\\): ${returns}`)
+
 describe("emitAll (end-to-end)", () => {
   const sluaYaml = readFileSync(resolve(REFS_DIR, "slua_definitions.yaml"), "utf-8")
 
@@ -459,17 +469,15 @@ describe("emitAll (end-to-end)", () => {
     expect(output).toContain("collision: (detected: DetectedEvent[]) => void")
     expect(output).toContain("touch_start: (detected: DetectedEvent[]) => void")
     // Non-detected events have typed params (camelCase)
-    expect(output).toContain(
-      "listen: (channel: number, name: string, id: UUID, text: string) => void",
-    )
+    expect(output).toMatch(callbackSignature("listen", "number", "string", "UUID", "string"))
     expect(output).toContain("timer: () => void")
-    expect(output).toContain(
-      "email: (time: string, address: string, subject: string, body: string, numberRemaining: number) => void",
+    expect(output).toMatch(
+      callbackSignature("email", "string", "string", "string", "string", "number"),
     )
     // slua-type overrides are respected
-    expect(output).toContain("game_control: (id: UUID, buttons: number, axes: number[]) => void")
-    expect(output).toContain(
-      "link_message: (sendersLink: number, value: number, text: string, id: string) => void",
+    expect(output).toMatch(callbackSignature("game_control", "UUID", "number", "number[]"))
+    expect(output).toMatch(
+      callbackSignature("link_message", "number", "number", "string", "string"),
     )
     // Removed events should NOT appear
     expect(output).not.toMatch(/state_entry:/)
@@ -543,18 +551,19 @@ describe("emitAll (end-to-end)", () => {
   })
 
   it("maps bool-semantics integer params to boolean", () => {
-    // llAllowInventoryDrop(Flag) has bool-semantics on its integer param
-    expect(output).toContain("export function AllowInventoryDrop(flag: boolean): void")
+    // llAllowInventoryDrop has bool-semantics on its integer param
+    expect(output).toMatch(functionSignature("AllowInventoryDrop", ["boolean"], "void"))
     // llTakeControls has two bool-semantics params
-    expect(output).toContain("accept: boolean")
-    expect(output).toContain("passOn: boolean")
+    expect(output).toMatch(
+      functionSignature("TakeControls", ["number", "boolean", "boolean"], "void"),
+    )
   })
 
   it("maps bool-semantics integer returns to boolean", () => {
     // llGetScriptState returns integer with bool-semantics
-    expect(output).toContain("export function GetScriptState(scriptName: string): boolean")
+    expect(output).toMatch(functionSignature("GetScriptState", ["string"], "boolean"))
     // llScaleByFactor returns integer with bool-semantics
-    expect(output).toContain("export function ScaleByFactor(scalingFactor: number): boolean")
+    expect(output).toMatch(functionSignature("ScaleByFactor", ["number"], "boolean"))
   })
 
   it("does not map bool-semantics list returns to boolean", () => {
@@ -565,7 +574,7 @@ describe("emitAll (end-to-end)", () => {
 
   it("maps bool-semantics on event arguments to boolean", () => {
     // transaction_result has Success: integer with bool-semantics
-    expect(output).toContain("transaction_result: (requestId: UUID, success: boolean")
+    expect(output).toMatch(callbackSignature("transaction_result", "UUID", "boolean", "string"))
   })
 
   it("contains LSL constants with literal types", () => {

@@ -264,6 +264,7 @@ function transpileBundledExample(def: ExampleDef): { ts: string; lua: string } {
       skipLibCheck: true,
       lib: ["lib.esnext.d.ts"],
       types: ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
+      ignoreDeprecations: "6.0",
       baseUrl: root,
       paths: { "@gwigz/slua-modules/*": ["../../packages/modules/src/*/index.ts"] },
       rootDir: path.resolve(root, "../.."),

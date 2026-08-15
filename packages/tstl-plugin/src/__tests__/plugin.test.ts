@@ -26,12 +26,27 @@ describe("ts-slua plugin", () => {
   it("beforeTransform errors on non-Luau target", () => {
     const diagnostics = createPlugin().beforeTransform!(
       {} as ts.Program,
-      { luaTarget: tstl.LuaTarget.Lua53 } as tstl.CompilerOptions,
+      {
+        luaTarget: tstl.LuaTarget.Lua53,
+        luaLibImport: tstl.LuaLibImportKind.Inline,
+      } as tstl.CompilerOptions,
       {} as tstl.EmitHost,
     )
 
     expect(diagnostics).toHaveLength(1)
     expect((diagnostics as ts.Diagnostic[])[0].messageText).toContain("Luau")
+  })
+
+  it("beforeTransform warns when luaLibImport is not inline", () => {
+    const diagnostics = createPlugin().beforeTransform!(
+      {} as ts.Program,
+      { luaTarget: tstl.LuaTarget.Luau } as tstl.CompilerOptions,
+      {} as tstl.EmitHost,
+    )
+
+    expect(diagnostics).toHaveLength(1)
+    expect((diagnostics as ts.Diagnostic[])[0].category).toBe(ts.DiagnosticCategory.Warning)
+    expect((diagnostics as ts.Diagnostic[])[0].messageText).toContain("luaLibImport")
   })
 
   it("beforeTransform passes with correct config", () => {

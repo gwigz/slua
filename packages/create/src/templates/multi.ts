@@ -26,6 +26,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
     "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
     "@types/node": VERSIONS["@types/node"],
+    typescript: VERSIONS["typescript"],
     "typescript-to-lua": VERSIONS["typescript-to-lua"],
   }
 
@@ -155,7 +156,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   }
 
   if (extras.linting) {
-    files[".oxlintrc.json"] = oxlintrcContent()
+    files[".oxlintrc.json"] = oxlintrcContent(["build.ts"])
   }
 
   if (extras.formatting) {

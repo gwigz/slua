@@ -507,6 +507,24 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         })
       }
 
+      // The default ("require") emits require("lualib_bundle") calls, which
+      // cannot resolve in SLua. "none" is left alone as a deliberate opt-out.
+      if (
+        compilerOptions.luaLibImport !== tstl.LuaLibImportKind.Inline &&
+        compilerOptions.luaLibImport !== tstl.LuaLibImportKind.None
+      ) {
+        diagnostics.push({
+          file: undefined,
+          start: undefined,
+          length: undefined,
+          messageText:
+            'SLua cannot require the generated lualib bundle, set "luaLibImport": "inline" in tsconfig.json',
+          category: ts.DiagnosticCategory.Warning,
+          code: 90001,
+          source: "@gwigz/slua-tstl-plugin",
+        })
+      }
+
       // Pre-scan: skip filter inlining for files with multiple .filter() calls
       // (the shared __TS__ArrayFilter helper is smaller than 2+ inlined loops).
       // In luaBundle mode, all files end up in one output so we count globally.

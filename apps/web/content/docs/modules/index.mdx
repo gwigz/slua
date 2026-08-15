@@ -40,9 +40,8 @@ directly. Add `paths` to your tsconfig so TSTL can find the module source:
 ```jsonc title="tsconfig.json"
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@gwigz/slua-modules/*": ["node_modules/@gwigz/slua-modules/src/*/index.ts"],
+      "@gwigz/slua-modules/*": ["./node_modules/@gwigz/slua-modules/src/*/index.ts"],
     },
   },
 }

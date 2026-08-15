@@ -20,6 +20,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     "@gwigz/slua-tstl-plugin": VERSIONS["@gwigz/slua-tstl-plugin"],
     "@gwigz/slua-types": VERSIONS["@gwigz/slua-types"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
+    typescript: VERSIONS["typescript"],
     "typescript-to-lua": VERSIONS["typescript-to-lua"],
   }
 

@@ -1,4 +1,5 @@
 import type { Extras } from "../prompts.js"
+import { formatJson } from "../utils.js"
 
 const YIELD_FLAGS = [
   "YIELD_DATASERVER_AGENT",
@@ -67,69 +68,51 @@ export function flagsDtsContent(extras: Extras): string {
   return lines.join("\n") + "\n"
 }
 
-export function oxlintrcContent(): string {
-  return (
-    JSON.stringify(
+export function oxlintrcContent(extraIgnores: string[] = []): string {
+  return formatJson({
+    $schema:
+      "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+    extends: ["./node_modules/@gwigz/slua-oxlint-config/.oxlintrc.json"],
+    rules: {
+      "no-unused-vars": "off",
+      "typescript/no-extraneous-class": "off",
+      "unicorn/require-module-specifiers": "off",
+    },
+    categories: {
+      correctness: "error",
+      suspicious: "warn",
+      perf: "warn",
+    },
+    ignorePatterns: ["dist/", "out/", "node_modules/", ...extraIgnores],
+    overrides: [
       {
-        $schema:
-          "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-        extends: ["./node_modules/@gwigz/slua-oxlint-config/.oxlintrc.json"],
-        rules: {
-          "no-unused-vars": "off",
-          "typescript/no-extraneous-class": "off",
-          "unicorn/require-module-specifiers": "off",
-        },
-        categories: {
-          correctness: "error",
-          suspicious: "warn",
-          perf: "warn",
-        },
-        ignorePatterns: ["dist/", "out/", "node_modules/"],
-        overrides: [
-          {
-            files: ["**/*.d.ts"],
-            rules: { "no-redeclare": "off" },
-          },
-        ],
+        files: ["**/*.d.ts"],
+        rules: { "no-redeclare": "off" },
       },
-      null,
-      2,
-    ) + "\n"
-  )
+    ],
+  })
 }
 
 export function oxfmtrcContent(): string {
-  return (
-    JSON.stringify(
-      {
-        $schema: "./node_modules/oxfmt/configuration_schema.json",
-        ignorePatterns: ["dist/", "out/", "node_modules/"],
-        semi: false,
-      },
-      null,
-      2,
-    ) + "\n"
-  )
+  return formatJson({
+    $schema: "./node_modules/oxfmt/configuration_schema.json",
+    ignorePatterns: ["dist/", "out/", "node_modules/"],
+    semi: false,
+  })
 }
 
 export function tsconfigNodeContent(): string {
-  return (
-    JSON.stringify(
-      {
-        compilerOptions: {
-          target: "ESNext",
-          module: "ESNext",
-          moduleResolution: "bundler",
-          strict: true,
-          skipLibCheck: true,
-          types: ["node"],
-        },
-        include: ["build.ts"],
-      },
-      null,
-      2,
-    ) + "\n"
-  )
+  return formatJson({
+    compilerOptions: {
+      target: "ESNext",
+      module: "ESNext",
+      moduleResolution: "bundler",
+      strict: true,
+      skipLibCheck: true,
+      types: ["node"],
+    },
+    include: ["build.ts"],
+  })
 }
 
 export function buildTsContent(extras: Extras, packageManager: string): string {
@@ -151,21 +134,26 @@ export function buildTsContent(extras: Extras, packageManager: string): string {
 
   const defineEntries: string[] = []
   if (extras.config) {
-    defineEntries.push("CONFIG_YAML_PARSER: true, CONFIG_LLJSON_PARSER: false")
+    defineEntries.push("CONFIG_YAML_PARSER: true", "CONFIG_LLJSON_PARSER: false")
   }
   if (extras.yield) {
     defineEntries.push(...YIELD_FLAGS.map((flag) => `${flag}: true`))
   }
 
-  let pluginLine = '    { name: "@gwigz/slua-tstl-plugin", optimize: true'
+  let pluginLine = '    { name: "@gwigz/slua-tstl-plugin", optimize: true },'
   if (defineEntries.length > 0) {
-    pluginLine += `, define: { ${defineEntries.join(", ")} }`
+    pluginLine = `    {
+      name: "@gwigz/slua-tstl-plugin",
+      optimize: true,
+      define: {
+${defineEntries.map((entry) => `        ${entry},`).join("\n")}
+      },
+    },`
   }
-  pluginLine += " },"
 
-  const fileLines = [`      resolve(\`src/\${script}/index.${ext}\`),`]
+  const fileEntries = [`resolve(\`src/\${script}/index.${ext}\`)`]
   if (extras.config || extras.yield) {
-    fileLines.push('      resolve("flags.d.ts"),')
+    fileEntries.push('resolve("flags.d.ts")')
   }
 
   const jsxOptions = extras.jsx
@@ -178,6 +166,7 @@ export function buildTsContent(extras: Extras, packageManager: string): string {
   let styluaBlock = ""
   if (extras.stylua) {
     styluaBlock = `
+
   // Format output with StyLua
   try {
     execSync(\`${runner} stylua --syntax luau --verify -- \${DIST_FILES.join(" ")}\`)
@@ -191,8 +180,9 @@ export function buildTsContent(extras: Extras, packageManager: string): string {
   }
 
   const watchFilter = extras.jsx
-    ? '    if (!filename || !(filename.endsWith(".ts") || filename.endsWith(".tsx"))) return'
-    : '    if (!filename || !filename.endsWith(".ts")) return'
+    ? `    if (filename === null) return
+    if (!(filename.endsWith(".ts") || filename.endsWith(".tsx"))) return`
+    : '    if (filename === null || !filename.endsWith(".ts")) return'
 
   return `${importLines.join("\n")}
 
@@ -209,7 +199,6 @@ const BASE_OPTIONS: tstl.CompilerOptions = {
   skipLibCheck: true,
   lib: ["lib.esnext.d.ts"],
   types: ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
-  baseUrl: resolve("."),
   rootDir: resolve("."),
   outDir: resolve("dist"),
   luaTarget: tstl.LuaTarget.Luau,
@@ -246,9 +235,7 @@ function build() {
   let hasErrors = false
 
   for (const script of SCRIPTS) {
-    const files = [
-${fileLines.join("\n")}
-    ]
+    const files = [${fileEntries.join(", ")}]
 
     const result = tstl.transpileFiles(files, {
       ...BASE_OPTIONS,
@@ -269,8 +256,7 @@ ${fileLines.join("\n")}
     const content = readFileSync(filePath, "utf8")
 
     writeFileSync(filePath, content)
-  }
-${styluaBlock}
+  }${styluaBlock}
 
   console.log(\`Built \${DIST_FILES.join(", ")}\`)
 

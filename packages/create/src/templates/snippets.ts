@@ -1,22 +1,38 @@
+import { MODULES, readModuleFiles } from "@gwigz/slua-modules/vendor"
+import type { ModuleName } from "@gwigz/slua-modules/vendor"
 import type { Extras } from "../prompts.js"
 import { formatJson } from "../utils.js"
 
-const YIELD_FLAGS = [
-  "YIELD_DATASERVER_AGENT",
-  "YIELD_DATASERVER_DISPLAY_NAME",
-  "YIELD_DATASERVER_SIM",
-  "YIELD_DATASERVER_INVENTORY",
-  "YIELD_DATASERVER_NOTECARD",
-  "YIELD_DATASERVER_TEXT_COUNT",
-  "YIELD_KV",
-  "YIELD_DIALOG",
-  "YIELD_HTTP",
-  "YIELD_PERMISSIONS",
-  "YIELD_SENSOR",
-] as const
+function selectedModules(extras: Extras): ModuleName[] {
+  const selected: ModuleName[] = []
 
-export function yieldDefine(): Record<string, boolean> {
-  return Object.fromEntries(YIELD_FLAGS.map((flag) => [flag, true]))
+  if (extras.config) selected.push("config")
+  if (extras.yield) selected.push("yield")
+
+  return selected
+}
+
+export function moduleDefine(extras: Extras): Record<string, boolean> {
+  return Object.assign({}, ...selectedModules(extras).map((name) => MODULES[name].defaultDefine))
+}
+
+export function vendoredModuleFiles(extras: Extras, prefix: string): Record<string, string> {
+  const files: Record<string, string> = {}
+
+  for (const name of selectedModules(extras)) {
+    for (const file of readModuleFiles(name)) {
+      files[prefix + file.path] = file.content
+    }
+  }
+
+  return files
+}
+
+export function moduleFlagsFiles(extras: Extras, prefix: string): string[] {
+  return selectedModules(extras)
+    .map((name) => MODULES[name].flagsFile)
+    .filter((file): file is string => file !== undefined)
+    .map((file) => prefix + file)
 }
 
 export function mainTsContent(): string {
@@ -41,31 +57,6 @@ export function sharedTsContent(): string {
   return `// Shared utilities used across scripts
 export {}
 `
-}
-
-export function flagsDtsContent(extras: Extras): string {
-  const lines: string[] = []
-
-  if (extras.config) {
-    lines.push("declare const CONFIG_YAML_PARSER: boolean")
-    lines.push("declare const CONFIG_LLJSON_PARSER: boolean")
-  }
-
-  if (extras.yield) {
-    lines.push("declare const YIELD_DATASERVER_AGENT: boolean")
-    lines.push("declare const YIELD_DATASERVER_DISPLAY_NAME: boolean")
-    lines.push("declare const YIELD_DATASERVER_SIM: boolean")
-    lines.push("declare const YIELD_DATASERVER_INVENTORY: boolean")
-    lines.push("declare const YIELD_DATASERVER_NOTECARD: boolean")
-    lines.push("declare const YIELD_DATASERVER_TEXT_COUNT: boolean")
-    lines.push("declare const YIELD_KV: boolean")
-    lines.push("declare const YIELD_DIALOG: boolean")
-    lines.push("declare const YIELD_HTTP: boolean")
-    lines.push("declare const YIELD_PERMISSIONS: boolean")
-    lines.push("declare const YIELD_SENSOR: boolean")
-  }
-
-  return lines.join("\n") + "\n"
 }
 
 export function oxlintrcContent(extraIgnores: string[] = []): string {
@@ -132,13 +123,9 @@ export function buildTsContent(extras: Extras, packageManager: string): string {
 
   importLines.push('import { resolve } from "node:path"')
 
-  const defineEntries: string[] = []
-  if (extras.config) {
-    defineEntries.push("CONFIG_YAML_PARSER: true", "CONFIG_LLJSON_PARSER: false")
-  }
-  if (extras.yield) {
-    defineEntries.push(...YIELD_FLAGS.map((flag) => `${flag}: true`))
-  }
+  const defineEntries = Object.entries(moduleDefine(extras)).map(
+    ([flag, value]) => `${flag}: ${value}`,
+  )
 
   let pluginLine = '    { name: "@gwigz/slua-tstl-plugin", optimize: true },'
   if (defineEntries.length > 0) {
@@ -151,10 +138,10 @@ ${defineEntries.map((entry) => `        ${entry},`).join("\n")}
     },`
   }
 
-  const fileEntries = [`resolve(\`src/\${script}/index.${ext}\`)`]
-  if (extras.config || extras.yield) {
-    fileEntries.push('resolve("flags.d.ts")')
-  }
+  const fileEntries = [
+    `resolve(\`src/\${script}/index.${ext}\`)`,
+    ...moduleFlagsFiles(extras, "src/modules/").map((file) => `resolve("${file}")`),
+  ]
 
   const jsxOptions = extras.jsx
     ? `
@@ -218,7 +205,7 @@ function reportDiagnostics(diagnostics: readonly Diagnostic[]) {
   for (const diagnostic of diagnostics) {
     const msg = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\\n")
 
-    if (msg.includes("luaBundle")) continue
+    if (msg.includes("luaBundle") || msg.includes("Invalid ambient identifier")) continue
 
     if (diagnostic.category === ts.DiagnosticCategory.Error) {
       console.error("Error:", msg)

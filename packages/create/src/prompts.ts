@@ -61,8 +61,8 @@ export async function runPrompts(positionalDir?: string): Promise<ProjectOptions
     message: "Which extras would you like to include?",
     options: [
       { value: "jsx" as const, label: "JSX templates", hint: "@gwigz/jsx-inline" },
-      { value: "config" as const, label: "Config module", hint: "@gwigz/slua-modules/config" },
-      { value: "yield" as const, label: "Yield module", hint: "@gwigz/slua-modules/yield" },
+      { value: "config" as const, label: "Config module", hint: "vendors slua-modules config" },
+      { value: "yield" as const, label: "Yield module", hint: "vendors slua-modules yield" },
       { value: "stylua" as const, label: "StyLua formatting" },
       { value: "linting" as const, label: "Linting", hint: "oxlint" },
       { value: "formatting" as const, label: "Formatting", hint: "oxfmt" },

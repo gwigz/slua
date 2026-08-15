@@ -5,8 +5,8 @@ import { GITIGNORE, EDITORCONFIG, VSCODE_SETTINGS, VSCODE_EXTENSIONS } from "./c
 import {
   mainTsContent,
   buildTsContent,
-  flagsDtsContent,
-  yieldDefine,
+  moduleDefine,
+  vendoredModuleFiles,
   oxlintrcContent,
   oxfmtrcContent,
 } from "./snippets.js"
@@ -32,10 +32,6 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
 
   if (extras.jsx) {
     devDependencies["@gwigz/jsx-inline"] = VERSIONS["@gwigz/jsx-inline"]
-  }
-
-  if (extras.config || extras.yield) {
-    devDependencies["@gwigz/slua-modules"] = VERSIONS["@gwigz/slua-modules"]
   }
 
   if (extras.stylua) {
@@ -106,21 +102,10 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
 
   const includes: string[] = ["src"]
 
-  if (extras.config || extras.yield) {
-    includes.push("flags.d.ts")
-  }
-
   const pluginEntry: Record<string, unknown> = { name: "@gwigz/slua-tstl-plugin", optimize: true }
+  const define = moduleDefine(extras)
 
-  if (extras.config || extras.yield) {
-    const define: Record<string, boolean> = {}
-    if (extras.config) {
-      define.CONFIG_YAML_PARSER = true
-      define.CONFIG_LLJSON_PARSER = false
-    }
-    if (extras.yield) {
-      Object.assign(define, yieldDefine())
-    }
+  if (Object.keys(define).length > 0) {
     pluginEntry.define = define
   }
 
@@ -151,9 +136,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   files["build.ts"] = buildTsContent(extras, packageManager)
   files[`src/new-script/index.${ext}`] = mainTsContent()
 
-  if (extras.config || extras.yield) {
-    files["flags.d.ts"] = flagsDtsContent(extras)
-  }
+  Object.assign(files, vendoredModuleFiles(extras, "src/modules/"))
 
   if (extras.linting) {
     files[".oxlintrc.json"] = oxlintrcContent(["build.ts"])

@@ -9,12 +9,14 @@ import type { CodeGalleryTab } from "./code-preview"
 function CodePanel({
   label,
   html,
+  note,
   twoslash,
   scrollRef,
   onScroll,
 }: {
   label: string
   html: string
+  note?: string
   twoslash?: boolean
   scrollRef: React.RefObject<HTMLDivElement | null>
   onScroll: () => void
@@ -25,8 +27,9 @@ function CodePanel({
 
   return (
     <div className="min-w-0 flex flex-col overflow-hidden rounded-lg border border-fd-border bg-fd-card">
-      <div className="border-b border-fd-border px-4 py-2">
+      <div className="flex items-center justify-between border-b border-fd-border px-4 py-2">
         <span className="text-xs font-medium text-fd-muted-foreground">{label}</span>
+        {note && <span className="text-xs text-amber-600 dark:text-amber-500">&#9888; {note}</span>}
       </div>
       <div
         ref={(el) => {
@@ -101,6 +104,7 @@ export function CodeGallery({ tabs }: { tabs: CodeGalleryTab[] }) {
             <CodePanel
               label="SLua"
               html={current.luaHtml}
+              note={current.luaNote}
               scrollRef={luaScrollRef}
               onScroll={() => syncScroll(luaScrollRef.current, tsScrollRef.current)}
             />

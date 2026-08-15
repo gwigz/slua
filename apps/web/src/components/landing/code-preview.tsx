@@ -67,12 +67,18 @@ export type CodeGalleryTab = {
   label: string
   tsHtml: string
   luaHtml: string
+  luaNote?: string
 }
 
 // Twoslash directives prepended to specific examples to surface expected errors.
 // The type-safety example compares string (getName) to UUID (GetOwner), TS error 2367.
 const TWOSLASH_DIRECTIVES: Record<string, string> = {
   "type-safety": "// @errors: 2367\n",
+}
+
+// Notes shown in the SLua panel header for examples that don't compile cleanly.
+const LUA_NOTES: Record<string, string> = {
+  "type-safety": "compiled with errors",
 }
 
 export async function CodeGalleryPreview(): Promise<CodeGalleryTab[]> {
@@ -86,7 +92,7 @@ export async function CodeGalleryPreview(): Promise<CodeGalleryTab[]> {
         highlightCode(ex.lua, "lua"),
       ])
 
-      return { id: ex.id, label: ex.label, tsHtml, luaHtml }
+      return { id: ex.id, label: ex.label, tsHtml, luaHtml, luaNote: LUA_NOTES[ex.id] }
     }),
   )
 

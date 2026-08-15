@@ -358,12 +358,14 @@ function flattenBundle(code: string): string {
 }
 
 /**
- * Remove top-level `local function` declarations that are never referenced
- * elsewhere in the code. Iterates until no more can be removed (handles
- * chains where removing one function makes another unused).
+ * Remove top-level `local function` declarations and side-effect-free
+ * `local x = y` aliases that are never referenced elsewhere in the code.
+ * Iterates until no more can be removed (handles chains where removing
+ * one declaration makes another unused, e.g. `local fetch = yieldFetch`).
  */
 function stripUnusedFunctions(code: string): string {
   const fnBlockRegex = /(?:^---[^\n]*\n(?:--[^\n]*\n)*\n?)?^local function (\w+)\([\s\S]*?^end\n?/gm
+  const aliasRegex = /^local (\w+) = \w+\n/gm
 
   let result = code
   let changed = true
@@ -379,10 +381,18 @@ function stripUnusedFunctions(code: string): string {
       blocks.push({ name: match[1], start: match.index, end: match.index + match[0].length })
     }
 
+    aliasRegex.lastIndex = 0
+
+    while ((match = aliasRegex.exec(result)) !== null) {
+      blocks.push({ name: match[1], start: match.index, end: match.index + match[0].length })
+    }
+
+    blocks.sort((a, b) => a.start - b.start)
+
     for (let i = blocks.length - 1; i >= 0; i--) {
       const { name, start, end } = blocks[i]
 
-      // Check if the function name appears outside its own definition block
+      // Check if the declared name appears outside its own definition block
       const before = result.substring(0, start)
       const after = result.substring(end)
       const outside = before + after

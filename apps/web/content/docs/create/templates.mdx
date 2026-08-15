@@ -58,10 +58,12 @@ own output path.
 Adds support for JSX template syntax via `@gwigz/jsx-inline`. Useful for
 generating structured Lua string outputs from TypeScript JSX.
 
-### Config Module (`@gwigz/slua-modules/config`)
+### Config and Yield Modules
 
-Includes the `@gwigz/slua-modules/config` package for runtime configuration.
-Provides a typed config module pattern compatible with SLua's module system.
+Vendors the selected [`@gwigz/slua-modules`](/docs/modules) source into your
+project (`src/modules/` in multi-script projects, `modules/` in single-script
+ones). No package dependency is added, the copied TypeScript is yours to edit.
+Compile-time flags are pre-wired on the transpiler plugin config.
 
 ### StyLua Formatting
 

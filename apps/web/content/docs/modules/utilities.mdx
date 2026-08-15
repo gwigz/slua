@@ -8,12 +8,12 @@ description: Rate-limiting primitives for debounce, throttle, and cooldown
   change between releases.
 </Callout>
 
-`@gwigz/slua-modules/utilities` provides rate-limiting primitives built on
+The `utilities` module provides rate-limiting primitives built on
 SLua's `LLTimers` API. Each function accepts a callback and a duration in
 seconds, and returns a `[wrapped, cancel]` tuple.
 
 ```ts
-import { debounce, throttle, cooldown } from "@gwigz/slua-modules/utilities"
+import { debounce, throttle, cooldown } from "./modules/utilities"
 
 const [save, cancelSave] = debounce((id: UUID) => {
   ll.Say(0, `saved ${id}`)

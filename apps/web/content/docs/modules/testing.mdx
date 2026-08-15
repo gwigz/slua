@@ -8,7 +8,7 @@ description: Mock utilities for unit testing SLua modules
   change between releases.
 </Callout>
 
-`@gwigz/slua-modules/testing` provides mock implementations of `ll`,
+The `testing` module provides mock implementations of `ll`,
 `LLEvents`, `LLTimers`, `coroutine`, and all SLua constants so modules can be
 unit-tested in Bun, Vitest, or Jest without a Second Life runtime.
 
@@ -21,8 +21,8 @@ unit-tested in Bun, Vitest, or Jest without a Second Life runtime.
 
 ```ts
 import { describe, it, expect, beforeEach, afterEach } from "bun:test"
-import { setup, teardown, notecard, emit } from "@gwigz/slua-modules/testing"
-import { loadConfig } from "@gwigz/slua-modules/config"
+import { setup, teardown, notecard, emit } from "./modules/testing"
+import { loadConfig } from "./modules/config"
 
 beforeEach(() => setup())
 afterEach(() => teardown())

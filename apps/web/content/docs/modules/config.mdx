@@ -8,7 +8,7 @@ description: Typed notecard config with YAML and lljson parsers
   change between releases.
 </Callout>
 
-`@gwigz/slua-modules/config` reads settings notecards and applies parsed values
+The `config` module reads settings notecards and applies parsed values
 to a typed config object in-place. The same reference stays valid across
 reloads.
 
@@ -75,7 +75,7 @@ and UUIDs. Provide appropriate defaults (e.g. `Vector.zero`,
 ## Usage
 
 ```ts
-import { loadConfig, onConfigChanged } from "@gwigz/slua-modules/config"
+import { loadConfig, onConfigChanged } from "./modules/config"
 
 const config = {
   PRIVATE_CHANNEL: -1731704569,

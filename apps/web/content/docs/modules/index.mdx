@@ -13,38 +13,35 @@ import { Settings, FlaskConical, Repeat, Timer } from "lucide-react"
 </Callout>
 
 `@gwigz/slua-modules` provides reusable runtime modules for
-[SLua](https://github.com/gwigz/slua) projects. Each module is imported via a
-subpath export and compiled to Lua through
-[TypeScript-to-Lua](https://typescripttolua.github.io). Unused code is stripped
-at compile time via `@define` flags.
+[SLua](https://github.com/gwigz/slua) projects. Modules are vendored, the CLI
+copies their TypeScript source directly into your project, so there is no
+package dependency and the code is yours to edit. Everything compiles to Lua
+through [TypeScript-to-Lua](https://typescripttolua.github.io), unused code is
+stripped at compile time via `@define` flags.
 
-## Install
+## Add modules
 
 ```bash tab="npm"
-npm install @gwigz/slua-modules
+npx @gwigz/slua-modules add yield
 ```
 
 ```bash tab="pnpm"
-pnpm add @gwigz/slua-modules
+pnpm dlx @gwigz/slua-modules add yield
 ```
 
 ```bash tab="bun"
-bun add @gwigz/slua-modules
+bunx @gwigz/slua-modules add yield
 ```
 
-### TSTL configuration
+Modules are copied into `src/modules/` (or `modules/` when your project has no
+`src/` directory), pass `--dir` to override. Shared helpers land in an
+`internal/` folder alongside the modules that use them. Run
+`bunx @gwigz/slua-modules list` to see what is available.
 
-TSTL's `luaBundle` resolver cannot resolve TypeScript source from `node_modules`
-directly. Add `paths` to your tsconfig so TSTL can find the module source:
+Import from the vendored path, relative to your script:
 
-```jsonc title="tsconfig.json"
-{
-  "compilerOptions": {
-    "paths": {
-      "@gwigz/slua-modules/*": ["./node_modules/@gwigz/slua-modules/src/*/index.ts"],
-    },
-  },
-}
+```ts
+import { spawn, dialog } from "./modules/yield"
 ```
 
 ## Compile-time flags
@@ -73,6 +70,10 @@ entirely by dead code elimination.
 
 Only enable the flags you need, omitted flags default to `false` and their
 code is stripped. See each module's documentation for the available flags.
+
+Flag-bearing modules ship a `flags.d.ts` next to their source, keep it in your
+tsconfig `include` (and any explicit build script file list), nothing imports
+it directly. The CLI prints the exact entries after `add`.
 
 ## Modules
 

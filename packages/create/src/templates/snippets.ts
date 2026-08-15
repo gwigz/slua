@@ -205,7 +205,11 @@ function reportDiagnostics(diagnostics: readonly Diagnostic[]) {
   for (const diagnostic of diagnostics) {
     const msg = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\\n")
 
-    if (msg.includes("luaBundle") || msg.includes("Invalid ambient identifier")) continue
+    if (msg.includes("luaBundle")) continue
+
+    if (msg.includes("Invalid ambient identifier") && diagnostic.file?.fileName.endsWith(".d.ts")) {
+      continue
+    }
 
     if (diagnostic.category === ts.DiagnosticCategory.Error) {
       console.error("Error:", msg)

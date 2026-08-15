@@ -67,7 +67,7 @@ function parseAddArgs(args: string[]): AddArgs | undefined {
     return undefined
   }
 
-  return { modules, dir }
+  return { modules: [...new Set(modules)], dir }
 }
 
 async function add(args: AddArgs) {
@@ -94,6 +94,7 @@ async function add(args: AddArgs) {
         message: `Overwrite ${existing.length} existing file${existing.length > 1 ? "s" : ""} for ${name}? (${existing
           .map((file) => join(target, file.path))
           .join(", ")})`,
+        initialValue: false,
       })
 
       if (isCancel(overwrite)) {

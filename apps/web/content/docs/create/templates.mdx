@@ -8,7 +8,8 @@ description: Available project templates and optional extras
 The `single` template produces the simplest possible project layout, one
 `new-script.ts` file at the project root that compiles to a single flat
 `out/new-script.slua` via TSTL. Imports (including vendored modules) are
-bundled into that one output file.
+bundled into that one output file, then tree-shaken by
+`@gwigz/tstl-bundle-flatten` so unused code is removed from the output.
 
 ```
 my-project/
@@ -54,9 +55,9 @@ The scaffold ships one `src/new-script/index.ts` entry point; add more by
 listing them in the `SCRIPTS` array in `build.ts`.
 
 `build.ts` uses the TSTL API directly to compile each entry point with its
-own output path. Before transpiling, it tree-shakes vendored module source
-via `@gwigz/slua-tstl-plugin/shake`, so unused module exports never reach
-the `.slua` output.
+own output path. After bundling, `@gwigz/tstl-bundle-flatten` tree-shakes
+the flattened output, removing unused code (including vendored module
+functions, code pulled in through re-exports, and unused lualib functions).
 
 ## Optional Extras
 

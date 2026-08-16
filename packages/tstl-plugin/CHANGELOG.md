@@ -1,5 +1,20 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.7.0
+
+### Minor Changes
+
+- [#104](https://github.com/gwigz/slua/pull/104) [`4e28ded`](https://github.com/gwigz/slua/commit/4e28ded6567e9e8ffdc61234f9891d27da8f3fa7) Thanks [@gwigz](https://github.com/gwigz)! - warn when luaLibImport is not "inline"
+
+### Patch Changes
+
+- [#109](https://github.com/gwigz/slua/pull/109) [`7e4d9de`](https://github.com/gwigz/slua/commit/7e4d9de96ac6b06747f7917a0d81d2442d996e7c) Thanks [@gwigz](https://github.com/gwigz)! - spread tuple options like `customHeader` into the flat parameter list instead of emitting a nested table
+
+- [#109](https://github.com/gwigz/slua/pull/109) [`7e4d9de`](https://github.com/gwigz/slua/commit/7e4d9de96ac6b06747f7917a0d81d2442d996e7c) Thanks [@gwigz](https://github.com/gwigz)! - add prepack scripts so packing always builds fresh output
+
+- Updated dependencies [[`0e5436f`](https://github.com/gwigz/slua/commit/0e5436f91d911530e52c69621755ab16e5e212e5)]:
+  - @gwigz/slua-types@1.5.0
+
 ## 1.6.0
 
 ### Minor Changes

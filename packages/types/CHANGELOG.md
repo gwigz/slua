@@ -1,5 +1,11 @@
 # @gwigz/slua-types
 
+## 1.5.0
+
+### Minor Changes
+
+- [#108](https://github.com/gwigz/slua/pull/108) [`0e5436f`](https://github.com/gwigz/slua/commit/0e5436f91d911530e52c69621755ab16e5e212e5) Thanks [@gwigz](https://github.com/gwigz)! - update slua definitions to latest upstream, `ll.PassTouches` and `ll.PassCollisions` now take numbers instead of booleans
+
 ## 1.4.3
 
 ### Patch Changes

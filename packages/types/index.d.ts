@@ -556,7 +556,7 @@ declare function xpcall<E>(
 /** Bitwise operations library. */
 /** @noSelf */
 declare namespace bit32 {
-  /** Returns val shifted by i bits to the right. If i is negative, a left shift is performed.Does an arithmetic shift: The most significant bit of n is propagated during the shift.Returns 0 if i < -31, or all sign bits if i > 31. */
+  /** Returns val shifted by i bits to the right. If i is negative, a left shift is performed. Does an arithmetic shift: The most significant bit of n is propagated during the shift. Returns 0 if i < -31, or all sign bits if i > 31. */
   export function arshift(val: number, i: number): number
 
   /** Returns the bitwise AND of the given numbers. */
@@ -761,7 +761,7 @@ declare namespace integer {
   /** Returns the sum of two 64-bit integers (signed or unsigned), wrapping on overflow. */
   export function add(int1: integer, int2: integer): integer
 
-  /** Returns val shifted by i bits to the right. If i is negative, a left shift is performed.Does an arithmetic shift: The most significant bit of n is propagated during the shift. */
+  /** Returns val shifted by i bits to the right. If i is negative, a left shift is performed. Does an arithmetic shift: The most significant bit of n is propagated during the shift. */
   export function arshift(val: integer, i: integer): integer
 
   /** Returns the bitwise AND of the given integers. */
@@ -1982,7 +1982,7 @@ declare namespace ll {
   /** Returns a rotation representing the orientation applied to the moon on the current parcel and altitude track. Falls back to the region's moon rotation if no custom parcel environment is set. */
   export function GetMoonRotation(): Quaternion
 
-  /** Requests the next queued email via the email event. Emails must1. Be sent to `{ll.GetKey()}@lsl.secondlife.com`2. Be sent from the specified sender Address (or any address if blank)3. Have the specified subject Subject (or any subject if blank) */
+  /** Requests the next queued email via the email event. Emails must 1. Be sent to `{ll.GetKey()}@lsl.secondlife.com` 2. Be sent from the specified sender Address (or any address if blank) 3. Have the specified subject Subject (or any subject if blank) */
   export function GetNextEmail(address: string, subject: string): void
 
   /**
@@ -3985,12 +3985,7 @@ declare const ENV_OK: 1
 declare const ENV_THROTTLE: -8
 /** Could not validate the environmental settings or values passed. */
 declare const ENV_VALIDATION_FAIL: -6
-/**
- * A value equal to three newline characters ("
- *
- *
- * ") returned by the dataserver event, indicating that the requested line is past the end of the notecard.
- */
+/** A value equal to three newline characters ("\n\n\n") returned by the dataserver event, indicating that the requested line is past the end of the notecard. */
 declare const EOF: string
 /** An inexplicable and generic error where nothing is known about the cause. */
 declare const ERR_GENERIC: -1

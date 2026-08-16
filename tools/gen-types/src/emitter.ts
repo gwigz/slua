@@ -411,18 +411,14 @@ function createSourceFile() {
 /**
  * Normalize a tooltip/comment string from YAML for use as a JSDoc description.
  *
- * YAML tooltips use two conventions that need fixing:
- *   1. Real newlines + leading whitespace from YAML multi-line string continuation
- *      (e.g. `"long text\\n\n        more text"`) -- these are formatting artifacts.
- *   2. Literal `\n` sequences (from `\\n` in YAML) that represent intended line breaks.
- *
- * We strip the continuation whitespace first, then convert literal `\n` to real newlines.
+ * js-yaml already folds plain-scalar continuation newlines to spaces, so any
+ * real newline left in the text is content from a literal block (`|`) or a
+ * paragraph break; join those with a space since descriptions are emitted as
+ * single-line JSDoc. Literal `\n` sequences must stay as-is, the only ones in
+ * the definitions are prose quoting the escape (e.g. the EOF constant).
  */
 function sanitizeComment(text: string) {
-  return text
-    .replace(/\n\s*/g, "") // strip YAML continuation newlines + their indentation
-    .replace(/\\n/g, "\n") // convert literal \n markers to real newlines
-    .trim()
+  return text.replace(/\n\s*/g, " ").trim()
 }
 
 /**

@@ -26,6 +26,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
     "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
     "@types/node": VERSIONS["@types/node"],
+    rollup: VERSIONS["rollup"],
     typescript: VERSIONS["typescript"],
     "typescript-to-lua": VERSIONS["typescript-to-lua"],
   }
@@ -139,7 +140,11 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   Object.assign(files, vendoredModuleFiles(extras, "src/modules/"))
 
   if (extras.linting) {
-    files[".oxlintrc.json"] = oxlintrcContent(["build.ts"])
+    // Vendored src/modules/ is module source the user shouldn't have to lint
+    files[".oxlintrc.json"] = oxlintrcContent([
+      "build.ts",
+      ...(extras.config || extras.yield ? ["src/modules/"] : []),
+    ])
   }
 
   if (extras.formatting) {

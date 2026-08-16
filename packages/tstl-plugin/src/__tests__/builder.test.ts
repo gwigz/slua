@@ -169,6 +169,27 @@ describe("options-object transform", () => {
     expect(lua).toContain('""')
   })
 
+  it("httpRequest spreads customHeader tuple into the flat list", () => {
+    const lua = transpile(`
+      const id = $httpRequest("https://example.com", {
+        customHeader: ["X-Key", "abc"],
+      })
+    `)
+
+    expect(lua).toContain("ll.HTTPRequest")
+    expect(lua).toMatch(/HTTP_CUSTOM_HEADER,\s*"X-Key",\s*"abc"/)
+    expect(lua).not.toContain('{"X-Key"')
+  })
+
+  it("httpRequest bails on non-literal customHeader", () => {
+    const lua = transpile(`
+      declare const header: [string, string]
+      const id = $httpRequest("https://example.com", { customHeader: header })
+    `)
+
+    expect(lua).not.toContain("ll.HTTPRequest")
+  })
+
   it("dataFlags with constant", () => {
     const lua = transpile(`
       declare const start: Vector, end_: Vector

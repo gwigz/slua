@@ -91,6 +91,26 @@ export function emitOptionsCall(
       return context.superTransformExpression(match.rootCall)
     }
 
+    if (methodDef.argCount > 1) {
+      // Tuple-valued params (e.g. customHeader) must be inline array literals
+      // so their values can be spread into the flat list.
+      if (
+        !ts.isArrayLiteralExpression(value) ||
+        value.elements.length !== methodDef.argCount ||
+        value.elements.some((element) => ts.isSpreadElement(element))
+      ) {
+        return context.superTransformExpression(match.rootCall)
+      }
+
+      listElements.push(tstl.createIdentifier(methodDef.constant))
+
+      for (const element of value.elements) {
+        listElements.push(context.transformExpression(element))
+      }
+
+      continue
+    }
+
     listElements.push(tstl.createIdentifier(methodDef.constant))
     listElements.push(context.transformExpression(value))
   }

@@ -8,6 +8,7 @@ export const VERSIONS = {
   "@gwigz/jsx-inline": "^1.1.0",
   "@johnnymorganz/stylua-bin": "^2.5.2",
   "@types/node": "^25.5.0",
+  rollup: "^4.62.2",
   tsx: "^4.23.12",
   "@gwigz/slua-oxlint-config": "^0.2.0",
   "oxlint-plugin-eslint": "^1.78.0",

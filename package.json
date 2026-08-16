@@ -8,7 +8,7 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "bun run --filter '@gwigz/slua-tstl-plugin' build",
+    "build": "bun run --filter './packages/*' build",
     "build:examples": "bun run build && bun run --filter '@gwigz/slua-example-*' build",
     "test": "bun test packages/ tools/",
     "generate": "bun tools/gen-types/generate.ts",

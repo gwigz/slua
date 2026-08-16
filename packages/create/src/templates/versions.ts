@@ -5,7 +5,6 @@ export const VERSIONS = {
   "@gwigz/slua-tstl-plugin": "^1.6.0",
   "@gwigz/slua-types": "^1.4.3",
   "@gwigz/tstl-bundle-flatten": "^1.0.2",
-  "@gwigz/slua-modules": "^0.5.0",
   "@gwigz/jsx-inline": "^1.1.0",
   "@johnnymorganz/stylua-bin": "^2.5.2",
   "@types/node": "^25.5.0",

@@ -4,8 +4,9 @@ import { VERSIONS } from "./versions.js"
 import { GITIGNORE, EDITORCONFIG, VSCODE_SETTINGS, VSCODE_EXTENSIONS } from "./common.js"
 import {
   mainTsContent,
-  flagsDtsContent,
-  yieldDefine,
+  moduleDefine,
+  moduleFlagsFiles,
+  vendoredModuleFiles,
   oxlintrcContent,
   oxfmtrcContent,
 } from "./snippets.js"
@@ -26,10 +27,6 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
 
   if (extras.jsx) {
     devDependencies["@gwigz/jsx-inline"] = VERSIONS["@gwigz/jsx-inline"]
-  }
-
-  if (extras.config || extras.yield) {
-    devDependencies["@gwigz/slua-modules"] = VERSIONS["@gwigz/slua-modules"]
   }
 
   if (extras.stylua) {
@@ -96,26 +93,15 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   }
 
   const pluginEntry: Record<string, unknown> = { name: "@gwigz/slua-tstl-plugin" }
+  const define = moduleDefine(extras)
 
-  if (extras.config || extras.yield) {
-    const define: Record<string, boolean> = {}
-    if (extras.config) {
-      define.CONFIG_YAML_PARSER = true
-      define.CONFIG_LLJSON_PARSER = false
-    }
-    if (extras.yield) {
-      Object.assign(define, yieldDefine())
-    }
+  if (Object.keys(define).length > 0) {
     pluginEntry.define = define
   }
 
   const luaPlugins: Record<string, unknown>[] = [pluginEntry]
 
-  const includes: string[] = [`new-script.${ext}`]
-
-  if (extras.config || extras.yield) {
-    includes.push("flags.d.ts")
-  }
+  const includes: string[] = [`new-script.${ext}`, ...moduleFlagsFiles(extras, "modules/")]
 
   const tsconfig = {
     $schema:
@@ -138,12 +124,12 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
 
   files[`new-script.${ext}`] = mainTsContent()
 
-  if (extras.config || extras.yield) {
-    files["flags.d.ts"] = flagsDtsContent(extras)
-  }
+  Object.assign(files, vendoredModuleFiles(extras, "modules/"))
 
   if (extras.linting) {
-    files[".oxlintrc.json"] = oxlintrcContent()
+    // The vendored modules/ dir sits outside the tsconfig program (only its
+    // flags.d.ts files are included), so type-aware lint cannot resolve it.
+    files[".oxlintrc.json"] = oxlintrcContent(extras.config || extras.yield ? ["modules/"] : [])
   }
 
   if (extras.formatting) {

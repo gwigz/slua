@@ -8,13 +8,13 @@ description: Coroutine wrappers that flatten callback APIs into sequential code
   change between releases.
 </Callout>
 
-`@gwigz/slua-modules/yield` uses Lua coroutines to flatten SLua's callback-based
+The `yield` module uses Lua coroutines to flatten SLua's callback-based
 APIs into sequential code. Call `spawn()` to start a coroutine, then use
 the wrapper functions inside it, they yield the coroutine until the result is
 ready, then return `[ok, value]` where `ok` is `false` if the request timed out.
 
 ```ts
-import { spawn, requestAgentData, sleep } from "@gwigz/slua-modules/yield"
+import { spawn, requestAgentData, sleep } from "./modules/yield"
 
 spawn(() => {
   const [ok, name] = requestAgentData(ll.GetOwner(), DATA_NAME, 10)

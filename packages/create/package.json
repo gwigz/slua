@@ -26,6 +26,6 @@
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0"
+    "@types/node": "^26.1.0"
   }
 }

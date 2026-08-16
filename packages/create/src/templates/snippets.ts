@@ -114,8 +114,7 @@ export function buildTsContent(extras: Extras, packageManager: string): string {
     '/// <reference types="node" />',
     'import ts, { type Diagnostic } from "typescript"',
     'import * as tstl from "typescript-to-lua"',
-    'import { shakeModules, stripDeadExports } from "@gwigz/slua-tstl-plugin/shake"',
-    'import { watch, readFileSync } from "node:fs"',
+    'import { watch } from "node:fs"',
   ]
 
   if (extras.stylua) {
@@ -201,7 +200,7 @@ const BASE_OPTIONS: tstl.CompilerOptions = {
   noImplicitGlobalVariables: true,${jsxOptions}
   luaPlugins: [
 ${pluginLine}
-    { name: "@gwigz/tstl-bundle-flatten" },
+    { name: "@gwigz/tstl-bundle-flatten", shake: true },
   ],
 }
 
@@ -228,54 +227,20 @@ function reportDiagnostics(diagnostics: readonly Diagnostic[]) {
   return hasErrors
 }
 
-// Tree-shakes vendored modules, returns stripped sources keyed by file path
-async function shake(entry: string) {
-  const shaken = new Map<string, string>()
-
-  try {
-    const result = await shakeModules({ entry: [entry], tsconfig: resolve("tsconfig.json") })
-
-    for (const [file, surviving] of result.survivingExports) {
-      shaken.set(resolve(file), stripDeadExports(readFileSync(file, "utf8"), surviving))
-    }
-  } catch (error) {
-    console.warn("warning: tree-shaking skipped:", error instanceof Error ? error.message : error)
-  }
-
-  return shaken
-}
-
-async function build() {
+function build() {
   let hasErrors = false
 
   for (const script of SCRIPTS) {
     const entry = resolve(\`src/\${script}/index.${ext}\`)
     ${filesLine}
 
-    const options: tstl.CompilerOptions = {
+    const result = tstl.transpileFiles(files, {
       ...BASE_OPTIONS,
       luaBundle: \`\${script}.slua\`,
       luaBundleEntry: entry,
-    }
+    })
 
-    const shaken = await shake(entry)
-    const host = ts.createCompilerHost(options)
-    const readSourceFile = host.getSourceFile.bind(host)
-
-    host.getSourceFile = (fileName, languageVersion, ...args) => {
-      const stripped = shaken.get(resolve(fileName))
-
-      if (stripped !== undefined) {
-        return ts.createSourceFile(fileName, stripped, languageVersion, true)
-      }
-
-      return readSourceFile(fileName, languageVersion, ...args)
-    }
-
-    const program = ts.createProgram(files, options, host)
-    const result = new tstl.Transpiler().emit({ program })
-
-    if (reportDiagnostics([...ts.getPreEmitDiagnostics(program), ...result.diagnostics])) {
+    if (reportDiagnostics(result.diagnostics)) {
       hasErrors = true
     }
   }
@@ -287,7 +252,7 @@ async function build() {
   return true
 }
 
-if (!(await build()) && !WATCH) {
+if (!build() && !WATCH) {
   process.exit(1)
 }
 
@@ -295,7 +260,6 @@ if (WATCH) {
   console.log("Watching src/ for changes...")
 
   let debounce: ReturnType<typeof setTimeout> | null = null
-  let pending: Promise<unknown> = Promise.resolve()
 
   watch(resolve("src"), { recursive: true }, (_event: string, filename: string | null) => {
 ${watchFilter}
@@ -305,7 +269,7 @@ ${watchFilter}
     debounce = setTimeout(() => {
       debounce = null
       console.log(\`\\nRebuilding...\`)
-      pending = pending.then(() => build())
+      build()
     }, 50)
   })
 }

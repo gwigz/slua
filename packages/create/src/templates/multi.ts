@@ -26,7 +26,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
     "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
     "@types/node": VERSIONS["@types/node"],
-    rollup: VERSIONS["rollup"],
+    "darklua-wasm": VERSIONS["darklua-wasm"],
     typescript: VERSIONS["typescript"],
     "typescript-to-lua": VERSIONS["typescript-to-lua"],
   }
@@ -112,7 +112,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
 
   const luaPlugins: Record<string, unknown>[] = [
     pluginEntry,
-    { name: "@gwigz/tstl-bundle-flatten" },
+    { name: "@gwigz/tstl-bundle-flatten", shake: true },
   ]
 
   const tsconfig = {

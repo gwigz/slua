@@ -22,6 +22,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     "@gwigz/slua-types": VERSIONS["@gwigz/slua-types"],
     "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
+    "darklua-wasm": VERSIONS["darklua-wasm"],
     typescript: VERSIONS["typescript"],
     "typescript-to-lua": VERSIONS["typescript-to-lua"],
   }
@@ -102,7 +103,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
 
   const luaPlugins: Record<string, unknown>[] = [
     pluginEntry,
-    { name: "@gwigz/tstl-bundle-flatten" },
+    { name: "@gwigz/tstl-bundle-flatten", shake: true },
   ]
 
   const includes: string[] = [`new-script.${ext}`, ...moduleFlagsFiles(extras, "modules/")]

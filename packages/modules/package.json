@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-modules",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Shared runtime modules for SLua projects",
   "license": "MIT",
   "repository": {
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",
-    "@gwigz/slua-types": "^1.4.1",
+    "@gwigz/slua-types": "^1.5.0",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {

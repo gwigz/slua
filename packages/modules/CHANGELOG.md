@@ -1,5 +1,20 @@
 # @gwigz/slua-modules
 
+## 0.6.0
+
+### Minor Changes
+
+- [#106](https://github.com/gwigz/slua/pull/106) [`badc8c6`](https://github.com/gwigz/slua/commit/badc8c6b8691cc6c071682836997ae4558bd7b27) Thanks [@gwigz](https://github.com/gwigz)! - vendoring cli, `add <module>` copies module source into your project
+
+### Patch Changes
+
+- [#109](https://github.com/gwigz/slua/pull/109) [`7e4d9de`](https://github.com/gwigz/slua/commit/7e4d9de96ac6b06747f7917a0d81d2442d996e7c) Thanks [@gwigz](https://github.com/gwigz)! - exclude test files from the published tarball
+
+- [#109](https://github.com/gwigz/slua/pull/109) [`7e4d9de`](https://github.com/gwigz/slua/commit/7e4d9de96ac6b06747f7917a0d81d2442d996e7c) Thanks [@gwigz](https://github.com/gwigz)! - fix vendored yield builds, `fetch` now builds the `ll.HTTPRequest` parameter list at runtime instead of relying on the `$httpRequest` inline transform
+
+- Updated dependencies [[`0e5436f`](https://github.com/gwigz/slua/commit/0e5436f91d911530e52c69621755ab16e5e212e5)]:
+  - @gwigz/slua-types@1.5.0
+
 ## 0.5.0
 
 ### Minor Changes

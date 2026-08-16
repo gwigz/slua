@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-create",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Scaffold new TSTL-powered SLua projects",
   "license": "MIT",
   "repository": {
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.2.0",
-    "@gwigz/slua-modules": "^0.5.0",
+    "@gwigz/slua-modules": "^0.6.0",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {

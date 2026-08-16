@@ -155,6 +155,10 @@ describe("mapReturnType", () => {
     expect(result).toBe("any[]")
   })
 
+  it("maps variadic optional return types with parenthesized unions", () => {
+    expect(mapReturnType("...string?")).toBe("(string | undefined)[]")
+  })
+
   it("maps variadic return type packs", () => {
     expect(mapReturnType("R...")).toBe("any")
   })

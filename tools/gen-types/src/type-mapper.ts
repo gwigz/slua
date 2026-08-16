@@ -500,7 +500,16 @@ export function mapReturnType(luauType: string): string {
     const mapped = mapType(varType)
 
     // Strip trailing [] if present (mapType adds it for some types)
-    return mapped.endsWith("[]") ? mapped : `${mapped}[]`
+    if (mapped.endsWith("[]")) {
+      return mapped
+    }
+
+    // Parenthesize unions: "...string?" -> "(string | undefined)[]"
+    if (splitTopLevel(mapped, " | ").length > 1) {
+      return `(${mapped})[]`
+    }
+
+    return `${mapped}[]`
   }
 
   // Variadic type pack reference as return: "R..." -> "any"

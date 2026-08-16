@@ -1174,7 +1174,7 @@ declare namespace string {
   export function lower(src: string): string
 
   /** Returns all occurences of the regex pattern inside the string src, starting from start_index. Returns nil if no match is found. Negative indices count backward from the end of the string. */
-  export function match(src: string, pattern: string, startIndex?: number): string | undefined[]
+  export function match(src: string, pattern: string, startIndex?: number): (string | undefined)[]
 
   /** Packs values into a binary string. */
   export function pack(formatString: string, ...args: any[]): string

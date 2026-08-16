@@ -1,5 +1,5 @@
 ---
-"@gwigz/slua-types": patch
+"@gwigz/slua-types": minor
 ---
 
-Update SLua definitions submodule to latest upstream
+update slua definitions to latest upstream, adds the `integer` library, new `math` constants, `llprim.setParticleSystem` and `llprim.setMedia`, plus new deprecation notices, note that `ll.PassTouches` and `ll.PassCollisions` now take numbers instead of booleans

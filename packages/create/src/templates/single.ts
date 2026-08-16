@@ -20,6 +20,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   const devDependencies: Record<string, string> = {
     "@gwigz/slua-tstl-plugin": VERSIONS["@gwigz/slua-tstl-plugin"],
     "@gwigz/slua-types": VERSIONS["@gwigz/slua-types"],
+    "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
     typescript: VERSIONS["typescript"],
     "typescript-to-lua": VERSIONS["typescript-to-lua"],
@@ -99,7 +100,10 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     pluginEntry.define = define
   }
 
-  const luaPlugins: Record<string, unknown>[] = [pluginEntry]
+  const luaPlugins: Record<string, unknown>[] = [
+    pluginEntry,
+    { name: "@gwigz/tstl-bundle-flatten" },
+  ]
 
   const includes: string[] = [`new-script.${ext}`, ...moduleFlagsFiles(extras, "modules/")]
 
@@ -110,6 +114,8 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     tstl: {
       luaTarget: "Luau",
       luaLibImport: "inline",
+      luaBundle: "new-script.slua",
+      luaBundleEntry: `new-script.${ext}`,
       noImplicitSelf: true,
       noImplicitGlobalVariables: true,
       luaPlugins,

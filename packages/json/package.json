@@ -23,6 +23,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "bun test"
+    "test": "bun test",
+    "prepack": "tsc"
   }
 }

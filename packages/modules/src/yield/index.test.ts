@@ -521,12 +521,45 @@ describe("textBox", () => {
 describe("fetch", () => {
   it("yields and returns response object", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
-    g.$httpRequest = () => "req-http"
+
+    let captured: { url: string; params: unknown[]; body: string } | undefined
+
+    g.ll.HTTPRequest = (url: string, params: unknown[], body: string) => {
+      captured = { url, params, body }
+
+      return "req-http"
+    }
 
     setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
     const result = fetch("https://example.com", { timeout: 30 }) as any
 
     expect(result).toEqual([true, { status: 200, metadata: [], body: "OK" }])
+    expect(captured).toEqual({ url: "https://example.com", params: [0, "GET"], body: "" })
+  })
+
+  it("builds the parameter list from options", () => {
+    spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
+    let captured: { params: unknown[]; body: string } | undefined
+
+    g.ll.HTTPRequest = (_url: string, params: unknown[], body: string) => {
+      captured = { params, body }
+
+      return "req-http"
+    }
+
+    setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
+    fetch("https://example.com", {
+      method: "POST",
+      customHeader: ["X-Key", "abc"],
+      body: "payload",
+      timeout: 30,
+    })
+
+    expect(captured).toEqual({
+      params: [0, "POST", 5, "X-Key", "abc"],
+      body: "payload",
+    })
   })
 
   it("handler filters by request ID", () => {
@@ -534,7 +567,7 @@ describe("fetch", () => {
     spyOn(g.coroutine, "running").mockReturnValue(co)
     const resumeSpy = spyOn(g.coroutine, "resume")
 
-    g.$httpRequest = () => "req-http"
+    g.ll.HTTPRequest = () => "req-http"
 
     setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
     fetch("https://example.com", { timeout: 30 })
@@ -553,7 +586,7 @@ describe("fetch", () => {
     spyOn(g.coroutine, "running").mockReturnValue(co)
     const resumeSpy = spyOn(g.coroutine, "resume")
 
-    g.$httpRequest = () => "req-http"
+    g.ll.HTTPRequest = () => "req-http"
 
     setCoroutineYieldValue([false, "timeout"])
     fetch("https://example.com", { timeout: 30 })

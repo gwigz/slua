@@ -6,12 +6,14 @@ description: Available project templates and optional extras
 ## Single Script
 
 The `single` template produces the simplest possible project layout, one
-`main.ts` file that compiles to a single `.slua` output via TSTL.
+`new-script.ts` file at the project root that compiles to a single flat
+`out/new-script.slua` via TSTL. Imports (including vendored modules) are
+bundled into that one output file.
 
 ```
 my-project/
-├── src/
-│   └── main.ts
+├── modules/          (when config or yield extras are selected)
+├── new-script.ts
 ├── package.json
 └── tsconfig.json
 ```
@@ -48,8 +50,13 @@ my-project/
 └── tsconfig.json
 ```
 
+The scaffold ships one `src/new-script/index.ts` entry point; add more by
+listing them in the `SCRIPTS` array in `build.ts`.
+
 `build.ts` uses the TSTL API directly to compile each entry point with its
-own output path.
+own output path. Before transpiling, it tree-shakes vendored module source
+via `@gwigz/slua-tstl-plugin/shake`, so unused module exports never reach
+the `.slua` output.
 
 ## Optional Extras
 
@@ -67,8 +74,9 @@ Compile-time flags are pre-wired on the transpiler plugin config.
 
 ### StyLua Formatting
 
-Adds a `.stylua.toml` config to your project so you can auto-format compiled
-`.slua` output with [StyLua](https://github.com/JohnnyMorganz/StyLua).
+Adds [StyLua](https://github.com/JohnnyMorganz/StyLua) so compiled `.slua`
+output can be auto-formatted, via a `format` script in single-script
+projects and as a build step in multi-script ones.
 
 ### Linting (`oxlint`)
 

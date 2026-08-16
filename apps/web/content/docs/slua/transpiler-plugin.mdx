@@ -261,6 +261,22 @@ local id = ll.HTTPRequest("https://example.com", {
 }, payload)
 ```
 
+Tuple-valued params like `customHeader` are written as inline array literals
+and spread into the flat list:
+
+```typescript
+const id = $httpRequest("https://example.com", {
+  customHeader: ["X-Key", "abc"],
+})
+```
+
+```lua
+local id = ll.HTTPRequest("https://example.com", {
+    HTTP_CUSTOM_HEADER, "X-Key", "abc",
+    HTTP_METHOD, "GET"
+}, "")
+```
+
 ### Typed getter returns
 
 Functions like `ll.GetObjectDetails`, `ll.GetParcelDetails`, `ll.GetPrimitiveParams`, `ll.GetEnvironment`, `ll.GetPrimMediaParams`, `ll.GetLinkMedia`, and `ll.ParcelMediaQuery` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:

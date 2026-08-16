@@ -11,6 +11,7 @@
   "bin": "dist/index.js",
   "files": [
     "src",
+    "!src/**/*.test.ts",
     "dist"
   ],
   "type": "module",

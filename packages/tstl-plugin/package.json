@@ -29,7 +29,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "bun test"
+    "test": "bun test",
+    "prepack": "tsc"
   },
   "dependencies": {
     "@gwigz/slua-types": "^1.4.1",

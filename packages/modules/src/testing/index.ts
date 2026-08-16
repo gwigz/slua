@@ -286,9 +286,18 @@ const GLOBAL_KEYS = [
   "YIELD_KV",
   "YIELD_DIALOG",
   "YIELD_HTTP",
-  "$httpRequest",
   "YIELD_PERMISSIONS",
   "YIELD_SENSOR",
+  "HTTP_METHOD",
+  "HTTP_MIMETYPE",
+  "HTTP_BODY_MAXLENGTH",
+  "HTTP_VERIFY_CERT",
+  "HTTP_VERBOSE_THROTTLE",
+  "HTTP_CUSTOM_HEADER",
+  "HTTP_PRAGMA_NO_CACHE",
+  "HTTP_USER_AGENT",
+  "HTTP_ACCEPT",
+  "HTTP_EXTENDED_ERROR",
 ] as const
 
 const savedGlobals: Record<string, any> = {}
@@ -337,6 +346,16 @@ export function setup(): void {
   g.YIELD_HTTP = true
   g.YIELD_PERMISSIONS = true
   g.YIELD_SENSOR = true
+  g.HTTP_METHOD = 0
+  g.HTTP_MIMETYPE = 1
+  g.HTTP_BODY_MAXLENGTH = 2
+  g.HTTP_VERIFY_CERT = 3
+  g.HTTP_VERBOSE_THROTTLE = 4
+  g.HTTP_CUSTOM_HEADER = 5
+  g.HTTP_PRAGMA_NO_CACHE = 6
+  g.HTTP_USER_AGENT = 7
+  g.HTTP_ACCEPT = 8
+  g.HTTP_EXTENDED_ERROR = 9
 }
 
 /**

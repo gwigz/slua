@@ -416,7 +416,59 @@ function yieldFetch(
   let resolved = false
   const timeout = options.timeout
 
-  const requestId = $httpRequest(url, options)
+  // Built at runtime, so the $httpRequest inline transform can't be used here.
+  const params: (string | number)[] = []
+
+  params.push(HTTP_METHOD)
+  params.push(options.method ?? "GET")
+
+  if (options.mimetype !== undefined) {
+    params.push(HTTP_MIMETYPE)
+    params.push(options.mimetype)
+  }
+
+  if (options.bodyMaxlength !== undefined) {
+    params.push(HTTP_BODY_MAXLENGTH)
+    params.push(options.bodyMaxlength)
+  }
+
+  if (options.verifyCert !== undefined) {
+    params.push(HTTP_VERIFY_CERT)
+    params.push(options.verifyCert)
+  }
+
+  if (options.verboseThrottle !== undefined) {
+    params.push(HTTP_VERBOSE_THROTTLE)
+    params.push(options.verboseThrottle)
+  }
+
+  if (options.customHeader !== undefined) {
+    params.push(HTTP_CUSTOM_HEADER)
+    params.push(options.customHeader[0])
+    params.push(options.customHeader[1])
+  }
+
+  if (options.pragmaNoCache !== undefined) {
+    params.push(HTTP_PRAGMA_NO_CACHE)
+    params.push(options.pragmaNoCache)
+  }
+
+  if (options.userAgent !== undefined) {
+    params.push(HTTP_USER_AGENT)
+    params.push(options.userAgent)
+  }
+
+  if (options.accept !== undefined) {
+    params.push(HTTP_ACCEPT)
+    params.push(options.accept)
+  }
+
+  if (options.extendedError !== undefined) {
+    params.push(HTTP_EXTENDED_ERROR)
+    params.push(options.extendedError)
+  }
+
+  const requestId = ll.HTTPRequest(url, params as [], options.body ?? "")
 
   const handler = LLEvents.on(
     "http_response",

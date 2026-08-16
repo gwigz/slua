@@ -499,14 +499,16 @@ export function mapReturnType(luauType: string): string {
     const varType = input.slice(3).trim()
     const mapped = mapType(varType)
 
+    // Parenthesize unions: "...string?" -> "(string | undefined)[]"
+    // Checked before the [] preservation so "string | number[]" is not
+    // mistaken for an array type
+    if (splitTopLevel(mapped, " | ").length > 1) {
+      return `(${mapped})[]`
+    }
+
     // Strip trailing [] if present (mapType adds it for some types)
     if (mapped.endsWith("[]")) {
       return mapped
-    }
-
-    // Parenthesize unions: "...string?" -> "(string | undefined)[]"
-    if (splitTopLevel(mapped, " | ").length > 1) {
-      return `(${mapped})[]`
     }
 
     return `${mapped}[]`

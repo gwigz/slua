@@ -24,7 +24,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@gwigz/tstl-bundle-flatten": "^1.0.2",
+    "@gwigz/tstl-bundle-flatten": "^1.1.0",
     "@typescript-to-lua/language-extensions": "^1.19.0",
     "typescript-to-lua": "^1.37.1"
   },

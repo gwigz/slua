@@ -1,5 +1,11 @@
 # @gwigz/slua-create
 
+## 0.4.0
+
+### Minor Changes
+
+- [#111](https://github.com/gwigz/slua/pull/111) [`8771e4e`](https://github.com/gwigz/slua/commit/8771e4e319ea6ec11005811e5d872cb4e3f237af) Thanks [@gwigz](https://github.com/gwigz)! - tree shake bundled output via tstl-bundle-flatten
+
 ## 0.3.0
 
 ### Minor Changes

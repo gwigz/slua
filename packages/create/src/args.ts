@@ -65,13 +65,10 @@ function resolveNegatable(
 function parseExtras(values: string[] | undefined): (keyof Extras)[] | undefined {
   if (values === undefined || values.length === 0) return undefined
 
-  const tokens = values
-    .flatMap((value) => value.split(","))
-    .map((token) => token.trim())
-    .filter((token) => token !== "")
+  const tokens = values.flatMap((value) => value.split(",")).map((token) => token.trim())
 
-  // e.g. -e "" from an unset shell variable; don't treat it as explicit "none"
-  if (tokens.length === 0) {
+  // e.g. -e "" or -e "jsx,$unset" from an unset shell variable
+  if (tokens.includes("")) {
     throw new CliUsageError('--extras received an empty value, use "none" for no extras')
   }
 

@@ -55,6 +55,12 @@ describe("parseCliArgs", () => {
     expect(() => parseCliArgs(["-e", ","])).toThrow(/empty value/)
   })
 
+  it("rejects empty extras entries from stray commas", () => {
+    expect(() => parseCliArgs(["-e", "jsx,"])).toThrow(/empty value/)
+    expect(() => parseCliArgs(["-e", ",jsx"])).toThrow(/empty value/)
+    expect(() => parseCliArgs(["-e", "jsx,,config"])).toThrow(/empty value/)
+  })
+
   it('rejects "none" combined with other extras', () => {
     expect(() => parseCliArgs(["-e", "none,jsx"])).toThrow(CliUsageError)
   })

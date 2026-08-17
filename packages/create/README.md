@@ -28,7 +28,7 @@ bunx @gwigz/slua-create my-project
 
 ### Options
 
-```
+```text
 -t, --template <single|multi>  project template (default: single)
 -e, --extras <list>            comma-separated extras, or "none"; repeatable
     --git / --no-git           initialize a git repository (default: git)

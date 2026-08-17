@@ -61,6 +61,59 @@ describe("ts-slua plugin", () => {
 
     expect(diagnostics).toHaveLength(0)
   })
+
+  it("beforeTransform allows require kinds when bundling with tstl-bundle-flatten", () => {
+    for (const luaLibImport of [
+      tstl.LuaLibImportKind.Require,
+      tstl.LuaLibImportKind.RequireMinimal,
+    ]) {
+      const diagnostics = createPlugin().beforeTransform!(
+        {} as ts.Program,
+        {
+          luaTarget: tstl.LuaTarget.Luau,
+          luaLibImport,
+          luaBundle: "out.slua",
+          luaBundleEntry: "main.ts",
+          luaPlugins: [{ name: "@gwigz/slua-tstl-plugin" }, { name: "@gwigz/tstl-bundle-flatten" }],
+        } as tstl.CompilerOptions,
+        {} as tstl.EmitHost,
+      )
+
+      expect(diagnostics).toHaveLength(0)
+    }
+  })
+
+  it("beforeTransform still warns on require-minimal without the flatten plugin", () => {
+    const diagnostics = createPlugin().beforeTransform!(
+      {} as ts.Program,
+      {
+        luaTarget: tstl.LuaTarget.Luau,
+        luaLibImport: tstl.LuaLibImportKind.RequireMinimal,
+        luaBundle: "out.slua",
+        luaBundleEntry: "main.ts",
+        luaPlugins: [{ name: "@gwigz/slua-tstl-plugin" }],
+      } as tstl.CompilerOptions,
+      {} as tstl.EmitHost,
+    )
+
+    expect(diagnostics).toHaveLength(1)
+    expect((diagnostics as ts.Diagnostic[])[0].code).toBe(90001)
+  })
+
+  it("beforeTransform still warns on require-minimal with flatten but no luaBundle", () => {
+    const diagnostics = createPlugin().beforeTransform!(
+      {} as ts.Program,
+      {
+        luaTarget: tstl.LuaTarget.Luau,
+        luaLibImport: tstl.LuaLibImportKind.RequireMinimal,
+        luaPlugins: [{ name: "@gwigz/slua-tstl-plugin" }, { name: "@gwigz/tstl-bundle-flatten" }],
+      } as tstl.CompilerOptions,
+      {} as tstl.EmitHost,
+    )
+
+    expect(diagnostics).toHaveLength(1)
+    expect((diagnostics as ts.Diagnostic[])[0].code).toBe(90001)
+  })
 })
 
 describe("transpilation output", () => {
@@ -572,7 +625,7 @@ describe("string Luau stdlib transforms", () => {
       "interface String { endsWith(searchString: string): boolean }\ndeclare const s: string;\ndeclare const x: string;\nconst b = s.endsWith(x)",
     )
 
-    // hoisted temp (single eval), empty guard, native string.sub — no lualib helper
+    // hoisted temp (single eval), empty guard, native string.sub, no lualib helper
     expect(lua).toContain("= x")
     expect(lua).toMatch(/== "" or string\.sub\(s, -#/)
     expect(lua).not.toContain("__TS__StringEndsWith")
@@ -1310,7 +1363,7 @@ describe("optimize: simplifyNilChecks", () => {
   it("leaves non-nil inequality untouched", () => {
     const lua = transpileOptimized("declare const x: number;\nif (!(x !== 1)) { print('eq') }")
 
-    // `not (x ~= 1)` is left alone — only nil comparisons simplify.
+    // `not (x ~= 1)` is left alone, only nil comparisons simplify.
     expect(lua).toContain("not (x ~= 1)")
   })
 

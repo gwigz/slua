@@ -48,6 +48,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
 
   const scripts: Record<string, string> = {
     build: "tstl -p tsconfig.json",
+    dev: "tstl -p tsconfig.json --watch",
   }
 
   if (extras.stylua) {
@@ -114,7 +115,9 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     compilerOptions,
     tstl: {
       luaTarget: "Luau",
-      luaLibImport: "inline",
+      // "require-minimal" + luaBundle + bundle-flatten emits each used lualib
+      // helper exactly once, flattened to the top of the script
+      luaLibImport: "require-minimal",
       luaBundle: "new-script.slua",
       luaBundleEntry: `new-script.${ext}`,
       noImplicitSelf: true,
@@ -136,7 +139,9 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   if (extras.linting) {
     // The vendored modules/ dir sits outside the tsconfig program (only its
     // flags.d.ts files are included), so type-aware lint cannot resolve it.
-    files[".oxlintrc.json"] = oxlintrcContent(extras.config || extras.yield ? ["modules/"] : [])
+    files[".oxlintrc.json"] = oxlintrcContent(
+      extras.config || extras.utilities || extras.yield ? ["modules/"] : [],
+    )
   }
 
   if (extras.formatting) {

@@ -2,7 +2,7 @@ export const VERSIONS = {
   typescript: "6.0.2",
   "typescript-to-lua": "^1.37.1",
   "@typescript-to-lua/language-extensions": "^1.19.0",
-  "@gwigz/slua-tstl-plugin": "^1.6.0",
+  "@gwigz/slua-tstl-plugin": "^1.8.0",
   "@gwigz/slua-types": "^1.4.3",
   "@gwigz/tstl-bundle-flatten": "^1.1.0",
   "darklua-wasm": "^0.1.0",

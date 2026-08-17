@@ -44,7 +44,12 @@ function toExtras(selected: (keyof Extras)[]): Extras {
  * for the directory, which is always required and has no default.
  */
 export async function runPrompts(flags: CliFlags): Promise<ProjectOptions | undefined> {
-  const interactive = process.stdin.isTTY === true && !flags.yes
+  // CI can allocate a pseudo-TTY (docker run -t, act, some runners), so the
+  // TTY checks alone aren't enough to avoid hanging on prompts there
+  const inCI = process.env.CI !== undefined && process.env.CI !== "" && process.env.CI !== "false"
+
+  const interactive =
+    process.stdin.isTTY === true && process.stdout.isTTY === true && !inCI && !flags.yes
 
   if (!interactive && flags.directory === undefined) {
     throw new CliUsageError(

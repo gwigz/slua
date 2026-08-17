@@ -44,7 +44,8 @@ slua-create [directory] [options]
   -v, --version                  show version
 ```
 
-With `--yes` (or whenever stdin is not a TTY, e.g. in CI) no prompts are
+With `--yes` (or whenever the CLI is not attached to a terminal, e.g. in CI or
+piped scripts) no prompts are
 shown, defaults fill anything unanswered, and the directory argument is
 required:
 

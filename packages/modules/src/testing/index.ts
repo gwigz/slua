@@ -60,8 +60,16 @@ class MockVector {
     return a.x * b.x + a.y * b.y + a.z * b.z
   }
 
-  static angle(a: MockVector, b: MockVector): number {
-    return Math.acos(MockVector.dot(a, b) / (MockVector.magnitude(a) * MockVector.magnitude(b)))
+  static angle(a: MockVector, b: MockVector, axis?: MockVector): number {
+    const cos = MockVector.dot(a, b) / (MockVector.magnitude(a) * MockVector.magnitude(b))
+    // Clamp: float rounding can push parallel vectors past ±1, acos -> NaN
+    const angle = Math.acos(Math.min(Math.max(cos, -1), 1))
+
+    if (axis !== undefined && MockVector.dot(axis, MockVector.cross(a, b)) < 0) {
+      return -angle
+    }
+
+    return angle
   }
 
   static floor(vec: MockVector): MockVector {
@@ -88,12 +96,20 @@ class MockVector {
     )
   }
 
-  static max(a: MockVector, b: MockVector): MockVector {
-    return new MockVector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z))
+  static max(...vecs: MockVector[]): MockVector {
+    return new MockVector(
+      Math.max(...vecs.map((v) => v.x)),
+      Math.max(...vecs.map((v) => v.y)),
+      Math.max(...vecs.map((v) => v.z)),
+    )
   }
 
-  static min(a: MockVector, b: MockVector): MockVector {
-    return new MockVector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z))
+  static min(...vecs: MockVector[]): MockVector {
+    return new MockVector(
+      Math.min(...vecs.map((v) => v.x)),
+      Math.min(...vecs.map((v) => v.y)),
+      Math.min(...vecs.map((v) => v.z)),
+    )
   }
 
   static lerp(a: MockVector, b: MockVector, t: number): MockVector {
@@ -184,12 +200,14 @@ class MockQuaternion {
 
   static slerp(a: MockQuaternion, b: MockQuaternion, t: number): MockQuaternion {
     // nlerp: fine for tests, not a true slerp
+    const sign = MockQuaternion.dot(a, b) < 0 ? -1 : 1
+
     return MockQuaternion.normalize(
       new MockQuaternion(
-        a.x + (b.x - a.x) * t,
-        a.y + (b.y - a.y) * t,
-        a.z + (b.z - a.z) * t,
-        a.s + (b.s - a.s) * t,
+        a.x + (b.x * sign - a.x) * t,
+        a.y + (b.y * sign - a.y) * t,
+        a.z + (b.z * sign - a.z) * t,
+        a.s + (b.s * sign - a.s) * t,
       ),
     )
   }
@@ -210,16 +228,66 @@ class MockQuaternion {
     return rotateByQuaternion(new MockVector(0, 0, 1), quat)
   }
 
+  add(other: MockQuaternion): MockQuaternion {
+    return new MockQuaternion(
+      this.x + other.x,
+      this.y + other.y,
+      this.z + other.z,
+      this.s + other.s,
+    )
+  }
+
+  sub(other: MockQuaternion): MockQuaternion {
+    return new MockQuaternion(
+      this.x - other.x,
+      this.y - other.y,
+      this.z - other.z,
+      this.s - other.s,
+    )
+  }
+
+  neg(): MockQuaternion {
+    return new MockQuaternion(-this.x, -this.y, -this.z, -this.s)
+  }
+
+  mul(other: MockQuaternion): MockQuaternion {
+    // SLua order: v * (a * b) rotates by a then b, i.e. the Hamilton
+    // product b * a
+    return hamiltonProduct(other, this)
+  }
+
+  div(other: MockQuaternion): MockQuaternion {
+    return hamiltonProduct(MockQuaternion.conjugate(other), this)
+  }
+
   toString(): string {
     return `<${this.x}, ${this.y}, ${this.z}, ${this.s}>`
   }
 }
 
+function hamiltonProduct(p: MockQuaternion, q: MockQuaternion): MockQuaternion {
+  return new MockQuaternion(
+    p.s * q.x + q.s * p.x + (p.y * q.z - p.z * q.y),
+    p.s * q.y + q.s * p.y + (p.z * q.x - p.x * q.z),
+    p.s * q.z + q.s * p.z + (p.x * q.y - p.y * q.x),
+    p.s * q.s - p.x * q.x - p.y * q.y - p.z * q.z,
+  )
+}
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+
 class MockUUID {
   private value: string
 
   constructor(value?: string | MockUUID) {
-    this.value = (value === undefined ? NULL_KEY_VALUE : String(value)).toLowerCase()
+    const str = (value === undefined ? NULL_KEY_VALUE : String(value)).toLowerCase()
+
+    // The real uuid.create throws on strings that are not valid UUIDs
+    if (!UUID_PATTERN.test(str)) {
+      throw new Error(`invalid UUID "${str}"`)
+    }
+
+    this.value = str
   }
 
   static create(value?: string | MockUUID) {

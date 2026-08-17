@@ -43,7 +43,8 @@ Options:
   -v, --version                  show version
 
 Any option answered by a flag is skipped when prompting. With --yes (or when
-stdin is not a TTY) no prompts are shown, and [directory] is required.`
+not attached to a terminal, e.g. in CI) no prompts are shown, and [directory]
+is required.`
 }
 
 function resolveNegatable(
@@ -68,6 +69,11 @@ function parseExtras(values: string[] | undefined): (keyof Extras)[] | undefined
     .flatMap((value) => value.split(","))
     .map((token) => token.trim())
     .filter((token) => token !== "")
+
+  // e.g. -e "" from an unset shell variable; don't treat it as explicit "none"
+  if (tokens.length === 0) {
+    throw new CliUsageError('--extras received an empty value, use "none" for no extras')
+  }
 
   if (tokens.includes("none")) {
     if (tokens.length > 1) {

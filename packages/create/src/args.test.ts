@@ -50,6 +50,11 @@ describe("parseCliArgs", () => {
     expect(parseCliArgs(["-e", "none"]).extras).toEqual([])
   })
 
+  it("rejects empty extras values", () => {
+    expect(() => parseCliArgs(["-e", ""])).toThrow(/empty value/)
+    expect(() => parseCliArgs(["-e", ","])).toThrow(/empty value/)
+  })
+
   it('rejects "none" combined with other extras', () => {
     expect(() => parseCliArgs(["-e", "none,jsx"])).toThrow(CliUsageError)
   })

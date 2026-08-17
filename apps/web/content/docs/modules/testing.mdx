@@ -64,6 +64,8 @@ Chat functions (`Say`, `Whisper`, `Shout`, `OwnerSay`, `RegionSay`,
 `RegionSayTo`) are recorded and inspectable via `chatMessages()`:
 
 ```ts
+const avatarKey = "fc4d0b7a-6a5c-4b6b-8143-c724f820c12e"
+
 ll.Say(0, "hello")
 ll.RegionSayTo(avatarKey, 0, "psst")
 
@@ -77,12 +79,12 @@ The log is cleared on every `setup()` and `teardown()`.
 
 ### `Vector`, `Quaternion`, and `UUID`
 
-Constructible mock classes with the statics from the SLua API
-(`Vector.zero`, `Vector.normalize`, `Quaternion.identity`, `UUID.create`,
-etc.), also installed under their lowercase runtime names (`vector`,
-`quaternion`, `uuid`). Quaternion math is intentionally simple — `slerp` is
-implemented as nlerp — precise rotation math should not be asserted against
-these mocks.
+Constructible mock classes with the statics and instance math (`add`, `mul`,
+`neg`, etc.) from the SLua API (`Vector.zero`, `Vector.normalize`,
+`Quaternion.identity`, `UUID.create`, and so on), also installed under their
+lowercase runtime names (`vector`, `quaternion`, `uuid`). Quaternion math is
+intentionally simple (`slerp` is implemented as nlerp), so precise rotation
+math should not be asserted against these mocks.
 
 ### `LLEvents`
 

@@ -625,7 +625,7 @@ describe("string Luau stdlib transforms", () => {
       "interface String { endsWith(searchString: string): boolean }\ndeclare const s: string;\ndeclare const x: string;\nconst b = s.endsWith(x)",
     )
 
-    // hoisted temp (single eval), empty guard, native string.sub — no lualib helper
+    // hoisted temp (single eval), empty guard, native string.sub, no lualib helper
     expect(lua).toContain("= x")
     expect(lua).toMatch(/== "" or string\.sub\(s, -#/)
     expect(lua).not.toContain("__TS__StringEndsWith")
@@ -1363,7 +1363,7 @@ describe("optimize: simplifyNilChecks", () => {
   it("leaves non-nil inequality untouched", () => {
     const lua = transpileOptimized("declare const x: number;\nif (!(x !== 1)) { print('eq') }")
 
-    // `not (x ~= 1)` is left alone — only nil comparisons simplify.
+    // `not (x ~= 1)` is left alone, only nil comparisons simplify.
     expect(lua).toContain("not (x ~= 1)")
   })
 

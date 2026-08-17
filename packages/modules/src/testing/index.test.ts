@@ -50,6 +50,36 @@ describe("with mocks installed", () => {
       expect(g.Vector.lerp(g.Vector.zero, g.Vector.one, 0.5).x).toBe(0.5)
     })
 
+    it("rotates by quaternions via mul and div", () => {
+      const rotZ90 = new g.Quaternion(0, 0, Math.SQRT1_2, Math.SQRT1_2)
+      const rotated = new g.Vector(1, 0, 0).mul(rotZ90)
+
+      expect(rotated.x).toBeCloseTo(0)
+      expect(rotated.y).toBeCloseTo(1)
+
+      const back = rotated.div(rotZ90)
+
+      expect(back.x).toBeCloseTo(1)
+      expect(back.y).toBeCloseTo(0)
+    })
+
+    it("clamps angle for parallel vectors and signs it by axis", () => {
+      const v = new g.Vector(1, 0, 0)
+
+      expect(g.Vector.angle(v, v)).toBe(0)
+      expect(g.Vector.angle(v, new g.Vector(0, 1, 0), new g.Vector(0, 0, -1))).toBeCloseTo(
+        -Math.PI / 2,
+      )
+    })
+
+    it("takes variadic max/min", () => {
+      const max = g.Vector.max(new g.Vector(1, 5, 0), new g.Vector(2, 1, 0), new g.Vector(0, 0, 9))
+      const min = g.Vector.min(new g.Vector(1, 5, 0), new g.Vector(2, 1, 0), new g.Vector(0, 0, 9))
+
+      expect(max.toString()).toBe("<2, 5, 9>")
+      expect(min.toString()).toBe("<0, 0, 0>")
+    })
+
     it("defaults z to 0 and normalizes zero to NaN", () => {
       expect(new g.Vector(1, 2).z).toBe(0)
 
@@ -79,6 +109,29 @@ describe("with mocks installed", () => {
       expect(normalizedZero.s).toBe(1)
     })
 
+    it("composes rotations with instance math", () => {
+      const rotZ90 = new g.Quaternion(0, 0, Math.SQRT1_2, Math.SQRT1_2)
+      const rotZ180 = rotZ90.mul(rotZ90)
+
+      expect(rotZ180.z).toBeCloseTo(1)
+      expect(rotZ180.s).toBeCloseTo(0)
+
+      const identity = rotZ90.div(rotZ90)
+
+      expect(identity.s).toBeCloseTo(1)
+      expect(rotZ90.neg().s).toBeCloseTo(-Math.SQRT1_2)
+      expect(rotZ90.add(rotZ90).z).toBeCloseTo(2 * Math.SQRT1_2)
+      expect(rotZ90.sub(rotZ90).z).toBeCloseTo(0)
+    })
+
+    it("slerps along the shortest path", () => {
+      const q = new g.Quaternion(0, 0, Math.SQRT1_2, Math.SQRT1_2)
+      const mid = g.Quaternion.slerp(q, q.neg(), 0.5)
+
+      expect(mid.z).toBeCloseTo(q.z)
+      expect(mid.s).toBeCloseTo(q.s)
+    })
+
     it("rotates unit axes", () => {
       const fwd = g.Quaternion.tofwd(g.Quaternion.identity)
 
@@ -104,6 +157,10 @@ describe("with mocks installed", () => {
 
     it("exposes 16 raw bytes", () => {
       expect(new g.UUID().bytes.length).toBe(16)
+    })
+
+    it("throws on invalid UUID strings", () => {
+      expect(() => g.UUID.create("not-a-uuid")).toThrow(/invalid UUID/)
     })
   })
 

@@ -143,7 +143,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
     // Vendored src/modules/ is module source the user shouldn't have to lint
     files[".oxlintrc.json"] = oxlintrcContent([
       "build.ts",
-      ...(extras.config || extras.yield ? ["src/modules/"] : []),
+      ...(extras.config || extras.utilities || extras.yield ? ["src/modules/"] : []),
     ])
   }
 

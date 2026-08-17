@@ -7,6 +7,7 @@ function selectedModules(extras: Extras): ModuleName[] {
   const selected: ModuleName[] = []
 
   if (extras.config) selected.push("config")
+  if (extras.utilities) selected.push("utilities")
   if (extras.yield) selected.push("yield")
 
   return selected
@@ -89,20 +90,6 @@ export function oxfmtrcContent(): string {
     $schema: "./node_modules/oxfmt/configuration_schema.json",
     ignorePatterns: ["dist/", "out/", "node_modules/"],
     semi: false,
-  })
-}
-
-export function tsconfigNodeContent(): string {
-  return formatJson({
-    compilerOptions: {
-      target: "ESNext",
-      module: "ESNext",
-      moduleResolution: "bundler",
-      strict: true,
-      skipLibCheck: true,
-      types: ["node"],
-    },
-    include: ["build.ts"],
   })
 }
 
@@ -194,7 +181,7 @@ const BASE_OPTIONS: tstl.CompilerOptions = {
   rootDir: resolve("."),
   outDir: resolve("dist"),
   luaTarget: tstl.LuaTarget.Luau,
-  luaLibImport: tstl.LuaLibImportKind.Inline,
+  luaLibImport: tstl.LuaLibImportKind.RequireMinimal,
   noHeader: true,
   noImplicitSelf: true,
   noImplicitGlobalVariables: true,${jsxOptions}

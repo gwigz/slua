@@ -8,9 +8,10 @@ description: Mock utilities for unit testing SLua modules
   change between releases.
 </Callout>
 
-The `testing` module provides mock implementations of `ll`,
-`LLEvents`, `LLTimers`, `coroutine`, and all SLua constants so modules can be
-unit-tested in Bun, Vitest, or Jest without a Second Life runtime.
+The `testing` module provides mock implementations of `ll`, `LLEvents`,
+`LLTimers`, `coroutine`, `Vector`, `Quaternion`, `UUID`, and all SLua
+constants so modules can be unit-tested in Bun, Vitest, or Jest without a
+Second Life runtime.
 
 <Callout type="info">
   This module is for test environments only, it is not compiled to Lua and should never be imported
@@ -44,7 +45,7 @@ it("loads config from notecard", () => {
 <auto-type-table
   path="../../../../../packages/modules/src/testing/index.ts"
   name="API"
-  type="{ setup: typeof setup, teardown: typeof teardown, notecard: typeof notecard, emit: typeof emit, tick: typeof tick, setCoroutineYieldValue: typeof setCoroutineYieldValue }"
+  type="{ setup: typeof setup, teardown: typeof teardown, notecard: typeof notecard, emit: typeof emit, tick: typeof tick, chatMessages: typeof chatMessages, setCoroutineYieldValue: typeof setCoroutineYieldValue }"
 />
 
 ## Mock behaviour
@@ -54,6 +55,34 @@ it("loads config from notecard", () => {
 The `ll` namespace is a `Proxy`, any function not explicitly mocked returns a
 no-op. Functions that return request IDs (`RequestAgentData`,
 `HTTPRequest`, etc.) return auto-incrementing UUIDs.
+
+Each `setup()` installs a fresh copy of the mock, so tests can freely
+override functions (`ll.RequestAgentData = () => "fixed-id"`) without leaking
+into later tests.
+
+Chat functions (`Say`, `Whisper`, `Shout`, `OwnerSay`, `RegionSay`,
+`RegionSayTo`) are recorded and inspectable via `chatMessages()`:
+
+```ts
+ll.Say(0, "hello")
+ll.RegionSayTo(avatarKey, 0, "psst")
+
+expect(chatMessages()).toEqual([
+  { func: "Say", channel: 0, text: "hello" },
+  { func: "RegionSayTo", channel: 0, text: "psst", target: avatarKey },
+])
+```
+
+The log is cleared on every `setup()` and `teardown()`.
+
+### `Vector`, `Quaternion`, and `UUID`
+
+Constructible mock classes with the statics from the SLua API
+(`Vector.zero`, `Vector.normalize`, `Quaternion.identity`, `UUID.create`,
+etc.), also installed under their lowercase runtime names (`vector`,
+`quaternion`, `uuid`). Quaternion math is intentionally simple — `slerp` is
+implemented as nlerp — precise rotation math should not be asserted against
+these mocks.
 
 ### `LLEvents`
 

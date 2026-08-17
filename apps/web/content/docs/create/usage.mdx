@@ -26,6 +26,33 @@ Pass a directory name to skip the first prompt:
 npx @gwigz/slua-create ./my-project
 ```
 
+## Flags and Non-Interactive Mode
+
+Every prompt can be answered with a flag instead, and any flag-answered
+question is skipped:
+
+```
+slua-create [directory] [options]
+
+  -t, --template <single|multi>  project template (default: single)
+  -e, --extras <list>            comma-separated extras, or "none"; repeatable
+                                 (jsx, config, utilities, yield, stylua, linting, formatting)
+      --git / --no-git           initialize a git repository (default: git)
+      --install / --no-install   install dependencies (default: install)
+  -y, --yes                      accept defaults for all unanswered prompts
+  -h, --help                     show this help
+  -v, --version                  show version
+```
+
+With `--yes` (or whenever stdin is not a TTY, e.g. in CI) no prompts are
+shown, defaults fill anything unanswered, and the directory argument is
+required:
+
+```bash
+npx @gwigz/slua-create my-project --yes
+npx @gwigz/slua-create my-project -y -t multi -e config,yield --no-git
+```
+
 ## Interactive Prompts
 
 The CLI walks you through the following steps:
@@ -38,14 +65,15 @@ The CLI walks you through the following steps:
 
 ## Extras
 
-| Extra             | Description                                          |
-| ----------------- | ---------------------------------------------------- |
-| JSX templates     | Adds `@gwigz/jsx-inline` for JSX template support    |
-| Config module     | Vendors the `config` module source into your project |
-| Yield module      | Vendors the `yield` module source into your project  |
-| StyLua formatting | Adds a StyLua config for Lua output formatting       |
-| Linting           | Adds `oxlint` for TypeScript linting                 |
-| Formatting        | Adds `oxfmt` for TypeScript formatting               |
+| Extra             | Description                                             |
+| ----------------- | ------------------------------------------------------- |
+| JSX templates     | Adds `@gwigz/jsx-inline` for JSX template support       |
+| Config module     | Vendors the `config` module source into your project    |
+| Utilities module  | Vendors the `utilities` module source into your project |
+| Yield module      | Vendors the `yield` module source into your project     |
+| StyLua formatting | Adds a StyLua config for Lua output formatting          |
+| Linting           | Adds `oxlint` for TypeScript linting                    |
+| Formatting        | Adds `oxfmt` for TypeScript formatting                  |
 
 ## Package Manager Detection
 

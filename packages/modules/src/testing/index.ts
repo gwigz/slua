@@ -18,6 +18,262 @@ function nextKey(): string {
 }
 
 // ---
+// Mock Vector / Quaternion / UUID
+//
+// Mirrors the SLua globals declared in @gwigz/slua-types closely enough for
+// unit tests; quaternion math is intentionally simple (slerp is nlerp).
+// ---
+
+class MockVector {
+  constructor(
+    public x: number,
+    public y: number,
+    public z: number = 0,
+  ) {}
+
+  static create(x: number, y: number, z = 0) {
+    return new MockVector(x, y, z)
+  }
+
+  static get zero() {
+    return new MockVector(0, 0, 0)
+  }
+
+  static get one() {
+    return new MockVector(1, 1, 1)
+  }
+
+  static magnitude(vec: MockVector): number {
+    return Math.sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z)
+  }
+
+  static normalize(vec: MockVector): MockVector {
+    const magnitude = MockVector.magnitude(vec)
+    return new MockVector(vec.x / magnitude, vec.y / magnitude, vec.z / magnitude)
+  }
+
+  static cross(a: MockVector, b: MockVector): MockVector {
+    return new MockVector(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x)
+  }
+
+  static dot(a: MockVector, b: MockVector): number {
+    return a.x * b.x + a.y * b.y + a.z * b.z
+  }
+
+  static angle(a: MockVector, b: MockVector): number {
+    return Math.acos(MockVector.dot(a, b) / (MockVector.magnitude(a) * MockVector.magnitude(b)))
+  }
+
+  static floor(vec: MockVector): MockVector {
+    return new MockVector(Math.floor(vec.x), Math.floor(vec.y), Math.floor(vec.z))
+  }
+
+  static ceil(vec: MockVector): MockVector {
+    return new MockVector(Math.ceil(vec.x), Math.ceil(vec.y), Math.ceil(vec.z))
+  }
+
+  static abs(vec: MockVector): MockVector {
+    return new MockVector(Math.abs(vec.x), Math.abs(vec.y), Math.abs(vec.z))
+  }
+
+  static sign(vec: MockVector): MockVector {
+    return new MockVector(Math.sign(vec.x), Math.sign(vec.y), Math.sign(vec.z))
+  }
+
+  static clamp(vec: MockVector, min: MockVector, max: MockVector): MockVector {
+    return new MockVector(
+      Math.min(Math.max(vec.x, min.x), max.x),
+      Math.min(Math.max(vec.y, min.y), max.y),
+      Math.min(Math.max(vec.z, min.z), max.z),
+    )
+  }
+
+  static max(a: MockVector, b: MockVector): MockVector {
+    return new MockVector(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z))
+  }
+
+  static min(a: MockVector, b: MockVector): MockVector {
+    return new MockVector(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z))
+  }
+
+  static lerp(a: MockVector, b: MockVector, t: number): MockVector {
+    return new MockVector(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t)
+  }
+
+  add(other: MockVector): MockVector {
+    return new MockVector(this.x + other.x, this.y + other.y, this.z + other.z)
+  }
+
+  sub(other: MockVector): MockVector {
+    return new MockVector(this.x - other.x, this.y - other.y, this.z - other.z)
+  }
+
+  neg(): MockVector {
+    return new MockVector(-this.x, -this.y, -this.z)
+  }
+
+  mul(other: number | MockVector | MockQuaternion): MockVector {
+    if (typeof other === "number") {
+      return new MockVector(this.x * other, this.y * other, this.z * other)
+    }
+    if (other instanceof MockQuaternion) {
+      return rotateByQuaternion(this, other)
+    }
+    return new MockVector(this.x * other.x, this.y * other.y, this.z * other.z)
+  }
+
+  div(other: number | MockVector | MockQuaternion): MockVector {
+    if (typeof other === "number") {
+      return new MockVector(this.x / other, this.y / other, this.z / other)
+    }
+    if (other instanceof MockQuaternion) {
+      return rotateByQuaternion(this, MockQuaternion.conjugate(other))
+    }
+    return new MockVector(this.x / other.x, this.y / other.y, this.z / other.z)
+  }
+
+  toString(): string {
+    return `<${this.x}, ${this.y}, ${this.z}>`
+  }
+}
+
+function rotateByQuaternion(vec: MockVector, quat: MockQuaternion): MockVector {
+  // v' = v + 2s(r x v) + 2(r x (r x v)), where r is the quaternion's vector part
+  const r = new MockVector(quat.x, quat.y, quat.z)
+  const rxv = MockVector.cross(r, vec)
+  const rxrxv = MockVector.cross(r, rxv)
+
+  return vec.add(rxv.mul(2 * quat.s)).add(rxrxv.mul(2))
+}
+
+class MockQuaternion {
+  constructor(
+    public x: number,
+    public y: number,
+    public z: number,
+    public s: number,
+  ) {}
+
+  static create(x: number, y: number, z: number, s: number) {
+    return new MockQuaternion(x, y, z, s)
+  }
+
+  static get identity() {
+    return new MockQuaternion(0, 0, 0, 1)
+  }
+
+  static magnitude(quat: MockQuaternion): number {
+    return Math.sqrt(quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.s * quat.s)
+  }
+
+  static normalize(quat: MockQuaternion): MockQuaternion {
+    const magnitude = MockQuaternion.magnitude(quat)
+    if (magnitude === 0) return MockQuaternion.identity
+
+    return new MockQuaternion(
+      quat.x / magnitude,
+      quat.y / magnitude,
+      quat.z / magnitude,
+      quat.s / magnitude,
+    )
+  }
+
+  static dot(a: MockQuaternion, b: MockQuaternion): number {
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.s * b.s
+  }
+
+  static slerp(a: MockQuaternion, b: MockQuaternion, t: number): MockQuaternion {
+    // nlerp: fine for tests, not a true slerp
+    return MockQuaternion.normalize(
+      new MockQuaternion(
+        a.x + (b.x - a.x) * t,
+        a.y + (b.y - a.y) * t,
+        a.z + (b.z - a.z) * t,
+        a.s + (b.s - a.s) * t,
+      ),
+    )
+  }
+
+  static conjugate(quat: MockQuaternion): MockQuaternion {
+    return new MockQuaternion(-quat.x, -quat.y, -quat.z, quat.s)
+  }
+
+  static tofwd(quat: MockQuaternion): MockVector {
+    return rotateByQuaternion(new MockVector(1, 0, 0), quat)
+  }
+
+  static toleft(quat: MockQuaternion): MockVector {
+    return rotateByQuaternion(new MockVector(0, 1, 0), quat)
+  }
+
+  static toup(quat: MockQuaternion): MockVector {
+    return rotateByQuaternion(new MockVector(0, 0, 1), quat)
+  }
+
+  toString(): string {
+    return `<${this.x}, ${this.y}, ${this.z}, ${this.s}>`
+  }
+}
+
+class MockUUID {
+  private value: string
+
+  constructor(value?: string | MockUUID) {
+    this.value = (value === undefined ? NULL_KEY_VALUE : String(value)).toLowerCase()
+  }
+
+  static create(value?: string | MockUUID) {
+    return new MockUUID(value)
+  }
+
+  get istruthy(): boolean {
+    return this.value !== NULL_KEY_VALUE
+  }
+
+  get bytes(): string {
+    const hex = this.value.replace(/-/g, "")
+    let out = ""
+
+    for (let i = 0; i < hex.length; i += 2) {
+      out += String.fromCharCode(parseInt(hex.slice(i, i + 2), 16))
+    }
+
+    return out
+  }
+
+  toString(): string {
+    return this.value
+  }
+}
+
+// ---
+// Chat capture
+// ---
+
+export interface ChatMessage {
+  func: "Say" | "Whisper" | "Shout" | "OwnerSay" | "RegionSay" | "RegionSayTo"
+  channel: number
+  text: string
+  /** Only set for RegionSayTo */
+  target?: string
+}
+
+const chatLog: ChatMessage[] = []
+
+/**
+ * All chat sent through the mock `ll` since the last `setup()`/`teardown()`.
+ *
+ * @example
+ * ```ts
+ * ll.Say(0, "hello")
+ * expect(chatMessages()).toEqual([{ func: "Say", channel: 0, text: "hello" }])
+ * ```
+ */
+export function chatMessages(): readonly ChatMessage[] {
+  return chatLog
+}
+
+// ---
 // Mock LLEvents
 // ---
 
@@ -102,12 +358,24 @@ const mockLL: Record<string, (...args: any[]) => any> = {
     return inventoryKeys[name]
   },
 
-  Say() {},
-  RegionSay() {},
-  RegionSayTo() {},
-  OwnerSay() {},
-  Whisper() {},
-  Shout() {},
+  Say(channel: number, text: string) {
+    chatLog.push({ func: "Say", channel, text })
+  },
+  RegionSay(channel: number, text: string) {
+    chatLog.push({ func: "RegionSay", channel, text })
+  },
+  RegionSayTo(target: any, channel: number, text: string) {
+    chatLog.push({ func: "RegionSayTo", channel, text, target: String(target) })
+  },
+  OwnerSay(text: string) {
+    chatLog.push({ func: "OwnerSay", channel: 0, text })
+  },
+  Whisper(channel: number, text: string) {
+    chatLog.push({ func: "Whisper", channel, text })
+  },
+  Shout(channel: number, text: string) {
+    chatLog.push({ func: "Shout", channel, text })
+  },
   Listen() {
     return 0
   },
@@ -266,6 +534,12 @@ const GLOBAL_KEYS = [
   "ll",
   "LLEvents",
   "LLTimers",
+  "Vector",
+  "Quaternion",
+  "UUID",
+  "vector",
+  "quaternion",
+  "uuid",
   "NAK",
   "EOF",
   "CHANGED_INVENTORY",
@@ -309,6 +583,9 @@ const savedGlobals: Record<string, any> = {}
 export function setup(): void {
   const g = globalThis as any
 
+  // Truncate in place so references from chatMessages() stay live
+  chatLog.length = 0
+
   // Save any existing values
   for (const key of GLOBAL_KEYS) {
     if (key in g) {
@@ -316,7 +593,9 @@ export function setup(): void {
     }
   }
 
-  g.ll = new Proxy(mockLL, {
+  // Fresh copy per setup, so per-test overrides like `ll.Foo = ...` cannot
+  // leak into later tests (same pattern as coroutine below)
+  g.ll = new Proxy({ ...mockLL } as Record<string, (...args: any[]) => any>, {
     get(target, prop: string) {
       return target[prop] ?? (() => {})
     },
@@ -324,6 +603,13 @@ export function setup(): void {
 
   g.LLEvents = mockLLEvents
   g.LLTimers = mockLLTimers
+  g.Vector = MockVector
+  g.Quaternion = MockQuaternion
+  g.UUID = MockUUID
+  // SLua's runtime globals are lowercase; the tstl plugin maps Vector -> vector
+  g.vector = MockVector
+  g.quaternion = MockQuaternion
+  g.uuid = MockUUID
   g.NAK = NAK_VALUE
   g.EOF = EOF_VALUE
   g.CHANGED_INVENTORY = CHANGED_INVENTORY_VALUE
@@ -380,6 +666,7 @@ export function teardown(): void {
   timerCallbacks = new Set()
   keyCounter = 0
   coroutineYieldValue = undefined
+  chatLog.length = 0
 }
 
 /**

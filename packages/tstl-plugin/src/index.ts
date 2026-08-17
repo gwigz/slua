@@ -509,16 +509,26 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
       // The default ("require") emits require("lualib_bundle") calls, which
       // cannot resolve in SLua. "none" is left alone as a deliberate opt-out.
+      // The require kinds are fine when the output is a single bundle that
+      // @gwigz/tstl-bundle-flatten collapses back into plain top-level code.
+      const flattenedBundle =
+        compilerOptions.luaBundle !== undefined &&
+        compilerOptions.luaPlugins?.some(
+          (luaPlugin) => luaPlugin.name === "@gwigz/tstl-bundle-flatten",
+        ) === true
+
       if (
         compilerOptions.luaLibImport !== tstl.LuaLibImportKind.Inline &&
-        compilerOptions.luaLibImport !== tstl.LuaLibImportKind.None
+        compilerOptions.luaLibImport !== tstl.LuaLibImportKind.None &&
+        !flattenedBundle
       ) {
         diagnostics.push({
           file: undefined,
           start: undefined,
           length: undefined,
           messageText:
-            'SLua cannot require the generated lualib bundle, set "luaLibImport": "inline" in tsconfig.json',
+            'SLua cannot require the generated lualib bundle, set "luaLibImport": "inline" in tsconfig.json ' +
+            '(or use "require-minimal" together with "luaBundle" and @gwigz/tstl-bundle-flatten)',
           category: ts.DiagnosticCategory.Warning,
           code: 90001,
           source: "@gwigz/slua-tstl-plugin",
@@ -529,7 +539,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       // (the shared __TS__ArrayFilter helper is smaller than 2+ inlined loops).
       // In luaBundle mode, all files end up in one output so we count globally.
       if (opt.filter) {
-        const bundle = !!(options as tstl.CompilerOptions).luaBundle
+        const bundle = compilerOptions.luaBundle !== undefined
         const skip = countFilterCalls(program, bundle)
 
         filterSkipFiles.clear()

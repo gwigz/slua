@@ -61,6 +61,59 @@ describe("ts-slua plugin", () => {
 
     expect(diagnostics).toHaveLength(0)
   })
+
+  it("beforeTransform allows require kinds when bundling with tstl-bundle-flatten", () => {
+    for (const luaLibImport of [
+      tstl.LuaLibImportKind.Require,
+      tstl.LuaLibImportKind.RequireMinimal,
+    ]) {
+      const diagnostics = createPlugin().beforeTransform!(
+        {} as ts.Program,
+        {
+          luaTarget: tstl.LuaTarget.Luau,
+          luaLibImport,
+          luaBundle: "out.slua",
+          luaBundleEntry: "main.ts",
+          luaPlugins: [{ name: "@gwigz/slua-tstl-plugin" }, { name: "@gwigz/tstl-bundle-flatten" }],
+        } as tstl.CompilerOptions,
+        {} as tstl.EmitHost,
+      )
+
+      expect(diagnostics).toHaveLength(0)
+    }
+  })
+
+  it("beforeTransform still warns on require-minimal without the flatten plugin", () => {
+    const diagnostics = createPlugin().beforeTransform!(
+      {} as ts.Program,
+      {
+        luaTarget: tstl.LuaTarget.Luau,
+        luaLibImport: tstl.LuaLibImportKind.RequireMinimal,
+        luaBundle: "out.slua",
+        luaBundleEntry: "main.ts",
+        luaPlugins: [{ name: "@gwigz/slua-tstl-plugin" }],
+      } as tstl.CompilerOptions,
+      {} as tstl.EmitHost,
+    )
+
+    expect(diagnostics).toHaveLength(1)
+    expect((diagnostics as ts.Diagnostic[])[0].code).toBe(90001)
+  })
+
+  it("beforeTransform still warns on require-minimal with flatten but no luaBundle", () => {
+    const diagnostics = createPlugin().beforeTransform!(
+      {} as ts.Program,
+      {
+        luaTarget: tstl.LuaTarget.Luau,
+        luaLibImport: tstl.LuaLibImportKind.RequireMinimal,
+        luaPlugins: [{ name: "@gwigz/slua-tstl-plugin" }, { name: "@gwigz/tstl-bundle-flatten" }],
+      } as tstl.CompilerOptions,
+      {} as tstl.EmitHost,
+    )
+
+    expect(diagnostics).toHaveLength(1)
+    expect((diagnostics as ts.Diagnostic[])[0].code).toBe(90001)
+  })
 })
 
 describe("transpilation output", () => {

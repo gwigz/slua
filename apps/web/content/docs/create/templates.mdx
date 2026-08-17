@@ -13,24 +13,28 @@ bundled into that one output file, then tree-shaken by
 
 ```
 my-project/
-├── modules/          (when config or yield extras are selected)
+├── modules/          (when module extras are selected)
 ├── new-script.ts
 ├── package.json
 └── tsconfig.json
 ```
 
-Build command
+Build once with the `build` script, or rebuild on every change with `dev`
+(which runs `tstl --watch`):
 
 ```bash tab="npm"
 npm run build
+npm run dev
 ```
 
 ```bash tab="pnpm"
 pnpm build
+pnpm dev
 ```
 
 ```bash tab="bun"
 bun run build
+bun run dev
 ```
 
 ## Multi Script
@@ -59,6 +63,24 @@ own output path. After bundling, `@gwigz/tstl-bundle-flatten` tree-shakes
 the flattened output, removing unused code (including vendored module
 functions, code pulled in through re-exports, and unused lualib functions).
 
+Build once with the `build` script, or rebuild on every change with `dev`
+(which runs `build.ts --watch`):
+
+```bash tab="npm"
+npm run build
+npm run dev
+```
+
+```bash tab="pnpm"
+pnpm build
+pnpm dev
+```
+
+```bash tab="bun"
+bun run build
+bun run dev
+```
+
 ## Optional Extras
 
 ### JSX Templates (`@gwigz/jsx-inline`)
@@ -66,7 +88,7 @@ functions, code pulled in through re-exports, and unused lualib functions).
 Adds support for JSX template syntax via `@gwigz/jsx-inline`. Useful for
 generating structured Lua string outputs from TypeScript JSX.
 
-### Config and Yield Modules
+### Config, Utilities, and Yield Modules
 
 Vendors the selected [`@gwigz/slua-modules`](/docs/modules) source into your
 project (`src/modules/` in multi-script projects, `modules/` in single-script

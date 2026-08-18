@@ -22,7 +22,7 @@ export async function syntaxCommand(
   try {
     const cache = await client.syntaxCache()
 
-    reporter.data({ id, files: cache?.files ?? [] })
+    reporter.data({ ok: true, id, files: cache?.files ?? [] })
     reporter.line(`syntax id  ${id}`)
 
     for (const file of cache?.files ?? []) {

@@ -42,6 +42,11 @@ describe("toCamel", () => {
     expect(toCamel("a_b")).toBe("a_b")
     expect(toCamel({ a: null })).toEqual({ a: null })
   })
+
+  it("leaves a numeric suffix alone, since there is no camel spelling to return to", () => {
+    expect(toCamel({ slot_2: 1 })).toEqual({ slot_2: 1 })
+    expect(toSnake(toCamel({ slot_2: 1 }))).toEqual({ slot_2: 1 })
+  })
 })
 
 describe("toSnake", () => {

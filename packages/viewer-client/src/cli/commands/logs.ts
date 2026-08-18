@@ -16,7 +16,7 @@ function emit(reporter: Reporter, level: "debug" | "error", params: RuntimeDebug
     return
   }
 
-  const name = params.object_name || params.object_id
+  const name = params.objectName || params.objectId
   const tag = level === "error" ? pc.red("error") : pc.dim("debug")
 
   reporter.line(`${tag} ${pc.bold(name)}  ${params.message}`)
@@ -41,7 +41,7 @@ async function streamOnce(
   if (command.object) {
     const object = await ensurePublished(client, parseObjectSelector(command.object))
 
-    reporter.note(pc.dim(`watching ${object.object_name} (${object.object_id})`))
+    reporter.note(pc.dim(`watching ${object.objectName} (${object.objectId})`))
   } else {
     const { objects } = await client.objectList()
 

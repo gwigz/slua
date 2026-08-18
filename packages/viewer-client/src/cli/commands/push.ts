@@ -194,8 +194,8 @@ async function pushTarget(
   const vm = resolveVm(target.vm, target.file, resolved.item)
 
   const response = await client.objectContentSave({
-    prim_id: resolved.prim_id,
-    item_id: resolved.item_id,
+    primId: resolved.primId,
+    itemId: resolved.itemId,
     content,
     vm,
     // Preserve the script's current state rather than silently starting it.
@@ -204,9 +204,9 @@ async function pushTarget(
 
   const base = {
     target: target.name,
-    object_id: resolved.object.object_id,
-    prim_id: resolved.prim_id,
-    item_id: resolved.item_id,
+    objectId: resolved.object.objectId,
+    primId: resolved.primId,
+    itemId: resolved.itemId,
     item: resolved.item.name,
     vm,
   }
@@ -231,7 +231,7 @@ async function pushTarget(
   }
 
   reporter.note(
-    `${label}${pc.green("compiled")} ${displayName(resolved.item)} in ${resolved.object.object_name}`,
+    `${label}${pc.green("compiled")} ${displayName(resolved.item)} in ${resolved.object.objectName}`,
   )
 
   const savedBack = target.saveBack
@@ -245,7 +245,7 @@ async function pushTarget(
       ...base,
       compiled: true,
       errors: [],
-      saved_back: savedBack,
+      savedBack: savedBack,
     },
   }
 }
@@ -255,15 +255,15 @@ async function pushTarget(
  *
  * Only objects rezzed out of another in-world prim's contents can do this, and
  * the viewer decides that from the selection at publish time, so an object
- * published by UUID alone will report `can_save_back: false`.
+ * published by UUID alone will report `canSaveBack: false`.
  */
 async function saveBackToContents(
   client: ViewerClient,
-  object: { object_id: string; can_save_back?: boolean },
+  object: { objectId: string; canSaveBack?: boolean },
   reporter: Reporter,
   label: string,
 ): Promise<boolean> {
-  if (object.can_save_back === false) {
+  if (object.canSaveBack === false) {
     reporter.error(
       `${label}save-back unavailable: the viewer only offers it for an object rezzed from another object's contents, and only while it is selected`,
     )
@@ -272,7 +272,7 @@ async function saveBackToContents(
   }
 
   const response = await client.executeCommand("viewer.object.save_back_to_contents", {
-    object_id: object.object_id,
+    objectId: object.objectId,
   })
 
   if (!response?.success) {

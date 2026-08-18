@@ -9,8 +9,8 @@ import type { Config } from "../../targets"
 import type { Reporter } from "../output"
 import { collectTargets, pushCommand, resolveVm } from "./push"
 
-const luauItem: ObjectInventoryItem = { item_id: "x", name: "Main", type: "script", subtype: 1 }
-const lslItem: ObjectInventoryItem = { item_id: "x", name: "Main", type: "script", subtype: 0 }
+const luauItem: ObjectInventoryItem = { itemId: "x", name: "Main", type: "script", subtype: 1 }
+const lslItem: ObjectInventoryItem = { itemId: "x", name: "Main", type: "script", subtype: 0 }
 
 describe("resolveVm", () => {
   it("prefers an explicit --vm over everything", () => {
@@ -37,7 +37,7 @@ describe("resolveVm", () => {
 })
 
 describe("resolveVm for LSL", () => {
-  const lslItem: ObjectInventoryItem = { item_id: "x", name: "Door", type: "script", subtype: 0 }
+  const lslItem: ObjectInventoryItem = { itemId: "x", name: "Door", type: "script", subtype: 0 }
 
   it("compiles a .lsl file as mono, the default LSL vm", () => {
     expect(resolveVm(undefined, "src/door.lsl", lslItem)).toBe("mono")
@@ -100,11 +100,11 @@ function collectingReporter(): Reporter & { payload?: unknown; errors: string[] 
 }
 
 const published: PublishedObject = {
-  object_id: "aaaaaaaa-0000-0000-0000-000000000001",
-  object_name: "Second",
+  objectId: "aaaaaaaa-0000-0000-0000-000000000001",
+  objectName: "Second",
   inventory: [
     {
-      item_id: "b".repeat(8) + "-0000-0000-0000-000000000002",
+      itemId: "b".repeat(8) + "-0000-0000-0000-000000000002",
       name: "Main",
       type: "script",
       subtype: 1,

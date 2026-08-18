@@ -10,28 +10,28 @@
 // Session
 
 export interface SessionHandshake {
-  server_version: string
-  protocol_version: string
-  viewer_name: string
-  viewer_version: string
-  agent_id: string
-  agent_name: string
+  serverVersion: string
+  protocolVersion: string
+  viewerName: string
+  viewerVersion: string
+  agentId: string
+  agentName: string
   /** Path to a temp file holding a UUID. Read it, echo the contents verbatim. */
   challenge?: string
   languages: string[]
-  syntax_id: string
+  syntaxId: string
   features: Record<string, boolean>
 }
 
 export interface SessionHandshakeResponse {
-  client_name: string
-  client_version: string
-  protocol_version: string
-  challenge_response?: string
+  clientName: string
+  clientVersion: string
+  protocolVersion: string
+  challengeResponse?: string
   languages: string[]
   features: Record<string, boolean>
-  script_name?: string
-  script_language?: string
+  scriptName?: string
+  scriptLanguage?: string
 }
 
 /** `SessionDisconnect.reason` values, from `llscripteditorws.h`. */
@@ -56,7 +56,7 @@ export interface SessionPing {
 
 export interface SessionPingResponse {
   timestamp: number
-  server_time: number
+  serverTime: number
 }
 
 // Inventory and objects
@@ -65,7 +65,7 @@ export type InventoryItemType = "script" | "notecard"
 
 export type ScriptVM = "lsl2" | "mono" | "luau"
 
-/** Permission mask bits. Only owner and next_owner are transmitted. */
+/** Permission mask bits. Only owner and nextOwner are transmitted. */
 export const Permission = {
   Transfer: 0x2000,
   Modify: 0x4000,
@@ -74,11 +74,11 @@ export const Permission = {
 
 export interface ItemPermissions {
   owner: number
-  next_owner: number
+  nextOwner: number
 }
 
 export interface ObjectInventoryItem {
-  item_id: string
+  itemId: string
   /** Display name, without any file extension. */
   name: string
   description?: string
@@ -89,33 +89,33 @@ export interface ObjectInventoryItem {
   running?: boolean
   faulted?: boolean
   permissions?: ItemPermissions
-  creator_id?: string
+  creatorId?: string
 }
 
 export interface LinkedObject {
-  link_id: string
+  linkId: string
   /** Root is 1, children are >= 2. */
-  link_number: number
-  link_name: string
-  link_description?: string
+  linkNumber: number
+  linkName: string
+  linkDescription?: string
   inventory: ObjectInventoryItem[]
 }
 
 export interface ObjectPermissions {
   owner: number
-  next_owner: number
+  nextOwner: number
 }
 
 export interface PublishedObject {
-  object_id: string
-  object_name: string
-  object_description?: string
+  objectId: string
+  objectName: string
+  objectDescription?: string
   region?: string
-  owner_id?: string
+  ownerId?: string
   permissions?: ObjectPermissions
-  can_save_back?: boolean
+  canSaveBack?: boolean
   inventory: ObjectInventoryItem[]
-  linked_objects?: LinkedObject[]
+  linkedObjects?: LinkedObject[]
 }
 
 // Object notifications
@@ -125,7 +125,7 @@ export interface ObjectPublishMessage {
 }
 
 export interface ObjectUnpublishMessage {
-  object_id: string
+  objectId: string
   reason?: string
 }
 
@@ -133,30 +133,30 @@ export interface InventoryChanges {
   added?: ObjectInventoryItem[]
   removed?: string[]
   modified?: ObjectInventoryItem[]
-  content_changed?: string[]
-  running_changed?: { item_id: string; running: boolean }[]
+  contentChanged?: string[]
+  runningChanged?: { itemId: string; running: boolean }[]
 }
 
 export interface LinkedObjectChanges {
   added?: LinkedObject[]
   removed?: string[]
   modified?: {
-    link_id: string
-    link_name?: string
+    linkId: string
+    linkName?: string
     /** Either a delta or a full replacement array. */
     inventory?: InventoryChanges | ObjectInventoryItem[]
   }[]
 }
 
 export interface ObjectUpdateMessage {
-  object_id: string
-  object_name?: string
+  objectId: string
+  objectName?: string
   inventory?: ObjectInventoryItem[]
-  linked_objects?: LinkedObject[]
+  linkedObjects?: LinkedObject[]
   /** Takes precedence over the full-replacement fields when present. */
   changes?: {
     inventory?: InventoryChanges
-    linked_objects?: LinkedObjectChanges
+    linkedObjects?: LinkedObjectChanges
   }
 }
 
@@ -167,7 +167,7 @@ export interface ObjectListResponse {
 }
 
 export interface ObjectRequestParams {
-  object_id: string
+  objectId: string
 }
 
 /**
@@ -181,30 +181,30 @@ export interface ObjectRequestResponse {
 }
 
 export interface ObjectUnpublishParams {
-  object_id: string
+  objectId: string
 }
 
 export interface ObjectUnpublishResponse {
   success: boolean
-  object_id?: string
+  objectId?: string
 }
 
 export interface ObjectContentGetParams {
-  prim_id: string
-  item_id: string
+  primId: string
+  itemId: string
 }
 
 export interface ObjectContentGetResponse {
   success: boolean
-  prim_id: string
-  item_id: string
+  primId: string
+  itemId: string
   content: string
   encoding?: "utf-8" | "base64"
 }
 
 export interface ObjectContentSaveParams {
-  prim_id: string
-  item_id: string
+  primId: string
+  itemId: string
   content: string
   vm?: ScriptVM
   running?: boolean
@@ -212,8 +212,8 @@ export interface ObjectContentSaveParams {
 
 export interface ObjectContentSaveResponse {
   success: boolean
-  prim_id?: string
-  item_id?: string
+  primId?: string
+  itemId?: string
   compiled?: boolean
   /** Raw compiler output lines. Parse with `parseCompileErrors`. */
   errors?: string[]
@@ -221,7 +221,7 @@ export interface ObjectContentSaveResponse {
 }
 
 export interface ObjectItemCreateParams {
-  prim_id: string
+  primId: string
   name: string
   type: InventoryItemType
   vm?: ScriptVM
@@ -229,29 +229,29 @@ export interface ObjectItemCreateParams {
 }
 
 export interface ObjectItemCreateResponse extends ObjectInventoryItem {
-  prim_id: string
+  primId: string
 }
 
 export interface ObjectItemDeleteParams {
-  prim_id: string
-  item_id: string
+  primId: string
+  itemId: string
 }
 
 export interface ObjectItemDeleteResponse {
   success: boolean
-  prim_id: string
-  item_id: string
+  primId: string
+  itemId: string
 }
 
 export interface ObjectScriptSetRunningParams {
-  prim_id: string
-  item_id: string
+  primId: string
+  itemId: string
   running: boolean
 }
 
 export interface ObjectScriptResetParams {
-  prim_id: string
-  item_id: string
+  primId: string
+  itemId: string
 }
 
 export interface SimpleSuccessResponse {
@@ -260,32 +260,32 @@ export interface SimpleSuccessResponse {
 }
 
 export interface ObjectModifyParams {
-  prim_id: string
+  primId: string
   name?: string
   description?: string
-  permissions?: { next_owner?: number }
+  permissions?: { nextOwner?: number }
 }
 
 export interface ObjectModifyResponse {
   success: boolean
-  prim_id: string
+  primId: string
   message?: string
 }
 
 export interface ObjectItemModifyParams extends ObjectModifyParams {
-  item_id: string
+  itemId: string
 }
 
 export interface ObjectItemModifyResponse extends ObjectModifyResponse {
-  item_id: string
+  itemId: string
 }
 
 // Scripts
 
 export interface ScriptSubscribeParams {
-  script_id: string
-  script_name: string
-  script_language: string
+  scriptId: string
+  scriptName: string
+  scriptLanguage: string
 }
 
 /** `ScriptSubscribeResponse.status` values, from `llscripteditorws.h`. */
@@ -298,21 +298,21 @@ export const SubscribeStatus = {
 } as const
 
 export interface ScriptSubscribeResponse {
-  script_id: string
+  scriptId: string
   success: boolean
   status: number
-  object_id?: string
-  item_id?: string
+  objectId?: string
+  itemId?: string
   message?: string
 }
 
 export interface ScriptUnsubscribeMessage {
-  script_id: string
+  scriptId: string
 }
 
 export interface ScriptListResponse {
-  temp_dir: string
-  script_ids: string[]
+  tempDir: string
+  scriptIds: string[]
   success: boolean
 }
 
@@ -329,7 +329,7 @@ export interface CompilationError {
 }
 
 export interface CompilationResult {
-  script_id: string
+  scriptId: string
   success: boolean
   running: boolean
   errors?: CompilationError[]
@@ -337,9 +337,9 @@ export interface CompilationResult {
 
 export interface RuntimeDebug {
   /** Empty string when the message came from a published object rather than a subscription. */
-  script_id: string
-  object_id: string
-  object_name: string
+  scriptId: string
+  objectId: string
+  objectName: string
   message: string
 }
 
@@ -377,7 +377,7 @@ export interface SyntaxCacheListResponse {
 
 export interface SyntaxCacheGetParams {
   filename: string
-  as_json?: boolean
+  asJson?: boolean
 }
 
 export interface SyntaxCacheFileResponse {
@@ -404,7 +404,7 @@ export interface CommandExecuteParams {
 export interface CommandExecuteResponse {
   success: boolean
   result?: unknown
-  error_code?: number
+  errorCode?: number
   message?: string
 }
 

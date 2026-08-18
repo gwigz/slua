@@ -197,7 +197,7 @@ export class ViewerConnection {
 
     this.peer.handle("session.ping", (params?: SessionPing) => ({
       timestamp: params?.timestamp ?? 0,
-      server_time: Date.now(),
+      serverTime: Date.now(),
     }))
 
     const commands = options.commands ?? {}
@@ -214,7 +214,7 @@ export class ViewerConnection {
         if (!handler) {
           return {
             success: false,
-            error_code: CommandError.UnknownCommand,
+            errorCode: CommandError.UnknownCommand,
             message: `unknown command: ${params?.command}`,
           }
         }
@@ -226,7 +226,7 @@ export class ViewerConnection {
         } catch (error) {
           return {
             success: false,
-            error_code: CommandError.ExecutionError,
+            errorCode: CommandError.ExecutionError,
             message: error instanceof Error ? error.message : String(error),
           }
         }
@@ -305,20 +305,20 @@ export async function buildHandshakeResponse(
   options: Pick<ConnectOptions, "clientName" | "clientVersion" | "commands"> = {},
 ): Promise<SessionHandshakeResponse> {
   const response: SessionHandshakeResponse = {
-    client_name: options.clientName ?? "@gwigz/slua-viewer-client",
-    client_version: options.clientVersion ?? "1.0",
-    protocol_version: "1.0",
+    clientName: options.clientName ?? "@gwigz/slua-viewer-client",
+    clientVersion: options.clientVersion ?? "1.0",
+    protocolVersion: "1.0",
     languages: ["lsl", "luau"],
     features: {
-      object_publish: true,
-      error_reporting: true,
+      objectPublish: true,
+      errorReporting: true,
       commands: true,
     },
   }
 
   if (handshake?.challenge) {
     try {
-      response.challenge_response = await readFile(handshake.challenge, "utf8")
+      response.challengeResponse = await readFile(handshake.challenge, "utf8")
     } catch (error) {
       throw new HandshakeError(
         `could not read the auth challenge at ${handshake.challenge}: ${

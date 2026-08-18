@@ -8,6 +8,25 @@ import { buildHandshakeResponse, ViewerConnection, webSocketTransport } from "./
 import { CommandError, type SessionDisconnect, type SessionHandshake } from "./types"
 
 const handshake = (challenge?: string): SessionHandshake => ({
+  serverVersion: "1.0.0",
+  protocolVersion: "1.0",
+  viewerName: "Second Life Project Lua",
+  viewerVersion: "7.1.13",
+  agentId: "11111111-2222-3333-4444-555555555555",
+  agentName: "test.resident",
+  challenge,
+  languages: ["lsl", "luau"],
+  syntaxId: "66666666-7777-8888-9999-000000000000",
+  features: { liveSync: true, compilation: true, commands: true },
+})
+
+/**
+ * The same handshake as the viewer actually puts on the wire.
+ *
+ * Spelled out rather than derived from the camelCase fixture, so these tests
+ * pin the translation instead of agreeing with whatever it happens to do.
+ */
+const wireHandshake = (challenge?: string) => ({
   server_version: "1.0.0",
   protocol_version: "1.0",
   viewer_name: "Second Life Project Lua",
@@ -42,7 +61,7 @@ async function completeHandshake(transport: FakeTransport, challenge?: string) {
     jsonrpc: "2.0",
     id: 1,
     method: "session.handshake",
-    params: handshake(challenge),
+    params: wireHandshake(challenge),
   })
 
   await waitFor(() => transport.reply(1) !== undefined)
@@ -60,14 +79,14 @@ describe("buildHandshakeResponse", () => {
     const path = await challengeFile("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\n")
     const response = await buildHandshakeResponse(handshake(path))
 
-    expect(response.challenge_response).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\n")
+    expect(response.challengeResponse).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\n")
   })
 
-  it("omits challenge_response entirely when no challenge was sent", async () => {
+  it("omits challengeResponse entirely when no challenge was sent", async () => {
     const response = await buildHandshakeResponse(handshake())
 
-    expect("challenge_response" in response).toBe(false)
-    expect(response.protocol_version).toBe("1.0")
+    expect("challengeResponse" in response).toBe(false)
+    expect(response.protocolVersion).toBe("1.0")
     expect(response.languages).toEqual(["lsl", "luau"])
   })
 
@@ -86,12 +105,19 @@ describe("ViewerConnection", () => {
 
     const response = await completeHandshake(transport, path)
 
+    // Wire shaped: this is the frame as it left us.
     expect(response.result.challenge_response).toBe("cafe1234-0000-0000-0000-000000000001")
     expect(response.result.client_name).toBe("@gwigz/slua-viewer-client")
+    // Our own feature flags reach the wire snake_cased too, rather than being
+    // the one payload that skips the boundary.
+    expect(response.result.features).toMatchObject({
+      object_publish: true,
+      error_reporting: true,
+    })
 
     const connection = await connecting
 
-    expect(connection.handshake?.viewer_name).toBe("Second Life Project Lua")
+    expect(connection.handshake?.viewerName).toBe("Second Life Project Lua")
 
     connection.close()
   })
@@ -121,7 +147,12 @@ describe("ViewerConnection", () => {
     const connecting = ViewerConnection.connect({ transport: async () => transport })
 
     await ready(transport)
-    transport.receive({ jsonrpc: "2.0", id: 1, method: "session.handshake", params: handshake() })
+    transport.receive({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "session.handshake",
+      params: wireHandshake(),
+    })
 
     await waitFor(() => transport.reply(1) !== undefined)
 

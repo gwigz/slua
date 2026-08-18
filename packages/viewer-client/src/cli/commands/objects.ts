@@ -8,16 +8,16 @@ export async function objectsCommand(client: ViewerClient, reporter: Reporter): 
 
   reporter.data({
     objects: list.map((object) => ({
-      object_id: object.object_id,
-      object_name: object.object_name,
+      objectId: object.objectId,
+      objectName: object.objectName,
       region: object.region,
       prims: eachPrim(object).map((prim) => ({
-        prim_id: prim.prim_id,
+        primId: prim.primId,
         name: prim.name,
         items: prim.inventory.map((item) => ({
-          item_id: item.item_id,
+          itemId: item.itemId,
           name: item.name,
-          display_name: displayName(item),
+          displayName: displayName(item),
           type: item.type,
           vm: item.vm,
           running: item.running,
@@ -33,11 +33,11 @@ export async function objectsCommand(client: ViewerClient, reporter: Reporter): 
   }
 
   for (const object of list) {
-    reporter.line(`${object.object_name}  ${object.object_id}`)
+    reporter.line(`${object.objectName}  ${object.objectId}`)
 
     for (const prim of eachPrim(object)) {
-      if (prim.prim_id !== object.object_id) {
-        reporter.line(`  ${prim.name}  ${prim.prim_id}`)
+      if (prim.primId !== object.objectId) {
+        reporter.line(`  ${prim.name}  ${prim.primId}`)
       }
 
       for (const item of prim.inventory) {

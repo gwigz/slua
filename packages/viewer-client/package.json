@@ -1,6 +1,6 @@
 {
   "name": "@gwigz/slua-viewer-client",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "JSON-RPC client and CLI for the Second Life viewer's external script editor",
   "license": "MIT",
   "repository": {
@@ -34,5 +34,8 @@
   },
   "devDependencies": {
     "@types/node": "^26.1.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

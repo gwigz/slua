@@ -18,8 +18,8 @@ const CHILD_ID = "bbbbbbbb-0000-0000-0000-000000000002"
 const MAIN_ID = "cccccccc-0000-0000-0000-000000000003"
 const CHILD_ITEM_ID = "dddddddd-0000-0000-0000-000000000004"
 
-const script = (item_id: string, name: string, subtype = 1): ObjectInventoryItem => ({
-  item_id,
+const script = (itemId: string, name: string, subtype = 1): ObjectInventoryItem => ({
+  itemId,
   name,
   type: "script",
   subtype,
@@ -27,17 +27,17 @@ const script = (item_id: string, name: string, subtype = 1): ObjectInventoryItem
 })
 
 const object: PublishedObject = {
-  object_id: ROOT_ID,
-  object_name: "Test Object",
+  objectId: ROOT_ID,
+  objectName: "Test Object",
   inventory: [
     script(MAIN_ID, "Main"),
-    { item_id: "e".repeat(8) + "-0000-0000-0000-000000000005", name: "Notes", type: "notecard" },
+    { itemId: "e".repeat(8) + "-0000-0000-0000-000000000005", name: "Notes", type: "notecard" },
   ],
-  linked_objects: [
+  linkedObjects: [
     {
-      link_id: CHILD_ID,
-      link_number: 2,
-      link_name: "Panel",
+      linkId: CHILD_ID,
+      linkNumber: 2,
+      linkName: "Panel",
       inventory: [script(CHILD_ITEM_ID, "Child")],
     },
   ],
@@ -103,13 +103,13 @@ describe("displayName", () => {
   })
 
   it("leaves notecards alone", () => {
-    expect(displayName({ item_id: MAIN_ID, name: "Notes", type: "notecard" })).toBe("Notes")
+    expect(displayName({ itemId: MAIN_ID, name: "Notes", type: "notecard" })).toBe("Notes")
   })
 })
 
 describe("eachPrim", () => {
-  it("addresses root items by object_id and child items by link_id", () => {
-    expect(eachPrim(object).map((prim) => prim.prim_id)).toEqual([ROOT_ID, CHILD_ID])
+  it("addresses root items by objectId and child items by linkId", () => {
+    expect(eachPrim(object).map((prim) => prim.primId)).toEqual([ROOT_ID, CHILD_ID])
   })
 })
 
@@ -117,27 +117,27 @@ describe("findItem", () => {
   it("finds a root item by name", () => {
     const found = findItem(object, { object: byId(ROOT_ID), item: "Main" })
 
-    expect(found.prim_id).toBe(ROOT_ID)
-    expect(found.item_id).toBe(MAIN_ID)
+    expect(found.primId).toBe(ROOT_ID)
+    expect(found.itemId).toBe(MAIN_ID)
   })
 
   it("accepts the display name with its extension", () => {
-    expect(findItem(object, { object: byId(ROOT_ID), item: "Main.luau" }).item_id).toBe(MAIN_ID)
+    expect(findItem(object, { object: byId(ROOT_ID), item: "Main.luau" }).itemId).toBe(MAIN_ID)
   })
 
   it("finds an item by uuid", () => {
-    expect(findItem(object, { object: byId(ROOT_ID), item: MAIN_ID }).item_id).toBe(MAIN_ID)
+    expect(findItem(object, { object: byId(ROOT_ID), item: MAIN_ID }).itemId).toBe(MAIN_ID)
   })
 
-  it("uses the link_id as prim_id for a child prim item", () => {
+  it("uses the linkId as primId for a child prim item", () => {
     const found = findItem(object, { object: byId(ROOT_ID), link: "Panel", item: "Child" })
 
-    expect(found.prim_id).toBe(CHILD_ID)
-    expect(found.item_id).toBe(CHILD_ITEM_ID)
+    expect(found.primId).toBe(CHILD_ID)
+    expect(found.itemId).toBe(CHILD_ITEM_ID)
   })
 
   it("searches child prims when no link is given", () => {
-    expect(findItem(object, { object: byId(ROOT_ID), item: "Child" }).prim_id).toBe(CHILD_ID)
+    expect(findItem(object, { object: byId(ROOT_ID), item: "Child" }).primId).toBe(CHILD_ID)
   })
 
   it("reports a missing item", () => {
@@ -167,7 +167,7 @@ describe("ensurePublished", () => {
       on: () => () => {},
     } as unknown as ViewerClient
 
-    expect((await ensurePublished(client, byName("Test Object"))).object_id).toBe(ROOT_ID)
+    expect((await ensurePublished(client, byName("Test Object"))).objectId).toBe(ROOT_ID)
     expect(requested).toBe(false)
   })
 
@@ -178,7 +178,7 @@ describe("ensurePublished", () => {
       on: () => () => {},
     } as unknown as ViewerClient
 
-    expect((await ensurePublished(client, byId(ROOT_ID))).object_name).toBe("Test Object")
+    expect((await ensurePublished(client, byId(ROOT_ID))).objectName).toBe("Test Object")
   })
 
   it("stops waiting for object.publish once the inline answer arrives", async () => {
@@ -232,7 +232,7 @@ describe("ensurePublished", () => {
       },
     } as unknown as ViewerClient
 
-    expect((await ensurePublished(client, byId(ROOT_ID))).object_id).toBe(ROOT_ID)
+    expect((await ensurePublished(client, byId(ROOT_ID))).objectId).toBe(ROOT_ID)
   })
 
   it("explains that an unpublished object cannot be requested by name", async () => {
@@ -280,7 +280,7 @@ describe("parseObjectSelector", () => {
 
 describe("ensurePublished by description", () => {
   it("matches an object whose description carries the key", async () => {
-    const tagged = { ...object, object_description: "my rezzer slua:my-project" }
+    const tagged = { ...object, objectDescription: "my rezzer slua:my-project" }
     const client = {
       objectList: async () => ({ objects: [tagged] }),
       on: () => () => {},
@@ -288,7 +288,7 @@ describe("ensurePublished by description", () => {
 
     const found = await ensurePublished(client, { kind: "description", value: "slua:my-project" })
 
-    expect(found.object_id).toBe(ROOT_ID)
+    expect(found.objectId).toBe(ROOT_ID)
   })
 
   it("cannot ask the viewer to publish a description match", async () => {

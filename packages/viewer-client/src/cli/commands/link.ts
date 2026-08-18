@@ -37,12 +37,12 @@ export async function linkCommand(
   if (!hasItem(object, item)) {
     reporter.note(
       pc.yellow(
-        `${object.object_name} has no item named "${item}" yet; push will fail until you create it`,
+        `${object.objectName} has no item named "${item}" yet; push will fail until you create it`,
       ),
     )
   }
 
-  const description = object.object_description ?? ""
+  const description = object.objectDescription ?? ""
   // Boundary matched, or stamping `slua:main` onto an object already
   // described `slua:main-menu` would look done without writing anything.
   const stamped = descriptionMatches(description, key)
@@ -53,13 +53,13 @@ export async function linkCommand(
     // Descriptions cap at 127 characters in Second Life.
     if (next.length > 127) {
       reporter.error(
-        `"${object.object_name}" has no room in its description for ${key}; shorten it or pass --key`,
+        `"${object.objectName}" has no room in its description for ${key}; shorten it or pass --key`,
       )
 
       return 1
     }
 
-    const response = await client.objectModify({ prim_id: object.object_id, description: next })
+    const response = await client.objectModify({ primId: object.objectId, description: next })
 
     if (!response?.success) {
       reporter.error(`could not set the description: ${response?.message ?? "unknown error"}`)
@@ -86,8 +86,8 @@ export async function linkCommand(
   reporter.data({
     ok: true,
     target: command.target,
-    object_id: object.object_id,
-    object_name: object.object_name,
+    objectId: object.objectId,
+    objectName: object.objectName,
     key,
     item,
     file,
@@ -96,7 +96,7 @@ export async function linkCommand(
   })
 
   reporter.note(
-    `linked ${pc.bold(command.target)} to ${object.object_name} via ${pc.bold(key)}${
+    `linked ${pc.bold(command.target)} to ${object.objectName} via ${pc.bold(key)}${
       stamped ? pc.dim(" (already stamped)") : ""
     }`,
   )
@@ -109,7 +109,7 @@ function pickObject(published: PublishedObject[], wanted?: string): PublishedObj
   if (wanted) {
     const match = published.find(
       (object) =>
-        object.object_id.toLowerCase() === wanted.toLowerCase() || object.object_name === wanted,
+        object.objectId.toLowerCase() === wanted.toLowerCase() || object.objectName === wanted,
     )
 
     if (!match) throw new Error(`no published object matching "${wanted}"`)
@@ -123,7 +123,7 @@ function pickObject(published: PublishedObject[], wanted?: string): PublishedObj
     throw new Error("no published objects; select the object in the viewer first")
   }
 
-  const names = published.map((object) => `  ${object.object_name}  ${object.object_id}`)
+  const names = published.map((object) => `  ${object.objectName}  ${object.objectId}`)
 
   throw new Error(`several objects are published, pick one with --object:\n${names.join("\n")}`)
 }

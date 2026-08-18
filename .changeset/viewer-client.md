@@ -2,4 +2,4 @@
 "@gwigz/slua-viewer-client": minor
 ---
 
-viewer websocket client and cli
+cli and typed client for the viewer's external script editor, mapping compile errors back to typescript

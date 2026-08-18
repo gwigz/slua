@@ -10,15 +10,15 @@ export async function resetCommand(
 ): Promise<number> {
   const target = await resolveItem(client, command.ref)
   const response = await client.resetScript({
-    prim_id: target.prim_id,
-    item_id: target.item_id,
+    primId: target.primId,
+    itemId: target.itemId,
   })
 
   reporter.data({
     ok: response?.success === true,
-    object_id: target.object.object_id,
-    prim_id: target.prim_id,
-    item_id: target.item_id,
+    objectId: target.object.objectId,
+    primId: target.primId,
+    itemId: target.itemId,
     item: target.item.name,
     message: response?.message,
   })
@@ -41,16 +41,16 @@ export async function setRunningCommand(
 ): Promise<number> {
   const target = await resolveItem(client, command.ref)
   const response = await client.setScriptRunning({
-    prim_id: target.prim_id,
-    item_id: target.item_id,
+    primId: target.primId,
+    itemId: target.itemId,
     running: command.running,
   })
 
   reporter.data({
     ok: response?.success === true,
-    object_id: target.object.object_id,
-    prim_id: target.prim_id,
-    item_id: target.item_id,
+    objectId: target.object.objectId,
+    primId: target.primId,
+    itemId: target.itemId,
     item: target.item.name,
     running: command.running,
     message: response?.message,

@@ -97,6 +97,8 @@ slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
 | `--timeout <ms>`      | all            | Request timeout                                      |
 | `--json`              | all            | Machine-readable output on stdout                    |
 
+Keys in `--json` output are camelCase (`objectId`, `primId`, `itemId`, `savedBack`), matching the library rather than the viewer's wire format. See [Naming](#naming).
+
 Under `--json`, stdout carries exactly one JSON document and nothing else, with progress and errors kept on stderr. A failure still emits a document (`{"ok": false, "error": "..."}`), so an empty stdout always means something went badly wrong. `logs --json` is the exception: it emits one JSON object per line, since it is a stream.
 
 ## Pairing projects with objects
@@ -181,6 +183,14 @@ An object sitting in your own inventory cannot be reached at all. It has to be r
 
 If you bundle with `@gwigz/tstl-bundle-flatten`, you need 1.2.0 or newer. Earlier versions rewrote the emitted Lua without updating the map, leaving it describing the unflattened bundle. Mapping is line accurate, not column accurate.
 
+## Naming
+
+The viewer's protocol is snake_case. Everything this package exposes is camelCase, converted once at the JSON-RPC boundary, so `object_id` on the wire is `objectId` in your code and in `--json` output.
+
+The conversion is generic and recursive, which has one consequence worth knowing. It also rewrites keys inside payloads this package does not own: the `params` of an `editor.*` command, and whatever your command handler returns. A handler returning `{ llSay: 1 }` puts `{ "ll_say": 1 }` on the wire. Keep those payloads keyed by names that survive a round trip, or by strings rather than object keys.
+
+Reading is unaffected, since keys without underscores are left alone. `syntax` dumps keyed by LSL function names come back exactly as sent.
+
 ## Library
 
 ```ts
@@ -197,8 +207,8 @@ const client = await ViewerClient.connect({ port: 9020 })
 const target = await resolveItem(client, parseObjectRef("desc:slua:my-project/Main"))
 
 const result = await client.objectContentSave({
-  prim_id: target.prim_id,
-  item_id: target.item_id,
+  primId: target.primId,
+  itemId: target.itemId,
   content: await readFile("dist/main.slua", "utf8"),
   vm: "luau",
 })
@@ -221,7 +231,7 @@ const client = await ViewerClient.connect()
 
 await ensurePublished(client, { kind: "id", value: "4f2b0c1e-0000-0000-0000-000000000000" })
 
-client.on("runtime.error", (event) => console.error(event.object_name, event.message))
+client.on("runtime.error", (event) => console.error(event.objectName, event.message))
 ```
 
 Target resolution is exported too, so a custom deploy script can reuse the same precedence rules:

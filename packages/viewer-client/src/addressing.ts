@@ -127,39 +127,39 @@ export function displayName(item: ObjectInventoryItem): string {
 }
 
 function itemMatches(item: ObjectInventoryItem, needle: string): boolean {
-  if (isUuid(needle)) return item.item_id.toLowerCase() === needle.toLowerCase()
+  if (isUuid(needle)) return item.itemId.toLowerCase() === needle.toLowerCase()
 
   return item.name === needle || displayName(item) === needle
 }
 
 function linkMatches(link: LinkedObject, needle: string, ambiguous: boolean): boolean {
-  if (isUuid(needle)) return link.link_id.toLowerCase() === needle.toLowerCase()
-  if (needle === String(link.link_number)) return true
+  if (isUuid(needle)) return link.linkId.toLowerCase() === needle.toLowerCase()
+  if (needle === String(link.linkNumber)) return true
 
   // Sibling prims often share a name, so the viewer disambiguates them as
-  // "Name (link_number)". Accept both forms.
-  if (ambiguous) return needle === `${link.link_name} (${link.link_number})`
+  // "Name (linkNumber)". Accept both forms.
+  if (ambiguous) return needle === `${link.linkName} (${link.linkNumber})`
 
-  return link.link_name === needle
+  return link.linkName === needle
 }
 
 export interface ResolvedItem {
   object: PublishedObject
-  /** Root `object_id` for root items, `link_id` for items in a child prim. */
-  prim_id: string
-  item_id: string
+  /** Root `objectId` for root items, `linkId` for items in a child prim. */
+  primId: string
+  itemId: string
   item: ObjectInventoryItem
 }
 
-/** Every prim in a linkset, paired with the `prim_id` its items address. */
+/** Every prim in a linkset, paired with the `primId` its items address. */
 export function eachPrim(
   object: PublishedObject,
-): { prim_id: string; name: string; inventory: ObjectInventoryItem[] }[] {
+): { primId: string; name: string; inventory: ObjectInventoryItem[] }[] {
   return [
-    { prim_id: object.object_id, name: object.object_name, inventory: object.inventory ?? [] },
-    ...(object.linked_objects ?? []).map((link) => ({
-      prim_id: link.link_id,
-      name: link.link_name,
+    { primId: object.objectId, name: object.objectName, inventory: object.inventory ?? [] },
+    ...(object.linkedObjects ?? []).map((link) => ({
+      primId: link.linkId,
+      name: link.linkName,
       inventory: link.inventory ?? [],
     })),
   ]
@@ -168,33 +168,33 @@ export function eachPrim(
 /** Finds an item within an already-published object. */
 export function findItem(object: PublishedObject, ref: ObjectRef): ResolvedItem {
   if (ref.link !== undefined) {
-    const links = object.linked_objects ?? []
-    const names = links.map((link) => link.link_name)
+    const links = object.linkedObjects ?? []
+    const names = links.map((link) => link.linkName)
     const ambiguous = new Set(names).size !== names.length
     const link = links.find((candidate) => linkMatches(candidate, ref.link!, ambiguous))
 
     if (!link) {
-      throw new Error(`no linked prim "${ref.link}" in ${object.object_name}`)
+      throw new Error(`no linked prim "${ref.link}" in ${object.objectName}`)
     }
 
     const item = (link.inventory ?? []).find((candidate) => itemMatches(candidate, ref.item))
 
     if (!item) {
-      throw new Error(`no item "${ref.item}" in linked prim ${link.link_name}`)
+      throw new Error(`no item "${ref.item}" in linked prim ${link.linkName}`)
     }
 
-    return { object, prim_id: link.link_id, item_id: item.item_id, item }
+    return { object, primId: link.linkId, itemId: item.itemId, item }
   }
 
   for (const prim of eachPrim(object)) {
     const item = prim.inventory.find((candidate) => itemMatches(candidate, ref.item))
 
     if (item) {
-      return { object, prim_id: prim.prim_id, item_id: item.item_id, item }
+      return { object, primId: prim.primId, itemId: item.itemId, item }
     }
   }
 
-  throw new Error(`no item "${ref.item}" in ${object.object_name}`)
+  throw new Error(`no item "${ref.item}" in ${object.objectName}`)
 }
 
 function findPublished(
@@ -204,15 +204,15 @@ function findPublished(
   switch (selector.kind) {
     case "id":
       return objects.find(
-        (object) => object.object_id.toLowerCase() === selector.value.toLowerCase(),
+        (object) => object.objectId.toLowerCase() === selector.value.toLowerCase(),
       )
 
     case "name":
-      return objects.find((object) => object.object_name === selector.value)
+      return objects.find((object) => object.objectName === selector.value)
 
     case "description":
       return objects.find((object) =>
-        descriptionMatches(object.object_description ?? "", selector.value),
+        descriptionMatches(object.objectDescription ?? "", selector.value),
       )
   }
 }
@@ -255,7 +255,7 @@ export async function ensurePublished(
     }, timeoutMs)
 
     const off = client.on("object.publish", (message: ObjectPublishMessage) => {
-      if (message?.object?.object_id?.toLowerCase() !== objectId.toLowerCase()) return
+      if (message?.object?.objectId?.toLowerCase() !== objectId.toLowerCase()) return
 
       cancel()
       resolvePublish(message.object)

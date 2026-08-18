@@ -11,8 +11,8 @@ export async function pullCommand(
 ): Promise<number> {
   const target = await resolveItem(client, command.ref)
   const response = await client.objectContentGet({
-    prim_id: target.prim_id,
-    item_id: target.item_id,
+    primId: target.primId,
+    itemId: target.itemId,
   })
 
   if (!response?.success) {
@@ -36,9 +36,9 @@ export async function pullCommand(
 
   reporter.data({
     ok: true,
-    object_id: target.object.object_id,
-    prim_id: target.prim_id,
-    item_id: target.item_id,
+    objectId: target.object.objectId,
+    primId: target.primId,
+    itemId: target.itemId,
     item: target.item.name,
     out: command.out,
     content: command.out ? undefined : content,

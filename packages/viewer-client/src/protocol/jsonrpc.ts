@@ -1,3 +1,4 @@
+import { toCamel, toSnake } from "./case.js"
 import { ConnectionClosedError, RpcError, RpcErrorCode, RpcTimeoutError } from "./errors.js"
 
 /**
@@ -98,7 +99,9 @@ export class JsonRpcPeer {
 
     // Notifications must omit `id` entirely — a null id reads as a request to
     // some implementations, including sl-vscode-plugin's.
-    this.transport.send(JSON.stringify({ jsonrpc: JSONRPC_VERSION, method, params }))
+    this.transport.send(
+      JSON.stringify({ jsonrpc: JSONRPC_VERSION, method, params: toSnake(params) }),
+    )
   }
 
   call<T = unknown>(method: string, params?: unknown, timeoutMs = this.timeoutMs): Promise<T> {
@@ -117,7 +120,9 @@ export class JsonRpcPeer {
       this.pending.set(id, { method, resolve, reject, timer })
 
       try {
-        this.transport.send(JSON.stringify({ jsonrpc: JSONRPC_VERSION, id, method, params }))
+        this.transport.send(
+          JSON.stringify({ jsonrpc: JSONRPC_VERSION, id, method, params: toSnake(params) }),
+        )
       } catch (error) {
         clearTimeout(timer)
         this.pending.delete(id)
@@ -193,9 +198,11 @@ export class JsonRpcPeer {
 
     if (!handlers) return
 
+    const params = toCamel(message.params)
+
     for (const handler of handlers) {
       try {
-        handler(message.params)
+        handler(params)
       } catch {
         // A listener throwing must not take the connection down with it.
       }
@@ -216,9 +223,9 @@ export class JsonRpcPeer {
     }
 
     try {
-      const result = await handler(message.params)
+      const result = await handler(toCamel(message.params))
 
-      this.send({ jsonrpc: JSONRPC_VERSION, id: message.id, result: result ?? null })
+      this.send({ jsonrpc: JSONRPC_VERSION, id: message.id, result: toSnake(result) ?? null })
     } catch (error) {
       const code = error instanceof RpcError ? error.code : RpcErrorCode.InternalError
 
@@ -261,7 +268,7 @@ export class JsonRpcPeer {
       return
     }
 
-    pending.resolve(message.result)
+    pending.resolve(toCamel(message.result))
   }
 
   private send(payload: unknown): void {

@@ -68,11 +68,11 @@ export class ViewerClient {
   }
 
   objectRequest(objectId: string): Promise<ObjectRequestResponse> {
-    return this.connection.peer.call("object.request", { object_id: objectId })
+    return this.connection.peer.call("object.request", { objectId: objectId })
   }
 
   objectUnpublish(objectId: string): Promise<ObjectUnpublishResponse> {
-    return this.connection.peer.call("object.unpublish", { object_id: objectId })
+    return this.connection.peer.call("object.unpublish", { objectId: objectId })
   }
 
   objectModify(params: ObjectModifyParams): Promise<ObjectModifyResponse> {

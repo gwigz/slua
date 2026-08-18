@@ -187,9 +187,7 @@ If you bundle with `@gwigz/tstl-bundle-flatten`, you need 1.2.0 or newer. Earlie
 
 The viewer's protocol is snake_case. Everything this package exposes is camelCase, converted once at the JSON-RPC boundary, so `object_id` on the wire is `objectId` in your code and in `--json` output.
 
-The conversion is generic and recursive, which has one consequence worth knowing. It also rewrites keys inside payloads this package does not own: the `params` of an `editor.*` command, and whatever your command handler returns. A handler returning `{ llSay: 1 }` puts `{ "ll_say": 1 }` on the wire. Keep those payloads keyed by names that survive a round trip, or by strings rather than object keys.
-
-Reading is unaffected, since keys without underscores are left alone. `syntax` dumps keyed by LSL function names come back exactly as sent.
+Only field-shaped keys convert. Keys carrying data, an item named `Main` or an object named `Door Control`, pass through untouched.
 
 ## Library
 

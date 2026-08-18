@@ -5,7 +5,7 @@ Push SLua to the Second Life viewer's external script editor, without touching t
 The viewer ships a JSON-RPC 2.0 WebSocket server on `localhost:9020` for external script editing. This is a typed client for that protocol, plus a CLI so a build can deploy itself:
 
 ```bash
-bun run build && slua-viewer push dist/main.slua
+bun run build && bunx @gwigz/slua-viewer-client push dist/main.slua
 ```
 
 Compile errors come back with the file and line of your **TypeScript** source, and a failed compile exits non-zero.
@@ -14,14 +14,28 @@ Compile errors come back with the file and line of your **TypeScript** source, a
 
 A viewer with external script editing enabled (`ExternalWebsocketSyncEnable`). The object you are targeting must be published to the editor, which happens when you select it in the viewer, or on demand when you address it by UUID.
 
-## Install
+## Running it
+
+Nothing to install for the one-off commands, `objects`, `logs`, `link` and `pull`:
 
 ```bash
-npm install -D @gwigz/slua-viewer-client
+bunx @gwigz/slua-viewer-client objects
 # or
-pnpm add -D @gwigz/slua-viewer-client
-# or
+npx @gwigz/slua-viewer-client objects
+```
+
+Once deploying is part of your build, add it as a devDependency and pin it. Package scripts already have `node_modules/.bin` on PATH, so the `slua-viewer` bin is callable by name from there, which a bare shell cannot do:
+
+```bash
 bun add -d @gwigz/slua-viewer-client
+```
+
+```jsonc
+{
+  "scripts": {
+    "deploy": "bun run build && slua-viewer push --all",
+  },
+}
 ```
 
 ## Quick start
@@ -29,13 +43,13 @@ bun add -d @gwigz/slua-viewer-client
 Select the object in the viewer, then pair it with a name once:
 
 ```bash
-slua-viewer link main
+bunx @gwigz/slua-viewer-client link main
 ```
 
 After that a deploy is just:
 
 ```bash
-bun run build && slua-viewer push --all
+bun run deploy
 ```
 
 ## CLI
@@ -50,6 +64,8 @@ bun run build && slua-viewer push --all
 | `set-running on\|off <object>/<item>` | Start or stop a script                       |
 | `logs`                                | Stream runtime output from published objects |
 | `syntax [defs.lsl\|defs.lua]`         | Dump language definitions                    |
+
+Examples below use the `slua-viewer` bin name, which resolves inside a package script or after a devDependency install. Prefix them with `bunx @gwigz/slua-viewer-client` to run them straight from a shell.
 
 ### Addressing
 
@@ -87,7 +103,7 @@ Under `--json`, stdout carries exactly one JSON document and nothing else, with 
 
 An object's UUID changes every time it is taken and rezzed again, so pinning a project to one is a losing game. Names and descriptions survive that round trip, which makes a description key the durable way to pair.
 
-`slua-viewer link main` stamps `slua:main` into the selected object's description and records it in `slua.json`. From then on `push --all` finds the object by that key, however many times it has been rezzed.
+`link main` stamps `slua:main` into the selected object's description and records it in `slua.json`. From then on `push --all` finds the object by that key, however many times it has been rezzed.
 
 There are three places a destination can come from, in order of precedence: **command line flags, then `slua.json`, then the source header**. The header is the default a script ships with; config retargets a build for a different environment without touching source.
 

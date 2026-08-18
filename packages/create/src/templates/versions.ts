@@ -4,7 +4,7 @@ export const VERSIONS = {
   "@typescript-to-lua/language-extensions": "^1.19.0",
   "@gwigz/slua-tstl-plugin": "^1.8.0",
   "@gwigz/slua-types": "^1.4.3",
-  "@gwigz/tstl-bundle-flatten": "^1.1.0",
+  "@gwigz/tstl-bundle-flatten": "^1.2.0",
   "darklua-wasm": "^0.1.0",
   "@gwigz/jsx-inline": "^1.1.0",
   "@johnnymorganz/stylua-bin": "^2.5.2",

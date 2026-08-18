@@ -45,6 +45,15 @@ describe("single template", () => {
     expect(pluginNames).toContain("@gwigz/tstl-bundle-flatten")
   })
 
+  it("emits source maps, so push reports errors against the TypeScript", () => {
+    for (const files of [
+      generateSingleTemplate(options()),
+      generateMultiTemplate(options({ template: "multi" })),
+    ]) {
+      expect(JSON.parse(files["tsconfig.json"]).compilerOptions.sourceMap).toBe(true)
+    }
+  })
+
   it("vendors the utilities module when selected", () => {
     const files = generateSingleTemplate(options({ extras: { ...NO_EXTRAS, utilities: true } }))
 

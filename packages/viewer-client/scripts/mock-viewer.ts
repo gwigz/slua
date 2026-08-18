@@ -8,6 +8,18 @@
  *   bun packages/viewer-client/src/cli/index.ts objects --json
  *
  * Push a file containing the word BREAK to see the compile-failure path.
+ *
+ * Two environment variables reproduce viewer behaviour that is otherwise only
+ * visible against a real one:
+ *
+ *   MOCK_PUBLISH_MS=5000  publish nothing until this long after the handshake,
+ *                         the way the viewer publishes only when its button is
+ *                         pressed, so `--wait` has something to wait for
+ *   MOCK_STALE_SAVE=1     drop the object from `object.list` for a read or two
+ *                         after a save, as the viewer briefly does
+ *   MOCK_RUNTIME_ERROR=1  report a script error the way the viewer does: an
+ *                         empty `runtime.error`, then the text as a separate
+ *                         `runtime.debug`
  */
 import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
@@ -31,6 +43,12 @@ const object = {
   ],
   linked_objects: [],
 }
+
+/** Unset until the mock "publishes", which MOCK_PUBLISH_MS delays. */
+let published = process.env.MOCK_PUBLISH_MS === undefined
+
+/** Reads still owed a stale listing, as the viewer serves right after a save. */
+let staleReads = 0
 
 const contents = new Map<string, string>([[ITEM_ID, "ll.OwnerSay('hello from the mock viewer')\n"]])
 
@@ -59,8 +77,19 @@ async function handle(ws: any, message: any): Promise<void> {
   const { id, method, params } = message
 
   switch (method) {
-    case "object.list":
+    case "object.list": {
+      if (!published) return result(ws, id, { objects: [] })
+
+      // The viewer's listing goes briefly stale after a save: first the object
+      // disappears, then it comes back with the item still missing.
+      if (staleReads > 0) {
+        const shape = staleReads-- > 1 ? [] : [{ ...object, inventory: [] }]
+
+        return result(ws, id, { objects: shape })
+      }
+
       return result(ws, id, { objects: [object] })
+    }
 
     case "object.request":
       return result(ws, id, { object })
@@ -89,6 +118,8 @@ async function handle(ws: any, message: any): Promise<void> {
       }
 
       contents.set(params.item_id, params.content)
+
+      if (process.env.MOCK_STALE_SAVE === "1") staleReads = 2
 
       return result(ws, id, {
         success: true,
@@ -211,6 +242,47 @@ const server = Bun.serve({
 
         console.error(`handshake ok from ${message.result.client_name}`)
         send(ws, { jsonrpc: "2.0", method: "session.ok" })
+
+        if (!published) {
+          const delay = Number(process.env.MOCK_PUBLISH_MS)
+
+          console.error(`publishing in ${delay}ms`)
+
+          setTimeout(() => {
+            published = true
+
+            send(ws, { jsonrpc: "2.0", method: "object.publish", params: { object } })
+          }, delay)
+        }
+
+        if (process.env.MOCK_RUNTIME_ERROR === "1") {
+          // The viewer sends the event with nothing in it, then the text as a
+          // plain debug message a moment later.
+          setTimeout(() => {
+            send(ws, {
+              jsonrpc: "2.0",
+              method: "runtime.error",
+              params: {
+                script_id: "",
+                object_id: OBJECT_ID,
+                object_name: object.object_name,
+                message: "",
+                error: "",
+                line: 0,
+              },
+            })
+            send(ws, {
+              jsonrpc: "2.0",
+              method: "runtime.debug",
+              params: {
+                script_id: "",
+                object_id: OBJECT_ID,
+                object_name: object.object_name,
+                message: "lua_script:2: attempt to index nil with 'field'",
+              },
+            })
+          }, 500)
+        }
 
         // Trickle some runtime output so `logs` has something to show.
         const timer = setInterval(() => {

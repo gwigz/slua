@@ -9,6 +9,38 @@ resolves inside a package script or after a devDependency install. Prefix them
 with `bunx @gwigz/slua-viewer-client` (or `npx`, `pnpm dlx`) to run them
 straight from a shell.
 
+## Publishing an object
+
+Nothing can be read or written until the viewer publishes the object to the
+editor, and selecting it does not do that. Publishing is a button: open the
+object's Build window, go to **Content** and press **"Explore in IDE"**.
+
+The catch is that the viewer only publishes when an editor client is already
+connected. Press it with nothing connected and it launches your external editor
+instead, which is why the button can look like it does nothing for this CLI.
+So connect first:
+
+```bash
+slua-viewer push dist/main.slua --wait
+```
+
+`--wait` holds the connection open and says what it is waiting for, then
+carries on the moment the object arrives. It works on every command, including
+`objects --wait` to see what you just published, and `logs --wait` to catch
+output from the start.
+
+Addressing an object by UUID skips all of this: the viewer publishes it on
+demand, no button and no waiting. Names and description keys cannot be
+requested that way, since the viewer has no way to look them up.
+
+<Callout title="Stale inventory">
+  The published inventory goes briefly stale right after a save. Sometimes the item, or the whole
+  object, drops out of the listing; sometimes the listing is fine and the next save comes back as
+  `Item not found in prim inventory` even though the item is there and its id has not changed.
+  Commands re-read the object and retry a few times before giving up, so a `push --all` that touches
+  several scripts in a row is not derailed by it.
+</Callout>
+
 ## Commands
 
 | Command                               | What it does                                 |
@@ -16,7 +48,7 @@ straight from a shell.
 | `objects`                             | List objects the viewer has published        |
 | `pull <object>/<item> [out]`          | Fetch script or notecard content             |
 | `push [file] [object]/[item]`         | Upload and compile, non-zero exit on failure |
-| `link <name>`                         | Pair a target with the selected object       |
+| `link <name>`                         | Pair a target with the published object      |
 | `reset <object>/<item>`               | Reset a script                               |
 | `set-running on\|off <object>/<item>` | Start or stop a script                       |
 | `logs`                                | Stream runtime output from published objects |
@@ -25,8 +57,8 @@ straight from a shell.
 ### objects
 
 Lists every published object, its child prims, and their inventory, with each
-script marked `running` or `stopped`. An empty list means nothing is selected
-in the viewer.
+script marked `running` or `stopped`, alongside the object's description, which
+is where `link` keys live. An empty list means nothing has been published yet.
 
 ```bash
 slua-viewer objects
@@ -65,8 +97,13 @@ slua-viewer pull "My Rezzer/Main" src/main.recovered.luau
 ### logs
 
 Streams `runtime.debug` and `runtime.error` output, stack frames included.
-Runtime output is only forwarded for published objects, so pass `--object` to
-have one published on demand, otherwise you only see what is already selected.
+Runtime output is only forwarded for published objects, so pass `--object` with
+a UUID to have one published on demand, or `--wait` to hold the connection open
+while you publish one from the viewer.
+
+Runtime positions point at the generated Lua (`lua_script:5`), so each line is
+annotated with the TypeScript it maps to, using the source maps of the targets
+in your `slua.json`.
 
 ```bash
 slua-viewer logs --object 4f2b0c1e-... --follow
@@ -96,8 +133,9 @@ slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
 ```
 
 The viewer only exposes objects it has published, so an unpublished object
-cannot be addressed. Selecting it in the viewer publishes it, and addressing it
-by UUID publishes it on demand.
+cannot be addressed. Addressing it by UUID publishes it on demand; a name or a
+description key needs the object published from the viewer first, see
+[Publishing an object](#publishing-an-object).
 
 ## Options
 
@@ -113,6 +151,7 @@ by UUID publishes it on demand.
 | `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
 | `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
 | `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
+| `--wait`              | all            | Hold the connection open until the viewer publishes  |
 | `--port <port>`       | all            | Viewer websocket port, default `9020`                |
 | `--timeout <ms>`      | all            | Request timeout                                      |
 | `--json`              | all            | Machine-readable output on stdout                    |
@@ -132,6 +171,10 @@ against the generated output instead, and the CLI says so.
 
 Mapping is line accurate, not column accurate. LSL compile errors carry real
 column numbers, which the Luau compiler does not report.
+
+`logs` maps too. Nothing in the viewer's runtime output names the script that
+produced it, so when more than one target's map covers a line, every candidate
+is shown with its target name.
 
 ## JSON Output
 

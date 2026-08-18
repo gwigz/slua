@@ -1,4 +1,5 @@
 import type { ViewerClient } from "./client.js"
+import { ConnectionClosedError, RpcError, RpcErrorCode } from "./protocol/errors.js"
 import type {
   LinkedObject,
   ObjectInventoryItem,
@@ -197,24 +198,162 @@ export function findItem(object: PublishedObject, ref: ObjectRef): ResolvedItem 
   throw new Error(`no item "${ref.item}" in ${object.objectName}`)
 }
 
+/** Whether a published object answers to a selector. */
+export function matchesSelector(object: PublishedObject, selector: ObjectSelector): boolean {
+  switch (selector.kind) {
+    case "id":
+      return object.objectId.toLowerCase() === selector.value.toLowerCase()
+
+    case "name":
+      return object.objectName === selector.value
+
+    case "description":
+      return descriptionMatches(object.objectDescription ?? "", selector.value)
+  }
+}
+
 function findPublished(
   objects: PublishedObject[],
   selector: ObjectSelector,
 ): PublishedObject | undefined {
-  switch (selector.kind) {
-    case "id":
-      return objects.find(
-        (object) => object.objectId.toLowerCase() === selector.value.toLowerCase(),
-      )
+  return objects.find((object) => matchesSelector(object, selector))
+}
 
-    case "name":
-      return objects.find((object) => object.objectName === selector.value)
+/**
+ * What actually publishes an object to us.
+ *
+ * Selecting an object does nothing on its own: publishing is the Content tab's
+ * "Explore in IDE" button, and the viewer only publishes there when an editor
+ * client is already connected — with none, it launches an external editor
+ * instead. So the connection has to be waiting before the button is pressed,
+ * which is what `--wait` is for.
+ */
+export const PUBLISH_ACTION =
+  'open the object\'s Build window, go to Content and press "Explore in IDE"'
 
-    case "description":
-      return objects.find((object) =>
-        descriptionMatches(object.objectDescription ?? "", selector.value),
-      )
+/** The same, said tersely to someone whose command just failed for want of it. */
+export const PUBLISH_HINT =
+  'publish from the viewer with Build > Content > "Explore in IDE" while a command holds the connection open with --wait, or address an object by UUID to have it published on demand'
+
+/** How long an `object.request` has to come back. */
+const REQUEST_TIMEOUT_MS = 15_000
+
+/** How long `--wait` holds the connection open for the publish button. */
+export const PUBLISH_WAIT_MS = 300_000
+
+/**
+ * Delays before re-reading the object list.
+ *
+ * The viewer's published inventory goes briefly stale right after a content
+ * save: the item, and sometimes the whole object, drops out of `object.list`
+ * for a moment before settling. A second look succeeds, so this short ladder
+ * is the difference between `push --all` working and failing on whichever
+ * target follows a save.
+ */
+const LOOKUP_RETRY_MS = [150, 300, 600]
+
+/**
+ * Whether an error is the viewer's prim inventory still settling.
+ *
+ * The same window that empties a listing also makes a call naming the item
+ * fail: `object.content.save` comes back as invalid params with "Item not
+ * found in prim inventory", though the item is there and its id has not
+ * changed. Seen roughly one push in five when pushing repeatedly.
+ */
+export function isStaleInventory(error: unknown): boolean {
+  return (
+    error instanceof RpcError &&
+    error.code === RpcErrorCode.InvalidParams &&
+    /not found in (prim )?inventory/i.test(error.message)
+  )
+}
+
+/**
+ * Runs `fn`, retrying while the viewer's inventory is still settling.
+ *
+ * Wrap the lookup and the call together, so a retry re-reads the object rather
+ * than trying the same call against the same stale answer.
+ */
+export async function withStaleRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn()
+    } catch (error) {
+      if (!isStaleInventory(error) || attempt >= LOOKUP_RETRY_MS.length) throw error
+
+      await new Promise((sleep) => setTimeout(sleep, LOOKUP_RETRY_MS[attempt]))
+    }
   }
+}
+
+export interface PublishOptions {
+  /** How long to wait for an `object.request` to be honoured. */
+  timeoutMs?: number
+  /**
+   * Wait this long for the viewer to publish a match rather than failing.
+   *
+   * Holding the connection open is the only way the viewer's publish button
+   * reaches us at all, so this is how a name or description target is meant to
+   * be used interactively.
+   */
+  waitMs?: number
+  /** Called once when a wait begins, so a caller can say what it is waiting for. */
+  onWait?: (message: string) => void
+}
+
+/** Resolves on the next `object.publish` the predicate accepts. */
+function watchPublish(
+  client: ViewerClient,
+  matches: (object: PublishedObject) => boolean,
+  timeoutMs: number,
+  what: string,
+): { published: Promise<PublishedObject>; cancel: () => void } {
+  let cancel = () => {}
+
+  const published = new Promise<PublishedObject>((resolvePublish, reject) => {
+    const timer = setTimeout(() => {
+      cancel()
+      reject(new Error(`viewer did not publish ${what} within ${timeoutMs}ms`))
+    }, timeoutMs)
+
+    const off = client.on("object.publish", (message: ObjectPublishMessage) => {
+      if (!message?.object || !matches(message.object)) return
+
+      cancel()
+      resolvePublish(message.object)
+    })
+
+    // Every path that abandons this promise runs `cancel`, or the timer would
+    // keep the process alive for its full duration.
+    cancel = () => {
+      clearTimeout(timer)
+      off()
+    }
+  })
+
+  return { published, cancel: () => cancel() }
+}
+
+function waitForPublish(client: ViewerClient, selector: ObjectSelector, timeoutMs: number) {
+  return watchPublish(
+    client,
+    (object) => matchesSelector(object, selector),
+    timeoutMs,
+    formatObjectSelector(selector),
+  )
+}
+
+/**
+ * Waits for the viewer to publish anything at all.
+ *
+ * For commands that take no target, where the point of waiting is to be
+ * connected when the publish button is pressed.
+ */
+export function waitForAnyPublish(
+  client: ViewerClient,
+  timeoutMs: number,
+): Promise<PublishedObject> {
+  return watchPublish(client, () => true, timeoutMs, "an object").published
 }
 
 /**
@@ -226,7 +365,7 @@ function findPublished(
 export async function ensurePublished(
   client: ViewerClient,
   selector: ObjectSelector,
-  timeoutMs = 15_000,
+  options: PublishOptions = {},
 ): Promise<PublishedObject> {
   const { objects } = await client.objectList()
   const existing = findPublished(objects ?? [], selector)
@@ -234,11 +373,17 @@ export async function ensurePublished(
   if (existing) return existing
 
   // Only a UUID can be requested; the viewer has no way to look an object up
-  // by name or description, so those must already be published.
+  // by name or description, so those have to be published from the viewer.
   if (selector.kind !== "id") {
-    throw new Error(
-      `no published object matching ${formatObjectSelector(selector)} — select it in the viewer to publish it, or target it by UUID`,
-    )
+    if (!options.waitMs) {
+      throw new Error(
+        `no published object matching ${formatObjectSelector(selector)} — ${PUBLISH_HINT}`,
+      )
+    }
+
+    options.onWait?.(`waiting for ${formatObjectSelector(selector)}`)
+
+    return await waitForPublish(client, selector, options.waitMs).published
   }
 
   const objectId = selector.value
@@ -246,28 +391,11 @@ export async function ensurePublished(
   // Newer viewers answer object.request with the object inline; older ones
   // acknowledge and follow up with an object.publish notification. Listen
   // before asking, so a fast notification cannot arrive before we are ready.
-  let cancel = () => {}
-
-  const published = new Promise<PublishedObject>((resolvePublish, reject) => {
-    const timer = setTimeout(() => {
-      cancel()
-      reject(new Error(`viewer did not publish ${objectId} within ${timeoutMs}ms`))
-    }, timeoutMs)
-
-    const off = client.on("object.publish", (message: ObjectPublishMessage) => {
-      if (message?.object?.objectId?.toLowerCase() !== objectId.toLowerCase()) return
-
-      cancel()
-      resolvePublish(message.object)
-    })
-
-    // Both early returns below abandon this promise, so the timer has to go
-    // with them or it keeps the process alive for the full timeout.
-    cancel = () => {
-      clearTimeout(timer)
-      off()
-    }
-  })
+  const { published, cancel } = waitForPublish(
+    client,
+    selector,
+    options.timeoutMs ?? REQUEST_TIMEOUT_MS,
+  )
 
   // Nothing awaits `published` on the inline path, so swallow its rejection.
   published.catch(() => {})
@@ -297,11 +425,33 @@ export async function ensurePublished(
   return await published
 }
 
-/** Publishes if needed, then resolves the item reference. */
+/**
+ * Publishes if needed, then resolves the item reference.
+ *
+ * Retries a stale listing, since the viewer's inventory is briefly out of date
+ * after a save; see `LOOKUP_RETRY_MS`.
+ */
 export async function resolveItem(
   client: ViewerClient,
   ref: ObjectRef,
-  timeoutMs?: number,
+  options: PublishOptions = {},
 ): Promise<ResolvedItem> {
-  return findItem(await ensurePublished(client, ref.object, timeoutMs), ref)
+  for (let attempt = 0; ; attempt++) {
+    try {
+      // Only the first attempt waits on the viewer: the retries exist for a
+      // listing that settles in milliseconds, not for a missing object.
+      const object = await ensurePublished(
+        client,
+        ref.object,
+        attempt === 0 ? options : { ...options, waitMs: undefined, onWait: undefined },
+      )
+
+      return findItem(object, ref)
+    } catch (error) {
+      // A closed connection will not have improved by the next look.
+      if (error instanceof ConnectionClosedError || attempt >= LOOKUP_RETRY_MS.length) throw error
+
+      await new Promise((sleep) => setTimeout(sleep, LOOKUP_RETRY_MS[attempt]))
+    }
+  }
 }

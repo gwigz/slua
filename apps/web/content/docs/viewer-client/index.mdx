@@ -40,8 +40,9 @@ is never involved.
 ## Requirements
 
 A viewer with external script editing enabled (`ExternalWebsocketSyncEnable`).
-The object you are targeting must be published to the editor, which happens
-when you select it in the viewer, or on demand when you address it by UUID.
+The object you are targeting must be published to the editor first, which is a
+button in the viewer rather than a side effect of selecting it. See
+[Publishing an object](/docs/viewer-client/cli#publishing-an-object).
 
 ## Quick Start
 
@@ -60,10 +61,11 @@ pnpm dlx @gwigz/slua-viewer-client objects
 bunx @gwigz/slua-viewer-client objects
 ```
 
-Select the object in the viewer, then pair it with a name once:
+Pair the object with a name once. Run this first, then press **"Explore in
+IDE"** in the object's Build window under Content, which is what publishes it:
 
 ```bash
-bunx @gwigz/slua-viewer-client link main
+bunx @gwigz/slua-viewer-client link main --wait
 ```
 
 That stamps a `slua:main` key into the object's description and records the

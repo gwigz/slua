@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises"
-import { basename, extname, isAbsolute, relative, resolve } from "node:path"
+import { basename, extname, isAbsolute, resolve } from "node:path"
 import pc from "picocolors"
-import { displayName, resolveItem } from "../../addressing.js"
+import { displayName, type PublishOptions, resolveItem, withStaleRetry } from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
 import { type CompileLanguage, parseCompileErrors } from "../../compile-errors.js"
 import { ConnectionClosedError } from "../../protocol/errors.js"
@@ -17,7 +17,7 @@ import {
   type Target,
 } from "../../targets.js"
 import type { Command } from "../args.js"
-import type { Reporter } from "../output.js"
+import { displayPath, type Reporter } from "../output.js"
 
 /** What we built is a stronger signal than what the item currently is. */
 function vmFromExtension(file: string): ScriptVM | undefined {
@@ -47,13 +47,6 @@ export function resolveVm(
   item: ObjectInventoryItem,
 ): ScriptVM | undefined {
   return explicit ?? vmFromExtension(file) ?? vmFromItem(item)
-}
-
-/** Whichever of the relative or absolute path is easier to read. */
-function displayPath(path: string): string {
-  const relativePath = relative(process.cwd(), path)
-
-  return relativePath.startsWith("..") && relativePath.length >= path.length ? path : relativePath
 }
 
 /** Reads source lines on demand so a clean push never touches the disk twice. */
@@ -149,6 +142,7 @@ export async function pushCommand(
   client: ViewerClient,
   command: Extract<Command, { name: "push" }>,
   reporter: Reporter,
+  publish: PublishOptions = {},
 ): Promise<number> {
   const targets = await collectTargets(command, await loadConfig())
   const results: Record<string, unknown>[] = []
@@ -157,7 +151,7 @@ export async function pushCommand(
 
   for (const target of targets) {
     try {
-      const result = await pushTarget(client, target, reporter, targets.length > 1)
+      const result = await pushTarget(client, target, reporter, targets.length > 1, publish)
 
       results.push(result.payload)
 
@@ -187,19 +181,30 @@ async function pushTarget(
   target: Target,
   reporter: Reporter,
   labelled: boolean,
+  publish: PublishOptions,
 ): Promise<{ ok: boolean; payload: Record<string, unknown> }> {
   const label = labelled ? `${target.name}: ` : ""
   const content = await readFile(target.file, "utf8")
-  const resolved = await resolveItem(client, target.ref)
-  const vm = resolveVm(target.vm, target.file, resolved.item)
 
-  const response = await client.objectContentSave({
-    primId: resolved.primId,
-    itemId: resolved.itemId,
-    content,
-    vm,
-    // Preserve the script's current state rather than silently starting it.
-    running: resolved.item.type === "script" ? resolved.item.running : undefined,
+  // Lookup and save retry together: right after a save the viewer rejects the
+  // next one as "item not found in prim inventory", and a retry has to start
+  // from a fresh listing.
+  const { resolved, vm, response } = await withStaleRetry(async () => {
+    const found = await resolveItem(client, target.ref, publish)
+    const compileAs = resolveVm(target.vm, target.file, found.item)
+
+    return {
+      resolved: found,
+      vm: compileAs,
+      response: await client.objectContentSave({
+        primId: found.primId,
+        itemId: found.itemId,
+        content,
+        vm: compileAs,
+        // Preserve the script's current state rather than silently starting it.
+        running: found.item.type === "script" ? found.item.running : undefined,
+      }),
+    }
   })
 
   const base = {

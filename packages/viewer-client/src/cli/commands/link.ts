@@ -1,7 +1,14 @@
 import { readFile, writeFile } from "node:fs/promises"
 import { join, resolve } from "node:path"
 import pc from "picocolors"
-import { descriptionMatches, displayName, eachPrim } from "../../addressing.js"
+import {
+  descriptionMatches,
+  displayName,
+  eachPrim,
+  PUBLISH_HINT,
+  type PublishOptions,
+  waitForAnyPublish,
+} from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
 import type { PublishedObject } from "../../protocol/types.js"
 import { CONFIG_FILENAME, loadConfig, readHeaderTagsFor } from "../../targets.js"
@@ -19,10 +26,9 @@ export async function linkCommand(
   client: ViewerClient,
   command: Extract<Command, { name: "link" }>,
   reporter: Reporter,
+  publish: PublishOptions = {},
 ): Promise<number> {
-  const { objects } = await client.objectList()
-  const published = objects ?? []
-  const object = pickObject(published, command.object)
+  const object = await pickObject(client, command.object, publish)
   const key = command.key ?? `slua:${command.target}`
   const file = command.file ?? `dist/${command.target}.slua`
 
@@ -106,7 +112,25 @@ export async function linkCommand(
   return 0
 }
 
-function pickObject(published: PublishedObject[], wanted?: string): PublishedObject {
+async function pickObject(
+  client: ViewerClient,
+  wanted: string | undefined,
+  publish: PublishOptions,
+): Promise<PublishedObject> {
+  let published = (await client.objectList()).objects ?? []
+
+  // The viewer publishes only to a client that is already connected, so with
+  // --wait this command is what that button publishes to.
+  if (published.length === 0 && publish.waitMs) {
+    publish.onWait?.("waiting for an object")
+
+    const object = await waitForAnyPublish(client, publish.waitMs)
+
+    published = (await client.objectList()).objects ?? []
+
+    if (published.length === 0) published = [object]
+  }
+
   if (wanted) {
     const match = published.find(
       (object) =>
@@ -121,7 +145,7 @@ function pickObject(published: PublishedObject[], wanted?: string): PublishedObj
   if (published.length === 1) return published[0]
 
   if (published.length === 0) {
-    throw new Error("no published objects; select the object in the viewer first")
+    throw new Error(`no published objects — ${PUBLISH_HINT}`)
   }
 
   const names = published.map((object) => `  ${object.objectName}  ${object.objectId}`)

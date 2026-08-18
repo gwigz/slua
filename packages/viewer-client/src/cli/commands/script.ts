@@ -1,4 +1,4 @@
-import { displayName, resolveItem } from "../../addressing.js"
+import { displayName, type PublishOptions, resolveItem, withStaleRetry } from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
 import type { Command } from "../args.js"
 import type { Reporter } from "../output.js"
@@ -7,11 +7,15 @@ export async function resetCommand(
   client: ViewerClient,
   command: Extract<Command, { name: "reset" }>,
   reporter: Reporter,
+  publish: PublishOptions = {},
 ): Promise<number> {
-  const target = await resolveItem(client, command.ref)
-  const response = await client.resetScript({
-    primId: target.primId,
-    itemId: target.itemId,
+  const { target, response } = await withStaleRetry(async () => {
+    const found = await resolveItem(client, command.ref, publish)
+
+    return {
+      target: found,
+      response: await client.resetScript({ primId: found.primId, itemId: found.itemId }),
+    }
   })
 
   reporter.data({
@@ -38,12 +42,19 @@ export async function setRunningCommand(
   client: ViewerClient,
   command: Extract<Command, { name: "set-running" }>,
   reporter: Reporter,
+  publish: PublishOptions = {},
 ): Promise<number> {
-  const target = await resolveItem(client, command.ref)
-  const response = await client.setScriptRunning({
-    primId: target.primId,
-    itemId: target.itemId,
-    running: command.running,
+  const { target, response } = await withStaleRetry(async () => {
+    const found = await resolveItem(client, command.ref, publish)
+
+    return {
+      target: found,
+      response: await client.setScriptRunning({
+        primId: found.primId,
+        itemId: found.itemId,
+        running: command.running,
+      }),
+    }
   })
 
   reporter.data({

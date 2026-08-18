@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises"
-import { displayName, resolveItem } from "../../addressing.js"
+import { displayName, type PublishOptions, resolveItem, withStaleRetry } from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
 import type { Command } from "../args.js"
 import type { Reporter } from "../output.js"
@@ -8,11 +8,15 @@ export async function pullCommand(
   client: ViewerClient,
   command: Extract<Command, { name: "pull" }>,
   reporter: Reporter,
+  publish: PublishOptions = {},
 ): Promise<number> {
-  const target = await resolveItem(client, command.ref)
-  const response = await client.objectContentGet({
-    primId: target.primId,
-    itemId: target.itemId,
+  const { target, response } = await withStaleRetry(async () => {
+    const found = await resolveItem(client, command.ref, publish)
+
+    return {
+      target: found,
+      response: await client.objectContentGet({ primId: found.primId, itemId: found.itemId }),
+    }
   })
 
   if (!response?.success) {

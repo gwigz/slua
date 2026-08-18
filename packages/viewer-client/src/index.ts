@@ -6,13 +6,21 @@ export {
   ensurePublished,
   findItem,
   formatObjectSelector,
+  isStaleInventory,
   isUuid,
+  matchesSelector,
   type ObjectRef,
   type ObjectSelector,
   parseObjectRef,
   parseObjectSelector,
+  PUBLISH_ACTION,
+  PUBLISH_HINT,
+  PUBLISH_WAIT_MS,
+  type PublishOptions,
   type ResolvedItem,
   resolveItem,
+  waitForAnyPublish,
+  withStaleRetry,
 } from "./addressing.js"
 export { ViewerClient } from "./client.js"
 export { type CompileLanguage, parseCompileError, parseCompileErrors } from "./compile-errors.js"

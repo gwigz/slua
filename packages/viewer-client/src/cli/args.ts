@@ -1,5 +1,10 @@
 import { parseArgs } from "node:util"
-import { type ObjectRef, parseObjectRef, parseObjectSelector } from "../addressing.js"
+import {
+  type ObjectRef,
+  parseObjectRef,
+  parseObjectSelector,
+  PUBLISH_WAIT_MS,
+} from "../addressing.js"
 import { DEFAULT_PORT } from "../protocol/peer.js"
 import type { ScriptVM, SyntaxKind } from "../protocol/types.js"
 
@@ -15,6 +20,8 @@ export interface GlobalFlags {
   port: number
   json: boolean
   timeoutMs?: number
+  /** How long to hold the connection open waiting for the viewer to publish. */
+  waitMs?: number
 }
 
 export type Command =
@@ -60,6 +67,7 @@ const OPTIONS = {
   file: { type: "string" },
   key: { type: "string" },
   follow: { type: "boolean", short: "f" },
+  wait: { type: "boolean" },
   help: { type: "boolean", short: "h" },
   version: { type: "boolean", short: "v" },
 } as const
@@ -123,6 +131,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
     port: integer(values.port, "port") ?? DEFAULT_PORT,
     json: values.json === true,
     timeoutMs: integer(values.timeout, "timeout"),
+    waitMs: values.wait === true ? PUBLISH_WAIT_MS : undefined,
   }
 
   if (values.version === true) return { global, command: { name: "version" } }
@@ -248,7 +257,7 @@ Commands
   objects                          List objects the viewer has published
   pull <object>/<item> [out]       Fetch script or notecard content
   push [file] [object]/[item]      Upload and compile, non-zero exit on failure
-  link <name>                      Pair a target with the selected object
+  link <name>                      Pair a target with the published object
   reset <object>/<item>            Reset a script
   set-running on|off <object>/<item>
                                    Start or stop a script
@@ -259,8 +268,13 @@ Commands
 Target
   Pass <object>/<item>, or <object>/<link>/<item> for a child prim, or use
   --object, --item and --link. The object segment takes a UUID, a name, or
-  desc:<key> to match the object's description. An object must be published,
-  so pass its UUID to have the viewer publish it on demand.
+  desc:<key> to match the object's description.
+
+  An object must be published first. Addressing it by UUID publishes it on
+  demand; by name or description it has to come from the viewer, by opening
+  the object's Build window, going to Content and pressing "Explore in IDE".
+  That button only publishes while an editor client is already connected, so
+  run the command with --wait and press it while the command waits.
 
   push can also take the target from a source header or slua.json, in which
   case the file alone is enough. Precedence is flags, then slua.json, then
@@ -287,6 +301,8 @@ Options
   --file <path>        File to push, or to record when linking
   --key <key>          Description key to pair on (default slua:<name>)
   -f, --follow         Keep streaming (logs)
+  --wait               Wait for the viewer to publish, so "Explore in IDE"
+                       has a client to publish to
   --port <port>        Viewer websocket port (default ${DEFAULT_PORT})
   --timeout <ms>       Request timeout
   --json               Emit JSON on stdout
@@ -297,6 +313,7 @@ Examples
   slua-viewer objects --json
   slua-viewer push dist/main.slua --object 4f2b... --item Main
   slua-viewer push dist/main.slua
+  slua-viewer push dist/main.slua --wait
   slua-viewer link main
   slua-viewer push --all
   slua-viewer logs --object 4f2b... --follow

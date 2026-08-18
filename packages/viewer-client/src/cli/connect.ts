@@ -1,5 +1,8 @@
+import pc from "picocolors"
+import { PUBLISH_ACTION, type PublishOptions } from "../addressing.js"
 import { ViewerClient } from "../client.js"
 import type { GlobalFlags } from "./args.js"
+import type { Reporter } from "./output.js"
 
 /**
  * Runs `fn` against a connected viewer, then disconnects.
@@ -24,5 +27,19 @@ export async function withClient<T>(
     } catch {
       // Disconnecting is best effort; whatever `fn` threw is the real news.
     }
+  }
+}
+
+/**
+ * Turns the global flags into the policy commands resolve their targets with.
+ *
+ * `--wait` is the answer to the viewer publishing only when an editor client
+ * is already connected: the command connects, says what it is waiting for, and
+ * holds the socket open until the button is pressed.
+ */
+export function publishOptions(global: GlobalFlags, reporter: Reporter): PublishOptions {
+  return {
+    waitMs: global.waitMs,
+    onWait: (message) => reporter.note(pc.dim(`${message} — ${PUBLISH_ACTION}`)),
   }
 }

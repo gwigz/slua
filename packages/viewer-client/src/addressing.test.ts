@@ -9,8 +9,11 @@ import {
   type ObjectSelector,
   parseObjectRef,
   parseObjectSelector,
+  resolveItem,
+  withStaleRetry,
 } from "./addressing"
 import type { ViewerClient } from "./client"
+import { RpcError } from "./protocol/errors"
 import type { ObjectInventoryItem, PublishedObject } from "./protocol/types"
 
 const ROOT_ID = "aaaaaaaa-0000-0000-0000-000000000001"
@@ -235,13 +238,13 @@ describe("ensurePublished", () => {
     expect((await ensurePublished(client, byId(ROOT_ID))).objectId).toBe(ROOT_ID)
   })
 
-  it("explains that an unpublished object cannot be requested by name", async () => {
+  it("explains how an unpublished object gets published", async () => {
     const client = {
       objectList: async () => ({ objects: [] }),
       on: () => () => {},
     } as unknown as ViewerClient
 
-    await expect(ensurePublished(client, byName("Unknown"))).rejects.toThrow(/target it by UUID/)
+    await expect(ensurePublished(client, byName("Unknown"))).rejects.toThrow(/Explore in IDE/)
   })
 
   it("surfaces a refusal from the viewer", async () => {
@@ -252,6 +255,145 @@ describe("ensurePublished", () => {
     } as unknown as ViewerClient
 
     await expect(ensurePublished(client, byId(ROOT_ID))).rejects.toThrow(/permission denied/)
+  })
+})
+
+describe("ensurePublished with --wait", () => {
+  it("waits for the viewer to publish a name match", async () => {
+    let publish: ((message: unknown) => void) | undefined
+
+    const client = {
+      objectList: async () => ({ objects: [] }),
+      on: (_event: string, handler: (message: unknown) => void) => {
+        publish = handler
+
+        return () => {}
+      },
+    } as unknown as ViewerClient
+
+    const waiting = ensurePublished(client, byName("Test Object"), { waitMs: 1_000 })
+
+    // The viewer publishes only once someone presses its button, which is the
+    // whole reason the connection stays open.
+    setTimeout(() => publish?.({ object }), 1)
+
+    expect((await waiting).objectId).toBe(ROOT_ID)
+  })
+
+  it("ignores a publish for some other object", async () => {
+    let publish: ((message: unknown) => void) | undefined
+
+    const client = {
+      objectList: async () => ({ objects: [] }),
+      on: (_event: string, handler: (message: unknown) => void) => {
+        publish = handler
+
+        return () => {}
+      },
+    } as unknown as ViewerClient
+
+    const waiting = ensurePublished(client, byName("Wanted"), { waitMs: 20 })
+
+    setTimeout(() => publish?.({ object }), 1)
+
+    await expect(waiting).rejects.toThrow(/did not publish/)
+  })
+
+  it("says what it is waiting for", async () => {
+    const notes: string[] = []
+
+    const client = {
+      objectList: async () => ({ objects: [] }),
+      on: () => () => {},
+    } as unknown as ViewerClient
+
+    await expect(
+      ensurePublished(client, byName("Wanted"), {
+        waitMs: 10,
+        onWait: (message) => notes.push(message),
+      }),
+    ).rejects.toThrow()
+
+    expect(notes).toEqual(["waiting for name:Wanted"])
+  })
+})
+
+describe("resolveItem", () => {
+  it("retries a listing that is briefly stale after a save", async () => {
+    // The viewer drops the object, then the item, from object.list for a
+    // moment after a content save; both settle within a couple of reads.
+    const listings = [[], [{ ...object, inventory: [] }], [object]]
+
+    let calls = 0
+
+    const client = {
+      objectList: async () => ({ objects: listings[Math.min(calls++, listings.length - 1)] }),
+      on: () => () => {},
+    } as unknown as ViewerClient
+
+    const resolved = await resolveItem(client, { object: byName("Test Object"), item: "Main" })
+
+    expect(resolved.itemId).toBe(MAIN_ID)
+    expect(calls).toBe(3)
+  })
+
+  it("gives up on an item that never appears", async () => {
+    const client = {
+      objectList: async () => ({ objects: [object] }),
+      on: () => () => {},
+    } as unknown as ViewerClient
+
+    await expect(
+      resolveItem(client, { object: byName("Test Object"), item: "Nope" }),
+    ).rejects.toThrow(/no item "Nope"/)
+  })
+})
+
+// What the viewer answers for a beat after a save, though the item is there
+// and its id has not changed.
+const stale = () =>
+  new RpcError({ code: -32602, message: "Invalid params: Item not found in prim inventory" })
+
+describe("withStaleRetry", () => {
+  it("retries the whole lookup and call, not just the call", async () => {
+    let calls = 0
+
+    const result = await withStaleRetry(async () => {
+      if (++calls < 3) throw stale()
+
+      return "saved"
+    })
+
+    expect(result).toBe("saved")
+    expect(calls).toBe(3)
+  })
+
+  it("gives up rather than retrying forever", async () => {
+    let calls = 0
+
+    await expect(
+      withStaleRetry(async () => {
+        calls++
+
+        throw stale()
+      }),
+    ).rejects.toThrow(/prim inventory/)
+
+    expect(calls).toBe(4)
+  })
+
+  it("passes any other failure straight through", async () => {
+    let calls = 0
+
+    await expect(
+      withStaleRetry(async () => {
+        calls++
+
+        throw new RpcError({ code: -32602, message: "Invalid params: bad vm" })
+      }),
+    ).rejects.toThrow(/bad vm/)
+
+    expect(calls).toBe(1)
   })
 })
 
@@ -299,6 +441,6 @@ describe("ensurePublished by description", () => {
 
     await expect(
       ensurePublished(client, { kind: "description", value: "slua:nope" }),
-    ).rejects.toThrow(/select it in the viewer/)
+    ).rejects.toThrow(/Explore in IDE/)
   })
 })

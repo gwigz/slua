@@ -145,6 +145,11 @@ describe("parseCliArgs", () => {
     expect(() => parseCliArgs(["syntax", "defs.wat"])).toThrow(CliUsageError)
   })
 
+  it("treats --wait as global, since publishing is what every command waits on", () => {
+    expect(parseCliArgs(["objects"]).global.waitMs).toBeUndefined()
+    expect(parseCliArgs(["push", "a.slua", "--wait"]).global.waitMs).toBeGreaterThan(0)
+  })
+
   it("treats --json as global", () => {
     expect(parseCliArgs(["objects", "--json"]).global.json).toBe(true)
   })
@@ -180,6 +185,7 @@ describe("helpText", () => {
       "--file",
       "--key",
       "--follow",
+      "--wait",
       "--port",
       "--timeout",
       "--json",

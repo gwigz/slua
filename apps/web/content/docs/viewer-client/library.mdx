@@ -88,7 +88,20 @@ client.on("runtime.error", (event) => console.error(event.objectName, event.mess
 ```
 
 `on` returns an unsubscribe function, and `runtime.debug` carries the script's
-non-error output.
+non-error output. `runtime.error` currently arrives with `error` and `line`
+empty, and the viewer sends the text as a separate `runtime.debug` message.
+
+`ensurePublished` and `resolveItem` take options for the two things the viewer
+makes awkward:
+
+| Option      | Effect                                                                  |
+| ----------- | ----------------------------------------------------------------------- |
+| `waitMs`    | Wait this long for the viewer to publish a match rather than failing    |
+| `onWait`    | Called once when a wait begins, so a CLI can say what it is waiting for |
+| `timeoutMs` | How long an `object.request` has to be honoured                         |
+
+`resolveItem` also re-reads the listing a few times before giving up, since the
+viewer's published inventory goes briefly stale right after a save.
 
 ## Target Resolution
 

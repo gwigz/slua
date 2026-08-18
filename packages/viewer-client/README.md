@@ -12,7 +12,7 @@ Compile errors come back with the file and line of your **TypeScript** source, g
 
 ## Requirements
 
-A viewer with external script editing enabled (`ExternalWebsocketSyncEnable`). The object you are targeting must be published to the editor, which happens when you select it in the viewer, or on demand when you address it by UUID.
+A viewer with external script editing enabled (`ExternalWebsocketSyncEnable`). The object you are targeting must be published to the editor first; see [Publishing an object](#publishing-an-object).
 
 ## Running it
 
@@ -59,7 +59,7 @@ bun run deploy
 | `objects`                             | List objects the viewer has published        |
 | `pull <object>/<item> [out]`          | Fetch script or notecard content             |
 | `push [file] [object]/[item]`         | Upload and compile, non-zero exit on failure |
-| `link <name>`                         | Pair a target with the selected object       |
+| `link <name>`                         | Pair a target with the published object      |
 | `reset <object>/<item>`               | Reset a script                               |
 | `set-running on\|off <object>/<item>` | Start or stop a script                       |
 | `logs`                                | Stream runtime output from published objects |
@@ -93,6 +93,7 @@ slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
 | `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
 | `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
 | `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
+| `--wait`              | all            | Hold the connection open until the viewer publishes  |
 | `--port <port>`       | all            | Viewer websocket port, default `9020`                |
 | `--timeout <ms>`      | all            | Request timeout                                      |
 | `--json`              | all            | Machine-readable output on stdout                    |
@@ -101,11 +102,27 @@ Keys in `--json` output are camelCase (`objectId`, `primId`, `itemId`, `savedBac
 
 Under `--json`, stdout carries exactly one JSON document and nothing else, with progress and errors kept on stderr. A failure still emits a document (`{"ok": false, "error": "..."}`), so an empty stdout always means something went badly wrong. `logs --json` is the exception: it emits one JSON object per line, since it is a stream.
 
+## Publishing an object
+
+Nothing can be read or written until the viewer publishes the object to the editor. Selecting it does not do that. Publishing is a button: **open the object's Build window, go to Content and press "Explore in IDE"**.
+
+The catch is that the viewer only publishes when an editor client is already connected. Press it with nothing connected and it launches your external editor instead, which is why the button can look like it does nothing for this CLI. So connect first:
+
+```bash
+slua-viewer push dist/main.slua --wait
+```
+
+`--wait` holds the connection open and says what it is waiting for, then carries on the moment the object arrives. It works on every command, including `objects --wait` to see what you just published and `logs --wait` to catch output from the start.
+
+Addressing an object by UUID skips all of this: the viewer publishes it on demand, no button and no waiting. Names and description keys cannot be requested that way, since the viewer has no way to look them up.
+
+The published inventory goes briefly stale right after a save. Sometimes the item, or the whole object, drops out of the listing; sometimes the listing is fine and the next save is rejected with `Item not found in prim inventory` even though the item is there and its id has not changed. Commands re-read the object and retry a few times before giving up, so a `push --all` that touches several scripts in a row is not derailed by it.
+
 ## Pairing projects with objects
 
 An object's UUID changes every time it is taken and rezzed again, so pinning a project to one is a losing game. Names and descriptions survive that round trip, which makes a description key the durable way to pair.
 
-`link main` stamps `slua:main` into the selected object's description and records it in `slua.json`. From then on `push --all` finds the object by that key, however many times it has been rezzed.
+`link main` stamps `slua:main` into the published object's description and records it in `slua.json`. From then on `push --all` finds the object by that key, however many times it has been rezzed.
 
 There are three places a destination can come from, in order of precedence: **command line flags, then `slua.json`, then the source header**. The header is the default a script ships with; config retargets a build for a different environment without touching source.
 
@@ -173,13 +190,15 @@ What this is not is an LSL toolchain: there is no preprocessor, no `#include` ex
 
 `saveBack` derezzes the object into the prim it was rezzed from, which is how you update a rezzer's payload without the take-and-replace dance.
 
-The viewer only offers this for an object rezzed out of another in-world prim's contents, and it decides that from the selection at the moment the object is published. An object published by UUID alone, with nothing selected, reports `can_save_back: false` and the push reports the save-back as failed.
+The viewer only offers this for an object rezzed out of another in-world prim's contents, and it decides that when the object is published. An object published by UUID alone reports `can_save_back: false`, and the push reports the save-back as failed.
 
 An object sitting in your own inventory cannot be reached at all. It has to be rezzed.
 
 ## Mapping errors back to TypeScript
 
 `push` looks for a source map beside the file it uploads (`dist/main.slua.map`) and translates the viewer's Lua line numbers back to your original source. Enable it with `"sourceMap": true` in your tsconfig. Without a map, errors are reported against the generated output instead.
+
+`logs` maps too. Runtime output reports positions in the generated Lua (`lua_script:5`), so each line is annotated with the TypeScript it came from, using the source maps of the targets in your `slua.json`. Nothing in the output names the script that produced it, so when more than one target's map covers a line, every candidate is shown with its target name.
 
 If you bundle with `@gwigz/tstl-bundle-flatten`, you need 1.2.0 or newer. Earlier versions rewrote the emitted Lua without updating the map, leaving it describing the unflattened bundle. Mapping is line accurate, not column accurate.
 

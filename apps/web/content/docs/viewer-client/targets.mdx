@@ -17,16 +17,19 @@ environment without touching source.
 
 ## `link`
 
-`link main` stamps `slua:main` into the selected object's description and
+`link main` stamps `slua:main` into the published object's description and
 records it in `slua.json`. From then on `push --all` finds the object by that
 key, however many times it has been rezzed.
 
 ```bash
-slua-viewer link main
+slua-viewer link main --wait
 ```
 
-Select the object in the viewer first. If several objects are published, name
-one with `--object`. Pass `--key` to pair on something other than
+The object has to be published first, which is the Content tab's **"Explore in
+IDE"** button rather than the selection, see
+[Publishing an object](/docs/viewer-client/cli#publishing-an-object). With
+`--wait` the command holds the connection open so that button has somewhere to
+publish to. If several objects are published, name one with `--object`. Pass `--key` to pair on something other than
 `slua:<name>`, and `--file` to record an output path other than
 `dist/<name>.slua`.
 
@@ -122,9 +125,9 @@ file's base name as the target name.
 you update a rezzer's payload without the take-and-replace dance.
 
 The viewer only offers this for an object rezzed out of another in-world prim's
-contents, and it decides that from the selection at the moment the object is
-published. An object published by UUID alone, with nothing selected, reports
-`canSaveBack: false` and the push reports the save-back as failed.
+contents, and it decides that when the object is published. An object published
+by UUID alone reports `canSaveBack: false`, and the push reports the save-back
+as failed.
 
 <Callout type="warn" title="Inventory objects">
   An object sitting in your own inventory cannot be reached at all. It has to be rezzed.

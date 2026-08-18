@@ -16,7 +16,7 @@ import { pullCommand } from "./commands/pull.js"
 import { pushCommand } from "./commands/push.js"
 import { resetCommand, setRunningCommand } from "./commands/script.js"
 import { syntaxCommand } from "./commands/syntax.js"
-import { withClient } from "./connect.js"
+import { publishOptions, withClient } from "./connect.js"
 import { createReporter } from "./output.js"
 
 /** Whether stdout owes a JSON document, even when nothing parses. */
@@ -32,6 +32,8 @@ async function main(): Promise<number> {
 
   wantsJson = global.json
 
+  const publish = publishOptions(global, reporter)
+
   switch (command.name) {
     case "help":
       process.stdout.write(helpText())
@@ -44,28 +46,30 @@ async function main(): Promise<number> {
       return 0
 
     case "logs":
-      return await logsCommand(global, command, reporter)
+      return await logsCommand(global, command, reporter, publish)
 
     case "objects":
-      return await withClient(global, (client) => objectsCommand(client, reporter))
+      return await withClient(global, (client) => objectsCommand(client, reporter, publish))
 
     case "pull":
-      return await withClient(global, (client) => pullCommand(client, command, reporter))
+      return await withClient(global, (client) => pullCommand(client, command, reporter, publish))
 
     case "push":
-      return await withClient(global, (client) => pushCommand(client, command, reporter))
+      return await withClient(global, (client) => pushCommand(client, command, reporter, publish))
 
     case "reset":
-      return await withClient(global, (client) => resetCommand(client, command, reporter))
+      return await withClient(global, (client) => resetCommand(client, command, reporter, publish))
 
     case "set-running":
-      return await withClient(global, (client) => setRunningCommand(client, command, reporter))
+      return await withClient(global, (client) =>
+        setRunningCommand(client, command, reporter, publish),
+      )
 
     case "syntax":
       return await withClient(global, (client) => syntaxCommand(client, command, reporter))
 
     case "link":
-      return await withClient(global, (client) => linkCommand(client, command, reporter))
+      return await withClient(global, (client) => linkCommand(client, command, reporter, publish))
   }
 }
 

@@ -1,3 +1,4 @@
+import { relative } from "node:path"
 import pc from "picocolors"
 
 /**
@@ -34,4 +35,11 @@ export function createReporter(json: boolean): Reporter {
       process.stderr.write(`${pc.red("error:")} ${text}\n`)
     },
   }
+}
+
+/** Whichever of the relative or absolute path is easier to read. */
+export function displayPath(path: string): string {
+  const relativePath = relative(process.cwd(), path)
+
+  return relativePath.startsWith("..") && relativePath.length >= path.length ? path : relativePath
 }

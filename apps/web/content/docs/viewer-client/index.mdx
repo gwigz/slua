@@ -1,0 +1,131 @@
+---
+title: Documentation
+description: Push SLua in-world through the Second Life viewer's external editor connection
+icon: BookOpen
+---
+
+import { Cards, Card } from "fumadocs-ui/components/card"
+import { Terminal, Crosshair, Code2 } from "lucide-react"
+
+<Callout type="warn" title="Work in Progress">
+  This package is new and the viewer's external editing protocol is still changing. Expect rough
+  edges, and pin the version once a deploy depends on it.
+</Callout>
+
+The Second Life viewer ships a JSON-RPC 2.0 WebSocket server on
+`localhost:9020` for external script editing. `@gwigz/slua-viewer-client` is a
+typed client for that protocol, plus a CLI so a build can deploy itself:
+
+```bash
+bun run build && bunx @gwigz/slua-viewer-client push dist/main.slua
+```
+
+Compile errors come back with the file and line of your **TypeScript** source,
+and a failed compile exits non-zero, so a broken build fails your deploy script
+instead of quietly shipping.
+
+## Which Way It Works
+
+The viewer is the server in this arrangement, and as far as it is concerned
+this package is the editor: it dials in to `localhost:9020`, answers the
+viewer's handshake, and serves the `editor.*` commands the viewer invokes back
+on it.
+
+Scripts travel outward from there. A save hands content to the viewer, which
+uploads it to the region and compiles it into the object's inventory, so the
+destination is the in-world object, not an editor window. The viewer's own UI
+is never involved.
+
+## Requirements
+
+A viewer with external script editing enabled (`ExternalWebsocketSyncEnable`).
+The object you are targeting must be published to the editor, which happens
+when you select it in the viewer, or on demand when you address it by UUID.
+
+## Quick Start
+
+Nothing to install for the one-off commands, `objects`, `logs`, `link` and
+`pull`:
+
+```bash tab="npm"
+npx @gwigz/slua-viewer-client objects
+```
+
+```bash tab="pnpm"
+pnpm dlx @gwigz/slua-viewer-client objects
+```
+
+```bash tab="bun"
+bunx @gwigz/slua-viewer-client objects
+```
+
+Select the object in the viewer, then pair it with a name once:
+
+```bash
+bunx @gwigz/slua-viewer-client link main
+```
+
+That stamps a `slua:main` key into the object's description and records the
+target in `slua.json`, so later deploys find the object again even after it has
+been taken and rezzed. See [Targets](/docs/viewer-client/targets).
+
+## As Part of a Build
+
+Once deploying is part of your build, add it as a devDependency and pin it.
+Package scripts already have `node_modules/.bin` on `PATH`, so the
+`slua-viewer` bin is callable by name from there, which a bare shell cannot do:
+
+```bash tab="npm"
+npm install --save-dev @gwigz/slua-viewer-client
+```
+
+```bash tab="pnpm"
+pnpm add -D @gwigz/slua-viewer-client
+```
+
+```bash tab="bun"
+bun add -d @gwigz/slua-viewer-client
+```
+
+```jsonc title="package.json"
+{
+  "scripts": {
+    "deploy": "bun run build && slua-viewer push --all",
+  },
+}
+```
+
+## Not an LSL Toolchain
+
+The viewer's protocol is bilingual, and so is this. `push`, `pull`, `reset`,
+`set-running` and `logs` all work on LSL scripts, and a mixed project, a few
+hand-written LSL scripts alongside your compiled SLua, needs no special
+handling.
+
+What it is not is an LSL toolchain: there is no preprocessor, no `#include`
+expansion, and no LSL linting. It deploys LSL, it does not build it.
+
+<Cards>
+  <Card
+    title="CLI"
+    href="/docs/viewer-client/cli"
+    description="Commands, addressing, flags, and JSON output"
+    icon={<Terminal />}
+  />
+  <Card
+    title="Targets"
+    href="/docs/viewer-client/targets"
+    description={
+      <>
+        Pairing projects with objects via source headers and <code>slua.json</code>
+      </>
+    }
+    icon={<Crosshair />}
+  />
+  <Card
+    title="Library"
+    href="/docs/viewer-client/library"
+    description="Typed client, runtime events, and target resolution"
+    icon={<Code2 />}
+  />
+</Cards>

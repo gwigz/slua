@@ -6,7 +6,7 @@ icon: BookOpen
 
 import { Cards, Card } from "fumadocs-ui/components/card"
 import { IconRocket, IconReplace, IconMessageForward } from "@tabler/icons-react"
-import { Package, Terminal, Braces } from "lucide-react"
+import { Package, Terminal, Braces, Upload } from "lucide-react"
 
 ## Overview
 
@@ -33,6 +33,12 @@ support, then compile to SLua with minimal runtime overhead.
     href="/docs/create"
     description="Scaffold a new SLua TypeScript project in seconds"
     icon={<Terminal className="text-green-400" />}
+  />
+  <Card
+    title="@gwigz/slua-viewer-client"
+    href="/docs/viewer-client"
+    description="Push builds in-world over the viewer's external editor connection"
+    icon={<Upload className="text-sky-400" />}
   />
   <Card
     title="@gwigz/slua-json"

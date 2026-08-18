@@ -1,0 +1,132 @@
+---
+title: Library
+description: Typed client, runtime events, and target resolution
+icon: Code2
+---
+
+Everything the CLI does is available as a library, so a custom deploy script
+can reuse the same protocol handling, addressing, and target precedence.
+
+```bash tab="npm"
+npm install --save-dev @gwigz/slua-viewer-client
+```
+
+```bash tab="pnpm"
+pnpm add -D @gwigz/slua-viewer-client
+```
+
+```bash tab="bun"
+bun add -d @gwigz/slua-viewer-client
+```
+
+## Pushing a Script
+
+```ts
+import { readFile } from "node:fs/promises"
+import {
+  parseCompileErrors,
+  parseObjectRef,
+  resolveItem,
+  ViewerClient,
+} from "@gwigz/slua-viewer-client"
+
+const client = await ViewerClient.connect({ port: 9020 })
+
+const target = await resolveItem(client, parseObjectRef("desc:slua:my-project/Main"))
+
+const result = await client.objectContentSave({
+  primId: target.primId,
+  itemId: target.itemId,
+  content: await readFile("dist/main.slua", "utf8"),
+  vm: "luau",
+})
+
+if (result.compiled === false) {
+  console.error(parseCompileErrors(result.errors, "luau"))
+}
+
+client.close()
+```
+
+The viewer drives the handshake, so this is a bidirectional peer rather than a
+plain client: it answers `session.handshake` (including the local-file auth
+challenge), `session.ping`, and any `editor.*` commands you register through
+the `commands` option.
+
+## Methods
+
+`ViewerClient` wraps the protocol's methods, each named after the RPC it sends:
+
+| Area     | Methods                                                            |
+| -------- | ------------------------------------------------------------------ |
+| Objects  | `objectList`, `objectRequest`, `objectUnpublish`, `objectModify`   |
+| Content  | `objectContentGet`, `objectContentSave`                            |
+| Items    | `objectItemCreate`, `objectItemDelete`, `objectItemModify`         |
+| Scripts  | `setScriptRunning`, `resetScript`, `scriptList`, `scriptSubscribe` |
+| Language | `syntaxId`, `syntax`, `syntaxCache`, `syntaxGet`                   |
+| Commands | `executeCommand`, `listCommands`                                   |
+
+`objectContentSave` allows the viewer's full 60s upload budget, other calls use
+the connection's timeout.
+
+## Runtime Events
+
+Runtime output is only forwarded for published objects, so publish before you
+listen:
+
+```ts
+import { ensurePublished, ViewerClient } from "@gwigz/slua-viewer-client"
+
+const client = await ViewerClient.connect()
+
+await ensurePublished(client, { kind: "id", value: "4f2b0c1e-0000-0000-0000-000000000000" })
+
+client.on("runtime.error", (event) => console.error(event.objectName, event.message))
+```
+
+`on` returns an unsubscribe function, and `runtime.debug` carries the script's
+non-error output.
+
+## Target Resolution
+
+Target resolution is exported too, so a custom deploy script can reuse the same
+precedence rules:
+
+```ts
+import { loadConfig, readHeaderTagsFor, resolveTarget } from "@gwigz/slua-viewer-client"
+
+const config = await loadConfig()
+
+const target = resolveTarget({
+  name: "main",
+  config: config?.targets.main,
+  header: await readHeaderTagsFor("dist/main.slua"),
+  configRoot: config?.root,
+})
+```
+
+`readHeaderTagsFor` follows the source map beside a built file back to the
+source that produced it, so header tags work on bundled output. `loadSourceMapFor`
+and `SourceMap.mapRow` are exported for mapping Lua rows to source locations
+yourself.
+
+## Errors
+
+Failures throw typed errors rather than plain strings:
+
+| Error                    | Meaning                                          |
+| ------------------------ | ------------------------------------------------ |
+| `ViewerUnavailableError` | Nothing listening, or the port is wrong          |
+| `HandshakeError`         | Connected, but the viewer refused the session    |
+| `ConnectionClosedError`  | The viewer closed the connection mid-request     |
+| `RpcTimeoutError`        | No response inside the timeout                   |
+| `RpcError`               | The viewer returned a JSON-RPC error, see `code` |
+
+## Naming
+
+The viewer's protocol is snake_case. Everything this package exposes is
+camelCase, converted once at the JSON-RPC boundary, so `object_id` on the wire
+is `objectId` in your code and in `--json` output.
+
+Only field-shaped keys convert. Keys carrying data, an item named `Main` or an
+object named `Door Control`, pass through untouched.

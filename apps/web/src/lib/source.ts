@@ -14,6 +14,7 @@ export const source = loader({
       Terminal: "text-green-400",
       Braces: "text-amber-400",
       Package: "text-purple-400",
+      Upload: "text-sky-400",
     }
 
     if (name && name in LucideIcons) {

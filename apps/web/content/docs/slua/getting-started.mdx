@@ -141,3 +141,15 @@ deno run --allow-read --allow-write npm:typescript-to-lua --watch
 
 Scaffolded projects wire this up as the `dev` script: `npm run dev`,
 `pnpm dev`, or `bun run dev`.
+
+## Deploy
+
+To get the compiled output in-world without copy-pasting it into the viewer,
+push it in-world over the viewer's external editor connection:
+
+```bash
+bun run build && bunx @gwigz/slua-viewer-client push dist/main.slua
+```
+
+Compile errors come back pointing at your TypeScript source. See
+[@gwigz/slua-viewer-client](/docs/viewer-client).

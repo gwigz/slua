@@ -1,0 +1,131 @@
+---
+title: Targets
+description: Pairing projects with objects via link, source headers, and a config file
+icon: Crosshair
+---
+
+An object's UUID changes every time it is taken and rezzed again, so pinning a
+project to one is a losing game. Names and descriptions survive that round
+trip, which makes a description key the durable way to pair.
+
+## Precedence
+
+There are three places a destination can come from, in order of precedence:
+**command line flags, then `slua.json`, then the source header**. The header is
+the default a script ships with, config retargets a build for a different
+environment without touching source.
+
+## `link`
+
+`link main` stamps `slua:main` into the selected object's description and
+records it in `slua.json`. From then on `push --all` finds the object by that
+key, however many times it has been rezzed.
+
+```bash
+slua-viewer link main
+```
+
+Select the object in the viewer first. If several objects are published, name
+one with `--object`. Pass `--key` to pair on something other than
+`slua:<name>`, and `--file` to record an output path other than
+`dist/<name>.slua`.
+
+The key is appended to whatever description the object already has, matched on
+a word boundary so `slua:main` is not confused with `slua:main-menu`.
+Descriptions cap at 127 characters in Second Life, so a full one is reported
+rather than truncated. Linking warns, but still writes, when the object has no
+item of that name yet.
+
+## Source Headers
+
+A script can declare its own destination, so a small project needs no config at
+all:
+
+```ts
+/**
+ * @slua-target desc:slua:my-project/Main
+ * @slua-vm luau
+ * @slua-save-back
+ */
+```
+
+| Tag                            | Meaning                                                      |
+| ------------------------------ | ------------------------------------------------------------ |
+| `@slua-target <object>/<item>` | Whole destination, `<object>/<link>/<item>` for a child prim |
+| `@slua-object <selector>`      | Object only                                                  |
+| `@slua-item <name>`            | Inventory item only                                          |
+| `@slua-link <name>`            | Child prim only                                              |
+| `@slua-vm <vm>`                | Compile target                                               |
+| `@slua-save-back`              | Derez back into the source prim after a successful push      |
+
+`@slua-save-back` needs no value, but takes one, so `@slua-save-back false`
+turns it off where something else would have enabled it.
+
+A tag the parser does not know is an error, which catches a typo before it
+deploys somewhere unintended.
+
+For a compiled bundle the tags are read from the source it came from, found
+through the source map. A hand-written script is its own source, so a `.lsl` or
+`.luau` file carries its header directly.
+
+When several sources behind one bundle carry tags, the entry point wins, since
+TSTL emits it last. Unknown tags are tolerated during that sweep rather than
+failing the push, because the sources include vendored code you did not write.
+
+Both comment syntaxes work (`//`, `/* */`, `--`, `--[[ ]]`), and tags are only
+honoured above the first line of code, so a `@slua-` string appearing later
+cannot silently retarget a deploy.
+
+## `slua.json`
+
+Config is optional. It is looked up from the working directory upwards, and
+relative paths resolve against the directory holding it.
+
+```jsonc title="slua.json"
+{
+  "targets": {
+    "main": {
+      "file": "dist/main.slua",
+      "object": { "description": "slua:my-project" },
+      "item": "Main",
+      "saveBack": true,
+    },
+  },
+}
+```
+
+| Field      | Meaning                                                        |
+| ---------- | -------------------------------------------------------------- |
+| `file`     | Built output to upload                                         |
+| `object`   | `{ id }`, `{ name }` or `{ description }`, or the string form  |
+| `item`     | Inventory item name                                            |
+| `link`     | Child prim, when the item is not in the root                   |
+| `vm`       | Compile target                                                 |
+| `saveBack` | Derez back into the source prim after a successful push        |
+| `entry`    | Source to read the header from, skipping the source map lookup |
+
+`object` also accepts the string form: `"desc:slua:my-project"`, `"4f2b..."`,
+`"name:My Object"`.
+
+Deploy one target with `--target main`, or all of them with `--all`:
+
+```bash
+slua-viewer push --all
+```
+
+With no `--target`, `--all` or config entry, `push dist/main.slua` uses the
+file's base name as the target name.
+
+## Saving Back to a Rezzer
+
+`saveBack` derezzes the object into the prim it was rezzed from, which is how
+you update a rezzer's payload without the take-and-replace dance.
+
+The viewer only offers this for an object rezzed out of another in-world prim's
+contents, and it decides that from the selection at the moment the object is
+published. An object published by UUID alone, with nothing selected, reports
+`canSaveBack: false` and the push reports the save-back as failed.
+
+<Callout type="warn" title="Inventory objects">
+  An object sitting in your own inventory cannot be reached at all. It has to be rezzed.
+</Callout>

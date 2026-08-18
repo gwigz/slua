@@ -1,0 +1,152 @@
+---
+title: CLI
+description: Commands, addressing, flags, and JSON output for slua-viewer
+icon: Terminal
+---
+
+The package installs a `slua-viewer` bin. Examples below use that name, which
+resolves inside a package script or after a devDependency install. Prefix them
+with `bunx @gwigz/slua-viewer-client` (or `npx`, `pnpm dlx`) to run them
+straight from a shell.
+
+## Commands
+
+| Command                               | What it does                                 |
+| ------------------------------------- | -------------------------------------------- |
+| `objects`                             | List objects the viewer has published        |
+| `pull <object>/<item> [out]`          | Fetch script or notecard content             |
+| `push [file] [object]/[item]`         | Upload and compile, non-zero exit on failure |
+| `link <name>`                         | Pair a target with the selected object       |
+| `reset <object>/<item>`               | Reset a script                               |
+| `set-running on\|off <object>/<item>` | Start or stop a script                       |
+| `logs`                                | Stream runtime output from published objects |
+| `syntax [defs.lsl\|defs.lua]`         | Dump language definitions                    |
+
+### objects
+
+Lists every published object, its child prims, and their inventory, with each
+script marked `running` or `stopped`. An empty list means nothing is selected
+in the viewer.
+
+```bash
+slua-viewer objects
+```
+
+### push
+
+Uploads a file and compiles it in place. The script's current running state is
+preserved, so pushing to a stopped script does not start it.
+
+```bash
+slua-viewer push dist/main.slua 4f2b0c1e-.../Main
+```
+
+The destination can also come from `slua.json` or a source header, in which
+case the file alone is enough, and `--target` or `--all` cover multi-script
+projects. See [Targets](/docs/viewer-client/targets).
+
+The compile target is picked from `--vm`, then the file extension (`.slua`,
+`.luau` and `.lua` compile as `luau`, `.lsl` as `mono`), then whatever the item
+already is.
+
+A save can succeed while the compile fails, the source is stored either way.
+Either failure exits non-zero, and with `--all` a failing target does not
+strand the ones behind it.
+
+### pull
+
+Writes the item's content to `out`, or to stdout when no path is given. Content
+the viewer base64-encodes is decoded for you.
+
+```bash
+slua-viewer pull "My Rezzer/Main" src/main.recovered.luau
+```
+
+### logs
+
+Streams `runtime.debug` and `runtime.error` output, stack frames included.
+Runtime output is only forwarded for published objects, so pass `--object` to
+have one published on demand, otherwise you only see what is already selected.
+
+```bash
+slua-viewer logs --object 4f2b0c1e-... --follow
+```
+
+With `--follow` it reconnects with backoff when the viewer restarts.
+
+### syntax
+
+Without an argument, prints the viewer's syntax id and the definition files it
+has cached. With `defs.lsl` or `defs.lua`, dumps that definition set as JSON.
+
+## Addressing
+
+Targets are `<object>/<item>`, or `<object>/<link>/<item>` for an item in a
+child prim. The `--object`, `--link` and `--item` flags are equivalent.
+
+The object segment takes a UUID, a name, or an explicit `id:` / `name:` /
+`desc:` prefix. Items match with or without the display extension, so `Main`
+and `Main.luau` are the same item. Child prims match on link name, `Name (2)`
+when siblings share a name, link number, or UUID.
+
+```bash
+slua-viewer push dist/main.slua 4f2b0c1e-.../Main
+slua-viewer push dist/main.slua "desc:slua:my-project/Main"
+slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
+```
+
+The viewer only exposes objects it has published, so an unpublished object
+cannot be addressed. Selecting it in the viewer publishes it, and addressing it
+by UUID publishes it on demand.
+
+## Options
+
+| Flag                  | Applies to     | Meaning                                              |
+| --------------------- | -------------- | ---------------------------------------------------- |
+| `--object <id\|name>` | most           | Target object, same grammar as the object segment    |
+| `--item <id\|name>`   | most           | Target inventory item                                |
+| `--link <id\|name>`   | most           | Child prim within the linkset                        |
+| `--vm <vm>`           | `push`         | Compile target: `luau`, `mono`, `lsl2`               |
+| `--target <name>`     | `push`         | Deploy a named target from `slua.json`               |
+| `--all`               | `push`         | Deploy every target in `slua.json`                   |
+| `--save-back`         | `push`         | Derez back into the source prim after a good compile |
+| `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
+| `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
+| `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
+| `--port <port>`       | all            | Viewer websocket port, default `9020`                |
+| `--timeout <ms>`      | all            | Request timeout                                      |
+| `--json`              | all            | Machine-readable output on stdout                    |
+
+## Compile Errors
+
+`push` looks for a source map beside the file it uploads
+(`dist/main.slua.map`) and translates the viewer's Lua line numbers back to
+your original source, printing the offending line with each error. Enable it
+with `"sourceMap": true` in your tsconfig. Without a map, errors are reported
+against the generated output instead, and the CLI says so.
+
+<Callout type="warn" title="Bundled output">
+  If you bundle with `@gwigz/tstl-bundle-flatten`, you need 1.2.0 or newer. Earlier versions rewrote
+  the emitted Lua without updating the map, leaving it describing the unflattened bundle.
+</Callout>
+
+Mapping is line accurate, not column accurate. LSL compile errors carry real
+column numbers, which the Luau compiler does not report.
+
+## JSON Output
+
+`--json` puts exactly one JSON document on stdout and nothing else, with
+progress and errors kept on stderr, so the CLI can be piped into `jq` or read
+by an agent.
+
+```bash
+slua-viewer push dist/main.slua --json | jq .compiled
+```
+
+A failure still emits a document (`{"ok": false, "error": "..."}`), so an empty
+stdout always means something went badly wrong. `logs --json` is the exception:
+it emits one JSON object per line, since it is a stream.
+
+Keys are camelCase (`objectId`, `primId`, `itemId`, `savedBack`), matching the
+library rather than the viewer's wire format. See
+[Naming](/docs/viewer-client/library#naming).

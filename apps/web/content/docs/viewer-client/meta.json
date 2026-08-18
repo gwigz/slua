@@ -1,0 +1,7 @@
+{
+  "title": "@gwigz/slua-viewer-client",
+  "description": "Client and CLI for pushing scripts in-world through the viewer",
+  "root": true,
+  "icon": "Upload",
+  "pages": ["---Introduction---", "index", "---Reference---", "cli", "targets", "library"]
+}

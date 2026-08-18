@@ -8,7 +8,7 @@ The viewer ships a JSON-RPC 2.0 WebSocket server on `localhost:9020` for externa
 bun run build && bunx @gwigz/slua-viewer-client push dist/main.slua
 ```
 
-Compile errors come back with the file and line of your **TypeScript** source, and a failed compile exits non-zero.
+Compile errors come back with the file and line of your **TypeScript** source, given a source map beside the pushed file, and against the generated output without one. A failed compile exits non-zero.
 
 ## Requirements
 

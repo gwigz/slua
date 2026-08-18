@@ -21,8 +21,9 @@ bun run build && bunx @gwigz/slua-viewer-client push dist/main.slua
 ```
 
 Compile errors come back with the file and line of your **TypeScript** source,
-and a failed compile exits non-zero, so a broken build fails your deploy script
-instead of quietly shipping.
+given a source map beside the pushed file, and against the generated output
+without one. A failed compile exits non-zero, so a broken build fails your
+deploy script instead of quietly shipping.
 
 ## Which Way It Works
 

@@ -202,20 +202,23 @@ import {
 
 const client = await ViewerClient.connect({ port: 9020 })
 
-const target = await resolveItem(client, parseObjectRef("desc:slua:my-project/Main"))
+try {
+  const target = await resolveItem(client, parseObjectRef("desc:slua:my-project/Main"))
 
-const result = await client.objectContentSave({
-  primId: target.primId,
-  itemId: target.itemId,
-  content: await readFile("dist/main.slua", "utf8"),
-  vm: "luau",
-})
+  const result = await client.objectContentSave({
+    primId: target.primId,
+    itemId: target.itemId,
+    content: await readFile("dist/main.slua", "utf8"),
+    vm: "luau",
+  })
 
-if (result.compiled === false) {
-  console.error(parseCompileErrors(result.errors, "luau"))
+  if (result.compiled === false) {
+    console.error(parseCompileErrors(result.errors, "luau"))
+  }
+} finally {
+  // An open socket keeps the process alive, so this happens either way.
+  client.close()
 }
-
-client.close()
 ```
 
 The viewer drives the handshake, so this is a bidirectional peer rather than a plain client: it answers `session.handshake` (including the local-file auth challenge), `session.ping`, and any `editor.*` commands you register through the `commands` option.

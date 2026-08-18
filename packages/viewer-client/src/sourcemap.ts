@@ -125,9 +125,14 @@ export class SourceMap {
 
         // Prefer the leftmost mapping on the line; that is the statement the
         // compiler's line number refers to.
-        if (generatedColumn < bestColumn) {
+        const source = sources[sourceIndex]
+
+        // A segment pointing outside `sources` is no better than no mapping:
+        // an empty path would be reported as the error's file and hide the
+        // fallback to the pushed file.
+        if (source !== undefined && generatedColumn < bestColumn) {
           bestColumn = generatedColumn
-          best = { source: sources[sourceIndex] ?? "", line: sourceLine + 1 }
+          best = { source, line: sourceLine + 1 }
         }
       }
 

@@ -41,6 +41,16 @@ describe("parseCliArgs", () => {
     })
   })
 
+  it("takes the positional as the output path when the target came from flags", () => {
+    expect(parseCliArgs(["pull", "--object", "Obj", "--item", "Main", "out.luau"]).command).toEqual(
+      {
+        name: "pull",
+        ref: { object: { kind: "name", value: "Obj" }, link: undefined, item: "Main" },
+        out: "out.luau",
+      },
+    )
+  })
+
   it("carries the link flag into the ref", () => {
     expect(
       parseCliArgs(["reset", "--object", "O", "--item", "I", "--link", "L"]).command,

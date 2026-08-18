@@ -22,7 +22,9 @@ const CAMEL_FIELD = /^[a-z][a-zA-Z0-9]*$/
 function camelKey(key: string): string {
   if (!SNAKE_FIELD.test(key)) return key
 
-  return key.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase())
+  // Letters only: `slot_2` has no camel spelling to go back from, so folding
+  // it to `slot2` would make the pair asymmetric.
+  return key.replace(/_([a-z])/g, (_, char: string) => char.toUpperCase())
 }
 
 function snakeKey(key: string): string {

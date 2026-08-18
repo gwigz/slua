@@ -19,10 +19,14 @@ import { syntaxCommand } from "./commands/syntax.js"
 import { withClient } from "./connect.js"
 import { createReporter } from "./output.js"
 
-/** Set as soon as the flags parse, so failures can still answer in JSON. */
+/** Whether stdout owes a JSON document, even when nothing parses. */
 let wantsJson = false
 
 async function main(): Promise<number> {
+  // Read straight from argv first: a usage error still owes a --json consumer
+  // its document, and the parser rejects before it can report the flag.
+  wantsJson = process.argv.includes("--json")
+
   const { global, command } = parseCliArgs(process.argv.slice(2))
   const reporter = createReporter(global.json)
 

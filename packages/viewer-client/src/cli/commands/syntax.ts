@@ -19,14 +19,24 @@ export async function syntaxCommand(
   }
 
   // Without a kind, list what the viewer has cached rather than dumping everything.
-  const cache = await client.syntaxCache().catch(() => undefined)
+  try {
+    const cache = await client.syntaxCache()
 
-  reporter.data({ id, files: cache?.files ?? [] })
-  reporter.line(`syntax id  ${id}`)
+    reporter.data({ id, files: cache?.files ?? [] })
+    reporter.line(`syntax id  ${id}`)
 
-  for (const file of cache?.files ?? []) {
-    reporter.line(`  ${file}`)
+    for (const file of cache?.files ?? []) {
+      reporter.line(`  ${file}`)
+    }
+
+    return 0
+  } catch (error) {
+    // Swallowing this printed an empty list, which reads as "nothing cached".
+    const message = error instanceof Error ? error.message : String(error)
+
+    reporter.data({ ok: false, id, files: [], error: message })
+    reporter.error(`could not list the syntax cache: ${message}`)
+
+    return 1
   }
-
-  return 0
 }

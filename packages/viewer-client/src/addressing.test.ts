@@ -241,7 +241,7 @@ describe("ensurePublished", () => {
       on: () => () => {},
     } as unknown as ViewerClient
 
-    expect(ensurePublished(client, byName("Unknown"))).rejects.toThrow(/target it by UUID/)
+    await expect(ensurePublished(client, byName("Unknown"))).rejects.toThrow(/target it by UUID/)
   })
 
   it("surfaces a refusal from the viewer", async () => {
@@ -251,7 +251,7 @@ describe("ensurePublished", () => {
       on: () => () => {},
     } as unknown as ViewerClient
 
-    expect(ensurePublished(client, byId(ROOT_ID))).rejects.toThrow(/permission denied/)
+    await expect(ensurePublished(client, byId(ROOT_ID))).rejects.toThrow(/permission denied/)
   })
 })
 
@@ -297,8 +297,8 @@ describe("ensurePublished by description", () => {
       on: () => () => {},
     } as unknown as ViewerClient
 
-    expect(ensurePublished(client, { kind: "description", value: "slua:nope" })).rejects.toThrow(
-      /select it in the viewer/,
-    )
+    await expect(
+      ensurePublished(client, { kind: "description", value: "slua:nope" }),
+    ).rejects.toThrow(/select it in the viewer/)
   })
 })

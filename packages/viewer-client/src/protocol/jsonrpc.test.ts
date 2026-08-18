@@ -54,7 +54,7 @@ describe("JsonRpcPeer", () => {
   it("times out a call that is never answered", async () => {
     const peer = new JsonRpcPeer(new FakeTransport())
 
-    expect(peer.call("session.ping", {}, 5)).rejects.toBeInstanceOf(RpcTimeoutError)
+    await expect(peer.call("session.ping", {}, 5)).rejects.toBeInstanceOf(RpcTimeoutError)
   })
 
   it("rejects pending calls when the transport closes", async () => {
@@ -64,7 +64,7 @@ describe("JsonRpcPeer", () => {
 
     transport.close()
 
-    expect(pending).rejects.toBeInstanceOf(ConnectionClosedError)
+    await expect(pending).rejects.toBeInstanceOf(ConnectionClosedError)
   })
 
   it("routes notifications to every listener", () => {

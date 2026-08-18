@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises"
+import { open as openFile } from "node:fs/promises"
 import { HandshakeError, ViewerUnavailableError } from "./errors.js"
 import { JsonRpcPeer, type Transport } from "./jsonrpc.js"
 import {
@@ -19,6 +19,11 @@ export const DEFAULT_PORT = 9020
 export const SAVE_TIMEOUT_MS = 90_000
 
 const DEFAULT_TIMEOUT_MS = 30_000
+/** Cap on the socket's connection phase, before the handshake takes over. */
+const CONNECT_TIMEOUT_MS = 30_000
+/** The challenge file holds a bare UUID, so nothing beyond this is of use. */
+const CHALLENGE_MAX_BYTES = 64
+const CHALLENGE_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const PING_INTERVAL_MS = 30_000
 const PING_TIMEOUT_MS = 10_000
 const MAX_PING_FAILURES = 2
@@ -47,6 +52,13 @@ export const webSocketTransport: TransportFactory = (url) =>
 
     let opened = false
 
+    // A host that answers with neither `open` nor `close`, a dropped SYN or a
+    // half-open proxy, would otherwise leave this promise pending forever.
+    const timer = setTimeout(() => {
+      socket.close()
+      reject(new ViewerUnavailableError(url, `no response within ${CONNECT_TIMEOUT_MS}ms`))
+    }, CONNECT_TIMEOUT_MS)
+
     const transport: Transport = {
       send: (data) => socket.send(data),
       close: () => socket.close(),
@@ -58,6 +70,7 @@ export const webSocketTransport: TransportFactory = (url) =>
     socket.addEventListener(
       "open",
       () => {
+        clearTimeout(timer)
         opened = true
         resolve(transport)
       },
@@ -73,6 +86,8 @@ export const webSocketTransport: TransportFactory = (url) =>
     // A failed connection reports `error` once the socket is already closed,
     // so `close` is where both the rejection and the reason come from.
     socket.addEventListener("close", (event) => {
+      clearTimeout(timer)
+
       if (!opened) {
         reject(new ViewerUnavailableError(url, (event as CloseEvent).reason || undefined))
 
@@ -209,7 +224,11 @@ export class ViewerConnection {
     this.peer.handle(
       "command.execute",
       async (params: CommandExecuteParams): Promise<CommandExecuteResponse> => {
-        const handler = commands[params?.command]
+        // Own properties only, or `toString` and friends would resolve to
+        // something inherited that `command.list` never advertised.
+        const handler = Object.hasOwn(commands, params?.command)
+          ? commands[params.command]
+          : undefined
 
         if (!handler) {
           return {
@@ -292,6 +311,20 @@ export class ViewerConnection {
   }
 }
 
+/** Reads at most a UUID's worth, so a bogus path cannot pull in a whole file. */
+async function readChallenge(path: string): Promise<string> {
+  const handle = await openFile(path, "r")
+
+  try {
+    const buffer = Buffer.alloc(CHALLENGE_MAX_BYTES)
+    const { bytesRead } = await handle.read(buffer, 0, CHALLENGE_MAX_BYTES, 0)
+
+    return buffer.toString("utf8", 0, bytesRead)
+  } finally {
+    await handle.close()
+  }
+}
+
 /**
  * Builds our side of the handshake, answering the local-file auth challenge.
  *
@@ -317,8 +350,10 @@ export async function buildHandshakeResponse(
   }
 
   if (handshake?.challenge) {
+    let contents: string
+
     try {
-      response.challengeResponse = await readFile(handshake.challenge, "utf8")
+      contents = await readChallenge(handshake.challenge)
     } catch (error) {
       throw new HandshakeError(
         `could not read the auth challenge at ${handshake.challenge}: ${
@@ -326,6 +361,16 @@ export async function buildHandshakeResponse(
         }`,
       )
     }
+
+    // The response goes back to whoever is on the port, so a file that is not
+    // the UUID the protocol describes is not something to echo at them.
+    if (!CHALLENGE_UUID.test(contents.trim())) {
+      throw new HandshakeError(
+        `the auth challenge at ${handshake.challenge} is not a UUID, refusing to send it back`,
+      )
+    }
+
+    response.challengeResponse = contents
   }
 
   return response

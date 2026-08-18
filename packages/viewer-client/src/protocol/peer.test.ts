@@ -91,7 +91,7 @@ describe("buildHandshakeResponse", () => {
   })
 
   it("fails loudly when the challenge file cannot be read", async () => {
-    expect(buildHandshakeResponse(handshake("/nope/does-not-exist"))).rejects.toBeInstanceOf(
+    await expect(buildHandshakeResponse(handshake("/nope/does-not-exist"))).rejects.toBeInstanceOf(
       HandshakeError,
     )
   })
@@ -162,7 +162,7 @@ describe("ViewerConnection", () => {
       params: { reason: 2, message: "Invalid challenge response" },
     })
 
-    expect(connecting).rejects.toBeInstanceOf(HandshakeError)
+    await expect(connecting).rejects.toBeInstanceOf(HandshakeError)
   })
 
   it("gives up if session.ok never arrives, and lets the transport go", async () => {
@@ -345,6 +345,8 @@ describe("webSocketTransport", () => {
   it("rejects when nothing is listening", async () => {
     // The runtime fires `error` only after the socket is already closed, so
     // the rejection has to come from the close event or connect never settles.
-    expect(webSocketTransport("ws://127.0.0.1:9")).rejects.toBeInstanceOf(ViewerUnavailableError)
+    await expect(webSocketTransport("ws://127.0.0.1:9")).rejects.toBeInstanceOf(
+      ViewerUnavailableError,
+    )
   })
 })

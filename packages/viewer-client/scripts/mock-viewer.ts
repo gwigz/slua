@@ -34,7 +34,18 @@ const object = {
 
 const contents = new Map<string, string>([[ITEM_ID, "ll.OwnerSay('hello from the mock viewer')\n"]])
 
-const challenges = new WeakMap<object, { path: string; value: string }>()
+const challenges = new WeakMap<object, { dir: string; path: string; value: string }>()
+
+/** Drops a connection's challenge directory, handshake completed or not. */
+async function clearChallenge(ws: object) {
+  const challenge = challenges.get(ws)
+
+  if (!challenge) return
+
+  challenges.delete(ws)
+
+  await rm(challenge.dir, { recursive: true, force: true })
+}
 
 function send(ws: { send(data: string): void }, payload: unknown) {
   ws.send(JSON.stringify(payload))
@@ -153,10 +164,12 @@ const server = Bun.serve({
       // sending only the path; the client must read it back.
       const dir = await mkdtemp(join(tmpdir(), "mock-viewer-"))
       const value = randomUUID()
-      const path = join(dir, `sl_script_challenge_${value}.tmp`)
+      // The filename gets its own token, or the path alone would give the
+      // value away and a client could answer without reading anything.
+      const path = join(dir, `sl_script_challenge_${randomUUID()}.tmp`)
 
       await writeFile(path, value, "utf8")
-      challenges.set(ws as object, { path, value })
+      challenges.set(ws as object, { dir, path, value })
 
       send(ws, {
         jsonrpc: "2.0",
@@ -183,7 +196,7 @@ const server = Bun.serve({
       if (message.id === 1 && message.result) {
         const challenge = challenges.get(ws as object)
 
-        await rm(challenge!.path, { force: true })
+        await clearChallenge(ws as object)
 
         if (message.result.challenge_response !== challenge!.value) {
           send(ws, {
@@ -221,8 +234,11 @@ const server = Bun.serve({
       await handle(ws, message)
     },
 
-    close(ws) {
+    async close(ws) {
       clearInterval((ws.data as { timer?: ReturnType<typeof setInterval> })?.timer)
+
+      // A client that never answers the handshake still leaves a directory.
+      await clearChallenge(ws as object)
     },
   },
 })

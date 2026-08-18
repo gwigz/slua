@@ -114,7 +114,9 @@ export function parseHeaderTags(
   const tags: PartialTarget = {}
 
   for (const [, tag, rawValue] of header.matchAll(/@slua-([a-z-]+)(?:[ \t]+([^\n*]*))?/g)) {
-    const value = rawValue?.trim() ?? ""
+    // `--[[ @slua-item Main ]]` keeps its terminator inside the match, and a
+    // value of "Main ]]" is neither the item name nor a readable flag.
+    const value = (rawValue ?? "").replace(/\]\]\s*$/, "").trim()
 
     switch (tag) {
       case "target": {

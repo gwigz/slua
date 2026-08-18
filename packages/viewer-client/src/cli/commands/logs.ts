@@ -36,26 +36,36 @@ async function streamOnce(
 ): Promise<ViewerClient> {
   const client = await ViewerClient.connect({ port: global.port, timeoutMs: global.timeoutMs })
 
-  // Runtime output is only forwarded for objects the viewer has published, so
-  // asking for one up front is the difference between output and silence.
-  if (command.object) {
-    const object = await ensurePublished(client, parseObjectSelector(command.object))
-
-    reporter.note(pc.dim(`watching ${object.objectName} (${object.objectId})`))
-  } else {
-    const { objects } = await client.objectList()
-
-    if (!objects?.length) {
-      reporter.note(
-        pc.yellow(
-          "no published objects — runtime output is only forwarded for published objects, so pass --object <uuid>",
-        ),
-      )
-    }
-  }
-
+  // Registered before the round trips below, so output produced while the
+  // viewer is publishing still reaches the stream.
   client.on("runtime.debug", (params) => emit(reporter, "debug", params))
   client.on("runtime.error", (params) => emit(reporter, "error", params))
+
+  try {
+    // Runtime output is only forwarded for objects the viewer has published, so
+    // asking for one up front is the difference between output and silence.
+    if (command.object) {
+      const object = await ensurePublished(client, parseObjectSelector(command.object))
+
+      reporter.note(pc.dim(`watching ${object.objectName} (${object.objectId})`))
+    } else {
+      const { objects } = await client.objectList()
+
+      if (!objects?.length) {
+        reporter.note(
+          pc.yellow(
+            "no published objects — runtime output is only forwarded for published objects, so pass --object <uuid>",
+          ),
+        )
+      }
+    }
+  } catch (error) {
+    // The socket is open from here on, and an open socket keeps the event loop
+    // alive, so a failed setup would hang rather than report and exit.
+    client.close()
+
+    throw error
+  }
 
   return client
 }
@@ -84,6 +94,11 @@ export async function logsCommand(
         current!.connection.onClose(() => resolveClosed())
         current!.connection.peer.on("session.disconnect", () => resolveClosed())
       })
+
+      // A `session.disconnect` can arrive with the socket still open, so the
+      // old client goes before a replacement takes its place. Already-closed
+      // connections ignore this.
+      current.close()
     } catch (error) {
       if (!command.follow) throw error
 

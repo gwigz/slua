@@ -137,8 +137,21 @@ export function parseCliArgs(argv: string[]): CliArgs {
     case "objects":
       return { global, command: { name: "objects" } }
 
-    case "pull":
-      return { global, command: { name: "pull", ref: targetRef(rest[0], values), out: rest[1] } }
+    case "pull": {
+      // With the target given by flags, the first positional is the output
+      // path, not a ref, or `pull --object O --item I out.luau` would read
+      // "out.luau" as the target.
+      const flagged = values.object !== undefined && values.item !== undefined
+
+      return {
+        global,
+        command: {
+          name: "pull",
+          ref: targetRef(flagged ? undefined : rest[0], values),
+          out: flagged ? rest[0] : rest[1],
+        },
+      }
+    }
 
     case "push": {
       if (values.vm !== undefined && !VM_VALUES.includes(values.vm as ScriptVM)) {

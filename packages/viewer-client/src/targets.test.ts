@@ -87,6 +87,11 @@ export {}`)
     expect(parseHeaderTags('ll.OwnerSay("hi")\n// @slua-item Main')).toEqual({})
   })
 
+  it("drops the terminator of a single-line Lua block comment", () => {
+    expect(parseHeaderTags("--[[ @slua-item Main ]]").item).toBe("Main")
+    expect(parseHeaderTags("--[[ @slua-save-back ]]").saveBack).toBe(true)
+  })
+
   it("rejects an unknown tag", () => {
     expect(() => parseHeaderTags("/** @slua-frobnicate x */")).toThrow(/unknown tag/)
   })

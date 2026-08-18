@@ -19,6 +19,10 @@ export async function withClient<T>(
   try {
     return await fn(client)
   } finally {
-    client.close()
+    try {
+      client.close()
+    } catch {
+      // Disconnecting is best effort; whatever `fn` threw is the real news.
+    }
   }
 }

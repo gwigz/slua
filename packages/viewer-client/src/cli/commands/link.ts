@@ -50,8 +50,9 @@ export async function linkCommand(
   if (!stamped) {
     const next = description === "" ? key : `${description} ${key}`
 
-    // Descriptions cap at 127 characters in Second Life.
-    if (next.length > 127) {
+    // Descriptions cap at 127 bytes in Second Life, so a multi-byte character
+    // costs more than one of them.
+    if (Buffer.byteLength(next, "utf8") > 127) {
       reporter.error(
         `"${object.objectName}" has no room in its description for ${key}; shorten it or pass --key`,
       )

@@ -423,7 +423,7 @@ function sanitizeComment(text: string) {
 
 /**
  * Build a single JSDoc structure, optionally combining a description with
- * a `@deprecated` tag so ts-morph emits one `/** ... *​/` block instead of
+ * a `@deprecated` tag so ts-morph emits a single doc comment block instead of
  * separate blocks for each piece.
  */
 function buildDocs(

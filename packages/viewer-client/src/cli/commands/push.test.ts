@@ -4,6 +4,7 @@ import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { parseObjectRef } from "../../addressing"
 import type { ViewerClient } from "../../client"
+import { RpcError } from "../../protocol/errors"
 import type { ObjectInventoryItem, PublishedObject } from "../../protocol/types"
 import type { Config } from "../../targets"
 import type { Reporter } from "../output"
@@ -163,5 +164,63 @@ describe("pushCommand with --all", () => {
       expect.objectContaining({ target: "first", ok: false }),
       expect.objectContaining({ target: "second", ok: true }),
     ])
+  })
+})
+
+describe("pushCommand with --wait", () => {
+  it("does not sit on the publish wait while retrying a stale save", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "slua-push-"))
+
+    await mkdir(join(dir, "dist"))
+    await writeFile(join(dir, "dist", "second.slua"), "-- second\n", "utf8")
+    await writeFile(
+      join(dir, "slua.json"),
+      JSON.stringify({
+        targets: { second: { file: "dist/second.slua", object: "name:Second", item: "Main" } },
+      }),
+      "utf8",
+    )
+
+    // The listing goes briefly empty after the rejected save, which a retry
+    // that kept --wait would wait out rather than simply read again.
+    const listings = [[published], [], [published]]
+    const notes: string[] = []
+
+    let lists = 0
+    let saves = 0
+
+    const client = {
+      objectList: async () => ({ objects: listings[Math.min(lists++, listings.length - 1)] }),
+      objectContentSave: async () => {
+        if (saves++ === 0) {
+          throw new RpcError({
+            code: -32602,
+            message: "Invalid params: Item not found in prim inventory",
+          })
+        }
+
+        return { success: true, compiled: true }
+      },
+    } as unknown as ViewerClient
+
+    const reporter = collectingReporter()
+    const cwd = process.cwd()
+
+    process.chdir(dir)
+
+    let code: number
+
+    try {
+      code = await pushCommand(client, { name: "push", all: true }, reporter, {
+        waitMs: 1_000,
+        onWait: (message) => notes.push(message),
+      })
+    } finally {
+      process.chdir(cwd)
+    }
+
+    expect(code).toBe(0)
+    expect(saves).toBe(2)
+    expect(notes).toEqual([])
   })
 })

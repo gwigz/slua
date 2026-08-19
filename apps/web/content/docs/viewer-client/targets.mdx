@@ -35,8 +35,9 @@ publish to. If several objects are published, name one with `--object`. Pass `--
 
 The key is appended to whatever description the object already has, matched on
 a word boundary so `slua:main` is not confused with `slua:main-menu`.
-Descriptions cap at 127 characters in Second Life, so a full one is reported
-rather than truncated. Linking warns, but still writes, when the object has no
+Descriptions cap at 127 bytes of UTF-8 in Second Life, so a multi-byte
+character costs more than one, and a full description is reported rather than
+truncated. Linking warns, but still writes, when the object has no
 item of that name yet.
 
 ## Source Headers

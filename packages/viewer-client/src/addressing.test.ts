@@ -6,6 +6,7 @@ import {
   ensurePublished,
   findItem,
   isUuid,
+  listPublished,
   type ObjectSelector,
   parseObjectRef,
   parseObjectSelector,
@@ -318,6 +319,76 @@ describe("ensurePublished with --wait", () => {
   })
 })
 
+describe("listPublished", () => {
+  it("does not wait when --wait was not given", async () => {
+    const client = {
+      objectList: async () => ({ objects: [] }),
+      on: () => () => {},
+    } as unknown as ViewerClient
+
+    expect(await listPublished(client)).toEqual([])
+  })
+
+  it("catches a publish that lands while the listing is in flight", async () => {
+    let publish: ((message: unknown) => void) | undefined
+
+    const client = {
+      // The notification arrives before object.list answers, which is the
+      // window a listen-afterwards subscription would miss entirely.
+      objectList: async () => {
+        publish?.({ object })
+
+        return { objects: [] }
+      },
+      on: (_event: string, handler: (message: unknown) => void) => {
+        publish = handler
+
+        return () => {}
+      },
+    } as unknown as ViewerClient
+
+    const list = await listPublished(client, { waitMs: 1_000 })
+
+    expect(list.map((found) => found.objectId)).toEqual([ROOT_ID])
+  })
+
+  it("falls back to the notified object when the re-list is still empty", async () => {
+    let publish: ((message: unknown) => void) | undefined
+
+    const client = {
+      objectList: async () => ({ objects: [] }),
+      on: (_event: string, handler: (message: unknown) => void) => {
+        publish = handler
+
+        return () => {}
+      },
+    } as unknown as ViewerClient
+
+    const waiting = listPublished(client, { waitMs: 1_000 })
+
+    setTimeout(() => publish?.({ object }), 1)
+
+    expect((await waiting).map((found) => found.objectId)).toEqual([ROOT_ID])
+  })
+
+  it("returns an existing listing without waiting", async () => {
+    const notes: string[] = []
+
+    const client = {
+      objectList: async () => ({ objects: [object] }),
+      on: () => () => {},
+    } as unknown as ViewerClient
+
+    const list = await listPublished(client, {
+      waitMs: 1_000,
+      onWait: (message) => notes.push(message),
+    })
+
+    expect(list).toEqual([object])
+    expect(notes).toEqual([])
+  })
+})
+
 describe("resolveItem", () => {
   it("retries a listing that is briefly stale after a save", async () => {
     // The viewer drops the object, then the item, from object.list for a
@@ -335,6 +406,31 @@ describe("resolveItem", () => {
 
     expect(resolved.itemId).toBe(MAIN_ID)
     expect(calls).toBe(3)
+  })
+
+  it("only waits for the publish button on the first lookup", async () => {
+    const notes: string[] = []
+    // The object itself drops out of the listing between attempts, which is
+    // the case a retry that kept --wait would sit on rather than re-read.
+    const listings = [[{ ...object, inventory: [] }], [], [object]]
+
+    let calls = 0
+
+    const client = {
+      objectList: async () => ({ objects: listings[Math.min(calls++, listings.length - 1)] }),
+      on: () => () => {},
+    } as unknown as ViewerClient
+
+    // A retry sitting on the 300 second wait would hang here rather than
+    // re-reading the listing that settles a moment later.
+    const resolved = await resolveItem(
+      client,
+      { object: byName("Test Object"), item: "Main" },
+      { waitMs: 1_000, onWait: (message) => notes.push(message) },
+    )
+
+    expect(resolved.itemId).toBe(MAIN_ID)
+    expect(notes).toEqual([])
   })
 
   it("gives up on an item that never appears", async () => {

@@ -5,6 +5,7 @@ import {
   parseObjectSelector,
   PUBLISH_HINT,
   type PublishOptions,
+  type PublishWatcher,
   waitForAnyPublish,
 } from "../../addressing.js"
 import { ViewerClient } from "../../client.js"
@@ -187,6 +188,8 @@ async function streamOnce(
   client.on("runtime.debug", (params) => emit(reporter, "debug", params, maps))
   client.on("runtime.error", (params) => emit(reporter, "error", params, maps))
 
+  let watcher: PublishWatcher | undefined
+
   try {
     // Runtime output is only forwarded for objects the viewer has published, so
     // asking for one up front is the difference between output and silence.
@@ -194,13 +197,23 @@ async function streamOnce(
       const object = await ensurePublished(client, parseObjectSelector(command.object), publish)
 
       reporter.note(pc.dim(`watching ${object.objectName} (${object.objectId})`))
-    } else if (!(await client.objectList()).objects?.length) {
+    } else {
+      // Subscribed before the listing that decides whether to wait, since a
+      // publish landing between the two would otherwise be missed.
+      watcher = publish.waitMs ? waitForAnyPublish(client, publish.waitMs) : undefined
+
+      // Nothing awaits it when something is already published, so swallow the
+      // timeout rather than leave it unhandled.
+      watcher?.published.catch(() => {})
+
       // With nothing published there is nothing to forward, so either wait for
       // the viewer to publish or say why the stream will stay silent.
-      if (publish.waitMs) {
+      if ((await client.objectList()).objects?.length) {
+        watcher?.cancel()
+      } else if (watcher) {
         publish.onWait?.("waiting for an object")
 
-        const object = await waitForAnyPublish(client, publish.waitMs)
+        const object = await watcher.published
 
         reporter.note(pc.dim(`watching ${object.objectName} (${object.objectId})`))
       } else {
@@ -214,6 +227,7 @@ async function streamOnce(
   } catch (error) {
     // The socket is open from here on, and an open socket keeps the event loop
     // alive, so a failed setup would hang rather than report and exit.
+    watcher?.cancel()
     client.close()
 
     throw error

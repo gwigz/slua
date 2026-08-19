@@ -1,7 +1,13 @@
 import { readFile } from "node:fs/promises"
 import { basename, extname, isAbsolute, resolve } from "node:path"
 import pc from "picocolors"
-import { displayName, type PublishOptions, resolveItem, withStaleRetry } from "../../addressing.js"
+import {
+  displayName,
+  type PublishOptions,
+  resolveItem,
+  withoutWait,
+  withStaleRetry,
+} from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
 import { type CompileLanguage, parseCompileErrors } from "../../compile-errors.js"
 import { ConnectionClosedError } from "../../protocol/errors.js"
@@ -188,9 +194,14 @@ async function pushTarget(
 
   // Lookup and save retry together: right after a save the viewer rejects the
   // next one as "item not found in prim inventory", and a retry has to start
-  // from a fresh listing.
-  const { resolved, vm, response } = await withStaleRetry(async () => {
-    const found = await resolveItem(client, target.ref, publish)
+  // from a fresh listing. Only the first lookup waits on the publish button,
+  // since a retry is for a listing that settles in milliseconds.
+  const { resolved, vm, response } = await withStaleRetry(async (attempt) => {
+    const found = await resolveItem(
+      client,
+      target.ref,
+      attempt === 0 ? publish : withoutWait(publish),
+    )
     const compileAs = resolveVm(target.vm, target.file, found.item)
 
     return {

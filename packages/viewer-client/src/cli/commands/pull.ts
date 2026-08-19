@@ -1,5 +1,11 @@
 import { writeFile } from "node:fs/promises"
-import { displayName, type PublishOptions, resolveItem, withStaleRetry } from "../../addressing.js"
+import {
+  displayName,
+  type PublishOptions,
+  resolveItem,
+  withoutWait,
+  withStaleRetry,
+} from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
 import type { Command } from "../args.js"
 import type { Reporter } from "../output.js"
@@ -10,8 +16,14 @@ export async function pullCommand(
   reporter: Reporter,
   publish: PublishOptions = {},
 ): Promise<number> {
-  const { target, response } = await withStaleRetry(async () => {
-    const found = await resolveItem(client, command.ref, publish)
+  // Only the first lookup waits on the publish button: a stale-listing retry is
+  // for an inventory that settles in milliseconds, not for an absent object.
+  const { target, response } = await withStaleRetry(async (attempt) => {
+    const found = await resolveItem(
+      client,
+      command.ref,
+      attempt === 0 ? publish : withoutWait(publish),
+    )
 
     return {
       target: found,

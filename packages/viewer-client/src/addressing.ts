@@ -274,16 +274,26 @@ export function isStaleInventory(error: unknown): boolean {
  * Wrap the lookup and the call together, so a retry re-reads the object rather
  * than trying the same call against the same stale answer.
  */
-export async function withStaleRetry<T>(fn: () => Promise<T>): Promise<T> {
+export async function withStaleRetry<T>(fn: (attempt: number) => Promise<T>): Promise<T> {
   for (let attempt = 0; ; attempt++) {
     try {
-      return await fn()
+      return await fn(attempt)
     } catch (error) {
       if (!isStaleInventory(error) || attempt >= LOOKUP_RETRY_MS.length) throw error
 
       await new Promise((sleep) => setTimeout(sleep, LOOKUP_RETRY_MS[attempt]))
     }
   }
+}
+
+/**
+ * The same options with the wait dropped.
+ *
+ * A stale-inventory retry is for a listing that settles in milliseconds, so it
+ * must not sit on the publish button's 300 second wait.
+ */
+export function withoutWait(options: PublishOptions): PublishOptions {
+  return { ...options, waitMs: undefined, onWait: undefined }
 }
 
 export interface PublishOptions {
@@ -343,17 +353,68 @@ function waitForPublish(client: ViewerClient, selector: ObjectSelector, timeoutM
   )
 }
 
+/** A publish subscription, and the means to drop it again. */
+export interface PublishWatcher {
+  published: Promise<PublishedObject>
+  cancel: () => void
+}
+
 /**
  * Waits for the viewer to publish anything at all.
  *
  * For commands that take no target, where the point of waiting is to be
- * connected when the publish button is pressed.
+ * connected when the publish button is pressed. Cancellable, so a caller can
+ * subscribe before deciding whether it needs to wait at all.
  */
-export function waitForAnyPublish(
+export function waitForAnyPublish(client: ViewerClient, timeoutMs: number): PublishWatcher {
+  return watchPublish(client, () => true, timeoutMs, "an object")
+}
+
+/**
+ * Lists published objects, holding the connection open under `--wait`.
+ *
+ * The viewer only publishes to a client that is already connected, so an empty
+ * listing under `--wait` means waiting for the publish button rather than
+ * giving up. The watcher subscribes before the listing that decides whether to
+ * wait, since a publish landing between the two would otherwise be missed.
+ */
+export async function listPublished(
   client: ViewerClient,
-  timeoutMs: number,
-): Promise<PublishedObject> {
-  return watchPublish(client, () => true, timeoutMs, "an object").published
+  options: PublishOptions = {},
+): Promise<PublishedObject[]> {
+  if (!options.waitMs) return (await client.objectList()).objects ?? []
+
+  const { published, cancel } = waitForAnyPublish(client, options.waitMs)
+
+  // Nothing awaits it when the listing is already populated, so swallow the
+  // timeout rather than leave it unhandled.
+  published.catch(() => {})
+
+  let list: PublishedObject[]
+
+  try {
+    list = (await client.objectList()).objects ?? []
+  } catch (error) {
+    cancel()
+
+    throw error
+  }
+
+  if (list.length > 0) {
+    cancel()
+
+    return list
+  }
+
+  options.onWait?.("waiting for an object")
+
+  const object = await published
+
+  // Re-list rather than trust the one notification: a publish can carry
+  // several objects, and the listing is what callers read.
+  const settled = (await client.objectList()).objects ?? []
+
+  return settled.length > 0 ? settled : [object]
 }
 
 /**
@@ -443,7 +504,7 @@ export async function resolveItem(
       const object = await ensurePublished(
         client,
         ref.object,
-        attempt === 0 ? options : { ...options, waitMs: undefined, onWait: undefined },
+        attempt === 0 ? options : withoutWait(options),
       )
 
       return findItem(object, ref)

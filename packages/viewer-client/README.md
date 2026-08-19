@@ -93,7 +93,7 @@ slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
 | `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
 | `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
 | `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
-| `--wait`              | all            | Hold the connection open until the viewer publishes  |
+| `--wait`              | most           | Hold the viewer connection open until it publishes   |
 | `--port <port>`       | all            | Viewer websocket port, default `9020`                |
 | `--timeout <ms>`      | all            | Request timeout                                      |
 | `--json`              | all            | Machine-readable output on stdout                    |
@@ -112,7 +112,7 @@ The catch is that the viewer only publishes when an editor client is already con
 slua-viewer push dist/main.slua --wait
 ```
 
-`--wait` holds the connection open and says what it is waiting for, then carries on the moment the object arrives. It works on every command, including `objects --wait` to see what you just published and `logs --wait` to catch output from the start.
+`--wait` holds the connection open and says what it is waiting for, then carries on the moment the object arrives. It applies to every command that resolves or lists a published object, including `objects --wait` to see what you just published and `logs --wait` to catch output from the start. `syntax`, `--help` and `--version` never touch a published object, so it does nothing there.
 
 Addressing an object by UUID skips all of this: the viewer publishes it on demand, no button and no waiting. Names and description keys cannot be requested that way, since the viewer has no way to look them up.
 

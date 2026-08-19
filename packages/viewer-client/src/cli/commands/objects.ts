@@ -2,12 +2,11 @@ import pc from "picocolors"
 import {
   displayName,
   eachPrim,
+  listPublished,
   PUBLISH_HINT,
   type PublishOptions,
-  waitForAnyPublish,
 } from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
-import type { PublishedObject } from "../../protocol/types.js"
 import type { Reporter } from "../output.js"
 
 export async function objectsCommand(
@@ -15,22 +14,10 @@ export async function objectsCommand(
   reporter: Reporter,
   publish: PublishOptions = {},
 ): Promise<number> {
-  let list = await published(client)
-
   // Nothing is published until the viewer's publish button is pressed, and it
   // only publishes to a client that is already connected, so waiting here is
   // what makes that button work at all.
-  if (list.length === 0 && publish.waitMs) {
-    publish.onWait?.("waiting for an object")
-
-    const object = await waitForAnyPublish(client, publish.waitMs)
-
-    // Re-list rather than trust the one notification: a publish can carry
-    // several objects, and the listing is what the rest of this reads.
-    list = await published(client)
-
-    if (list.length === 0) list = [object]
-  }
+  const list = await listPublished(client, publish)
 
   reporter.data({
     objects: list.map((object) => ({
@@ -83,8 +70,4 @@ export async function objectsCommand(
   }
 
   return 0
-}
-
-async function published(client: ViewerClient): Promise<PublishedObject[]> {
-  return (await client.objectList()).objects ?? []
 }

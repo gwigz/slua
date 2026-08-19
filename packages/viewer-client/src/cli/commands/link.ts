@@ -5,9 +5,9 @@ import {
   descriptionMatches,
   displayName,
   eachPrim,
+  listPublished,
   PUBLISH_HINT,
   type PublishOptions,
-  waitForAnyPublish,
 } from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
 import type { PublishedObject } from "../../protocol/types.js"
@@ -117,19 +117,9 @@ async function pickObject(
   wanted: string | undefined,
   publish: PublishOptions,
 ): Promise<PublishedObject> {
-  let published = (await client.objectList()).objects ?? []
-
   // The viewer publishes only to a client that is already connected, so with
   // --wait this command is what that button publishes to.
-  if (published.length === 0 && publish.waitMs) {
-    publish.onWait?.("waiting for an object")
-
-    const object = await waitForAnyPublish(client, publish.waitMs)
-
-    published = (await client.objectList()).objects ?? []
-
-    if (published.length === 0) published = [object]
-  }
+  const published = await listPublished(client, publish)
 
   if (wanted) {
     const match = published.find(

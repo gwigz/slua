@@ -391,24 +391,26 @@ export const CALL_TRANSFORMS: CallTransform[] = [
       ["replace", 1],
       ["replaceAll", 0],
     ] as const
-  ).map(([method, count]): CallTransform => ({
-    match: (node, checker) => isMethodCall(node, checker, isStringType, method, 2),
-    emit: (node, context) => {
-      const str = context.transformExpression(
-        (node.expression as ts.PropertyAccessExpression).expression,
-      )
+  ).map(
+    ([method, count]): CallTransform => ({
+      match: (node, checker) => isMethodCall(node, checker, isStringType, method, 2),
+      emit: (node, context) => {
+        const str = context.transformExpression(
+          (node.expression as ts.PropertyAccessExpression).expression,
+        )
 
-      const search = context.transformExpression(node.arguments[0])
-      const replacement = context.transformExpression(node.arguments[1])
+        const search = context.transformExpression(node.arguments[0])
+        const replacement = context.transformExpression(node.arguments[1])
 
-      return createNamespacedCall(
-        "ll",
-        "ReplaceSubString",
-        [str, search, replacement, tstl.createNumericLiteral(count)],
-        node,
-      )
-    },
-  })),
+        return createNamespacedCall(
+          "ll",
+          "ReplaceSubString",
+          [str, search, replacement, tstl.createNumericLiteral(count)],
+          node,
+        )
+      },
+    }),
+  ),
   // arr.includes(val) -> table.find(arr, val) ~= nil
   {
     match: (node, checker) => isMethodCall(node, checker, isArrayType, "includes", 1),

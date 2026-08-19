@@ -53,11 +53,14 @@ export class JsonRpcPeer {
     this.transport = transport
     this.timeoutMs = options.timeoutMs ?? 30_000
 
+    // oxlint-disable unicorn/prefer-add-event-listener -- `Transport` is a
+    // plain WebSocket-shaped interface, not an `EventTarget`
     transport.onmessage = (data) => this.receive(data)
     transport.onclose = () => this.handleClose()
     // A socket error after open is terminal, and `handleClose` is idempotent,
     // so pending calls fail here rather than waiting out their timeouts.
     transport.onerror = () => this.handleClose()
+    // oxlint-enable unicorn/prefer-add-event-listener
   }
 
   /** Registers the handler for an inbound request. One per method. */

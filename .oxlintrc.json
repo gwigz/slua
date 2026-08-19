@@ -2,7 +2,32 @@
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
   "rules": {
     "unicorn/require-post-message-target-origin": "off",
-    "no-shadow": ["warn", { "allow": ["ok", "error", "value"] }]
+    // Nested arrow helpers stay beside their only caller; the rule still
+    // catches hoistable function declarations.
+    "unicorn/consistent-function-scoping": ["warn", { "checkArrowFunctions": false }],
+    "no-shadow": ["warn", { "allow": ["ok", "error", "value"] }],
+    // Node globals, build-time shims, and generated identifiers that carry a
+    // trailing underscore to dodge a reserved word.
+    "no-underscore-dangle": [
+      "warn",
+      {
+        "allow": [
+          "__dirname",
+          "_require",
+          "_readFile",
+          "_lslDefs",
+          "_project",
+          "_sfCounter",
+          "_type",
+          "__status",
+          "__fn",
+          "__lastResumeArgs",
+          "as_",
+          "is_",
+          "null_"
+        ]
+      }
+    ]
   },
   "categories": {
     "correctness": "error",
@@ -24,6 +49,15 @@
         "typescript/no-extraneous-class": "off",
         "typescript/triple-slash-reference": "off",
         "unicorn/require-module-specifiers": "off"
+      }
+    },
+    {
+      // Host-side CLIs talking to one viewer over one socket: these loops walk
+      // a directory chain, pace a retry, or push in order, so awaiting each
+      // turn is the point rather than an oversight.
+      "files": ["packages/viewer-client/**", "packages/modules/cli/**"],
+      "rules": {
+        "no-await-in-loop": "off"
       }
     }
   ]

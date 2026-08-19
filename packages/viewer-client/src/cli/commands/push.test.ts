@@ -37,19 +37,19 @@ describe("resolveVm", () => {
 })
 
 describe("resolveVm for LSL", () => {
-  const lslItem: ObjectInventoryItem = { itemId: "x", name: "Door", type: "script", subtype: 0 }
+  const doorItem: ObjectInventoryItem = { itemId: "x", name: "Door", type: "script", subtype: 0 }
 
   it("compiles a .lsl file as mono, the default LSL vm", () => {
-    expect(resolveVm(undefined, "src/door.lsl", lslItem)).toBe("mono")
+    expect(resolveVm(undefined, "src/door.lsl", doorItem)).toBe("mono")
   })
 
   it("still honours an explicit lsl2 request", () => {
-    expect(resolveVm("lsl2", "src/door.lsl", lslItem)).toBe("lsl2")
+    expect(resolveVm("lsl2", "src/door.lsl", doorItem)).toBe("lsl2")
   })
 
   it("lets LSL-on-Luau be requested for an .lsl file", () => {
     // The viewer maps "luau" on a non-native script to its lsl-luau path.
-    expect(resolveVm("luau", "src/door.lsl", lslItem)).toBe("luau")
+    expect(resolveVm("luau", "src/door.lsl", doorItem)).toBe("luau")
   })
 })
 

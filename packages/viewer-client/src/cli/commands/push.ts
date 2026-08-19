@@ -336,6 +336,7 @@ async function reportCompileErrors(
     ...base,
     compiled: false,
     mapped: sourceMap !== undefined,
+    // oxlint-disable-next-line no-map-spread -- builds a new payload per error, no accumulator
     errors: resolved.map(({ error, mapped }) => ({
       ...error,
       source: mapped?.source,

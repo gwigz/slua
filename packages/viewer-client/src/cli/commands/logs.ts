@@ -240,6 +240,7 @@ export async function logsCommand(
     process.exit(0)
   })
 
+  // oxlint-disable-next-line no-unmodified-loop-condition -- set by the SIGINT handler above
   while (!stopping) {
     try {
       current = await streamOnce(global, command, reporter, maps, publish)

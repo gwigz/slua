@@ -112,31 +112,37 @@ describe("JsonRpcPeer", () => {
 
   it("replies method not found for an unhandled request", async () => {
     const transport = new FakeTransport()
-    new JsonRpcPeer(transport)
+    const peer = new JsonRpcPeer(transport)
 
     transport.receive({ jsonrpc: "2.0", id: 3, method: "nope" })
 
     await waitFor(() => transport.reply(3) !== undefined)
 
     expect(transport.reply(3).error.code).toBe(RpcErrorCode.MethodNotFound)
+
+    peer.close()
   })
 
   it("reports a parse error for malformed input", () => {
     const transport = new FakeTransport()
-    new JsonRpcPeer(transport)
+    const peer = new JsonRpcPeer(transport)
 
     transport.receive("{ not json")
 
     expect(transport.messages()[0].error.code).toBe(RpcErrorCode.ParseError)
+
+    peer.close()
   })
 
   it("rejects batch arrays, which this protocol never uses", () => {
     const transport = new FakeTransport()
-    new JsonRpcPeer(transport)
+    const peer = new JsonRpcPeer(transport)
 
     transport.receive([{ jsonrpc: "2.0", method: "session.ok" }])
 
     expect(transport.messages()[0].error.code).toBe(RpcErrorCode.InvalidRequest)
+
+    peer.close()
   })
 
   it("accepts a response whose id came back as a string", async () => {

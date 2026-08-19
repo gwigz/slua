@@ -16,7 +16,6 @@
     "@gwigz/slua-json": "workspace:*",
     "@gwigz/slua-types": "workspace:*",
     "@monaco-editor/react": "^4.6.0",
-    "@orama/orama": "^3.1.18",
     "@shikijs/twoslash": "^4.0.2",
     "@tabler/icons-react": "^3.40.0",
     "@takumi-rs/image-response": "^1.0.9",

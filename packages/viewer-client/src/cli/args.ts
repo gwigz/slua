@@ -176,6 +176,12 @@ export function parseCliArgs(argv: string[]): CliArgs {
         )
       }
 
+      // One file cannot be what every target deploys, and taking it silently
+      // would push the same build to all of them.
+      if (all && file !== undefined) {
+        throw new CliUsageError("--all deploys the file each target names, so it takes no file")
+      }
+
       return {
         global,
         command: {

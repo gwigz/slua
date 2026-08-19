@@ -248,41 +248,49 @@ export async function logsCommand(
   let stopping = false
   let current: ViewerClient | undefined
 
-  process.on("SIGINT", () => {
+  // Removed on the way out, or a caller that runs this more than once would
+  // stack a handler per call.
+  const interrupt = () => {
     stopping = true
     current?.close()
     process.exit(0)
-  })
+  }
 
-  // oxlint-disable-next-line no-unmodified-loop-condition -- set by the SIGINT handler above
-  while (!stopping) {
-    try {
-      current = await streamOnce(global, command, reporter, maps, publish)
-      attempt = 0
+  process.on("SIGINT", interrupt)
 
-      await new Promise<void>((resolveClosed) => {
-        current!.connection.onClose(() => resolveClosed())
-        current!.connection.peer.on("session.disconnect", () => resolveClosed())
-      })
+  try {
+    // oxlint-disable-next-line no-unmodified-loop-condition -- set by the SIGINT handler above
+    while (!stopping) {
+      try {
+        current = await streamOnce(global, command, reporter, maps, publish)
+        attempt = 0
 
-      // A `session.disconnect` can arrive with the socket still open, so the
-      // old client goes before a replacement takes its place. Already-closed
-      // connections ignore this.
-      current.close()
-    } catch (error) {
-      if (!command.follow) throw error
+        await new Promise<void>((resolveClosed) => {
+          current!.connection.onClose(() => resolveClosed())
+          current!.connection.peer.on("session.disconnect", () => resolveClosed())
+        })
 
-      reporter.note(pc.dim(`disconnected: ${error instanceof Error ? error.message : error}`))
+        // A `session.disconnect` can arrive with the socket still open, so the
+        // old client goes before a replacement takes its place. Already-closed
+        // connections ignore this.
+        current.close()
+      } catch (error) {
+        if (!command.follow) throw error
+
+        reporter.note(pc.dim(`disconnected: ${error instanceof Error ? error.message : error}`))
+      }
+
+      if (!command.follow || stopping) break
+
+      // Back off so a viewer that is closed or restarting isn't hammered.
+      const delay = Math.min(RECONNECT_BASE_MS * 2 ** attempt++, RECONNECT_MAX_MS)
+
+      reporter.note(pc.dim(`reconnecting in ${Math.round(delay / 1000)}s`))
+
+      await new Promise((sleep) => setTimeout(sleep, delay))
     }
-
-    if (!command.follow || stopping) break
-
-    // Back off so a viewer that is closed or restarting isn't hammered.
-    const delay = Math.min(RECONNECT_BASE_MS * 2 ** attempt++, RECONNECT_MAX_MS)
-
-    reporter.note(pc.dim(`reconnecting in ${Math.round(delay / 1000)}s`))
-
-    await new Promise((sleep) => setTimeout(sleep, delay))
+  } finally {
+    process.off("SIGINT", interrupt)
   }
 
   current?.close()

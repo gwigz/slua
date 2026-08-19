@@ -22,6 +22,7 @@ export {
   type ResolvedItem,
   resolveItem,
   waitForAnyPublish,
+  withoutWait,
   withStaleRetry,
 } from "./addressing.js"
 export { ViewerClient } from "./client.js"

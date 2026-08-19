@@ -97,6 +97,12 @@ describe("parseCliArgs", () => {
     expect(() => parseCliArgs(["push"])).toThrow(CliUsageError)
   })
 
+  it("rejects a file alongside --all", () => {
+    // Otherwise the one file quietly becomes what every target deploys.
+    expect(() => parseCliArgs(["push", "a.slua", "--all"])).toThrow(CliUsageError)
+    expect(() => parseCliArgs(["push", "--all", "--file", "a.slua"])).toThrow(CliUsageError)
+  })
+
   it("rejects --object without --item", () => {
     expect(() => parseCliArgs(["push", "a.slua", "--object", "Obj"])).toThrow(CliUsageError)
   })

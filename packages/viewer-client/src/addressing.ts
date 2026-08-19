@@ -428,15 +428,39 @@ export async function ensurePublished(
   selector: ObjectSelector,
   options: PublishOptions = {},
 ): Promise<PublishedObject> {
-  const { objects } = await client.objectList()
-  const existing = findPublished(objects ?? [], selector)
-
-  if (existing) return existing
-
+  // Under --wait the watcher subscribes before the listing that decides
+  // whether to wait, since a publish landing between the two would be missed.
   // Only a UUID can be requested; the viewer has no way to look an object up
   // by name or description, so those have to be published from the viewer.
+  const waiting =
+    selector.kind !== "id" && options.waitMs
+      ? waitForPublish(client, selector, options.waitMs)
+      : undefined
+
+  // Nothing awaits it when the listing already has the object, so swallow the
+  // timeout rather than leave it unhandled.
+  waiting?.published.catch(() => {})
+
+  let objects: PublishedObject[] | undefined
+
+  try {
+    objects = (await client.objectList()).objects
+  } catch (error) {
+    waiting?.cancel()
+
+    throw error
+  }
+
+  const existing = findPublished(objects ?? [], selector)
+
+  if (existing) {
+    waiting?.cancel()
+
+    return existing
+  }
+
   if (selector.kind !== "id") {
-    if (!options.waitMs) {
+    if (!waiting) {
       throw new Error(
         `no published object matching ${formatObjectSelector(selector)} — ${PUBLISH_HINT}`,
       )
@@ -444,7 +468,7 @@ export async function ensurePublished(
 
     options.onWait?.(`waiting for ${formatObjectSelector(selector)}`)
 
-    return await waitForPublish(client, selector, options.waitMs).published
+    return await waiting.published
   }
 
   const objectId = selector.value

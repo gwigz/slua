@@ -300,6 +300,29 @@ describe("ensurePublished with --wait", () => {
     await expect(waiting).rejects.toThrow(/did not publish/)
   })
 
+  it("catches a publish that lands while the listing is in flight", async () => {
+    let publish: ((message: unknown) => void) | undefined
+
+    const client = {
+      // The notification arrives before object.list answers, which is the
+      // window a listen-afterwards subscription would miss entirely.
+      objectList: async () => {
+        publish?.({ object })
+
+        return { objects: [] }
+      },
+      on: (_event: string, handler: (message: unknown) => void) => {
+        publish = handler
+
+        return () => {}
+      },
+    } as unknown as ViewerClient
+
+    const found = await ensurePublished(client, byName("Test Object"), { waitMs: 1_000 })
+
+    expect(found.objectId).toBe(ROOT_ID)
+  })
+
   it("says what it is waiting for", async () => {
     const notes: string[] = []
 

@@ -85,16 +85,16 @@ cannot silently retarget a deploy.
 Config is optional. It is looked up from the working directory upwards, and
 relative paths resolve against the directory holding it.
 
-```jsonc title="slua.json"
+```json title="slua.json"
 {
   "targets": {
     "main": {
       "file": "dist/main.slua",
       "object": { "description": "slua:my-project" },
       "item": "Main",
-      "saveBack": true,
-    },
-  },
+      "saveBack": true
+    }
+  }
 }
 ```
 

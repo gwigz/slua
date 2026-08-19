@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { mkdtemp, mkdir, writeFile } from "node:fs/promises"
+import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join, resolve } from "node:path"
 import { parseObjectRef } from "../../addressing"
@@ -156,6 +156,8 @@ describe("pushCommand with --all", () => {
       code = await pushCommand(client, { name: "push", all: true }, reporter)
     } finally {
       process.chdir(cwd)
+
+      await rm(dir, { recursive: true, force: true })
     }
 
     expect(code).toBe(1)
@@ -217,6 +219,8 @@ describe("pushCommand with --wait", () => {
       })
     } finally {
       process.chdir(cwd)
+
+      await rm(dir, { recursive: true, force: true })
     }
 
     expect(code).toBe(0)

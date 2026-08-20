@@ -107,6 +107,11 @@ Runtime positions point at the generated Lua (`lua_script:5`), so each line is
 annotated with the TypeScript it maps to, using the source maps of the targets
 in your `slua.json`.
 
+Each line is labelled `object/item`, the same addressing `pull` and `push`
+take, and output a script sent with `llOwnerSay` is tagged `say` rather than
+`debug`. Both need a viewer new enough to send an item reference with its
+runtime events.
+
 ```bash
 slua-viewer logs --object 4f2b0c1e-... --follow
 ```
@@ -174,9 +179,9 @@ against the generated output instead, and the CLI says so.
 Mapping is line accurate, not column accurate. LSL compile errors carry real
 column numbers, which the Luau compiler does not report.
 
-`logs` maps too. Nothing in the viewer's runtime output names the script that
-produced it, so when more than one target's map covers a line, every candidate
-is shown with its target name.
+`logs` maps too. A viewer that names the item its output came from narrows
+that to the target deploying it; without one, a line covered by more than one
+target's map is shown against every candidate, with its target name.
 
 ## JSON output
 

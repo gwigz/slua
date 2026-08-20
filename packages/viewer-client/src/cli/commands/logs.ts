@@ -20,6 +20,8 @@ const RECONNECT_MAX_MS = 30_000
 
 export interface TargetMap {
   name: string
+  /** The item the target deploys to, when the config names one. */
+  item?: string
   map: SourceMap
 }
 
@@ -49,7 +51,7 @@ async function loadTargetMaps(): Promise<TargetMap[]> {
     const file = isAbsolute(target.file) ? target.file : resolve(config.root, target.file)
     const map = await loadSourceMapFor(file)
 
-    if (map) maps.push({ name, map })
+    if (map) maps.push({ name, item: target.item, map })
   }
 
   return maps
@@ -70,6 +72,24 @@ export function rowIn(text: string): number {
   const match = RUNTIME_POSITION.exec(text.trim())
 
   return match ? Number(match[1]) : 0
+}
+
+/**
+ * The maps that could describe the script an event came from.
+ *
+ * A viewer advertising `unifiedDiagnostics` names the item its output came
+ * from, so a row that several targets' maps happen to cover need no longer be
+ * reported against all of them. An event with no item, or one naming an item
+ * no target claims, still falls back to every map.
+ */
+export function mapsFor(params: RuntimeDebug, maps: TargetMap[]): TargetMap[] {
+  const script = params.item?.name
+
+  if (!script) return maps
+
+  const named = maps.filter((entry) => entry.item?.toLowerCase() === script.toLowerCase())
+
+  return named.length > 0 ? named : maps
 }
 
 export function mapRow(row: number, maps: TargetMap[]): MappedLocation[] {
@@ -93,22 +113,31 @@ function formatLocation(location: MappedLocation, ambiguous: boolean): string {
   return ambiguous ? `${where} (${location.target})` : where
 }
 
+function position(line: number, column: number): string {
+  return column > 0 ? `line ${line}, column ${column}` : `line ${line}`
+}
+
 /**
  * The text of a runtime event.
  *
- * `runtime.error` currently arrives with `error` empty and `line` zero — the
- * viewer sends the detail as a separate `runtime.debug` message — so an error
- * would otherwise print as a bare object name and nothing else.
+ * The message is the whole raw chat line and carries the traceback with it,
+ * so it wins over the viewer's extracted `error`. On a viewer without
+ * `unifiedDiagnostics` both that and `line` arrive empty, and the detail
+ * follows as a separate `runtime.debug` message, so an error would otherwise
+ * print as a bare object name and nothing else.
  */
 export function runtimeText(params: RuntimeDebug | RuntimeError, level: "debug" | "error"): string {
-  const { error = "", line = 0 } = params as RuntimeError
+  const { error = "", line = 0, column = 0 } = params as RuntimeError
   const text = params.message || error
 
-  if (text) return line > 0 && !text.includes(`:${line}:`) ? `${text} (line ${line})` : text
-  if (line > 0) return `error on line ${line}`
+  if (text) {
+    return line > 0 && !text.includes(`:${line}:`) ? `${text} (${position(line, column)})` : text
+  }
+
+  if (line > 0) return `error on ${position(line, column)}`
 
   return level === "error"
-    ? "script error without text; the viewer sends the detail as a debug message"
+    ? "script error without text; an older viewer sends the detail as a separate debug message"
     : ""
 }
 
@@ -141,13 +170,40 @@ export function runtimeLines(
   return { lines, mapped: [...rows].flatMap((row) => mapRow(row, maps)) }
 }
 
+/**
+ * The tag a line carries.
+ *
+ * `owner_say` is the script talking to its owner rather than debug output,
+ * and the two are indistinguishable without the channel the viewer now sends.
+ */
+export function tagFor(level: "debug" | "error", params: RuntimeDebug): string {
+  if (level === "error") return pc.red("error")
+
+  return params.channel === "owner_say" ? pc.dim("say") : pc.dim("debug")
+}
+
+/**
+ * Who produced a line.
+ *
+ * The same `object/item` addressing the other commands take, so a name read
+ * out of the stream can be pasted straight into a `pull` or a `push`. The
+ * item half needs a viewer advertising `unifiedDiagnostics`.
+ */
+export function sourceName(params: RuntimeDebug): string {
+  const object = params.objectName || params.objectId
+  const script = params.item?.name
+
+  return script ? `${object}/${script}` : object
+}
+
 function emit(
   reporter: Reporter,
   level: "debug" | "error",
   params: RuntimeDebug | RuntimeError,
   maps: TargetMap[],
 ) {
-  const { lines, mapped } = runtimeLines(params, level, maps)
+  const scoped = mapsFor(params, maps)
+  const { lines, mapped } = runtimeLines(params, level, scoped)
 
   if (reporter.json) {
     // A stream gets one JSON object per line, not one document.
@@ -156,11 +212,10 @@ function emit(
     return
   }
 
-  const name = params.objectName || params.objectId
-  const tag = level === "error" ? pc.red("error") : pc.dim("debug")
-  const ambiguous = maps.length > 1
+  const tag = tagFor(level, params)
+  const ambiguous = scoped.length > 1
 
-  reporter.line(`${tag} ${pc.bold(name)}  ${lines[0] ?? ""}`)
+  reporter.line(`${tag} ${pc.bold(sourceName(params))}  ${lines[0] ?? ""}`)
 
   // The traceback belongs to the line above it, so it is indented under it
   // rather than tagged again as output of its own.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test"
 import { SourceMap } from "../../sourcemap"
-import { mapRow, rowIn, runtimeLines, runtimeText } from "./logs"
+import { mapRow, mapsFor, rowIn, runtimeLines, runtimeText, sourceName, tagFor } from "./logs"
 
 // Generated line 1 -> source line 1, generated line 2 -> source line 3.
 const map = SourceMap.parse(
@@ -20,9 +20,15 @@ describe("runtimeText", () => {
   })
 
   it("says so when an error event carries no text at all", () => {
-    // The viewer currently sends the detail as a separate debug message, so
-    // this would otherwise print as an object name and nothing else.
+    // An older viewer sends the detail as a separate debug message, so this
+    // would otherwise print as an object name and nothing else.
     expect(runtimeText({ ...event, error: "", line: 0 }, "error")).toMatch(/without text/)
+  })
+
+  it("names the column too, once the viewer reports one", () => {
+    expect(runtimeText({ ...event, message: "boom", error: "", line: 4, column: 7 }, "error")).toBe(
+      "boom (line 4, column 7)",
+    )
   })
 
   it("keeps a line number the text does not already carry", () => {
@@ -87,5 +93,48 @@ describe("runtimeLines", () => {
     )
 
     expect(mapped).toEqual([{ target: "main", source: "/project/src/main.ts", line: 3 }])
+  })
+})
+
+describe("mapsFor", () => {
+  const maps = [
+    { name: "main", item: "Main", map },
+    { name: "door", item: "Door", map },
+  ]
+
+  it("narrows to the target deploying the item the event names", () => {
+    expect(mapsFor({ ...event, item: { rootId: "id", name: "Door" } }, maps)).toEqual([maps[1]!])
+  })
+
+  it("ignores case, since the viewer reports the item's own spelling", () => {
+    expect(mapsFor({ ...event, item: { rootId: "id", name: "door" } }, maps)).toEqual([maps[1]!])
+  })
+
+  it("keeps every map when no target claims the item, or none is named", () => {
+    expect(mapsFor({ ...event, item: { rootId: "id", name: "Other" } }, maps)).toEqual(maps)
+    expect(mapsFor(event, maps)).toEqual(maps)
+  })
+})
+
+describe("sourceName", () => {
+  it("addresses the script the way the other commands do", () => {
+    expect(sourceName({ ...event, item: { rootId: "id", name: "Main" } })).toBe("Object/Main")
+  })
+
+  it("falls back to the object alone, then to its id", () => {
+    expect(sourceName(event)).toBe("Object")
+    expect(sourceName({ ...event, objectName: "" })).toBe("id")
+  })
+})
+
+describe("tagFor", () => {
+  it("separates owner say from debug output", () => {
+    expect(tagFor("debug", { ...event, channel: "owner_say" })).toContain("say")
+    expect(tagFor("debug", { ...event, channel: "debug" })).toContain("debug")
+    expect(tagFor("debug", event)).toContain("debug")
+  })
+
+  it("still calls an error an error, whichever channel carried it", () => {
+    expect(tagFor("error", { ...event, channel: "owner_say" })).toContain("error")
   })
 })

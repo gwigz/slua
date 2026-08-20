@@ -103,6 +103,12 @@ Runtime output is only forwarded for published objects, so pass `--object` with
 a UUID to have one published on demand, or `--wait` to hold the connection open
 while you publish one from the viewer.
 
+The viewer forwards every published object's output to every connection, so
+`--object` narrows the stream to the one you named, matching against each prim
+in its linkset. `--targets` narrows it further, to the items your `slua.json`
+targets deploy to, which needs a viewer that names the item its output came
+from.
+
 Runtime positions point at the generated Lua (`lua_script:5`), so each line is
 annotated with the TypeScript it maps to, using the source maps of the targets
 in your `slua.json`.
@@ -158,6 +164,7 @@ description key needs the object published from the viewer first, see
 | `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
 | `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
 | `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
+| `--targets`           | `logs`         | Only output from items your `slua.json` targets      |
 | `--wait`              | most           | Hold the viewer connection open until it publishes   |
 | `--port <port>`       | all            | Viewer websocket port, default `9020`                |
 | `--timeout <ms>`      | all            | Request timeout                                      |

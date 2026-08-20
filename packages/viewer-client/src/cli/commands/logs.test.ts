@@ -1,6 +1,18 @@
 import { describe, expect, it } from "bun:test"
 import { SourceMap } from "../../sourcemap"
-import { mapRow, mapsFor, rowIn, runtimeLines, runtimeText, sourceName, tagFor } from "./logs"
+import {
+  fromObject,
+  mapRow,
+  mapsFor,
+  namesTarget,
+  objectIds,
+  rowIn,
+  runtimeLines,
+  runtimeText,
+  sourceName,
+  tagFor,
+  withUpdate,
+} from "./logs"
 
 // Generated line 1 -> source line 1, generated line 2 -> source line 3.
 const map = SourceMap.parse(
@@ -136,5 +148,69 @@ describe("tagFor", () => {
 
   it("still calls an error an error, whichever channel carried it", () => {
     expect(tagFor("error", { ...event, channel: "owner_say" })).toContain("error")
+  })
+})
+
+describe("objectIds", () => {
+  const object = {
+    objectId: "root",
+    objectName: "Object",
+    inventory: [],
+    linkedObjects: [{ linkId: "child", linkNumber: 2, linkName: "Panel", inventory: [] }],
+  }
+
+  it("covers the root and every linked prim", () => {
+    expect(objectIds(object)).toEqual(new Set(["root", "child"]))
+  })
+
+  it("grows with a prim linked after the listing", () => {
+    const ids = withUpdate(objectIds(object), {
+      objectId: "root",
+      changes: {
+        linkedObjects: {
+          added: [{ linkId: "later", linkNumber: 3, linkName: "New", inventory: [] }],
+        },
+      },
+    })
+
+    expect(ids).toEqual(new Set(["root", "child", "later"]))
+  })
+})
+
+describe("fromObject", () => {
+  const ids = new Set(["root", "child"])
+
+  it("matches the root a newer viewer reports", () => {
+    expect(fromObject({ ...event, objectId: "root", primId: "child" }, ids)).toBe(true)
+  })
+
+  it("matches the speaking prim an older viewer reports alone", () => {
+    expect(fromObject({ ...event, objectId: "child" }, ids)).toBe(true)
+  })
+
+  it("matches on the item reference when the ids do not", () => {
+    expect(
+      fromObject({ ...event, objectId: "other", item: { rootId: "root", name: "Main" } }, ids),
+    ).toBe(true)
+  })
+
+  it("rejects another object's output", () => {
+    expect(fromObject({ ...event, objectId: "elsewhere" }, ids)).toBe(false)
+  })
+})
+
+describe("namesTarget", () => {
+  const items = new Set(["main"])
+
+  it("keeps output from an item a target deploys to, whatever its case", () => {
+    expect(namesTarget({ ...event, item: { rootId: "id", name: "Main" } }, items)).toBe(true)
+  })
+
+  it("drops output from a script the config never mentions", () => {
+    expect(namesTarget({ ...event, item: { rootId: "id", name: "Other" } }, items)).toBe(false)
+  })
+
+  it("keeps output a viewer sent without an item, which cannot be judged", () => {
+    expect(namesTarget(event, items)).toBe(true)
   })
 })

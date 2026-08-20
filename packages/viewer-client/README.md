@@ -93,6 +93,7 @@ slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
 | `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
 | `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
 | `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
+| `--targets`           | `logs`         | Only output from items your `slua.json` targets      |
 | `--wait`              | most           | Hold the viewer connection open until it publishes   |
 | `--port <port>`       | all            | Viewer websocket port, default `9020`                |
 | `--timeout <ms>`      | all            | Request timeout                                      |

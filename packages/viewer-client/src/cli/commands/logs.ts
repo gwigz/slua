@@ -1,6 +1,7 @@
 import { isAbsolute, resolve } from "node:path"
 import pc from "picocolors"
 import {
+  eachPrim,
   ensurePublished,
   parseObjectSelector,
   PUBLISH_HINT,
@@ -9,7 +10,12 @@ import {
   waitForAnyPublish,
 } from "../../addressing.js"
 import { ViewerClient } from "../../client.js"
-import type { RuntimeDebug, RuntimeError } from "../../protocol/types.js"
+import type {
+  ObjectUpdateMessage,
+  PublishedObject,
+  RuntimeDebug,
+  RuntimeError,
+} from "../../protocol/types.js"
 import { loadSourceMapFor, type SourceMap } from "../../sourcemap.js"
 import { loadConfig } from "../../targets.js"
 import type { Command, GlobalFlags } from "../args.js"
@@ -31,21 +37,29 @@ export interface MappedLocation {
   line: number
 }
 
+export interface Targets {
+  maps: TargetMap[]
+  /** Lowercased item names the config's targets deploy to. */
+  items: Set<string>
+}
+
 /**
- * Source maps for every target in `slua.json`.
+ * What `slua.json` says about the scripts this project deploys.
  *
  * Runtime output reports positions in the generated Lua (`lua_script:5`),
  * which is not a file anyone wrote, so the same maps that bring compile errors
- * home are worth having here too.
+ * home are worth having here too. The item names are what `--targets` filters
+ * on, and a target without a source map still counts for that.
  */
-async function loadTargetMaps(): Promise<TargetMap[]> {
+async function loadTargets(): Promise<Targets> {
   const config = await loadConfig()
-
-  if (!config) return []
-
   const maps: TargetMap[] = []
+  const items = new Set<string>()
+
+  if (!config) return { maps, items }
 
   for (const [name, target] of Object.entries(config.targets)) {
+    if (target.item) items.add(target.item.toLowerCase())
     if (!target.file) continue
 
     const file = isAbsolute(target.file) ? target.file : resolve(config.root, target.file)
@@ -54,7 +68,7 @@ async function loadTargetMaps(): Promise<TargetMap[]> {
     if (map) maps.push({ name, item: target.item, map })
   }
 
-  return maps
+  return { maps, items }
 }
 
 /**
@@ -90,6 +104,47 @@ export function mapsFor(params: RuntimeDebug, maps: TargetMap[]): TargetMap[] {
   const named = maps.filter((entry) => entry.item?.toLowerCase() === script.toLowerCase())
 
   return named.length > 0 ? named : maps
+}
+
+/**
+ * Every id a runtime event could name for one published object.
+ *
+ * A viewer advertising `unifiedDiagnostics` reports `objectId` as the
+ * linkset's root and the speaking prim as `primId`; an older one puts the
+ * speaking prim in `objectId` alone, so a script in a child prim never names
+ * the root at all. Listing every prim matches both.
+ */
+export function objectIds(object: PublishedObject): Set<string> {
+  return new Set(eachPrim(object).map((prim) => prim.primId))
+}
+
+/** Adds any prims an update brought with it. */
+export function withUpdate(ids: Set<string>, update: ObjectUpdateMessage): Set<string> {
+  const links = update.changes?.linkedObjects?.added ?? update.linkedObjects ?? []
+
+  // Only ever grows: an id that stopped being ours risks keeping a line,
+  // where forgetting one risks losing output the stream was asked for.
+  return new Set([...ids, update.objectId, ...links.map((link) => link.linkId)])
+}
+
+export function fromObject(params: RuntimeDebug, ids: Set<string>): boolean {
+  return [params.item?.rootId, params.objectId, params.primId].some(
+    (id) => id !== undefined && ids.has(id),
+  )
+}
+
+/**
+ * Whether an event names an item one of the config's targets deploys to.
+ *
+ * A viewer that sends no item reference cannot be filtered this way, so its
+ * output is kept rather than quietly dropped. `logs` says so once instead.
+ */
+export function namesTarget(params: RuntimeDebug, items: Set<string>): boolean {
+  const script = params.item?.name
+
+  if (!script) return true
+
+  return items.has(script.toLowerCase())
 }
 
 export function mapRow(row: number, maps: TargetMap[]): MappedLocation[] {
@@ -233,15 +288,50 @@ async function streamOnce(
   global: GlobalFlags,
   command: Extract<Command, { name: "logs" }>,
   reporter: Reporter,
-  maps: TargetMap[],
+  targets: Targets,
   publish: PublishOptions,
 ): Promise<ViewerClient> {
   const client = await ViewerClient.connect({ port: global.port, timeoutMs: global.timeoutMs })
 
+  // The viewer forwards every published object's output to every connection,
+  // so naming one object only narrows the stream if we do it here. Unset until
+  // the object resolves below, which lets output produced while the viewer is
+  // still publishing through rather than swallowing it.
+  let ids: Set<string> | undefined
+
+  const wanted = (params: RuntimeDebug): boolean => {
+    if (ids && !fromObject(params, ids)) return false
+
+    return !command.targets || namesTarget(params, targets.items)
+  }
+
   // Registered before the round trips below, so output produced while the
   // viewer is publishing still reaches the stream.
-  client.on("runtime.debug", (params) => emit(reporter, "debug", params, maps))
-  client.on("runtime.error", (params) => emit(reporter, "error", params, maps))
+  client.on("runtime.debug", (params) => {
+    if (wanted(params)) emit(reporter, "debug", params, targets.maps)
+  })
+
+  client.on("runtime.error", (params) => {
+    if (wanted(params)) emit(reporter, "error", params, targets.maps)
+  })
+
+  // The linkset can grow while the stream runs, and a script in a prim linked
+  // after the listing would otherwise read as somebody else's output.
+  client.on("object.update", (params) => {
+    if (ids?.has(params.objectId)) ids = withUpdate(ids, params)
+  })
+
+  client.on("object.publish", (params) => {
+    if (ids?.has(params.object.objectId)) ids = objectIds(params.object)
+  })
+
+  if (command.targets && client.connection.handshake?.features.unifiedDiagnostics !== true) {
+    reporter.note(
+      pc.yellow(
+        "--targets needs a viewer that names the item its output came from; showing everything",
+      ),
+    )
+  }
 
   let watcher: PublishWatcher | undefined
 
@@ -250,6 +340,8 @@ async function streamOnce(
     // asking for one up front is the difference between output and silence.
     if (command.object) {
       const object = await ensurePublished(client, parseObjectSelector(command.object), publish)
+
+      ids = objectIds(object)
 
       reporter.note(pc.dim(`watching ${object.objectName} (${object.objectId})`))
     } else {
@@ -297,7 +389,11 @@ export async function logsCommand(
   reporter: Reporter,
   publish: PublishOptions = {},
 ): Promise<number> {
-  const maps = await loadTargetMaps()
+  const targets = await loadTargets()
+
+  if (command.targets && targets.items.size === 0) {
+    throw new Error("--targets needs a slua.json with targets that name an item")
+  }
 
   let attempt = 0
   let stopping = false
@@ -317,7 +413,7 @@ export async function logsCommand(
     // oxlint-disable-next-line no-unmodified-loop-condition -- set by the SIGINT handler above
     while (!stopping) {
       try {
-        current = await streamOnce(global, command, reporter, maps, publish)
+        current = await streamOnce(global, command, reporter, targets, publish)
         attempt = 0
 
         await new Promise<void>((resolveClosed) => {

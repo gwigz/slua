@@ -1,5 +1,11 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.8.0
+
+### Minor Changes
+
+- [#113](https://github.com/gwigz/slua/pull/113) [`0acf6d4`](https://github.com/gwigz/slua/commit/0acf6d46c7abbc273977b4af1acc74f293b8b600) Thanks [@gwigz](https://github.com/gwigz)! - fix lualib warning and filter inlining for bundled builds
+
 ## 1.7.0
 
 ### Minor Changes

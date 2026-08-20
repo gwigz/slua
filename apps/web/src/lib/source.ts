@@ -8,18 +8,12 @@ export const source = loader({
   baseUrl: "/docs",
   source: docs.toFumadocsSource(),
   plugins: [],
+  // Page icons stay monochrome. The package tabs get their colors in the docs
+  // layout instead, since several pages reuse the same glyph as a root folder.
   icon(name) {
-    const iconColors: Record<string, string> = {
-      Code2: "text-blue-400",
-      Terminal: "text-green-400",
-      Braces: "text-amber-400",
-      Package: "text-purple-400",
-      Upload: "text-sky-400",
-    }
-
     if (name && name in LucideIcons) {
       return createElement((LucideIcons as unknown as Record<string, React.ElementType>)[name], {
-        className: `size-4 ${iconColors[name] ?? ""}`.trim(),
+        className: "size-4",
       })
     }
   },

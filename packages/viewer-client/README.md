@@ -93,6 +93,7 @@ slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
 | `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
 | `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
 | `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
+| `--targets`           | `logs`         | Only output from items your `slua.json` targets      |
 | `--wait`              | most           | Hold the viewer connection open until it publishes   |
 | `--port <port>`       | all            | Viewer websocket port, default `9020`                |
 | `--timeout <ms>`      | all            | Request timeout                                      |
@@ -198,7 +199,7 @@ An object sitting in your own inventory cannot be reached at all. It has to be r
 
 `push` looks for a source map beside the file it uploads (`dist/main.slua.map`) and translates the viewer's Lua line numbers back to your original source. Enable it with `"sourceMap": true` in your tsconfig. Without a map, errors are reported against the generated output instead.
 
-`logs` maps too. Runtime output reports positions in the generated Lua (`lua_script:5`), so each line is annotated with the TypeScript it came from, using the source maps of the targets in your `slua.json`. Nothing in the output names the script that produced it, so when more than one target's map covers a line, every candidate is shown with its target name.
+`logs` maps too. Runtime output reports positions in the generated Lua (`lua_script:5`), so each line is annotated with the TypeScript it came from, using the source maps of the targets in your `slua.json`. A viewer that names the item its output came from narrows that to the target deploying it, and labels each line `object/item`; without one, a line covered by more than one target's map is shown against every candidate, with its target name.
 
 If you bundle with `@gwigz/tstl-bundle-flatten`, you need 1.2.0 or newer. Earlier versions rewrote the emitted Lua without updating the map, leaving it describing the unflattened bundle. Mapping is line accurate, not column accurate.
 
@@ -213,7 +214,7 @@ Only field-shaped keys convert. Keys carrying data, an item named `Main` or an o
 ```ts
 import { readFile } from "node:fs/promises"
 import {
-  parseCompileErrors,
+  diagnosticsFrom,
   parseObjectRef,
   resolveItem,
   ViewerClient,
@@ -232,7 +233,7 @@ try {
   })
 
   if (result.compiled === false) {
-    console.error(parseCompileErrors(result.errors, "luau"))
+    console.error(diagnosticsFrom(result, "luau"))
   }
 } finally {
   // An open socket keeps the process alive, so this happens either way.

@@ -26,7 +26,12 @@ export {
   withStaleRetry,
 } from "./addressing.js"
 export { ViewerClient } from "./client.js"
-export { type CompileLanguage, parseCompileError, parseCompileErrors } from "./compile-errors.js"
+export {
+  type CompileLanguage,
+  diagnosticsFrom,
+  parseCompileError,
+  parseCompileErrors,
+} from "./compile-errors.js"
 export {
   ConnectionClosedError,
   HandshakeError,

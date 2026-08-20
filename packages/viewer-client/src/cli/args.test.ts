@@ -140,6 +140,16 @@ describe("parseCliArgs", () => {
       name: "logs",
       object: "O",
       follow: true,
+      targets: false,
+    })
+  })
+
+  it("parses the logs target filter", () => {
+    expect(parseCliArgs(["logs", "--targets"]).command).toEqual({
+      name: "logs",
+      object: undefined,
+      follow: false,
+      targets: true,
     })
   })
 
@@ -191,6 +201,7 @@ describe("helpText", () => {
       "--file",
       "--key",
       "--follow",
+      "--targets",
       "--wait",
       "--port",
       "--timeout",

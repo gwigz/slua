@@ -42,7 +42,7 @@ export type Command =
   | { name: "link"; target: string; object?: string; item?: string; file?: string; key?: string }
   | { name: "reset"; ref: ObjectRef }
   | { name: "set-running"; ref: ObjectRef; running: boolean }
-  | { name: "logs"; object?: string; follow: boolean }
+  | { name: "logs"; object?: string; follow: boolean; targets: boolean }
   | { name: "syntax"; kind?: SyntaxKind }
 
 export interface CliArgs {
@@ -67,6 +67,7 @@ const OPTIONS = {
   file: { type: "string" },
   key: { type: "string" },
   follow: { type: "boolean", short: "f" },
+  targets: { type: "boolean" },
   wait: { type: "boolean" },
   help: { type: "boolean", short: "h" },
   version: { type: "boolean", short: "v" },
@@ -235,7 +236,12 @@ export function parseCliArgs(argv: string[]): CliArgs {
     case "logs":
       return {
         global,
-        command: { name: "logs", object: values.object, follow: values.follow === true },
+        command: {
+          name: "logs",
+          object: values.object,
+          follow: values.follow === true,
+          targets: values.targets === true,
+        },
       }
 
     case "syntax": {
@@ -307,6 +313,7 @@ Options
   --file <path>        File to push, or to record when linking
   --key <key>          Description key to pair on (default slua:<name>)
   -f, --follow         Keep streaming (logs)
+  --targets            Only output from items your slua.json targets (logs)
   --wait               Wait for the viewer to publish, so "Explore in IDE"
                        has a client to publish to
   --port <port>        Viewer websocket port (default ${DEFAULT_PORT})
@@ -323,5 +330,6 @@ Examples
   slua-viewer link main
   slua-viewer push --all
   slua-viewer logs --object 4f2b... --follow
+  slua-viewer logs --targets --follow
 `
 }

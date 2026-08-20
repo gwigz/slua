@@ -20,6 +20,11 @@ export interface SessionHandshake {
   challenge?: string
   languages: string[]
   syntaxId: string
+  /**
+   * Known flags: `liveSync`, `compilation`, `syntaxCache`, `commands` and
+   * `unifiedDiagnostics`. The last one marks the viewer build that renamed
+   * `errors` to `diagnostics` and moved runtime events onto item references.
+   */
   features: Record<string, boolean>
 }
 
@@ -215,7 +220,12 @@ export interface ObjectContentSaveResponse {
   primId?: string
   itemId?: string
   compiled?: boolean
-  /** Raw compiler output lines. Parse with `parseCompileErrors`. */
+  /**
+   * Compiler diagnostics, on a viewer advertising `unifiedDiagnostics`.
+   * Read this and `errors` together with `diagnosticsFrom`.
+   */
+  diagnostics?: Diagnostic[]
+  /** Raw compiler output lines, from a viewer without `unifiedDiagnostics`. */
   errors?: string[]
   message?: string
 }
@@ -318,36 +328,72 @@ export interface ScriptListResponse {
 
 // Compilation and runtime
 
-export interface CompilationError {
-  /** 1-based. */
+export interface Diagnostic {
+  /** 1-based, or 0 when the viewer could not place the message. */
   row: number
   /** 1-based for LSL, always 0 for Luau (the compiler gives no column). */
   column: number
   level: string
   message: string
+  /**
+   * Set when the message came from the LSL compiler. Absent is not proof of
+   * the opposite: the viewer's save path leaves it off unparsed LSL lines.
+   */
   format?: "lsl"
 }
 
+/** @deprecated Renamed to `Diagnostic`, matching the viewer's spelling. */
+export type CompilationError = Diagnostic
+
+/** Where a runtime event or diagnostic came from. */
+export interface ItemRef {
+  /** The root prim of the linkset, which is what `object.*` calls address. */
+  rootId: string
+  primId?: string
+  itemId?: string
+  name?: string
+  language?: "lsl" | "luau"
+}
+
 export interface CompilationResult {
+  /** @deprecated Kept by the viewer while it migrates to item references. */
   scriptId: string
   success: boolean
   running: boolean
-  errors?: CompilationError[]
+  /** On a viewer advertising `unifiedDiagnostics`. */
+  diagnostics?: Diagnostic[]
+  /** From a viewer without `unifiedDiagnostics`. */
+  errors?: Diagnostic[]
 }
 
 export interface RuntimeDebug {
-  /** Empty string when the message came from a published object rather than a subscription. */
-  scriptId: string
+  /**
+   * @deprecated Only sent by a viewer without `unifiedDiagnostics`, and empty
+   * there when the message came from a published object rather than a
+   * subscription. Use `item` instead.
+   */
+  scriptId?: string
+  /** The root prim of the linkset. */
   objectId: string
+  primId?: string
+  itemId?: string
   objectName: string
   message: string
+  /** `owner_say` is the script talking to its owner, not debug output. */
+  channel?: "debug" | "owner_say"
+  item?: ItemRef
 }
 
 export interface RuntimeError extends RuntimeDebug {
-  /** Currently always "" — the viewer does not yet composite the error text. */
+  /**
+   * The error on its own, without the surrounding chat text. Empty when the
+   * viewer could not parse the simulator's format, and always empty on a
+   * viewer without `unifiedDiagnostics`.
+   */
   error: string
-  /** Currently always 0, for the same reason. */
+  /** The line the error names, or 0 when it names none. */
   line: number
+  column?: number
   stack?: string[]
 }
 

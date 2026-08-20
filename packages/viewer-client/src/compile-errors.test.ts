@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { parseCompileError, parseCompileErrors } from "./compile-errors"
+import { diagnosticsFrom, parseCompileError, parseCompileErrors } from "./compile-errors"
 
 describe("parseCompileError", () => {
   it("parses a Luau error, which is already 1-based and has no column", () => {
@@ -56,5 +56,30 @@ describe("parseCompileErrors", () => {
     const parsed = parseCompileErrors(["a.luau:1: first", "a.luau:2: second"], "luau")
 
     expect(parsed.map((error) => error.row)).toEqual([1, 2])
+  })
+})
+
+describe("diagnosticsFrom", () => {
+  it("takes the viewer's own parse when it sent one", () => {
+    const diagnostic = { row: 3, column: 0, level: "ERROR", message: "Unknown global" }
+
+    expect(
+      diagnosticsFrom({ diagnostics: [diagnostic], errors: ["a.luau:9: stale"] }, "luau"),
+    ).toEqual([diagnostic])
+  })
+
+  it("parses the raw lines from a viewer without unifiedDiagnostics", () => {
+    expect(diagnosticsFrom({ errors: ["a.luau:2: second"] }, "luau")).toEqual([
+      { row: 2, column: 0, level: "ERROR", message: "second" },
+    ])
+  })
+
+  it("returns an empty list when the response carries neither", () => {
+    expect(diagnosticsFrom({}, "luau")).toEqual([])
+    expect(diagnosticsFrom(undefined, "luau")).toEqual([])
+  })
+
+  it("keeps an empty diagnostics array rather than falling back to errors", () => {
+    expect(diagnosticsFrom({ diagnostics: [], errors: ["a.luau:1: first"] }, "luau")).toEqual([])
   })
 })

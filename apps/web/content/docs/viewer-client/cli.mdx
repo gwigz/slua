@@ -103,9 +103,21 @@ Runtime output is only forwarded for published objects, so pass `--object` with
 a UUID to have one published on demand, or `--wait` to hold the connection open
 while you publish one from the viewer.
 
+The viewer forwards every published object's output to every connection, so
+`--object` narrows the stream to the one you named, matching against each prim
+in its linkset. `--targets` narrows it further, to the items your `slua.json`
+targets deploy to, which needs a viewer that advertises `unifiedDiagnostics`
+and so sends an item reference with each event. Against an older viewer there
+is nothing to filter on, so `logs` warns once and shows everything.
+
 Runtime positions point at the generated Lua (`lua_script:5`), so each line is
 annotated with the TypeScript it maps to, using the source maps of the targets
 in your `slua.json`.
+
+Each line is labelled `object/item`, the same addressing `pull` and `push`
+take, and output a script sent with `llOwnerSay` is tagged `say` rather than
+`debug`. Both need a viewer new enough to send an item reference with its
+runtime events.
 
 ```bash
 slua-viewer logs --object 4f2b0c1e-... --follow
@@ -153,6 +165,7 @@ description key needs the object published from the viewer first, see
 | `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
 | `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
 | `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
+| `--targets`           | `logs`         | Only output from items your `slua.json` targets      |
 | `--wait`              | most           | Hold the viewer connection open until it publishes   |
 | `--port <port>`       | all            | Viewer websocket port, default `9020`                |
 | `--timeout <ms>`      | all            | Request timeout                                      |
@@ -174,9 +187,9 @@ against the generated output instead, and the CLI says so.
 Mapping is line accurate, not column accurate. LSL compile errors carry real
 column numbers, which the Luau compiler does not report.
 
-`logs` maps too. Nothing in the viewer's runtime output names the script that
-produced it, so when more than one target's map covers a line, every candidate
-is shown with its target name.
+`logs` maps too. A viewer that names the item its output came from narrows
+that to the target deploying it; without one, a line covered by more than one
+target's map is shown against every candidate, with its target name.
 
 ## JSON output
 

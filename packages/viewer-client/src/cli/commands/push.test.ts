@@ -228,3 +228,49 @@ describe("pushCommand with --wait", () => {
     expect(notes).toEqual([])
   })
 })
+
+describe("pushCommand on a failed compile", () => {
+  it("reports the diagnostics the viewer parsed for us", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "slua-push-"))
+
+    await mkdir(join(dir, "dist"))
+    await writeFile(join(dir, "dist", "second.slua"), "local x = 1\nfoo()\n", "utf8")
+    await writeFile(
+      join(dir, "slua.json"),
+      JSON.stringify({
+        targets: { second: { file: "dist/second.slua", object: "name:Second", item: "Main" } },
+      }),
+      "utf8",
+    )
+
+    const client = {
+      objectList: async () => ({ objects: [published] }),
+      objectContentSave: async () => ({
+        success: true,
+        compiled: false,
+        diagnostics: [{ row: 2, column: 0, level: "ERROR", message: "Unknown global 'foo'" }],
+      }),
+    } as unknown as ViewerClient
+
+    const reporter = collectingReporter()
+    const cwd = process.cwd()
+
+    process.chdir(dir)
+
+    let code: number
+
+    try {
+      code = await pushCommand(client, { name: "push", target: "second" }, reporter)
+    } finally {
+      process.chdir(cwd)
+
+      await rm(dir, { recursive: true, force: true })
+    }
+
+    expect(code).toBe(1)
+    expect(reporter.errors).toEqual([expect.stringContaining("second.slua:2: Unknown global")])
+    expect((reporter.payload as { errors: { row: number }[] }).errors).toEqual([
+      expect.objectContaining({ row: 2, message: "Unknown global 'foo'" }),
+    ])
+  })
+})

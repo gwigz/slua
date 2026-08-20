@@ -1,10 +1,22 @@
 import { describe, it, expect } from "bun:test"
-import { execSync } from "node:child_process"
-import { writeFileSync, unlinkSync } from "node:fs"
+import { execFileSync } from "node:child_process"
+import { existsSync, writeFileSync, unlinkSync } from "node:fs"
+import { platform } from "node:os"
 import { resolve } from "node:path"
 
 const CONFIG = resolve(import.meta.dir, ".oxlintrc.json")
 const TMP = resolve(import.meta.dir, "__test_fixture.ts")
+
+// Every case shells out, and npx resolving the binary each time costs more
+// than the lint it is there to run, enough for the first case to time out.
+const INSTALLED = [
+  resolve(import.meta.dir, "node_modules/.bin/oxlint"),
+  resolve(import.meta.dir, "../../node_modules/.bin/oxlint"),
+].find((path) => existsSync(path))
+
+const [OXLINT, ARGV0] = INSTALLED
+  ? [INSTALLED, []]
+  : [platform() === "win32" ? "npx.cmd" : "npx", ["oxlint"]]
 
 interface Diagnostic {
   message: string
@@ -16,7 +28,9 @@ function lint(code: string): Diagnostic[] {
   writeFileSync(TMP, code)
 
   try {
-    const out = execSync(`npx oxlint --config ${CONFIG} --format json ${TMP}`, {
+    // Argument array rather than a command line, so a checkout path with a
+    // space in it is one argument rather than two.
+    const out = execFileSync(OXLINT, [...ARGV0, "--config", CONFIG, "--format", "json", TMP], {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "pipe"],
     })

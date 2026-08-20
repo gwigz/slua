@@ -3,15 +3,15 @@ title: yield
 description: Coroutine wrappers that flatten callback APIs into sequential code
 ---
 
-<Callout type="warn" title="Work in Progress">
+<Callout type="warn" title="Work in progress">
   This module is under active development and has not been battle-tested in production. The API may
   change between releases.
 </Callout>
 
-The `yield` module uses Lua coroutines to flatten SLua's callback-based
-APIs into sequential code. Call `spawn()` to start a coroutine, then use
-the wrapper functions inside it, they yield the coroutine until the result is
-ready, then return `[ok, value]` where `ok` is `false` if the request timed out.
+The `yield` module uses Lua coroutines to flatten SLua's callback-based APIs
+into sequential code. Call `spawn()` to start a coroutine, then use the wrapper
+functions inside it. Each yields the coroutine until the result is ready, then
+returns `[ok, value]`, where `ok` is `false` if the request timed out.
 
 ```ts
 import { spawn, requestAgentData, sleep } from "./modules/yield"

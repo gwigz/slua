@@ -1,4 +1,4 @@
-// Minimal os shim -- TypeScript's sys creation may reference os.platform().
+// Minimal os shim. TypeScript's sys creation may reference os.platform().
 export const EOL = "\n"
 export function platform() {
   return "linux"

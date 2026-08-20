@@ -74,7 +74,7 @@ export function CodeGallery({ tabs }: { tabs: CodeGalleryTab[] }) {
             TypeScript in, Lua out
           </h2>
           <p className="mt-4 mx-auto max-w-lg text-fd-muted-foreground text-sm sm:text-base leading-relaxed">
-            Every example is transpiled through the TSTL pipeline
+            TSTL transpiles every example on this page
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export function CodeGallery({ tabs }: { tabs: CodeGalleryTab[] }) {
 
         {/* TSTL attribution */}
         <p className="mt-4 text-center text-[11px] text-fd-muted-foreground/40">
-          Powered by{" "}
+          Transpiled with{" "}
           <a
             href="https://typescripttolua.github.io"
             target="_blank"

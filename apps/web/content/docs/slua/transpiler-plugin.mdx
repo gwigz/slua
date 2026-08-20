@@ -4,7 +4,7 @@ description: How @gwigz/slua-tstl-plugin transforms TypeScript patterns to optim
 icon: Puzzle
 ---
 
-The `@gwigz/slua-tstl-plugin` replaces TSTL lualib helpers with native Luau stdlib and LSL function calls for better performance and smaller output. It also handles index adjustment, casing fixes, and optional output optimizations.
+The `@gwigz/slua-tstl-plugin` replaces TSTL lualib helpers with native Luau stdlib and `ll.*` calls, so less runtime code ships with your script. It also handles index adjustment, casing fixes, and optional output optimizations.
 
 ## Transforms
 
@@ -26,7 +26,7 @@ For SL-typed JSON (preserving vector/quaternion/uuid), use `lljson.slencode`/`ll
 
 ### String methods
 
-String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib calls:
+The plugin translates string methods to LSL `ll.*` functions or Luau `string.*` calls:
 
 | TypeScript             | Lua output                                       |
 | ---------------------- | ------------------------------------------------ |
@@ -64,7 +64,7 @@ String methods are translated to LSL `ll.*` functions or Luau `string.*` stdlib 
 
 ### Bitwise operators
 
-TypeScript bitwise operators are automatically translated to `bit32` library calls, since SLua does not support native Lua bitwise operators.
+The plugin translates TypeScript bitwise operators to `bit32` library calls, since SLua has no native Lua bitwise operators.
 
 | TypeScript | Lua output            |
 | ---------- | --------------------- |
@@ -76,11 +76,11 @@ TypeScript bitwise operators are automatically translated to `bit32` library cal
 | `a >>> b`  | `bit32.rshift(a, b)`  |
 | `~a`       | `bit32.bnot(a)`       |
 
-Compound assignments (`&=`, `|=`, `^=`, `<<=`, `>>=`, `>>>=`) are also supported and desugar to the same `bit32` calls.
+Compound assignments (`&=`, `|=`, `^=`, `<<=`, `>>=`, `>>>=`) desugar to the same `bit32` calls.
 
 #### btest optimization
 
-Comparisons of a bitwise AND against zero are automatically optimized to `bit32.btest`:
+Comparisons of a bitwise AND against zero fold into `bit32.btest`:
 
 | TypeScript      | Lua output              |
 | --------------- | ----------------------- |
@@ -91,7 +91,7 @@ This works with `!=`, `==`, and with the zero on either side (`0 !== (a & b)`).
 
 ### Index adjustment
 
-SLua's `ll.*` functions use 1-based indexing (Lua convention), but TypeScript uses 0-based. The plugin automatically adjusts index arguments and return values based on `@indexArg` and `@indexReturn` JSDoc tags in the type definitions:
+SLua's `ll.*` functions use 1-based indexing (Lua convention), but TypeScript uses 0-based. The plugin adjusts index arguments and return values from the `@indexArg` and `@indexReturn` JSDoc tags in the type definitions:
 
 | TypeScript                       | Lua output                                                   |
 | -------------------------------- | ------------------------------------------------------------ |
@@ -122,19 +122,19 @@ This optimization only applies when:
 
 ### Floor division
 
-`Math.floor(a / b)` is translated to the native Luau floor division operator `//`:
+`Math.floor(a / b)` becomes the native Luau floor division operator `//`:
 
 | TypeScript          | Lua output |
 | ------------------- | ---------- |
 | `Math.floor(a / b)` | `a // b`   |
 
-This only applies when the argument is directly a `/` expression. `Math.floor(x)` with a non-division argument is left as-is.
+This only applies when the argument is directly a `/` expression. `Math.floor(x)` with anything else stays as it is.
 
 > JavaScript integer truncation idioms `~~x` and `x | 0` do **not** map cleanly to Luau. `~~x` emits `bit32.bnot(bit32.bnot(x))` and `x | 0` emits `bit32.bor(x, 0)`, neither of which preserves correct semantics for negative numbers (the `bit32` library operates on unsigned 32-bit integers). Use `math.floor(x)` for floor truncation instead.
 
 ### Passthrough arrow closures
 
-Zero-parameter arrow functions that just call another zero-parameter function are collapsed to a direct function reference:
+The plugin collapses a zero-parameter arrow function that only calls another zero-parameter function into a direct function reference:
 
 | TypeScript                                  | Lua output                          |
 | ------------------------------------------- | ----------------------------------- |
@@ -150,7 +150,7 @@ This applies when:
 
 ### Builder chains
 
-Many LSL functions accept flat parameter lists of `[CONSTANT, ...args, CONSTANT, ...args]` pairs. The plugin provides fluent builder functions that compile to these flat lists at build time with zero runtime cost.
+Many LSL functions accept flat parameter lists of `[CONSTANT, ...args, CONSTANT, ...args]` pairs. The plugin ships builder functions that compile to those flat lists at build time.
 
 #### Prim parameters
 
@@ -185,7 +185,7 @@ ll.SetLinkPrimitiveParamsFast(LINK_THIS, {
 })
 ```
 
-Shape variants are accessed via dedicated methods like `.typeBox()`, `.typeSphere()`, etc.:
+Shape variants get their own methods, `.typeBox()`, `.typeSphere()`, and so on:
 
 ```typescript
 $setPrimParams(LINK_THIS).typeBox(
@@ -220,13 +220,13 @@ ll.SetLinkPrimitiveParamsFast(LINK_THIS, {
 | `$rezObjectWithParams(item)`    | `ll.RezObjectWithParams(item, {...})`        |
 | `$setGltfOverrides(link, face)` | `ll.SetLinkGLTFOverrides(link, face, {...})` |
 
-Each builder method name is derived from the LSL constant by stripping the set prefix and converting to camelCase. For example, `PRIM_COLOR` becomes `.color()`, `PSYS_SRC_BURST_RATE` becomes `.srcBurstRate()`, and `CAMERA_FOCUS_LOCKED` becomes `.focusLocked()`.
+Each builder method name comes from the LSL constant, minus the set prefix and camelCased. `PRIM_COLOR` becomes `.color()`, `PSYS_SRC_BURST_RATE` becomes `.srcBurstRate()`, and `CAMERA_FOCUS_LOCKED` becomes `.focusLocked()`.
 
-> Builder chains are entirely compile-time, no objects, arrays, or closures are allocated at runtime. The plugin walks the method chain AST and emits the flat Lua table directly.
+> Builder chains are entirely compile-time. The plugin walks the method chain AST and emits the flat Lua table directly, so no objects, arrays, or closures reach the runtime.
 
 #### Options object overload
 
-`$castRay` and `$httpRequest` support an options-object overload, which compiles to the same flat parameter list but can be used as an expression:
+`$castRay` and `$httpRequest` also take an options object, which compiles to the same flat parameter list but works as an expression:
 
 ```typescript
 const result = $castRay(start, end, {
@@ -279,7 +279,7 @@ local id = ll.HTTPRequest("https://example.com", {
 
 ### Typed getter returns
 
-Functions like `ll.GetObjectDetails`, `ll.GetParcelDetails`, `ll.GetPrimitiveParams`, `ll.GetEnvironment`, `ll.GetPrimMediaParams`, `ll.GetLinkMedia`, and `ll.ParcelMediaQuery` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you fully typed results:
+Functions like `ll.GetObjectDetails`, `ll.GetParcelDetails`, `ll.GetPrimitiveParams`, `ll.GetEnvironment`, `ll.GetPrimMediaParams`, `ll.GetLinkMedia`, and `ll.ParcelMediaQuery` accept an array of flag constants and return a corresponding list of values. The type definitions map each flag to its return type, so destructuring gives you typed results:
 
 ```typescript
 const [name, pos] = ll.GetObjectDetails(id, [OBJECT_NAME, OBJECT_POS])
@@ -294,7 +294,7 @@ const [base, owner, group, everyone, nextOwner] = ll.GetObjectDetails(id, [OBJEC
 // all: number | undefined
 ```
 
-The return type is `MapObjectDetails<T> | []` — either the mapped tuple or an empty table when the target object doesn't exist. A simple truthiness check handles both cases:
+The return type is `MapObjectDetails<T> | []`, either the mapped tuple or an empty table when the target object doesn't exist. A truthiness check handles both cases:
 
 ```typescript
 const [pos] = ll.GetObjectDetails(id, [OBJECT_POS])
@@ -320,7 +320,7 @@ const [name, texture, repeats, offsets, rot] = ll.GetPrimitiveParams([PRIM_NAME,
 
 Some functions always return a fixed-shape tuple: `ll.GetExperienceDetails` returns `ExperienceDetails`, `ll.GetPhysicsMaterial` returns `PhysicsMaterial`, and `DetectedEvent.getDamage()` returns `DamageDetails`.
 
-When the flags array isn't a const tuple (e.g. a dynamic `ObjectDetailFlag[]`), the return falls back to a union array of all possible return types.
+When the flags array isn't a const tuple (e.g. a dynamic `ObjectDetailFlag[]`), the return falls back to a union array of every possible return type.
 
 ## Optimizations
 
@@ -353,7 +353,7 @@ Pass `optimize: true` to enable all optimizations, or pass an object to pick ind
 
 ### `filter`
 
-Inlines `arr.filter(cb)` as an `ipairs` loop instead of pulling in `__TS__ArrayFilter`. Automatically disabled for files with more than one `.filter()` call, where the shared helper results in a smaller script.
+Inlines `arr.filter(cb)` as an `ipairs` loop instead of pulling in `__TS__ArrayFilter`. Disabled for files with more than one `.filter()` call, where the shared helper makes for a smaller script.
 
 ```typescript
 const result = arr.filter((x) => x > 0)
@@ -525,7 +525,7 @@ All bitwise operators are supported (`|`, `&`, `^`, `~`, `<<`, `>>`, `>>>`). Exp
 
 ### `simplifyNilChecks`
 
-Rewrites `not (x ~= nil)` to `x == nil`. TSTL emits the negated form when double-negated null checks survive the AST (e.g. `!(x !== null)` in source), and the simplified form drops a `not`, a pair of parens, and matches hand-written Lua idiom.
+Rewrites `not (x ~= nil)` to `x == nil`. TSTL emits the negated form when double-negated null checks survive the AST (e.g. `!(x !== null)` in source). The rewrite drops a `not` and a pair of parens, and it reads like hand-written Lua.
 
 ```typescript
 declare const x: string | null
@@ -550,11 +550,11 @@ if x == nil then
 end
 ```
 
-Only applies to `nil` comparisons — `not (x ~= 1)` and other non-nil inequalities are left alone.
+Only applies to `nil` comparisons. `not (x ~= 1)` and other non-nil inequalities are left alone.
 
 ## Keeping output small
 
-Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommendations for keeping output lean.
+A few TypeScript patterns pull in large TSTL runtime helpers. These are the ones worth avoiding.
 
 <Callout type="info" title="Enforce with oxlint">
   Install `@gwigz/slua-oxlint-config` to catch these patterns automatically at lint time. See the
@@ -566,7 +566,7 @@ Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommenda
 
 The `delete` operator pulls in `__TS__Delete`, which depends on the entire Error class hierarchy, `__TS__Class`, `__TS__ClassExtends`, `__TS__New`, and `__TS__ObjectGetOwnPropertyDescriptors`, roughly **150 lines** of runtime code.
 
-Instead, type your records to allow `undefined` and assign `undefined` (which compiles to `nil`):
+Type your records to allow `undefined` and assign `undefined` instead, which compiles to `nil`:
 
 ```typescript
 // Bad

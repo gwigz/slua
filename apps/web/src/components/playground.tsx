@@ -37,7 +37,7 @@ const CREDITS = [
   {
     name: "TypeScript-to-Lua",
     url: "https://github.com/TypeScriptToLua/TypeScriptToLua",
-    description: "Core transpiler powering TypeScript to Lua conversion",
+    description: "The transpiler that turns TypeScript into Lua",
     color: "var(--chart-1)",
   },
   {
@@ -67,7 +67,7 @@ const CREDITS = [
   {
     name: "Luau",
     url: "https://github.com/luau-lang/luau",
-    description: "The target Lua runtime that powers SLua in Second Life",
+    description: "The Lua dialect SLua runs on",
     color: "var(--chart-1)",
   },
 ]
@@ -409,7 +409,7 @@ export default function Playground() {
                 <DialogHeader>
                   <DialogTitle>Credits</DialogTitle>
                   <DialogDescription>
-                    Open-source projects that make this possible
+                    Open-source projects this playground is built on
                   </DialogDescription>
                 </DialogHeader>
                 <ul className="grid gap-1">

@@ -188,6 +188,25 @@ export function collapseDefaultParamNilChecks(file: lua.File): boolean {
   return changed
 }
 
+/** Matches `not (x ~= nil)` and returns the `x == nil` that replaces it. */
+function tryMatchNegatedInequality(expr: lua.Expression): lua.Expression | undefined {
+  if (!lua.isUnaryExpression(expr)) return undefined
+  if (expr.operator !== lua.SyntaxKind.NotOperator) return undefined
+
+  let inner: lua.Expression = expr.operand
+  if (lua.isParenthesizedExpression(inner)) inner = inner.expression
+
+  if (
+    !lua.isBinaryExpression(inner) ||
+    inner.operator !== lua.SyntaxKind.InequalityOperator ||
+    !lua.isNilLiteral(inner.right)
+  ) {
+    return undefined
+  }
+
+  return lua.createBinaryExpression(inner.left, inner.right, lua.SyntaxKind.EqualityOperator)
+}
+
 /**
  * Rewrite `not (x ~= nil)` to `x == nil`.
  *
@@ -198,24 +217,6 @@ export function collapseDefaultParamNilChecks(file: lua.File): boolean {
  */
 export function simplifyNegatedInequality(file: lua.File): boolean {
   let changed = false
-
-  function tryMatch(expr: lua.Expression): lua.Expression | undefined {
-    if (!lua.isUnaryExpression(expr)) return undefined
-    if (expr.operator !== lua.SyntaxKind.NotOperator) return undefined
-
-    let inner: lua.Expression = expr.operand
-    if (lua.isParenthesizedExpression(inner)) inner = inner.expression
-
-    if (
-      !lua.isBinaryExpression(inner) ||
-      inner.operator !== lua.SyntaxKind.InequalityOperator ||
-      !lua.isNilLiteral(inner.right)
-    ) {
-      return undefined
-    }
-
-    return lua.createBinaryExpression(inner.left, inner.right, lua.SyntaxKind.EqualityOperator)
-  }
 
   function rewrite(expr: lua.Expression): lua.Expression {
     // Descend first so inner `not (... ~= nil)` resolves before outer match.
@@ -247,7 +248,7 @@ export function simplifyNegatedInequality(file: lua.File): boolean {
     }
     // FunctionExpression body is reached via walkBlocks below.
 
-    const replaced = tryMatch(expr)
+    const replaced = tryMatchNegatedInequality(expr)
     if (replaced) {
       changed = true
       return replaced

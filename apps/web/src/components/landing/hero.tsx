@@ -76,7 +76,8 @@ export function Hero() {
           >
             TypeScript-to-Lua
           </a>{" "}
-          plugin for Second Life with full type coverage, editor support, and compile-time safety.
+          plugin for Second Life. Every LSL and SLua function is typed, so a bad call fails the
+          build instead of the script.
         </p>
 
         {/* Terminal block */}

@@ -18,6 +18,7 @@ If TypeScript is where you're productive, you don't need to learn a new language
 | [`@gwigz/slua-oxlint-config`](packages/oxlint-config) | Shared oxlint config catching SLua-incompatible patterns      |
 | [`@gwigz/slua-create`](packages/create)               | CLI scaffolding tool for new SLua projects                    |
 | [`@gwigz/slua-json`](packages/json)                   | Tagged JSON codec for exchanging typed data with SLua scripts |
+| [`@gwigz/slua-viewer-client`](packages/viewer-client) | Client and CLI for pushing scripts to the viewer in-world     |
 
 ## Examples
 

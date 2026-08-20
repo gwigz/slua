@@ -9,7 +9,7 @@ export interface OptimizeOption {
 }
 
 /**
- * Optimize flags surfaced as playground toggles, in display order. The plugin's
+ * Optimize flags shown as playground toggles, in display order. The plugin's
  * always-on transforms run regardless; these are the opt-in `optimize` passes.
  */
 export const OPTIMIZE_OPTIONS: OptimizeOption[] = [

@@ -1,9 +1,9 @@
 ---
 title: Tag Format
-description: Complete reference for SLua tagged JSON tags, tight mode, and null/nil mapping
+description: SLua tagged JSON tags, tight mode, and null/nil mapping
 ---
 
-## Tag Reference
+## Tag reference
 
 | Tag  | Type        | Normal format                | Tight format                |
 | ---- | ----------- | ---------------------------- | --------------------------- |
@@ -16,7 +16,7 @@ description: Complete reference for SLua tagged JSON tags, tight mode, and null/
 | `!n` | Nil         | `!n`                         | same                        |
 | `!!` | Escaped `!` | `!!text`                     | same                        |
 
-## Tight Mode
+## Tight mode
 
 Pass `{ tight: true }` to `slencode` (or `codec.slencode`) to produce more
 compact output. In tight mode:
@@ -26,7 +26,7 @@ compact output. In tight mode:
 
 Tight mode output can always be decoded by the standard `sldecode`.
 
-## JS ↔ Lua Null Mapping
+## JS ↔ Lua null mapping
 
 | JavaScript  | Lua           | JSON wire |
 | ----------- | ------------- | --------- |

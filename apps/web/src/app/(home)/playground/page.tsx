@@ -3,7 +3,7 @@ import { PlaygroundLoader } from "./playground-loader"
 
 export const metadata: Metadata = {
   title: "Playground",
-  description: "Interactive TypeScript to SLua transpiler playground",
+  description: "Transpile TypeScript to SLua in the browser.",
 }
 
 export default function PlaygroundPage() {

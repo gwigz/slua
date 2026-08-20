@@ -1,16 +1,16 @@
 ---
 title: utilities
-description: Rate-limiting primitives for debounce, throttle, and cooldown
+description: Debounce, throttle, and cooldown, built on LLTimers
 ---
 
-<Callout type="warn" title="Work in Progress">
+<Callout type="warn" title="Work in progress">
   This module is under active development and has not been battle-tested in production. The API may
   change between releases.
 </Callout>
 
-The `utilities` module provides rate-limiting primitives built on
-SLua's `LLTimers` API. Each function accepts a callback and a duration in
-seconds, and returns a `[wrapped, cancel]` tuple.
+The `utilities` module wraps SLua's `LLTimers` API as debounce, throttle,
+and cooldown. Each takes a callback and a duration in seconds, and returns a
+`[wrapped, cancel]` tuple.
 
 ```ts
 import { debounce, throttle, cooldown } from "./modules/utilities"

@@ -106,7 +106,7 @@ function generateMdx(functions: LLFunction[]): string {
 
   lines.push(`---`)
   lines.push(`title: Functions`)
-  lines.push(`description: The complete LSL API — ${functions.length} functions`)
+  lines.push(`description: All ${functions.length} LSL API functions`)
   lines.push(`---`)
   lines.push(``)
   lines.push(`<Callout type="info">`)
@@ -115,7 +115,7 @@ function generateMdx(functions: LLFunction[]): string {
   )
   lines.push(`</Callout>`)
   lines.push(``)
-  lines.push(`The \`ll\` namespace contains all ${functions.length} LSL API functions.`)
+  lines.push(`The \`ll\` namespace holds all ${functions.length} LSL API functions.`)
   lines.push(``)
 
   for (const [letter, fns] of grouped) {

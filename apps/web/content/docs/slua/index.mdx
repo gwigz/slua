@@ -6,14 +6,15 @@ icon: BookOpen
 
 import { Cards, Card } from "fumadocs-ui/components/card"
 import { IconRocket, IconReplace, IconMessageForward } from "@tabler/icons-react"
-import { Package, Terminal, Braces } from "lucide-react"
+import { Package, Terminal, Braces, Upload } from "lucide-react"
 
 ## Overview
 
-`@gwigz/slua` provides complete LSL/SLua type definitions and a
-[TypeScript-to-Lua](https://typescripttolua.github.io) plugin for developing
-Second Life scripts in TypeScript. Write type-safe code with full editor
-support, then compile to SLua with minimal runtime overhead.
+`@gwigz/slua` is a set of LSL/SLua type definitions and a
+[TypeScript-to-Lua](https://typescripttolua.github.io) plugin for writing
+Second Life scripts in TypeScript. The types cover 522 `ll.*` functions and
+1,022 constants, and the plugin rewrites TypeScript idioms into native Luau
+and `ll.*` calls instead of TSTL's runtime helpers.
 
 <Cards>
   <Card
@@ -31,8 +32,14 @@ support, then compile to SLua with minimal runtime overhead.
   <Card
     title="@gwigz/slua-create"
     href="/docs/create"
-    description="Scaffold a new SLua TypeScript project in seconds"
+    description="Scaffold a new SLua TypeScript project"
     icon={<Terminal className="text-green-400" />}
+  />
+  <Card
+    title="@gwigz/slua-viewer-client"
+    href="/docs/viewer-client"
+    description="Push builds in-world over the viewer's external editor connection"
+    icon={<Upload className="text-sky-400" />}
   />
   <Card
     title="@gwigz/slua-json"
@@ -44,7 +51,7 @@ support, then compile to SLua with minimal runtime overhead.
 
 ## Examples
 
-Projects built with this toolchain, it's how the rough edges get found and fixed.
+Projects built with this toolchain.
 
 <Cards>
   <Card
@@ -72,7 +79,7 @@ Projects built with this toolchain, it's how the rough edges get found and fixed
 
 ### Official
 
-<Cards>
+<Cards className="grid-cols-1">
   <Card
     title="Creator Portal"
     href="https://create.secondlife.com"
@@ -95,11 +102,11 @@ Projects built with this toolchain, it's how the rough edges get found and fixed
 
 ### Community
 
-<Cards>
+<Cards className="grid-cols-1">
   <Card
     title="SLua Docs"
     href="https://suzanna-linn.github.io/slua"
-    description="Comprehensive SLua documentation and reference by Suzanna Linn"
+    description="SLua documentation and reference by Suzanna Linn"
     external
   />
   <Card

@@ -14,8 +14,8 @@ import { BookText, Table2 } from "lucide-react"
 
 `@gwigz/slua-json` is a TypeScript implementation of SLua's
 `lljson.slencode`/`sldecode` tagged JSON format. It lets Node.js and browser
-code exchange typed data: vectors, quaternions, UUIDs, buffers, with SLua
-scripts over HTTP or other transports.
+code exchange typed data with SLua scripts over HTTP or any other transport,
+vectors, quaternions, UUIDs, and buffers included.
 
 ## Install
 
@@ -31,7 +31,7 @@ pnpm add @gwigz/slua-json
 bun add @gwigz/slua-json
 ```
 
-## Quick Example
+## Quick example
 
 ```ts
 import { slencode, sldecode, Vector, Quaternion } from "@gwigz/slua-json"

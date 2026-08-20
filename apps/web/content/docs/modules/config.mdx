@@ -3,7 +3,7 @@ title: config
 description: Typed notecard config with YAML and lljson parsers
 ---
 
-<Callout type="warn" title="Work in Progress">
+<Callout type="warn" title="Work in progress">
   This module is under active development and has not been battle-tested in production. The API may
   change between releases.
 </Callout>
@@ -14,9 +14,8 @@ reloads.
 
 ## How defaults work
 
-The config object you pass in defines **which keys are accepted** and **how
-values are coerced**. The type of each default value determines the parsing
-behaviour:
+The config object you pass in decides which keys the parser accepts and how
+it coerces their values. The type of each default value picks the behaviour:
 
 | Default type | Notecard value   | Result                                                                                   |
 | ------------ | ---------------- | ---------------------------------------------------------------------------------------- |
@@ -24,9 +23,9 @@ behaviour:
 | `string[]`   | `"a, b, c"`      | Split on `,` and trimmed → `["a", "b", "c"]`. An empty string produces `[]`.             |
 | `string`     | `"Hello\nWorld"` | Assigned directly. Literal `\n` sequences are replaced with newlines.                    |
 
-Keys in the notecard that **do not exist** in your defaults object are silently
-ignored, this lets you keep comments or unrelated keys in the notecard without
-errors. The lljson parser assigns matching keys directly without type coercion.
+The parser ignores notecard keys that are missing from your defaults, so
+comments and unrelated keys cause no errors. The lljson parser assigns matching
+keys directly, with no type coercion.
 
 ## Formats
 

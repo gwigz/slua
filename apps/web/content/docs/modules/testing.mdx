@@ -3,19 +3,18 @@ title: testing
 description: Mock utilities for unit testing SLua modules
 ---
 
-<Callout type="warn" title="Work in Progress">
+<Callout type="warn" title="Work in progress">
   This module is under active development and has not been battle-tested in production. The API may
   change between releases.
 </Callout>
 
-The `testing` module provides mock implementations of `ll`, `LLEvents`,
-`LLTimers`, `coroutine`, `Vector`, `Quaternion`, `UUID`, and all SLua
-constants so modules can be unit-tested in Bun, Vitest, or Jest without a
-Second Life runtime.
+The `testing` module mocks `ll`, `LLEvents`, `LLTimers`, `coroutine`,
+`Vector`, `Quaternion`, `UUID`, and every SLua constant, so you can unit-test
+modules in Bun, Vitest, or Jest without a Second Life runtime.
 
 <Callout type="info">
-  This module is for test environments only, it is not compiled to Lua and should never be imported
-  in production SLua scripts.
+  This module is for test environments only. It does not compile to Lua, so never import it from a
+  production SLua script.
 </Callout>
 
 ## Usage
@@ -52,9 +51,9 @@ it("loads config from notecard", () => {
 
 ### `ll`
 
-The `ll` namespace is a `Proxy`, any function not explicitly mocked returns a
-no-op. Functions that return request IDs (`RequestAgentData`,
-`HTTPRequest`, etc.) return auto-incrementing UUIDs.
+The `ll` namespace is a `Proxy`, so any function it does not mock is a no-op.
+Functions that return request IDs (`RequestAgentData`, `HTTPRequest`, etc.)
+return auto-incrementing UUIDs.
 
 Each `setup()` installs a fresh copy of the mock, so tests can freely
 override functions (`ll.RequestAgentData = () => "fixed-id"`) without leaking

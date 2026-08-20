@@ -89,6 +89,9 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
     strict: true,
     moduleDetection: "force",
     skipLibCheck: true,
+    // Lets @gwigz/slua-viewer-client report compile errors against these
+    // sources rather than the generated Lua
+    sourceMap: true,
     lib: ["ESNext"],
     types: ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
     rootDir: "src",

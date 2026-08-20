@@ -43,6 +43,15 @@ describe("runtimeText", () => {
     )
   })
 
+  it("keeps a column the text cannot carry, next to a line it already names", () => {
+    expect(
+      runtimeText(
+        { ...event, message: "lua_script:4: boom", error: "", line: 4, column: 7 },
+        "error",
+      ),
+    ).toBe("lua_script:4: boom (column 7)")
+  })
+
   it("keeps a line number the text does not already carry", () => {
     expect(runtimeText({ ...event, message: "boom", error: "", line: 4 }, "error")).toBe(
       "boom (line 4)",

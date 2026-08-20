@@ -186,7 +186,14 @@ export function runtimeText(params: RuntimeDebug | RuntimeError, level: "debug" 
   const text = params.message || error
 
   if (text) {
-    return line > 0 && !text.includes(`:${line}:`) ? `${text} (${position(line, column)})` : text
+    if (line <= 0) return text
+
+    // The text usually names the line itself, as `lua_script:4: ...`, but it
+    // never names the column, so suppressing the whole position would lose a
+    // column the viewer went to the trouble of reporting.
+    if (!text.includes(`:${line}:`)) return `${text} (${position(line, column)})`
+
+    return column > 0 ? `${text} (column ${column})` : text
   }
 
   if (line > 0) return `error on ${position(line, column)}`

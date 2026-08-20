@@ -90,8 +90,8 @@ client.on("runtime.error", (event) => console.error(event.objectName, event.mess
 `on` returns an unsubscribe function, and `runtime.debug` carries the script's
 non-error output. A viewer advertising the `unifiedDiagnostics` feature fills in
 `error`, `line` and an `item` reference naming the script; older ones leave
-`error` and `line` empty and send the text as a separate `runtime.debug`
-message.
+`error` empty and `line` 0, and send the text as a separate `runtime.debug`
+message. `line` is 0 on any viewer when the error names no line.
 
 `ensurePublished` and `resolveItem` take options for the two things the viewer
 makes awkward:

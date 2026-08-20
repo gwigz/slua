@@ -1,10 +1,18 @@
 import { describe, it, expect } from "bun:test"
 import { execSync } from "node:child_process"
-import { writeFileSync, unlinkSync } from "node:fs"
+import { existsSync, writeFileSync, unlinkSync } from "node:fs"
 import { resolve } from "node:path"
 
 const CONFIG = resolve(import.meta.dir, ".oxlintrc.json")
 const TMP = resolve(import.meta.dir, "__test_fixture.ts")
+
+// Every case shells out, and npx resolving the binary each time costs more
+// than the lint it is there to run, enough for the first case to time out.
+const OXLINT =
+  [
+    resolve(import.meta.dir, "node_modules/.bin/oxlint"),
+    resolve(import.meta.dir, "../../node_modules/.bin/oxlint"),
+  ].find((path) => existsSync(path)) ?? "npx oxlint"
 
 interface Diagnostic {
   message: string
@@ -16,7 +24,7 @@ function lint(code: string): Diagnostic[] {
   writeFileSync(TMP, code)
 
   try {
-    const out = execSync(`npx oxlint --config ${CONFIG} --format json ${TMP}`, {
+    const out = execSync(`${OXLINT} --config ${CONFIG} --format json ${TMP}`, {
       encoding: "utf-8",
       stdio: ["pipe", "pipe", "pipe"],
     })

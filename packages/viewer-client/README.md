@@ -213,7 +213,7 @@ Only field-shaped keys convert. Keys carrying data, an item named `Main` or an o
 ```ts
 import { readFile } from "node:fs/promises"
 import {
-  parseCompileErrors,
+  diagnosticsFrom,
   parseObjectRef,
   resolveItem,
   ViewerClient,
@@ -232,7 +232,7 @@ try {
   })
 
   if (result.compiled === false) {
-    console.error(parseCompileErrors(result.errors, "luau"))
+    console.error(diagnosticsFrom(result, "luau"))
   }
 } finally {
   // An open socket keeps the process alive, so this happens either way.

@@ -1,13 +1,14 @@
-import type { CompilationError } from "./protocol/types.js"
+import type { Diagnostic, ObjectContentSaveResponse } from "./protocol/types.js"
 
 /**
- * `object.content.save` hands back raw compiler output as a `string[]`.
- *
- * The viewer only parses those strings into `{row, column, ...}` on the
+ * Older viewers hand `object.content.save` failures back as raw compiler
+ * output, a `string[]`, and parse them into `{row, column, ...}` only on the
  * `script.compiled` notification path, which is routed exclusively to
- * `script.subscribe` subscribers — so on the save path it is our job. These
- * mirror the regexes in `llscripteditorws.cpp` (`sendCompileResults`), which
- * are full matches, hence the anchors.
+ * `script.subscribe` subscribers. A viewer advertising `unifiedDiagnostics`
+ * parses the save path too and sends `diagnostics` instead, so this is the
+ * fallback for the ones that do not. These mirror the regexes in
+ * `llscripteditorws.cpp` (`sendCompileResults`), which are full matches,
+ * hence the anchors.
  */
 const LUAU_ERROR = /^[^:]*:(\d+): (.+)$/
 const LSL_ERROR = /^\((\d+), (\d+)\) : ([^:]+) : (.+)$/
@@ -15,7 +16,7 @@ const LSL_ERROR = /^\((\d+), (\d+)\) : ([^:]+) : (.+)$/
 export type CompileLanguage = "luau" | "lsl"
 
 /** Parses one raw compiler line, falling back to row 0 when it doesn't match. */
-export function parseCompileError(raw: string, language: CompileLanguage): CompilationError {
+export function parseCompileError(raw: string, language: CompileLanguage): Diagnostic {
   if (language === "luau") {
     const match = LUAU_ERROR.exec(raw)
 
@@ -47,6 +48,19 @@ export function parseCompileError(raw: string, language: CompileLanguage): Compi
 export function parseCompileErrors(
   errors: readonly string[] | undefined,
   language: CompileLanguage,
-): CompilationError[] {
+): Diagnostic[] {
   return (errors ?? []).map((raw) => parseCompileError(raw, language))
+}
+
+/**
+ * The diagnostics in a save response, whichever shape the viewer sent.
+ *
+ * Prefers the viewer's own parse, since it reads the compiler output the
+ * compiler produced rather than guessing at its format from here.
+ */
+export function diagnosticsFrom(
+  response: Pick<ObjectContentSaveResponse, "diagnostics" | "errors"> | undefined,
+  language: CompileLanguage,
+): Diagnostic[] {
+  return response?.diagnostics ?? parseCompileErrors(response?.errors, language)
 }

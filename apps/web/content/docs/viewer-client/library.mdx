@@ -24,7 +24,7 @@ bun add -d @gwigz/slua-viewer-client
 ```ts
 import { readFile } from "node:fs/promises"
 import {
-  parseCompileErrors,
+  diagnosticsFrom,
   parseObjectRef,
   resolveItem,
   ViewerClient,
@@ -43,7 +43,7 @@ try {
   })
 
   if (result.compiled === false) {
-    console.error(parseCompileErrors(result.errors, "luau"))
+    console.error(diagnosticsFrom(result, "luau"))
   }
 } finally {
   // An open socket keeps the process alive, so this happens either way.
@@ -88,8 +88,10 @@ client.on("runtime.error", (event) => console.error(event.objectName, event.mess
 ```
 
 `on` returns an unsubscribe function, and `runtime.debug` carries the script's
-non-error output. `runtime.error` currently arrives with `error` and `line`
-empty, and the viewer sends the text as a separate `runtime.debug` message.
+non-error output. A viewer advertising the `unifiedDiagnostics` feature fills in
+`error`, `line` and an `item` reference naming the script; older ones leave
+`error` and `line` empty and send the text as a separate `runtime.debug`
+message.
 
 `ensurePublished` and `resolveItem` take options for the two things the viewer
 makes awkward:

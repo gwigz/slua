@@ -9,9 +9,9 @@ import {
   withStaleRetry,
 } from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
-import { type CompileLanguage, parseCompileErrors } from "../../compile-errors.js"
+import { type CompileLanguage, diagnosticsFrom } from "../../compile-errors.js"
 import { ConnectionClosedError } from "../../protocol/errors.js"
-import type { ObjectInventoryItem, ScriptVM } from "../../protocol/types.js"
+import type { Diagnostic, ObjectInventoryItem, ScriptVM } from "../../protocol/types.js"
 import { loadSourceMapFor, type SourceMap } from "../../sourcemap.js"
 import {
   type Config,
@@ -239,7 +239,7 @@ async function pushTarget(
   // A save can succeed while the compile fails; the source is stored either way.
   if (response.compiled === false) {
     const language: CompileLanguage = vm === "luau" ? "luau" : "lsl"
-    const errors = parseCompileErrors(response.errors, language)
+    const errors = diagnosticsFrom(response, language)
     const sourceMap = await loadSourceMapFor(target.file)
     const payload = await reportCompileErrors(errors, target.file, sourceMap, reporter, base, label)
 
@@ -303,7 +303,7 @@ async function saveBackToContents(
 }
 
 async function reportCompileErrors(
-  errors: ReturnType<typeof parseCompileErrors>,
+  errors: readonly Diagnostic[],
   file: string,
   sourceMap: SourceMap | undefined,
   reporter: Reporter,

@@ -1,5 +1,5 @@
 // Stub fs so TypeScript can create ts.sys (needs fileExists, readFileSync, etc.).
-// These are never actually called -- transpileVirtualProject uses virtual files.
+// These are never called; transpileVirtualProject uses virtual files.
 const noop = () => {}
 const fail = () => {
   throw new Error("fs not available in browser")

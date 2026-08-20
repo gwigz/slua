@@ -3,8 +3,8 @@ import { spawn, dialog } from "@gwigz/slua-modules/yield"
 LLEvents.on("touch_start", (events) => {
   // spawn creates a new coroutine
   spawn(() => {
-    // dialog is blocking logic within this coroutine until the dialog is responded to
-    // logic outside of spawn can still run concurrently
+    // dialog blocks this coroutine until the user answers
+    // code outside of spawn keeps running
     const [ok, choice] = dialog(
       -49152,
       events[0].getKey(),

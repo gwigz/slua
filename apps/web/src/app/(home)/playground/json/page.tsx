@@ -3,7 +3,7 @@ import { JsonPlaygroundLoader } from "./json-playground-loader"
 
 export const metadata: Metadata = {
   title: "JSON Playground",
-  description: "Interactive JSON to slencode converter playground",
+  description: "Convert JSON to slencode in the browser.",
 }
 
 export default function JsonPlaygroundPage() {

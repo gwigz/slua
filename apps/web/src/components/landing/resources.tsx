@@ -37,13 +37,13 @@ const COMMUNITY = [
   {
     title: "SLua Docs",
     author: "Suzanna Linn",
-    description: "Comprehensive SLua documentation and reference",
+    description: "SLua documentation and reference",
     url: "https://suzanna-linn.github.io/slua",
     icon: IconBook,
   },
   {
     title: "slua.dev",
-    description: "Community SLua website and resources",
+    description: "Community SLua website",
     url: "https://slua.dev",
     icon: IconCode,
     wip: true,
@@ -103,7 +103,7 @@ export function Resources() {
             Resources
           </h2>
           <p className="text-fd-muted-foreground max-w-2xl mx-auto mt-3 text-sm sm:text-base">
-            Tools, documentation, and community projects for SLua development
+            Other places to find SLua tools and docs
           </p>
         </div>
 

@@ -39,13 +39,13 @@ const FEATURES = [
   {
     icon: IconTerminal,
     title: "Scaffolding",
-    description: "Bootstrap projects instantly with bunx @gwigz/slua-create.",
+    description: "Start a project with bunx @gwigz/slua-create.",
     href: "/docs/slua/getting-started",
   },
   {
     icon: IconShield,
     title: "Linting",
-    description: "oxlint config with SLua-specific rules for consistent code.",
+    description: "oxlint config with SLua-specific rules.",
     href: "/docs/slua/getting-started",
   },
 ] as const
@@ -62,7 +62,7 @@ export function Features() {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold text-fd-foreground">
-            Everything You Need
+            What you get
           </h2>
         </div>
 

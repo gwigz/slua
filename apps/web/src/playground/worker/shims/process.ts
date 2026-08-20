@@ -1,5 +1,5 @@
 // Process shim for TypeScript/TSTL running in the browser.
-// NOTE: browser must NOT be set -- TypeScript's isNodeLikeSystem() checks
+// NOTE: browser must NOT be set. TypeScript's isNodeLikeSystem() checks
 // !process.browser to decide whether to create ts.sys. TSTL's
 // createVirtualProgram needs ts.sys.fileExists to exist.
 const noop = () => {}

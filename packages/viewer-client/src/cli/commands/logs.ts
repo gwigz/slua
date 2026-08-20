@@ -147,6 +147,25 @@ export function namesTarget(params: RuntimeDebug, items: Set<string>): boolean {
   return items.has(script.toLowerCase())
 }
 
+/**
+ * Whether a runtime event belongs to the stream the flags asked for.
+ *
+ * `ids` is unset until the named object resolves, a hold as long as `--wait`
+ * allows, so naming one holds output back rather than letting every other
+ * object's through in the meantime.
+ */
+export function wantedEvent(
+  params: RuntimeDebug,
+  command: Pick<Extract<Command, { name: "logs" }>, "object" | "targets">,
+  ids: Set<string> | undefined,
+  items: Set<string>,
+): boolean {
+  if (command.object && !ids) return false
+  if (ids && !fromObject(params, ids)) return false
+
+  return !command.targets || namesTarget(params, items)
+}
+
 export function mapRow(row: number, maps: TargetMap[]): MappedLocation[] {
   if (row <= 0) return []
 
@@ -302,15 +321,10 @@ async function streamOnce(
 
   // The viewer forwards every published object's output to every connection,
   // so naming one object only narrows the stream if we do it here. Unset until
-  // the object resolves below, which lets output produced while the viewer is
-  // still publishing through rather than swallowing it.
+  // the object resolves below.
   let ids: Set<string> | undefined
 
-  const wanted = (params: RuntimeDebug): boolean => {
-    if (ids && !fromObject(params, ids)) return false
-
-    return !command.targets || namesTarget(params, targets.items)
-  }
+  const wanted = (params: RuntimeDebug): boolean => wantedEvent(params, command, ids, targets.items)
 
   // Registered before the round trips below, so output produced while the
   // viewer is publishing still reaches the stream.

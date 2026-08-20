@@ -201,6 +201,7 @@ describe("helpText", () => {
       "--file",
       "--key",
       "--follow",
+      "--targets",
       "--wait",
       "--port",
       "--timeout",

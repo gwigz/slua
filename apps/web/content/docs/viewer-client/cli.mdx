@@ -106,8 +106,9 @@ while you publish one from the viewer.
 The viewer forwards every published object's output to every connection, so
 `--object` narrows the stream to the one you named, matching against each prim
 in its linkset. `--targets` narrows it further, to the items your `slua.json`
-targets deploy to, which needs a viewer that names the item its output came
-from.
+targets deploy to, which needs a viewer that advertises `unifiedDiagnostics`
+and so sends an item reference with each event. Against an older viewer there
+is nothing to filter on, so `logs` warns once and shows everything.
 
 Runtime positions point at the generated Lua (`lua_script:5`), so each line is
 annotated with the TypeScript it maps to, using the source maps of the targets

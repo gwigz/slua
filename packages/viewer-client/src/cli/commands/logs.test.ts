@@ -11,6 +11,7 @@ import {
   runtimeText,
   sourceName,
   tagFor,
+  wantedEvent,
   withUpdate,
 } from "./logs"
 
@@ -221,5 +222,65 @@ describe("namesTarget", () => {
 
   it("keeps output a viewer sent without an item, which cannot be judged", () => {
     expect(namesTarget(event, items)).toBe(true)
+  })
+})
+
+describe("wantedEvent", () => {
+  const ids = new Set(["root", "child"])
+  const items = new Set(["main"])
+
+  it("keeps everything when no object and no target filter was asked for", () => {
+    expect(wantedEvent({ ...event, objectId: "elsewhere" }, {}, undefined, items)).toBe(true)
+  })
+
+  it("holds output back until the named object resolves", () => {
+    expect(
+      wantedEvent({ ...event, objectId: "elsewhere" }, { object: "O" }, undefined, items),
+    ).toBe(false)
+
+    expect(wantedEvent({ ...event, objectId: "root" }, { object: "O" }, undefined, items)).toBe(
+      false,
+    )
+  })
+
+  it("filters on the object once it has resolved", () => {
+    expect(wantedEvent({ ...event, objectId: "root" }, { object: "O" }, ids, items)).toBe(true)
+    expect(wantedEvent({ ...event, objectId: "elsewhere" }, { object: "O" }, ids, items)).toBe(
+      false,
+    )
+  })
+
+  it("applies the target filter with no object named", () => {
+    const command = { targets: true }
+
+    expect(
+      wantedEvent({ ...event, item: { rootId: "id", name: "Main" } }, command, undefined, items),
+    ).toBe(true)
+
+    expect(
+      wantedEvent({ ...event, item: { rootId: "id", name: "Other" } }, command, undefined, items),
+    ).toBe(false)
+  })
+
+  it("needs both filters to pass when both were asked for", () => {
+    const command = { object: "O", targets: true }
+
+    expect(
+      wantedEvent(
+        { ...event, objectId: "root", item: { rootId: "root", name: "Main" } },
+        command,
+        ids,
+        items,
+      ),
+    ).toBe(true)
+
+    expect(
+      wantedEvent(
+        { ...event, objectId: "root", item: { rootId: "root", name: "Other" } },
+        command,
+        ids,
+        items,
+      ),
+    ).toBe(false)
   })
 })

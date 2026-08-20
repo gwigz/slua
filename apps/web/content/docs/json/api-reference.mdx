@@ -5,7 +5,7 @@ description: slencode, sldecode, createCodec, and Second Life type classes
 
 ## `slencode(value, options?)`
 
-Encodes a JavaScript value to SLua tagged JSON string.
+Encodes a JavaScript value as an SLua tagged JSON string.
 
 ```ts
 import { slencode, Vector } from "@gwigz/slua-json"
@@ -27,7 +27,7 @@ slencode(new Vector(0, 0, 1), { tight: true })
 
 ## `sldecode<T>(json)`
 
-Decodes a SLua tagged JSON string into a typed JavaScript value.
+Decodes an SLua tagged JSON string into a typed JavaScript value.
 
 ```ts
 import { sldecode, Vector, Quaternion } from "@gwigz/slua-json"
@@ -72,7 +72,7 @@ codec.slencode({ pos: new Vector3(1, 2, 3) })
 
 You can override any combination of `vector`, `quaternion`, and `uuid`.
 Unspecified types fall back to the built-in classes. `createCodec()` with
-no arguments behaves identically to the bare `slencode`/`sldecode` exports.
+no arguments behaves the same as the bare `slencode`/`sldecode` exports.
 
 For UUID types where `String(value)` does not return the UUID string, provide
 a `value` function:
@@ -89,7 +89,7 @@ const codec = createCodec({
 
 ---
 
-## Type Classes
+## Type classes
 
 ### `Vector(x, y, z)`
 

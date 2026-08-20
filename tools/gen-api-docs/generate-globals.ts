@@ -118,18 +118,18 @@ function generateMdx(
   lines.push(`description: Lua and SLua global functions`)
   lines.push(`---`)
   lines.push(``)
-  lines.push(`## Lua Standard Globals`)
+  lines.push(`## Lua standard globals`)
   lines.push(``)
   lines.push(`Standard Lua functions available in the SLua runtime:`)
   lines.push(``)
   lines.push(...renderFunctions(luaFns))
-  lines.push(`## SLua-specific Globals`)
+  lines.push(`## SLua-specific globals`)
   lines.push(``)
   lines.push(...renderFunctions(sluaFns))
-  lines.push(`## Plugin Globals`)
+  lines.push(`## Plugin globals`)
   lines.push(``)
   lines.push(
-    `These globals are provided by the [transpiler plugin](/docs/slua/transpiler-plugin) and are not part of the SLua runtime.`,
+    `These globals come from the [transpiler plugin](/docs/slua/transpiler-plugin), not the SLua runtime.`,
   )
   lines.push(``)
   lines.push(...renderFunctions(pluginFns))

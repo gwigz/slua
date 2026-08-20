@@ -26,7 +26,7 @@ Pass a directory name to skip the first prompt:
 npx @gwigz/slua-create ./my-project
 ```
 
-## Flags and Non-Interactive Mode
+## Flags and non-interactive mode
 
 Every prompt can be answered with a flag instead, and any flag-answered
 question is skipped:
@@ -44,19 +44,18 @@ slua-create [directory] [options]
   -v, --version                  show version
 ```
 
-With `--yes` (or whenever the CLI is not attached to a terminal, e.g. in CI or
-piped scripts) no prompts are
-shown, defaults fill anything unanswered, and the directory argument is
-required:
+With `--yes` (or whenever the CLI is not attached to a terminal, e.g. in CI
+or piped scripts) no prompts are shown, defaults fill anything unanswered, and
+the directory argument is required:
 
 ```bash
 npx @gwigz/slua-create my-project --yes
 npx @gwigz/slua-create my-project -y -t multi -e config,yield --no-git
 ```
 
-## Interactive Prompts
+## Interactive prompts
 
-The CLI walks you through the following steps:
+The CLI asks these in order:
 
 1. **Project directory** where to create the project (skipped if a positional argument is given)
 2. **Template** choose between `single` (one `new-script.ts`) or `multi` (custom `build.ts` with multiple entry points)
@@ -76,8 +75,8 @@ The CLI walks you through the following steps:
 | Linting           | Adds `oxlint` for TypeScript linting                    |
 | Formatting        | Adds `oxfmt` for TypeScript formatting                  |
 
-## Package Manager Detection
+## Package manager detection
 
-The CLI automatically detects the package manager you used to invoke it
-(`npm`, `pnpm`, or `bun`) and uses the same one for install commands and
-the suggested `run` script in the final message.
+The CLI detects which package manager you invoked it with (`npm`, `pnpm`, or
+`bun`) and uses that one for the install command and the suggested `run` script
+in the final message.

@@ -3,7 +3,7 @@ title: Templates
 description: Available project templates and optional extras
 ---
 
-## Single Script
+## Single script
 
 The `single` template produces the simplest possible project layout, one
 `new-script.ts` file at the project root that compiles to a single flat
@@ -37,7 +37,7 @@ bun run build
 bun run dev
 ```
 
-## Multi Script
+## Multi script
 
 The `multi` template is for projects with multiple entry points (e.g.
 separate scripts for a coordinator, sender, and listener). It includes a
@@ -81,21 +81,21 @@ bun run build
 bun run dev
 ```
 
-## Optional Extras
+## Optional extras
 
-### JSX Templates (`@gwigz/jsx-inline`)
+### JSX templates (`@gwigz/jsx-inline`)
 
-Adds support for JSX template syntax via `@gwigz/jsx-inline`. Useful for
-generating structured Lua string outputs from TypeScript JSX.
+Adds support for JSX template syntax via `@gwigz/jsx-inline`, for building
+structured Lua strings out of TypeScript JSX.
 
-### Config, Utilities, and Yield Modules
+### Config, utilities, and yield modules
 
 Vendors the selected [`@gwigz/slua-modules`](/docs/modules) source into your
 project (`src/modules/` in multi-script projects, `modules/` in single-script
 ones). No package dependency is added, the copied TypeScript is yours to edit.
 Compile-time flags are pre-wired on the transpiler plugin config.
 
-### StyLua Formatting
+### StyLua formatting
 
 Adds [StyLua](https://github.com/JohnnyMorganz/StyLua) so compiled `.slua`
 output can be auto-formatted, via a `format` script in single-script

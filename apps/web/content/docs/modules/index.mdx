@@ -7,17 +7,17 @@ icon: BookOpen
 import { Cards, Card } from "fumadocs-ui/components/card"
 import { Settings, FlaskConical, Repeat, Timer } from "lucide-react"
 
-<Callout type="warn" title="Work in Progress">
+<Callout type="warn" title="Work in progress">
   These modules are under active development and have not been battle-tested in production. APIs may
   change between releases.
 </Callout>
 
-`@gwigz/slua-modules` provides reusable runtime modules for
+`@gwigz/slua-modules` is a set of reusable runtime modules for
 [SLua](https://github.com/gwigz/slua) projects. Modules are vendored, the CLI
 copies their TypeScript source directly into your project, so there is no
 package dependency and the code is yours to edit. Everything compiles to Lua
-through [TypeScript-to-Lua](https://typescripttolua.github.io), unused code is
-stripped at compile time via `@define` flags.
+through [TypeScript-to-Lua](https://typescripttolua.github.io), and `@define`
+flags strip whatever you did not enable.
 
 ## Add modules
 
@@ -88,7 +88,7 @@ it directly. The CLI prints the exact entries after `add`.
   <Card
     title="utilities"
     href="/docs/modules/utilities"
-    description="Rate-limiting primitives for debounce, throttle, and cooldown"
+    description="Debounce, throttle, and cooldown, built on LLTimers"
     icon={<Timer />}
   />
   <Card

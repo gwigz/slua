@@ -158,7 +158,7 @@ description key needs the object published from the viewer first, see
 | `--timeout <ms>`      | all            | Request timeout                                      |
 | `--json`              | all            | Machine-readable output on stdout                    |
 
-## Compile Errors
+## Compile errors
 
 `push` looks for a source map beside the file it uploads
 (`dist/main.slua.map`) and translates the viewer's Lua line numbers back to
@@ -178,7 +178,7 @@ column numbers, which the Luau compiler does not report.
 produced it, so when more than one target's map covers a line, every candidate
 is shown with its target name.
 
-## JSON Output
+## JSON output
 
 `--json` puts exactly one JSON document on stdout and nothing else, with
 progress and errors kept on stderr, so the CLI can be piped into `jq` or read

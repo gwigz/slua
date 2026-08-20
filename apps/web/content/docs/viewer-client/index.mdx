@@ -20,22 +20,10 @@ typed client for that protocol, plus a CLI so a build can deploy itself:
 bun run build && bunx @gwigz/slua-viewer-client push dist/main.slua
 ```
 
-Compile errors come back with the file and line of your **TypeScript** source,
-given a source map beside the pushed file, and against the generated output
-without one. A failed compile exits non-zero, so a broken build fails your
-deploy script instead of quietly shipping.
-
-## Which Way It Works
-
-The viewer is the server in this arrangement, and as far as it is concerned
-this package is the editor: it dials in to `localhost:9020`, answers the
-viewer's handshake, and serves the `editor.*` commands the viewer invokes back
-on it.
-
-Scripts travel outward from there. A save hands content to the viewer, which
-uploads it to the region and compiles it into the object's inventory, so the
-destination is the in-world object, not an editor window. The viewer's own UI
-is never involved.
+Compile errors come back with the file and line of your **TypeScript**
+source, as long as a source map sits beside the pushed file. Without one they
+point at the generated output. A failed compile exits non-zero, so a broken
+build fails your deploy script instead of quietly shipping.
 
 ## Requirements
 
@@ -44,10 +32,7 @@ The object you are targeting must be published to the editor first, which is a
 button in the viewer rather than a side effect of selecting it. See
 [Publishing an object](/docs/viewer-client/cli#publishing-an-object).
 
-## Quick Start
-
-Nothing to install for the one-off commands, `objects`, `logs`, `link` and
-`pull`:
+## Quick start
 
 ```bash tab="npm"
 npx @gwigz/slua-viewer-client objects
@@ -72,7 +57,7 @@ That stamps a `slua:main` key into the object's description and records the
 target in `slua.json`, so later deploys find the object again even after it has
 been taken and rezzed. See [Targets](/docs/viewer-client/targets).
 
-## As Part of a Build
+## As part of a build
 
 Once deploying is part of your build, add it as a devDependency and pin it.
 Package scripts already have `node_modules/.bin` on `PATH`, so the
@@ -98,7 +83,7 @@ bun add -d @gwigz/slua-viewer-client
 }
 ```
 
-## Not an LSL Toolchain
+## Not an LSL toolchain
 
 The viewer's protocol is bilingual, and so is this. `push`, `pull`, `reset`,
 `set-running` and `logs` all work on LSL scripts, and a mixed project, a few

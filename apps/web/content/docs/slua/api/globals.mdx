@@ -3,16 +3,24 @@ title: Global Functions
 description: Lua and SLua global functions
 ---
 
-## Lua Standard Globals
+## Lua standard globals
 
 Standard Lua functions available in the SLua runtime:
 
 ### `assert`
 
-Checks if the value is truthy; if not, raises an error with the optional message.
+Checks if the value is truthy; if not, raises an error with the optional message. Returns the value upon success.
 
 ```ts
-function assert<T>(value?: T, message?: string): T
+function assert<T>(value?: T, errorMessage?: string): T
+```
+
+### `collectgarbage`
+
+Alias for gcinfo
+
+```ts
+function collectgarbage(option: "count"): number
 ```
 
 ### `collectgarbage`
@@ -25,10 +33,10 @@ function collectgarbage(option?: "collect"): void
 
 ### `error`
 
-Raises an error with the specified object and optional call stack level.
+Raises an error with the specified object. The optional level determines which call stack level is blamed for the error.
 
 ```ts
-function error(obj: any, level?: number): never
+function error<T>(message: T, level?: number): never
 ```
 
 ### `gcinfo`
@@ -49,10 +57,10 @@ function getfenv(target: ((this: void, ...args: any[]) => any[]) | number): Reco
 
 ### `getmetatable`
 
-Returns the metatable for the specified object.
+Returns the metatable for the specified object. If the metatable has a '\_\_metatable' field, returns its value instead.
 
 ```ts
-function getmetatable(obj: any): Record<any, any> | undefined
+function getmetatable<T>(obj: T): Record<string, any> | undefined
 ```
 
 ### `graphheap`
@@ -73,11 +81,11 @@ function graphuserheap(path: string): void
 
 ### `ipairs`
 
-Returns an iterator for numeric key-value pairs in the table.
+Returns an iterator for sequential integer key-value pairs in the table. Iteration starts at 1 and halts at the first nil value.
 
 ```ts
 function ipairs<V>(
-  t: V[],
+  tab: V[],
 ): LuaMultiReturn<
   [(this: void, arg0: V[], arg1: number) => LuaMultiReturn<[number | undefined, V]>, V[], number]
 >
@@ -101,10 +109,10 @@ function newproxy(mt?: boolean): any
 
 ### `next`
 
-Returns the next key-value pair in the table traversal order.
+Returns the next key-value pair in the table traversal order. If the index is nil or omitted, returns the first pair.
 
 ```ts
-function next<K, V>(t: Record<K, V>, i?: K): LuaMultiReturn<[K, V]> | undefined
+function next<K, V>(t: Record<K, V>, i?: K): LuaMultiReturn<[K | undefined, V]>
 ```
 
 ### `pairs`
@@ -115,21 +123,25 @@ Returns an iterator for all key-value pairs in the table.
 function pairs<K, V>(
   t: Record<K, V>,
 ): LuaMultiReturn<
-  [(this: void, arg0: Record<K, V>, arg1: K) => LuaMultiReturn<[K | undefined, V]>, Record<K, V>, K]
+  [
+    (this: void, arg0: Record<K, V>, arg1: K | undefined) => LuaMultiReturn<[K | undefined, V]>,
+    Record<K, V>,
+    K,
+  ]
 >
 ```
 
 ### `pcall`
 
-Calls function f with parameters args, returning success and function results or an error.
+Executes function f in protected mode, calling it with the provided arguments. Returns a boolean indicating success. If true, it also returns the function's results. If false, it returns the error message.
 
 ```ts
-function pcall(f: (...args: any[]) => any, args: any[][]): any
+function pcall(f: (...args: any[]) => any, args: any[]): any
 ```
 
 ### `print`
 
-Prints all arguments to standard output using Tab as a separator.
+Sends all arguments as text privately to the object owner, separated by 4 spaces. The owner must be currently in the same region for the message to be received.
 
 ```ts
 function print(args: any[]): void
@@ -137,15 +149,15 @@ function print(args: any[]): void
 
 ### `rawequal`
 
-Returns true if a and b have the same type and value.
+Returns true if a and b have the same type and value or reference, bypassing the \_\_eq metamethod..
 
 ```ts
-function rawequal(a: any, b: any): boolean
+function rawequal<T1, T2>(a: T1, b: T2): boolean
 ```
 
 ### `rawget`
 
-Performs a table lookup bypassing metatables.
+Performs a table lookup, bypassing the \_\_index metamethod..
 
 ```ts
 function rawget<K, V>(t: Record<K, V>, k: K): V | undefined
@@ -153,7 +165,7 @@ function rawget<K, V>(t: Record<K, V>, k: K): V | undefined
 
 ### `rawlen`
 
-Returns the length of a table or string bypassing metatables.
+Returns the length of a table or string, bypassing the \_\_len metamethod..
 
 ```ts
 function rawlen<K, V>(t: Record<K, V> | string): number
@@ -161,7 +173,7 @@ function rawlen<K, V>(t: Record<K, V> | string): number
 
 ### `rawset`
 
-Assigns a value to a table field bypassing metatables.
+Assigns a value to a table field, bypassing the \_\_newindex metamethod..
 
 ```ts
 function rawset<K, V>(t: Record<K, V>, k: K, v: V): Record<K, V>
@@ -172,15 +184,15 @@ function rawset<K, V>(t: Record<K, V>, k: K, v: V): Record<K, V>
 Execute the named external module.
 
 ```ts
-function require(target: string): any
+function require(target: any): any
 ```
 
 ### `select`
 
-Returns a subset of arguments or the number of arguments.
+Returns a subset of arguments starting from the specified index. Supports negative indexing. If index is '#', returns the number of arguments.
 
 ```ts
-function select(i: string | number, args: any[]): any
+function select(i: string | number, args: any[]): any[]
 ```
 
 ### `setfenv`
@@ -188,34 +200,31 @@ function select(i: string | number, args: any[]): any
 Set the scoped environment for the given function.
 
 ```ts
-function setfenv(
-  target: ((this: void, ...args: any[]) => any[]) | number,
-  env: Record<string, any>,
-): void
+function setfenv(target: number | ((...args: any[]) => any), env: Record<string, any>): any
 ```
 
 ### `setmetatable`
 
-Changes the metatable for the given table.
+Changes the metatable for the given table. Raises an error if the table already has a protected metatable (it has a '\_\_metatable' field).
 
 ```ts
-function setmetatable(t: Record<any, any>, mt?: Record<any, any>): void
+function setmetatable<T, MT>(t: T, mt: MT): T
 ```
 
 ### `tonumber`
 
-Converts the input string to a number in the specified base.
+Converts the input string to a number in the specified base. Returns nil if invalid.
 
 ```ts
-function tonumber(s: string, base?: number): number | undefined
+function tonumber(value: string | undefined | number, base?: number): number | undefined
 ```
 
 ### `tostring`
 
-Converts the input object to a string.
+Converts the input object to a string. Calls the metatable's '\_\_tostring' metamethod if present.
 
 ```ts
-function tostring(obj: any): string
+function tostring<T>(value: T): string
 ```
 
 ### `type`
@@ -223,7 +232,7 @@ function tostring(obj: any): string
 Returns the type of the object as a string.
 
 ```ts
-function type(obj: any): string
+function type<T>(obj: T): string
 ```
 
 ### `unpack`
@@ -231,38 +240,38 @@ function type(obj: any): string
 Returns values from an array in the specified index range.
 
 ```ts
-function unpack<V>(a: V[], f?: number, t?: number): V[]
+function unpack<V>(tab: V[], i?: number, j?: number): V[]
 ```
 
 ### `xpcall`
 
-Calls function f with parameters args, handling errors with e if they occur.
+Calls function f with the provided arguments, handling errors with err if they occur.
 
 ```ts
-function xpcall<E>(f: (...args: any[]) => any, e: (...args: any[]) => any, args: any[][]): any
+function xpcall<E>(f: (...args: any[]) => any, err: (...args: any[]) => any, args: any[]): any
 ```
 
-## SLua-specific Globals
+## SLua-specific globals
 
 ### `toquaternion`
 
-Converts a string to a quaternion, returns nil if invalid
+Converts a string to a quaternion. Returns nil if invalid.
 
 ```ts
-function toquaternion(val: string | undefined | Quaternion): Quaternion | undefined
+function toquaternion(value: string | undefined | Quaternion): Quaternion | undefined
 ```
 
 ### `torotation`
 
-Converts a string to a rotation (quaternion), returns nil if invalid
+Converts a string to a rotation (quaternion). Returns nil if invalid.
 
 ```ts
-function torotation(val: string | undefined | Quaternion): Quaternion | undefined
+function torotation(value: string | undefined | Quaternion): Quaternion | undefined
 ```
 
 ### `touuid`
 
-Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the the buffer is shorter than 16 bytes.
+Creates a new uuid from a string, buffer, or existing uuid. Returns nil if the string is not a valid UUID, or the buffer is shorter than 16 bytes.
 
 ```ts
 function touuid(val: string | undefined | buffer | UUID): UUID | undefined
@@ -270,15 +279,15 @@ function touuid(val: string | undefined | buffer | UUID): UUID | undefined
 
 ### `tovector`
 
-Converts a string to a vector, returns nil if invalid
+Converts a string to a vector. Returns nil if invalid.
 
 ```ts
 function tovector(val: string | undefined | Vector): Vector | undefined
 ```
 
-## Plugin Globals
+## Plugin globals
 
-These globals are provided by the [transpiler plugin](/docs/slua/transpiler-plugin) and are not part of the SLua runtime.
+These globals come from the [transpiler plugin](/docs/slua/transpiler-plugin), not the SLua runtime.
 
 ### `$castRay`
 

@@ -19,7 +19,7 @@ pnpm add -D @gwigz/slua-viewer-client
 bun add -d @gwigz/slua-viewer-client
 ```
 
-## Pushing a Script
+## Pushing a script
 
 ```ts
 import { readFile } from "node:fs/promises"
@@ -72,7 +72,7 @@ the `commands` option.
 `objectContentSave` allows the viewer's full 60s upload budget, other calls use
 the connection's timeout.
 
-## Runtime Events
+## Runtime events
 
 Runtime output is only forwarded for published objects, so publish before you
 listen:
@@ -103,7 +103,7 @@ makes awkward:
 `resolveItem` also re-reads the listing a few times before giving up, since the
 viewer's published inventory goes briefly stale right after a save.
 
-## Target Resolution
+## Target resolution
 
 Target resolution is exported too, so a custom deploy script can reuse the same
 precedence rules:

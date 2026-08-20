@@ -29,9 +29,9 @@ The object has to be published first, which is the Content tab's **"Explore in
 IDE"** button rather than the selection, see
 [Publishing an object](/docs/viewer-client/cli#publishing-an-object). With
 `--wait` the command holds the connection open so that button has somewhere to
-publish to. If several objects are published, name one with `--object`. Pass `--key` to pair on something other than
-`slua:<name>`, and `--file` to record an output path other than
-`dist/<name>.slua`.
+publish to. If several objects are published, name one with `--object`. Pass
+`--key` to pair on something other than `slua:<name>`, and `--file` to record an
+output path other than `dist/<name>.slua`.
 
 The key is appended to whatever description the object already has, matched on
 a word boundary so `slua:main` is not confused with `slua:main-menu`.
@@ -40,7 +40,7 @@ character costs more than one, and a full description is reported rather than
 truncated. Linking warns, but still writes, when the object has no
 item of that name yet.
 
-## Source Headers
+## Source headers
 
 A script can declare its own destination, so a small project needs no config at
 all:
@@ -120,7 +120,7 @@ slua-viewer push --all
 With no `--target`, `--all` or config entry, `push dist/main.slua` uses the
 file's base name as the target name.
 
-## Saving Back to a Rezzer
+## Saving back to a rezzer
 
 `saveBack` derezzes the object into the prim it was rezzed from, which is how
 you update a rezzer's payload without the take-and-replace dance.

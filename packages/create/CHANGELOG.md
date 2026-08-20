@@ -1,5 +1,18 @@
 # @gwigz/slua-create
 
+## 0.5.0
+
+### Minor Changes
+
+- [#113](https://github.com/gwigz/slua/pull/113) [`0acf6d4`](https://github.com/gwigz/slua/commit/0acf6d46c7abbc273977b4af1acc74f293b8b600) Thanks [@gwigz](https://github.com/gwigz)! - cli flags for non-interactive scaffolding
+
+- [#121](https://github.com/gwigz/slua/pull/121) [`acc797b`](https://github.com/gwigz/slua/commit/acc797ba80ea2134bd4ee8e84c1276df8bd54916) Thanks [@gwigz](https://github.com/gwigz)! - emit source maps so viewer compile errors map back to typescript, and require tstl-bundle-flatten 1.2.0, which keeps the map in step with the flattened output
+
+### Patch Changes
+
+- Updated dependencies [[`0acf6d4`](https://github.com/gwigz/slua/commit/0acf6d46c7abbc273977b4af1acc74f293b8b600)]:
+  - @gwigz/slua-modules@0.7.0
+
 ## 0.4.0
 
 ### Minor Changes

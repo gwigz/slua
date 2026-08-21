@@ -20,16 +20,15 @@ typed client for that protocol, plus a CLI so a build can deploy itself:
 bun run build && bunx @gwigz/slua-viewer-client push dist/main.slua
 ```
 
-Compile errors come back with the file and line of your **TypeScript**
-source, as long as a source map sits beside the pushed file. Without one they
-point at the generated output. A failed compile exits non-zero, so a broken
-build fails your deploy script instead of quietly shipping.
+Compile errors come back with the file and line of your TypeScript source, as
+long as a source map sits beside the pushed file, and a failed compile exits
+non-zero, so a broken build fails your deploy script instead of shipping.
 
 ## Requirements
 
 A viewer with external script editing enabled (`ExternalWebsocketSyncEnable`).
 The object you are targeting must be published to the editor first, which is a
-button in the viewer rather than a side effect of selecting it. See
+button in the viewer rather than a side effect of selecting it, see
 [Publishing an object](/docs/viewer-client/cli#publishing-an-object).
 
 ## Quick start
@@ -47,7 +46,7 @@ bunx @gwigz/slua-viewer-client objects
 ```
 
 Pair the object with a name once. Run this first, then press **"Explore in
-IDE"** in the object's Build window under Content, which is what publishes it:
+IDE"** under Content in the object's Build window, which is what publishes it:
 
 ```bash
 bunx @gwigz/slua-viewer-client link main --wait
@@ -59,18 +58,12 @@ been taken and rezzed. See [Targets](/docs/viewer-client/targets).
 
 ## Working on a script
 
-Deploying a script and working on one want different things. A script's runtime
-output reaches you as it happens or not at all. The viewer sends it to whatever
-connections are open at the moment the script speaks, buffers nothing, and the
-protocol has no way to ask for what it already sent. A command that has exited
-hears none of it, and leaves the viewer's publish button with nothing to
-publish to.
-
-That is the argument for keeping a session up. Most of what a script says
-follows a touch, a listen, a timer or an HTTP response rather than anything you
-typed. `connect` holds one connection open the whole time you are working,
-rebuilds, pushes when the output changes, and prints what your scripts say as
-you poke at them:
+Deploying a script and working on one want different things. Runtime output
+reaches whatever connections are open the moment a script speaks and nothing
+else, and most of what a script says follows a touch or a timer rather than
+anything you typed. `connect` holds one connection open the whole time you are
+working, rebuilds, pushes when the output changes, and prints what your scripts
+say as you poke at them:
 
 ```bash
 bunx @gwigz/slua-viewer-client connect --exec "bun run build:watch"
@@ -81,9 +74,8 @@ Scaffolded projects wire that up as `bun run dev`. See
 
 ## As part of a build
 
-Once deploying is part of your build, add it as a devDependency and pin it.
-Package scripts already have `node_modules/.bin` on `PATH`, so the
-`slua-viewer` bin is callable by name from there, which a bare shell cannot do:
+Add it as a devDependency and pin it. Package scripts have `node_modules/.bin`
+on `PATH`, so `slua-viewer` is callable by name there:
 
 ```bash tab="npm"
 npm install --save-dev @gwigz/slua-viewer-client
@@ -107,12 +99,10 @@ bun add -d @gwigz/slua-viewer-client
 
 ## LSL support
 
-`push`, `pull`, `reset`, `set-running` and `logs` all work on LSL scripts too,
-so a project that mixes hand-written LSL with compiled SLua needs no special
-handling.
-
-It is not an LSL toolchain though. There is no preprocessor, no `#include`
-expansion, and no LSL linting. It deploys LSL, it does not build it.
+`push`, `pull`, `reset`, `set-running` and `logs` all work on LSL scripts, so a
+project that mixes hand-written LSL with compiled SLua needs no special
+handling. It is not an LSL toolchain though. No preprocessor, no `#include`
+expansion, no linting. It deploys LSL, it does not build it.
 
 <Cards>
   <Card

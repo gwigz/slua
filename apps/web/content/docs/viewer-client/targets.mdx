@@ -10,10 +10,9 @@ trip, which makes a description key the durable way to pair.
 
 ## Precedence
 
-There are three places a destination can come from, in order of precedence:
-**command line flags, then `slua.json`, then the source header**. The header is
-the default a script ships with, config retargets a build for a different
-environment without touching source.
+A destination comes from command line flags, then `slua.json`, then the source
+header. The header is the default a script ships with, and config retargets a
+build for another environment without touching source.
 
 ## `link`
 
@@ -25,25 +24,21 @@ key, however many times it has been rezzed.
 slua-viewer link main --wait
 ```
 
-The object has to be published first, which is the Content tab's **"Explore in
-IDE"** button rather than the selection, see
-[Publishing an object](/docs/viewer-client/cli#publishing-an-object). With
-`--wait` the command holds the connection open so that button has somewhere to
-publish to. If several objects are published, name one with `--object`. Pass
-`--key` to pair on something other than `slua:<name>`, and `--file` to record an
-output path other than `dist/<name>.slua`.
+The object has to be published first, and `--wait` holds the connection open so
+the viewer's button has somewhere to publish to, see
+[Publishing an object](/docs/viewer-client/cli#publishing-an-object). Name one
+with `--object` if several are published, `--key` to pair on something other
+than `slua:<name>`, and `--file` to record an output path other than
+`dist/<name>.slua`.
 
-The key is appended to whatever description the object already has, matched on
-a word boundary so `slua:main` is not confused with `slua:main-menu`.
-Descriptions cap at 127 bytes of UTF-8 in Second Life, so a multi-byte
-character costs more than one, and a full description is reported rather than
-truncated. Linking warns, but still writes, when the object has no
-item of that name yet.
+The key is appended to the object's existing description, matched on a word
+boundary so `slua:main` is not confused with `slua:main-menu`. Descriptions cap
+at 127 bytes of UTF-8, and a full one is reported rather than truncated. Linking
+warns, but still writes, when the object has no item of that name yet.
 
 ## Source headers
 
-A script can declare its own destination, so a small project needs no config at
-all:
+A script can declare its own destination, so a small project needs no config:
 
 ```ts
 /**
@@ -63,18 +58,15 @@ all:
 | `@slua-save-back`              | Derez back into the source prim after a successful push      |
 
 `@slua-save-back` needs no value, but takes one, so `@slua-save-back false`
-turns it off where something else would have enabled it.
+turns it off where something else enabled it. An unknown tag is an error, which
+catches a typo before it deploys somewhere unintended.
 
-A tag the parser does not know is an error, which catches a typo before it
-deploys somewhere unintended.
-
-For a compiled bundle the tags are read from the source it came from, found
-through the source map. A hand-written script is its own source, so a `.lsl` or
-`.luau` file carries its header directly.
-
-When several sources behind one bundle carry tags, the entry point wins, since
-TSTL emits it last. Unknown tags are tolerated during that sweep rather than
-failing the push, because the sources include vendored code you did not write.
+For a compiled bundle the tags come from the source it was built from, found
+through the source map, and the entry point wins when several sources carry
+them, since TSTL emits it last. Unknown tags are tolerated during that sweep
+rather than failing the push, since those sources include vendored code you did
+not write. A hand-written `.lsl` or `.luau` file is its own source and carries
+its header directly.
 
 Both comment syntaxes work (`//`, `/* */`, `--`, `--[[ ]]`), and tags are only
 honoured above the first line of code, so a `@slua-` string appearing later
@@ -122,13 +114,12 @@ file's base name as the target name.
 
 ## Saving back to a rezzer
 
-`saveBack` derezzes the object into the prim it was rezzed from, which is how
-you update a rezzer's payload without the take-and-replace dance.
+`saveBack` derezzes the object into the prim it was rezzed from, which updates a
+rezzer's payload without the take-and-replace dance.
 
-The viewer only offers this for an object rezzed out of another in-world prim's
-contents, and it decides that when the object is published. An object published
-by UUID alone reports `canSaveBack: false`, and the push reports the save-back
-as failed.
+The viewer only offers it for an object rezzed out of another in-world prim's
+contents, decided when the object is published. One published by UUID alone
+reports `canSaveBack: false`, and the push reports the save-back as failed.
 
 <Callout type="warn" title="Inventory objects">
   An object sitting in your own inventory cannot be reached at all. It has to be rezzed.

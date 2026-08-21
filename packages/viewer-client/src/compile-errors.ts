@@ -62,5 +62,41 @@ export function diagnosticsFrom(
   response: Pick<ObjectContentSaveResponse, "diagnostics" | "errors"> | undefined,
   language: CompileLanguage,
 ): Diagnostic[] {
-  return response?.diagnostics ?? parseCompileErrors(response?.errors, language)
+  const diagnostics = response?.diagnostics ?? parseCompileErrors(response?.errors, language)
+
+  return diagnostics.map(readable)
+}
+
+/**
+ * ANSI escape sequences, matched whole.
+ *
+ * Stripped before the control characters below, or removing the escape on its
+ * own would leave the `[31m` behind as literal text.
+ */
+// oxlint-disable-next-line no-control-regex -- matching the escape is the point
+const ANSI = /\u001b\[[0-9;?]*[ -/]*[@-~]|\u001b[@-Z\\-_]/g
+
+/** Control characters, which a terminal renders as anything from nothing to a mess. */
+// oxlint-disable-next-line no-control-regex -- stripping them is the point
+const UNPRINTABLE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g
+
+const NO_MESSAGE = "the viewer reported an error here but sent no message with it"
+
+/**
+ * A diagnostic fit to print.
+ *
+ * A viewer has been seen answering a failed compile with 58 NUL bytes, which
+ * is uninitialised memory rather than an error, and printing it puts 58
+ * invisible characters through the terminal, the JSON output and the log file.
+ * The row is still worth having, so the message is replaced rather than the
+ * diagnostic dropped.
+ */
+function readable(diagnostic: Diagnostic): Diagnostic {
+  const message = diagnostic.message.replaceAll(ANSI, "").replaceAll(UNPRINTABLE, "").trim()
+
+  // Only a message that survived untouched is already fit to print. One that
+  // arrived empty needs the fallback just as much as one emptied here.
+  if (message === diagnostic.message && message !== "") return diagnostic
+
+  return { ...diagnostic, message: message === "" ? NO_MESSAGE : message }
 }

@@ -4,8 +4,8 @@ description: Typed client, runtime events, and target resolution
 icon: Code2
 ---
 
-Everything the CLI does is available as a library, so a custom deploy script
-can reuse the same protocol handling, addressing, and target precedence.
+Everything the CLI does is available as a library, with the same protocol
+handling, addressing and target precedence.
 
 ```bash tab="npm"
 npm install --save-dev @gwigz/slua-viewer-client
@@ -58,7 +58,7 @@ the `commands` option.
 
 ## Methods
 
-`ViewerClient` wraps the protocol's methods, each named after the RPC it sends:
+Each method is named after the RPC it sends:
 
 | Area     | Methods                                                            |
 | -------- | ------------------------------------------------------------------ |
@@ -88,13 +88,12 @@ client.on("runtime.error", (event) => console.error(event.objectName, event.mess
 ```
 
 `on` returns an unsubscribe function, and `runtime.debug` carries the script's
-non-error output. A viewer advertising the `unifiedDiagnostics` feature fills in
-`error`, `line` and an `item` reference naming the script; older ones leave
-`error` empty and `line` 0, and send the text as a separate `runtime.debug`
-message. `line` is 0 on any viewer when the error names no line.
+non-error output. A viewer advertising `unifiedDiagnostics` fills in `error`,
+`line` and an `item` reference naming the script. Older ones leave `error` empty
+and `line` 0, and send the text as a separate `runtime.debug` message. `line` is
+0 on any viewer when the error names no line.
 
-`ensurePublished` and `resolveItem` take options for the two things the viewer
-makes awkward:
+`ensurePublished` and `resolveItem` take options for the awkward parts:
 
 | Option      | Effect                                                                  |
 | ----------- | ----------------------------------------------------------------------- |
@@ -107,8 +106,7 @@ viewer's published inventory goes briefly stale right after a save.
 
 ## Target resolution
 
-Target resolution is exported too, so a custom deploy script can reuse the same
-precedence rules:
+Target resolution is exported too:
 
 ```ts
 import { loadConfig, readHeaderTagsFor, resolveTarget } from "@gwigz/slua-viewer-client"
@@ -124,8 +122,8 @@ const target = resolveTarget({
 ```
 
 `readHeaderTagsFor` follows the source map beside a built file back to the
-source that produced it, so header tags work on bundled output. `loadSourceMapFor`
-and `SourceMap.mapRow` are exported for mapping Lua rows to source locations
+source that produced it, so header tags work on bundled output.
+`loadSourceMapFor` and `SourceMap.mapRow` are exported for mapping Lua rows
 yourself.
 
 ## Errors
@@ -142,9 +140,8 @@ Failures throw typed errors rather than plain strings:
 
 ## Naming
 
-The viewer's protocol is snake_case. Everything this package exposes is
-camelCase, converted once at the JSON-RPC boundary, so `object_id` on the wire
-is `objectId` in your code and in `--json` output.
-
-Only field-shaped keys convert. Keys carrying data, an item named `Main` or an
-object named `Door Control`, pass through untouched.
+The viewer's protocol is snake_case, and everything this package exposes is
+camelCase, converted once at the JSON-RPC boundary. So `object_id` on the wire
+is `objectId` in your code and in `--json` output. Only field-shaped keys
+convert. Keys carrying data, an item named `Main` or an object named
+`Door Control`, pass through untouched.

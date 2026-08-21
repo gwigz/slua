@@ -20,6 +20,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   const devDependencies: Record<string, string> = {
     "@gwigz/slua-tstl-plugin": VERSIONS["@gwigz/slua-tstl-plugin"],
     "@gwigz/slua-types": VERSIONS["@gwigz/slua-types"],
+    "@gwigz/slua-viewer-client": VERSIONS["@gwigz/slua-viewer-client"],
     "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
     "darklua-wasm": VERSIONS["darklua-wasm"],
@@ -48,11 +49,14 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
 
   const scripts: Record<string, string> = {
     build: "tstl -p tsconfig.json",
-    dev: "tstl -p tsconfig.json --watch",
+    // One command to learn: the session runs the watch build, pushes what it
+    // produces and tails the script's output, in one terminal.
+    dev: 'slua-viewer connect --exec "tstl -p tsconfig.json --watch"',
+    "build:watch": "tstl -p tsconfig.json --watch",
   }
 
   if (extras.stylua) {
-    scripts.format = "stylua --syntax luau out/"
+    scripts.format = "stylua --syntax luau dist/"
   }
   if (extras.linting) {
     scripts.lint = "oxlint --type-aware"
@@ -89,7 +93,9 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     lib: ["ESNext"],
     types: ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
     rootDir: ".",
-    outDir: "out",
+    // Matches what "slua-viewer link" records, so the session started by
+    // "dev" resolves the target its watch build writes.
+    outDir: "dist",
   }
 
   if (extras.jsx) {

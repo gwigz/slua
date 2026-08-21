@@ -75,7 +75,7 @@ async function completeHandshake(transport: FakeTransport, challenge?: string) {
 
 describe("buildHandshakeResponse", () => {
   it("echoes the challenge file contents verbatim", async () => {
-    // Whatever the file holds goes back untouched; the viewer parses it.
+    // Whatever the file holds goes back untouched. The viewer parses it.
     const path = await challengeFile("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\n")
     const response = await buildHandshakeResponse(handshake(path))
 

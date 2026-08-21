@@ -4,43 +4,33 @@ description: Commands, addressing, flags, and JSON output for slua-viewer
 icon: Terminal
 ---
 
-The package installs a `slua-viewer` bin. Examples below use that name, which
-resolves inside a package script or after a devDependency install. Prefix them
-with `bunx @gwigz/slua-viewer-client` (or `npx`, `pnpm dlx`) to run them
-straight from a shell.
+The package installs a `slua-viewer` bin. Examples use that name, which resolves
+inside a package script or after a devDependency install. From a bare shell,
+prefix them with `bunx @gwigz/slua-viewer-client` (or `npx`, `pnpm dlx`).
 
 ## Publishing an object
 
-Nothing can be read or written until the viewer publishes the object to the
-editor, and selecting it does not do that. Publishing is a button: open the
-object's Build window, go to **Content** and press **"Explore in IDE"**.
+Nothing can be read or written until the viewer publishes the object, and
+selecting it does not do that. Open the object's Build window, go to **Content**
+and press **"Explore in IDE"**.
 
-The catch is that the viewer only publishes when an editor client is already
-connected. Press it with nothing connected and it launches your external editor
-instead, which is why the button can look like it does nothing for this CLI.
-So connect first:
+The button only works when an editor client is already connected. Press it with
+nothing connected and it launches your external editor instead, which is why it
+can look like it does nothing here. So connect first:
 
 ```bash
 slua-viewer push dist/main.slua --wait
 ```
 
-`--wait` holds the connection open and says what it is waiting for, then
-carries on the moment the object arrives. It applies to every command that
-resolves or lists a published object, including `objects --wait` to see what
-you just published, and `logs --wait` to catch output from the start. `syntax`,
-`--help` and `--version` never touch a published object, so it does nothing
-there.
-
-Addressing an object by UUID skips all of this: the viewer publishes it on
-demand, no button and no waiting. Names and description keys cannot be
-requested that way, since the viewer has no way to look them up.
+`--wait` holds the connection open until the object arrives, saying what it is
+waiting for. Every command that resolves or lists a published object takes it.
+Addressing an object by UUID skips all of this, since the viewer publishes those
+on demand. Names and description keys it cannot look up.
 
 <Callout title="Stale inventory">
-  The published inventory goes briefly stale right after a save. Sometimes the item, or the whole
-  object, drops out of the listing; sometimes the listing is fine and the next save comes back as
-  `Item not found in prim inventory` even though the item is there and its id has not changed.
-  Commands re-read the object and retry a few times before giving up, so a `push --all` that touches
-  several scripts in a row is not derailed by it.
+  The published inventory goes briefly stale right after a save. The item, or the whole object, can
+  drop out of the listing, or a save comes back as `Item not found in prim inventory` with the item
+  still there under the same id. Commands re-read and retry a few times before giving up.
 </Callout>
 
 ## Commands
@@ -54,40 +44,53 @@ requested that way, since the viewer has no way to look them up.
 | `reset <object>/<item>`               | Reset a script                               |
 | `set-running on\|off <object>/<item>` | Start or stop a script                       |
 | `logs`                                | Stream runtime output from published objects |
+| `connect`                             | Hold a session: watch, push and tail in one  |
+| `status`                              | What the running session is doing            |
+| `wait`                                | Block until the next push settles            |
+| `mcp`                                 | Serve the session to an agent over MCP       |
 | `syntax [defs.lsl\|defs.lua]`         | Dump language definitions                    |
 
-### objects
+### `objects`
 
-Lists every published object, its child prims, and their inventory, with each
-script marked `running` or `stopped`, alongside the object's description, which
-is where `link` keys live. An empty list means nothing has been published yet.
+Every published object, its child prims and their inventory, each script marked
+`running` or `stopped`, with the object's description, where `link` keys live.
 
 ```bash
 slua-viewer objects
 ```
 
-### push
+### `push`
 
-Uploads a file and compiles it in place. The script's current running state is
-preserved, so pushing to a stopped script does not start it.
+Uploads a file and compiles it in place, preserving the script's running state.
 
 ```bash
 slua-viewer push dist/main.slua 4f2b0c1e-.../Main
 ```
 
-The destination can also come from `slua.json` or a source header, in which
-case the file alone is enough, and `--target` or `--all` cover multi-script
-projects. See [Targets](/docs/viewer-client/targets).
+The destination can also come from `slua.json` or a source header, in which case
+the file alone is enough, with `--target` and `--all` for multi-script projects.
+See [Targets](/docs/viewer-client/targets). The VM comes from `--vm`, then the
+extension (`.slua`, `.luau` and `.lua` are `luau`, `.lsl` is `mono`), then
+whatever the item already is.
 
-The compile target is picked from `--vm`, then the file extension (`.slua`,
-`.luau` and `.lua` compile as `luau`, `.lsl` as `mono`), then whatever the item
-already is.
+A save can succeed while the compile fails, and the source is stored either way.
+Either failure exits non-zero, and with `--all` the targets behind it still run.
 
-A save can succeed while the compile fails, the source is stored either way.
-Either failure exits non-zero, and with `--all` a failing target does not
-strand the ones behind it.
+A save also restarts the script, so `push` listens for 1.5s afterwards and
+prints what that object and item said under the compile result:
 
-### pull
+```
+compiled Main.luau in My Rezzer
+say My Rezzer/Main  ready
+```
+
+`--tail 10s` widens that window, bare `--tail` listens until you interrupt it,
+and `--no-tail` skips it. The result carries a `cursor`, the point everything
+the push caused comes after. Anything the script says later, from a touch or a
+timer, needs a connection that is still open, so [`connect`](#connect) or
+`logs --follow`.
+
+### `pull`
 
 Writes the item's content to `out`, or to stdout when no path is given. Content
 the viewer base64-encodes is decoded for you.
@@ -96,49 +99,84 @@ the viewer base64-encodes is decoded for you.
 slua-viewer pull "My Rezzer/Main" src/main.recovered.luau
 ```
 
-### logs
+### `logs`
 
 Streams `runtime.debug` and `runtime.error` output, stack frames included.
-Runtime output is only forwarded for published objects, so pass `--object` with
-a UUID to have one published on demand, or `--wait` to hold the connection open
-while you publish one from the viewer.
-
-The viewer forwards every published object's output to every connection, so
-`--object` narrows the stream to the one you named, matching against each prim
-in its linkset. `--targets` narrows it further, to the items your `slua.json`
-targets deploy to, which needs a viewer that advertises `unifiedDiagnostics`
-and so sends an item reference with each event. Against an older viewer there
-is nothing to filter on, so `logs` warns once and shows everything.
-
-Runtime positions point at the generated Lua (`lua_script:5`), so each line is
-annotated with the TypeScript it maps to, using the source maps of the targets
-in your `slua.json`.
-
-Each line is labelled `object/item`, the same addressing `pull` and `push`
-take, and output a script sent with `llOwnerSay` is tagged `say` rather than
-`debug`. Both need a viewer new enough to send an item reference with its
-runtime events.
 
 ```bash
 slua-viewer logs --object 4f2b0c1e-... --follow
 ```
 
-With `--follow` it reconnects with backoff when the viewer restarts.
+Output arrives live or not at all. The viewer buffers nothing and cannot replay,
+so a line spoken while nothing was connected is gone. `--follow` at least
+reconnects with backoff when the viewer restarts. Run it that way unless you are
+scripting against it.
 
-### syntax
+Only published objects forward output, so pass `--object` with a UUID to have
+one published on demand, or `--wait` to publish it from the viewer. Every
+published object then reaches every connection, so `--object` also narrows the
+stream to one object, matching each prim in its linkset, and `--targets` narrows
+it to the items your `slua.json` deploys to.
+
+Lines are labelled `object/item`, `llOwnerSay` output is tagged `say` rather
+than `debug`, and `--targets` has something to filter on. All three need a
+viewer advertising `unifiedDiagnostics`, which sends an item reference with each
+event. Against an older one `logs` warns once and shows everything.
+
+Runtime positions point at the generated Lua (`lua_script:5`), so each line is
+annotated with the TypeScript it maps to, using the source maps of the targets
+in your `slua.json`.
+
+`--since` takes a cursor, the number each record carries in `--json`, or a
+duration like `5m`. It reads from a running session, or from `.slua/logs.jsonl`
+when there is none.
+
+### `connect`
+
+`push` and `logs` do one thing and let go. `connect` stays, which is what the
+viewer expects. It hears the `llOwnerSay` from a touch you make ten minutes
+later, lets you press **"Explore in IDE"** on a new object whenever you like,
+watches the built outputs your `slua.json` names, and pushes when they change.
+
+```bash
+slua-viewer connect --exec "bun run build:watch"
+```
+
+`--exec` runs your build inside the session and prefixes its output, so the
+whole loop is one terminal. The scaffolds wire this up as `bun run dev`.
+`--no-watch` still holds the connection, streams output and serves the control
+socket, which is what an agent driving pushes explicitly wants.
+
+Every push restarts the script and costs an asset upload through the simulator,
+so the watcher waits for a burst of edits to finish rather than reacting fast:
+
+- A 3s trailing debounce (`--debounce`, `--edge leading`)
+- Changes during a push collapsed into one follow-up, not a queue
+- A minimum interval per item
+- A rebuild that produced identical bytes ignored outright
+
+A failed compile says what it left behind. The save succeeded, so the item holds
+source that never compiled, while the previously compiled version keeps running.
+
+While a session is running, the other commands go through it rather than opening
+their own connection. `--direct` opts out.
+
+### `status`, `wait` and `mcp`
+
+`status` reports what the session is doing, `wait` blocks until a push newer
+than a given cursor settles and then reports its results with the output that
+followed, and `mcp` serves both to an agent over stdio MCP. See
+[Driving it from an agent](#driving-it-from-an-agent).
+
+### `syntax`
 
 Without an argument, prints the viewer's syntax id and the definition files it
 has cached. With `defs.lsl` or `defs.lua`, dumps that definition set as JSON.
 
 ## Addressing
 
-Targets are `<object>/<item>`, or `<object>/<link>/<item>` for an item in a
-child prim. The `--object`, `--link` and `--item` flags are equivalent.
-
-The object segment takes a UUID, a name, or an explicit `id:` / `name:` /
-`desc:` prefix. Items match with or without the display extension, so `Main`
-and `Main.luau` are the same item. Child prims match on link name, `Name (2)`
-when siblings share a name, link number, or UUID.
+`<object>/<item>`, or `<object>/<link>/<item>` for an item in a child prim. The
+`--object`, `--link` and `--item` flags are equivalent.
 
 ```bash
 slua-viewer push dist/main.slua 4f2b0c1e-.../Main
@@ -146,64 +184,133 @@ slua-viewer push dist/main.slua "desc:slua:my-project/Main"
 slua-viewer push dist/main.slua "My Rezzer/Panel/Main"
 ```
 
-The viewer only exposes objects it has published, so an unpublished object
-cannot be addressed. Addressing it by UUID publishes it on demand; a name or a
-description key needs the object published from the viewer first, see
-[Publishing an object](#publishing-an-object).
+The object segment takes a UUID, a name, or an explicit `id:` / `name:` /
+`desc:` prefix. Items match with or without the display extension, so `Main` and
+`Main.luau` are the same item. Child prims match on link name, `Name (2)` when
+siblings share a name, link number, or UUID.
+
+Only published objects can be addressed, and only a UUID publishes one on
+demand, see [Publishing an object](#publishing-an-object).
+
+## A session's state
+
+`connect` keeps `.slua/` beside your `slua.json`. `session.json` holds the pid,
+socket path, viewer port and CLI version, and goes away on a clean exit.
+`logs.jsonl` holds every runtime record and push result as one JSON object per
+line, survives the session crashing, and rotates at 5MB keeping one old file.
+
+<Callout title="Ignore it">
+  Add `.slua/` to your `.gitignore`. Projects scaffolded with `@gwigz/slua-create` already do.
+</Callout>
+
+## Driving it from an agent
+
+Three tiers, in order of how little integration they need.
+
+**Read the file.** `tail -n 100 .slua/logs.jsonl` needs nothing from us, and
+still answers after the session has gone.
+
+**Run the CLI.** `status`, `wait` and `logs --since` are thin wrappers over the
+session, and everything speaks `--json`:
+
+```bash
+slua-viewer status --json
+slua-viewer wait --since 412 --for 20s
+slua-viewer logs --since 5m
+```
+
+`wait` takes the cursor you last saw, not "the current push". Usually nothing is
+in flight, so that form would hand back the _previous_ run's results.
+
+**Speak MCP.** `slua-viewer mcp` is a stdio MCP server over the session's
+control socket, exposing `slua_status`, `slua_push`, `slua_wait` and
+`slua_logs`. `slua_push` pushes and waits in one call, returning the compile
+result per target and the output the restarted script produced.
+
+```jsonc
+{
+  "mcpServers": {
+    "slua": { "command": "slua-viewer", "args": ["mcp"], "cwd": "/path/to/project" },
+  },
+}
+```
+
+### The control socket
+
+A unix socket, or a named pipe on Windows, at mode 0600 in your temp directory,
+keyed by a hash of the project root. The path is recorded in
+`.slua/session.json`. It speaks the viewer's own JSON-RPC, so a `ViewerClient`
+connects to a session exactly as it connects to the viewer, with only the
+`control.*` namespace new. Viewer calls forward upstream, viewer notifications
+broadcast back down.
+
+<Callout type="warn" title="Local processes">
+  Any local process that can reach that socket can push scripts to your viewer. That is already true
+  of port 9020 itself, so it is not a new exposure, but it is worth knowing.
+</Callout>
 
 ## Options
 
-| Flag                  | Applies to     | Meaning                                              |
-| --------------------- | -------------- | ---------------------------------------------------- |
-| `--object <id\|name>` | most           | Target object, same grammar as the object segment    |
-| `--item <id\|name>`   | most           | Target inventory item                                |
-| `--link <id\|name>`   | most           | Child prim within the linkset                        |
-| `--vm <vm>`           | `push`         | Compile target: `luau`, `mono`, `lsl2`               |
-| `--target <name>`     | `push`         | Deploy a named target from `slua.json`               |
-| `--all`               | `push`         | Deploy every target in `slua.json`                   |
-| `--save-back`         | `push`         | Derez back into the source prim after a good compile |
-| `--file <path>`       | `push`, `link` | File to push, or to record when linking              |
-| `--key <key>`         | `link`         | Description key to pair on, default `slua:<name>`    |
-| `-f`, `--follow`      | `logs`         | Keep streaming, reconnecting if the viewer restarts  |
-| `--targets`           | `logs`         | Only output from items your `slua.json` targets      |
-| `--wait`              | most           | Hold the viewer connection open until it publishes   |
-| `--port <port>`       | all            | Viewer websocket port, default `9020`                |
-| `--timeout <ms>`      | all            | Request timeout                                      |
-| `--json`              | all            | Machine-readable output on stdout                    |
+| Flag                         | Applies to     | Meaning                                               |
+| ---------------------------- | -------------- | ----------------------------------------------------- |
+| `--object <id\|name>`        | most           | Target object, same grammar as the object segment     |
+| `--item <id\|name>`          | most           | Target inventory item                                 |
+| `--link <id\|name>`          | most           | Child prim within the linkset                         |
+| `--vm <vm>`                  | `push`         | Compile target: `luau`, `mono`, `lsl2`                |
+| `--target <name>`            | `push`         | Deploy a named target from `slua.json`                |
+| `--all`                      | `push`         | Deploy every target in `slua.json`                    |
+| `--save-back`                | `push`         | Derez back into the source prim after a good compile  |
+| `--file <path>`              | `push`, `link` | File to push, or to record when linking               |
+| `--key <key>`                | `link`         | Description key to pair on, default `slua:<name>`     |
+| `-f`, `--follow`             | `logs`         | Keep streaming, reconnecting if the viewer restarts   |
+| `--targets`                  | `logs`         | Only output from items your `slua.json` targets       |
+| `--tail [duration]`          | `push`         | Keep listening after the push, `5s`, or until ctrl-c  |
+| `--no-tail`                  | `push`         | Push without waiting for output at all                |
+| `--watch`/`--no-watch`       | `connect`      | Push when a target's output changes, on by default    |
+| `--debounce <ms>`            | `connect`      | How long a target must be quiet first, default `3000` |
+| `--edge <edge>`              | `connect`      | `trailing` (default) or `leading`                     |
+| `--exec <command>`           | `connect`      | Run a build alongside the session                     |
+| `--since <cursor\|duration>` | `logs`, `wait` | Output after a cursor, or from the last `5m`          |
+| `--for <duration>`           | `wait`         | How long to block, default `30s`                      |
+| `--direct`                   | all            | Talk to the viewer even with a session running        |
+| `--wait`                     | most           | Hold the viewer connection open until it publishes    |
+| `--port <port>`              | all            | Viewer websocket port, default `9020`                 |
+| `--timeout <ms>`             | all            | Request timeout                                       |
+| `--json`                     | all            | Machine-readable output on stdout                     |
 
 ## Compile errors
 
-`push` looks for a source map beside the file it uploads
-(`dist/main.slua.map`) and translates the viewer's Lua line numbers back to
-your original source, printing the offending line with each error. Enable it
-with `"sourceMap": true` in your tsconfig. Without a map, errors are reported
-against the generated output instead, and the CLI says so.
+`push` looks for a source map beside the file it uploads (`dist/main.slua.map`)
+and translates the viewer's Lua line numbers back to your source, printing the
+offending line with each error. Enable it with `"sourceMap": true` in your
+tsconfig. Without a map, errors point at the generated output and the CLI says
+so. Mapping is line accurate, not column accurate. LSL compile errors carry real
+column numbers, which the Luau compiler does not report.
+
+`logs` maps too. A viewer that names the item its output came from narrows that
+to the target deploying it. Without one, a line covered by more than one
+target's map is shown against every candidate, with its target name.
 
 <Callout type="warn" title="Bundled output">
   If you bundle with `@gwigz/tstl-bundle-flatten`, you need 1.2.0 or newer. Earlier versions rewrote
   the emitted Lua without updating the map, leaving it describing the unflattened bundle.
 </Callout>
 
-Mapping is line accurate, not column accurate. LSL compile errors carry real
-column numbers, which the Luau compiler does not report.
-
-`logs` maps too. A viewer that names the item its output came from narrows
-that to the target deploying it; without one, a line covered by more than one
-target's map is shown against every candidate, with its target name.
-
 ## JSON output
 
 `--json` puts exactly one JSON document on stdout and nothing else, with
-progress and errors kept on stderr, so the CLI can be piped into `jq` or read
-by an agent.
+progress and errors kept on stderr. A failure still emits a document
+(`{"ok": false, "error": "..."}`), so empty stdout always means something went
+badly wrong.
 
 ```bash
 slua-viewer push dist/main.slua --json | jq .compiled
 ```
 
-A failure still emits a document (`{"ok": false, "error": "..."}`), so an empty
-stdout always means something went badly wrong. `logs --json` is the exception:
-it emits one JSON object per line, since it is a stream.
+Streams are the exception and emit one JSON object per line: `logs --json`, and
+a `push --json --tail` given no duration to stop at, which prints its document
+first and then streams. A bounded `push --tail` keeps the single-document
+contract by attaching what it drained as `logs`.
 
 Keys are camelCase (`objectId`, `primId`, `itemId`, `savedBack`), matching the
 library rather than the viewer's wire format. See

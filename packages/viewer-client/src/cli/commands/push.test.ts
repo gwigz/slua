@@ -93,6 +93,7 @@ function collectingReporter(): Reporter & { payload?: unknown; errors: string[] 
       this.payload = payload
     },
     line() {},
+    raw() {},
     note() {},
     error(text) {
       errors.push(text)
@@ -116,8 +117,8 @@ const published: PublishedObject = {
 
 describe("pushCommand with --all", () => {
   it("keeps going after a target fails, and still reports every one", async () => {
-    // The first target names an object that is not published, so it throws;
-    // the second must still be pushed and the --json document must list both.
+    // The first target names an object that is not published, so it throws.
+    // The second must still be pushed and the --json document list both.
     const dir = await mkdtemp(join(tmpdir(), "slua-push-"))
 
     await mkdir(join(dir, "dist"))
@@ -184,7 +185,7 @@ describe("pushCommand with --wait", () => {
     )
 
     // The listing goes briefly empty after the rejected save, which a retry
-    // that kept --wait would wait out rather than simply read again.
+    // that kept --wait would sit out rather than read again.
     const listings = [[published], [], [published]]
     const notes: string[] = []
 
@@ -272,5 +273,139 @@ describe("pushCommand on a failed compile", () => {
     expect((reporter.payload as { errors: { row: number }[] }).errors).toEqual([
       expect.objectContaining({ row: 2, message: "Unknown global 'foo'" }),
     ])
+  })
+})
+
+/** What a chatty client's script says while the save is in flight. */
+interface Say {
+  (message: string, objectId?: string): void
+  /** The same, as the `runtime.error` a script that threw produces. */
+  fail(error: string, line?: number, stack?: string[]): void
+}
+
+/** A client that talks back while the save is still in flight, as the viewer does. */
+function chattyClient(say: (emit: Say) => void) {
+  const listeners: Record<string, ((params: Record<string, unknown>) => void)[]> = {
+    "runtime.debug": [],
+    "runtime.error": [],
+  }
+
+  const base = (objectId: string) => ({
+    scriptId: "",
+    objectId,
+    objectName: "Second",
+    item: { rootId: objectId, name: "Main" },
+  })
+
+  const emit = ((message: string, objectId = published.objectId) => {
+    for (const listener of listeners["runtime.debug"]!) {
+      listener({ ...base(objectId), message })
+    }
+  }) as Say
+
+  emit.fail = (error, line = 0, stack = []) => {
+    for (const listener of listeners["runtime.error"]!) {
+      listener({
+        ...base(published.objectId),
+        message: `${published.objectName}/Main: ${error}`,
+        error,
+        line,
+        stack,
+      })
+    }
+  }
+
+  return {
+    objectList: async () => ({ objects: [published] }),
+    objectContentSave: async () => {
+      // The script restarts as the save lands, so its startup output is on the
+      // wire before this call returns.
+      say(emit)
+
+      return { success: true, compiled: true }
+    },
+    on: (event: string, handler: (params: Record<string, unknown>) => void) => {
+      listeners[event]?.push(handler)
+
+      return () => {}
+    },
+    connection: { onClose: () => () => {} },
+  } as unknown as ViewerClient
+}
+
+/** A one-target project, since a drain needs a resolved target to scope to. */
+async function project(): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), "slua-push-"))
+
+  await mkdir(join(dir, "dist"))
+  await writeFile(join(dir, "dist", "second.slua"), "-- second\n", "utf8")
+  await writeFile(
+    join(dir, "slua.json"),
+    JSON.stringify({
+      targets: { second: { file: "dist/second.slua", object: "name:Second", item: "Main" } },
+    }),
+    "utf8",
+  )
+
+  return dir
+}
+
+async function drained(say: (emit: Say) => void, tail: number): Promise<Record<string, unknown>> {
+  const dir = await project()
+  const reporter = collectingReporter()
+  const cwd = process.cwd()
+
+  process.chdir(dir)
+
+  try {
+    await pushCommand(
+      chattyClient(say),
+      { name: "push", target: "second", all: false, tail },
+      reporter,
+    )
+  } finally {
+    process.chdir(cwd)
+
+    await rm(dir, { recursive: true, force: true })
+  }
+
+  return reporter.payload as Record<string, unknown>
+}
+
+describe("pushCommand with a drain window", () => {
+  it("keeps the output the save itself produced", async () => {
+    const payload = await drained((emit) => emit("hello from state_entry"), 50)
+
+    // Collected into the one document --json promises, not printed alongside it.
+    expect(payload.logs).toEqual([expect.objectContaining({ message: "hello from state_entry" })])
+    expect(payload.cursor).toEqual(expect.any(Number))
+  })
+
+  it("ignores output from an object the push never touched", async () => {
+    const payload = await drained((emit) => emit("not ours", "somebody-else"), 50)
+
+    expect(payload.logs).toEqual([])
+  })
+
+  it("keeps a runtime error, with the line and traceback it named", async () => {
+    const payload = await drained(
+      (emit) => emit.fail("attempt to call a nil value", 12, ["Main:12", "Main:3"]),
+      50,
+    )
+
+    expect(payload.logs).toEqual([
+      expect.objectContaining({
+        level: "error",
+        error: "attempt to call a nil value",
+        line: 12,
+        stack: ["Main:12", "Main:3"],
+      }),
+    ])
+  })
+
+  it("skips the window entirely with --no-tail", async () => {
+    const payload = await drained((emit) => emit("ignored"), 0)
+
+    expect(payload).not.toHaveProperty("logs")
   })
 })

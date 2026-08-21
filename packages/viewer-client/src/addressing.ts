@@ -16,10 +16,9 @@ export function isUuid(value: string): boolean {
 /**
  * How to find an object.
  *
- * A UUID is the most direct but the least durable: taking an object and
- * rezzing it again gives it a new one. Name and description survive that
- * round trip, which makes a description key the stable way to pin a project
- * to an object.
+ * Taking an object and rezzing it again gives it a new UUID. Name and
+ * description survive that round trip, so a description key is the stable way
+ * to pin a project to an object.
  */
 export type ObjectSelector =
   | { kind: "id"; value: string }
@@ -27,10 +26,8 @@ export type ObjectSelector =
   | { kind: "description"; value: string }
 
 /**
- * Parses an object selector.
- *
- * A bare value is a UUID if it looks like one and a name otherwise; the
- * `id:`, `name:` and `desc:` prefixes make the choice explicit.
+ * A bare value is a UUID if it looks like one and a name otherwise. The `id:`,
+ * `name:` and `desc:` prefixes make the choice explicit.
  */
 export function parseObjectSelector(raw: string): ObjectSelector {
   for (const [prefix, kind] of [
@@ -53,11 +50,9 @@ export function parseObjectSelector(raw: string): ObjectSelector {
 /**
  * Matches a description key on whitespace boundaries.
  *
- * A plain substring test would let the key `slua:main` match an object
- * described `slua:main-menu`, so any two targets where one name prefixes the
- * other would resolve to the same prim. Keys are stamped space separated
- * alongside whatever else the description holds, so a boundary either side is
- * what tells one apart from the next.
+ * A substring test would let `slua:main` match an object described
+ * `slua:main-menu`, so any two targets where one name prefixes the other would
+ * resolve to the same prim.
  */
 export function descriptionMatches(description: string, value: string): boolean {
   if (value === "") return false
@@ -93,9 +88,8 @@ export interface ObjectRef {
 /**
  * Parses `<object>/<item>` or `<object>/<link>/<item>`.
  *
- * `<object>` is an object selector, `<link>` accepts a UUID, link name or link
- * number, and `<item>` accepts an item UUID or its display name (with or
- * without the synthetic extension).
+ * `<link>` accepts a UUID, link name or link number. `<item>` accepts an item
+ * UUID or its display name, with or without the synthetic extension.
  */
 export function parseObjectRef(ref: string): ObjectRef {
   const parts = ref.split("/").filter((part) => part !== "")
@@ -114,8 +108,8 @@ export function parseObjectRef(ref: string): ObjectRef {
 /**
  * The extension the viewer's file view shows for an item.
  *
- * It is synthetic — the SL inventory name never contains it — so it is only
- * ever added for display and tolerated on input.
+ * Synthetic: the SL inventory name never contains it, so it is added for
+ * display and tolerated on input.
  */
 export function displayExtension(item: ObjectInventoryItem): string {
   if (item.type !== "script") return ""
@@ -166,7 +160,6 @@ export function eachPrim(
   ]
 }
 
-/** Finds an item within an already-published object. */
 export function findItem(object: PublishedObject, ref: ObjectRef): ResolvedItem {
   if (ref.link !== undefined) {
     const links = object.linkedObjects ?? []
@@ -198,7 +191,6 @@ export function findItem(object: PublishedObject, ref: ObjectRef): ResolvedItem 
   throw new Error(`no item "${ref.item}" in ${object.objectName}`)
 }
 
-/** Whether a published object answers to a selector. */
 export function matchesSelector(object: PublishedObject, selector: ObjectSelector): boolean {
   switch (selector.kind) {
     case "id":
@@ -222,11 +214,10 @@ function findPublished(
 /**
  * What actually publishes an object to us.
  *
- * Selecting an object does nothing on its own: publishing is the Content tab's
- * "Explore in IDE" button, and the viewer only publishes there when an editor
- * client is already connected — with none, it launches an external editor
- * instead. So the connection has to be waiting before the button is pressed,
- * which is what `--wait` is for.
+ * Selecting an object does nothing. Publishing is the Content tab's "Explore
+ * in IDE" button, and the viewer only publishes there when an editor client is
+ * already connected. With none it launches an external editor instead, so the
+ * connection has to be waiting before the button is pressed. That is `--wait`.
  */
 export const PUBLISH_ACTION =
   'open the object\'s Build window, go to Content and press "Explore in IDE"'
@@ -244,21 +235,20 @@ export const PUBLISH_WAIT_MS = 300_000
 /**
  * Delays before re-reading the object list.
  *
- * The viewer's published inventory goes briefly stale right after a content
- * save: the item, and sometimes the whole object, drops out of `object.list`
- * for a moment before settling. A second look succeeds, so this short ladder
- * is the difference between `push --all` working and failing on whichever
- * target follows a save.
+ * Right after a content save the item, and sometimes the whole object, drops
+ * out of `object.list` for a moment. A second look succeeds, which is the
+ * difference between `push --all` working and failing on whichever target
+ * follows a save.
  */
 const LOOKUP_RETRY_MS = [150, 300, 600]
 
 /**
  * Whether an error is the viewer's prim inventory still settling.
  *
- * The same window that empties a listing also makes a call naming the item
- * fail: `object.content.save` comes back as invalid params with "Item not
- * found in prim inventory", though the item is there and its id has not
- * changed. Seen roughly one push in five when pushing repeatedly.
+ * The window that empties a listing also fails a call naming the item.
+ * `object.content.save` comes back as invalid params with "Item not found in
+ * prim inventory" though the item is there and its id has not changed. Roughly
+ * one push in five when pushing repeatedly.
  */
 export function isStaleInventory(error: unknown): boolean {
   return (
@@ -353,7 +343,6 @@ function waitForPublish(client: ViewerClient, selector: ObjectSelector, timeoutM
   )
 }
 
-/** A publish subscription, and the means to drop it again. */
 export interface PublishWatcher {
   published: Promise<PublishedObject>
   cancel: () => void
@@ -375,8 +364,7 @@ export function waitForAnyPublish(client: ViewerClient, timeoutMs: number): Publ
  *
  * The viewer only publishes to a client that is already connected, so an empty
  * listing under `--wait` means waiting for the publish button rather than
- * giving up. The watcher subscribes before the listing that decides whether to
- * wait, since a publish landing between the two would otherwise be missed.
+ * giving up.
  */
 export async function listPublished(
   client: ViewerClient,
@@ -386,8 +374,9 @@ export async function listPublished(
 
   const { published, cancel } = waitForAnyPublish(client, options.waitMs)
 
-  // Nothing awaits it when the listing is already populated, so swallow the
-  // timeout rather than leave it unhandled.
+  // Subscribed before the listing that decides whether to wait, or a publish
+  // landing between the two would be missed. Nothing awaits it when the
+  // listing turns out to be populated, so swallow the timeout.
   published.catch(() => {})
 
   let list: PublishedObject[]
@@ -410,7 +399,7 @@ export async function listPublished(
 
   const object = await published
 
-  // Re-list rather than trust the one notification: a publish can carry
+  // Re-list rather than trust the one notification. A publish can carry
   // several objects, and the listing is what callers read.
   const settled = (await client.objectList()).objects ?? []
 
@@ -428,17 +417,15 @@ export async function ensurePublished(
   selector: ObjectSelector,
   options: PublishOptions = {},
 ): Promise<PublishedObject> {
-  // Under --wait the watcher subscribes before the listing that decides
-  // whether to wait, since a publish landing between the two would be missed.
-  // Only a UUID can be requested; the viewer has no way to look an object up
-  // by name or description, so those have to be published from the viewer.
+  // Only a UUID can be requested. The viewer cannot look an object up by name
+  // or description, so those come from the publish button. The watcher goes on
+  // before the listing, or a publish landing between the two is missed.
   const waiting =
     selector.kind !== "id" && options.waitMs
       ? waitForPublish(client, selector, options.waitMs)
       : undefined
 
-  // Nothing awaits it when the listing already has the object, so swallow the
-  // timeout rather than leave it unhandled.
+  // Nothing awaits it when the listing already has the object.
   waiting?.published.catch(() => {})
 
   let objects: PublishedObject[] | undefined
@@ -473,16 +460,16 @@ export async function ensurePublished(
 
   const objectId = selector.value
 
-  // Newer viewers answer object.request with the object inline; older ones
+  // Newer viewers answer object.request with the object inline. Older ones
   // acknowledge and follow up with an object.publish notification. Listen
-  // before asking, so a fast notification cannot arrive before we are ready.
+  // before asking, or a fast notification arrives before we are ready.
   const { published, cancel } = waitForPublish(
     client,
     selector,
     options.timeoutMs ?? REQUEST_TIMEOUT_MS,
   )
 
-  // Nothing awaits `published` on the inline path, so swallow its rejection.
+  // Nothing awaits it on the inline path.
   published.catch(() => {})
 
   try {
@@ -523,7 +510,7 @@ export async function resolveItem(
 ): Promise<ResolvedItem> {
   for (let attempt = 0; ; attempt++) {
     try {
-      // Only the first attempt waits on the viewer: the retries exist for a
+      // Only the first attempt waits on the viewer. The retries are for a
       // listing that settles in milliseconds, not for a missing object.
       const object = await ensurePublished(
         client,

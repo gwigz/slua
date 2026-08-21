@@ -35,8 +35,8 @@ import type {
 /**
  * Typed calls and events over a `ViewerConnection`.
  *
- * The no-argument methods send `params: {}` rather than omitting `params` —
- * that is what the viewer's handlers expect.
+ * The no-argument methods send `params: {}` rather than omitting `params`,
+ * which is what the viewer's handlers expect.
  */
 export class ViewerClient {
   readonly connection: ViewerConnection

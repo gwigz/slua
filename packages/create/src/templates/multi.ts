@@ -23,6 +23,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   const devDependencies: Record<string, string> = {
     "@gwigz/slua-tstl-plugin": VERSIONS["@gwigz/slua-tstl-plugin"],
     "@gwigz/slua-types": VERSIONS["@gwigz/slua-types"],
+    "@gwigz/slua-viewer-client": VERSIONS["@gwigz/slua-viewer-client"],
     "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
     "@types/node": VERSIONS["@types/node"],
@@ -56,7 +57,10 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
 
   const scripts: Record<string, string> = {
     build: `${run} build.ts`,
-    dev: `${run} build.ts --watch`,
+    // One command to learn: the session runs the watch build, pushes what it
+    // produces and tails the script's output, in one terminal.
+    dev: `slua-viewer connect --exec "${run} build.ts --watch"`,
+    "build:watch": `${run} build.ts --watch`,
   }
 
   if (extras.linting) {

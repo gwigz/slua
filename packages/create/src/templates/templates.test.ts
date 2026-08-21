@@ -30,7 +30,25 @@ describe("single template", () => {
     const pkg = JSON.parse(generateSingleTemplate(options())["package.json"])
 
     expect(pkg.scripts.build).toBe("tstl -p tsconfig.json")
-    expect(pkg.scripts.dev).toBe("tstl -p tsconfig.json --watch")
+
+    // dev is the viewer session, which runs the watch build inside it, so
+    // there is one command rather than two terminals and an explanation.
+    expect(pkg.scripts.dev).toBe('slua-viewer connect --exec "tstl -p tsconfig.json --watch"')
+    expect(pkg.scripts["build:watch"]).toBe("tstl -p tsconfig.json --watch")
+    expect(pkg.devDependencies["@gwigz/slua-viewer-client"]).toBeDefined()
+  })
+
+  it("gives the multi template the same session entry point", () => {
+    const pkg = JSON.parse(generateMultiTemplate(options({ template: "multi" }))["package.json"])
+
+    expect(pkg.scripts.dev).toBe('slua-viewer connect --exec "bun build.ts --watch"')
+    expect(pkg.scripts["build:watch"]).toBe("bun build.ts --watch")
+    expect(pkg.devDependencies["@gwigz/slua-viewer-client"]).toBeDefined()
+  })
+
+  it("ignores the session state directory", () => {
+    expect(generateSingleTemplate(options())[".gitignore"]).toContain(".slua/")
+    expect(generateMultiTemplate(options({ template: "multi" }))[".gitignore"]).toContain(".slua/")
   })
 
   it("bundles with require-minimal and the flatten plugin", () => {

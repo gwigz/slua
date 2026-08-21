@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { CliUsageError, helpText, parseCliArgs } from "./args"
+import { CliUsageError, DRAIN_MS, helpText, parseCliArgs } from "./args"
 
 describe("parseCliArgs", () => {
   it("defaults to help with no arguments", () => {
@@ -70,7 +70,61 @@ describe("parseCliArgs", () => {
       target: undefined,
       all: false,
       saveBack: undefined,
+      tail: DRAIN_MS,
     })
+  })
+
+  it("drains for a short window by default, and not at all with --no-tail", () => {
+    // A plain push loses the output its own save produced without this.
+    expect(parseCliArgs(["push", "dist/main.slua"]).command).toMatchObject({ tail: DRAIN_MS })
+    expect(parseCliArgs(["push", "dist/main.slua", "--no-tail"]).command).toMatchObject({ tail: 0 })
+  })
+
+  it("reads --tail as a duration, and on its own as until interrupted", () => {
+    expect(parseCliArgs(["push", "dist/main.slua", "--tail", "5s"]).command).toMatchObject({
+      tail: 5_000,
+    })
+
+    expect(parseCliArgs(["push", "dist/main.slua", "--tail", "250"]).command).toMatchObject({
+      tail: 250,
+    })
+
+    expect(parseCliArgs(["push", "--tail", "--all"]).command).toMatchObject({ tail: "forever" })
+    expect(parseCliArgs(["push", "dist/main.slua", "--tail"]).command).toMatchObject({
+      tail: "forever",
+    })
+  })
+
+  it("leaves the file alone when --tail comes before it", () => {
+    // parseArgs hands the file to --tail, leaving the push nothing to deploy.
+    expect(parseCliArgs(["push", "--tail", "dist/main.slua"]).command).toMatchObject({
+      name: "push",
+      file: "dist/main.slua",
+      tail: "forever",
+    })
+
+    expect(parseCliArgs(["push", "--tail", "--target", "main"]).command).toMatchObject({
+      name: "push",
+      target: "main",
+      tail: "forever",
+    })
+
+    // The ref is then the first positional rather than the second.
+    expect(parseCliArgs(["push", "--tail", "dist/main.slua", "Rezzer/Main"]).command).toMatchObject(
+      {
+        name: "push",
+        file: "dist/main.slua",
+        ref: { object: { kind: "name", value: "Rezzer" }, item: "Main" },
+        tail: "forever",
+      },
+    )
+  })
+
+  it("rejects a --tail value that is not a duration", () => {
+    expect(() => parseCliArgs(["push", "--tail", "soon", "--all"])).toThrow(CliUsageError)
+
+    // The file is already given, so the value has nothing else it could be.
+    expect(() => parseCliArgs(["push", "dist/main.slua", "--tail", "soon"])).toThrow(/--tail/)
   })
 
   it("allows push with only a file, leaving the target to config or a header", () => {
@@ -166,6 +220,30 @@ describe("parseCliArgs", () => {
     expect(parseCliArgs(["push", "a.slua", "--wait"]).global.waitMs).toBeGreaterThan(0)
   })
 
+  it("parses the connect flags a watched session takes", () => {
+    const command = parseCliArgs(["connect", "--edge", "leading", "--debounce", "500"]).command
+
+    expect(command).toMatchObject({ name: "connect", edge: "leading", debounceMs: 500 })
+    expect(() => parseCliArgs(["connect", "--edge", "sideways"])).toThrow(CliUsageError)
+  })
+
+  it("reads --since as either a cursor or a duration", () => {
+    expect(parseCliArgs(["logs", "--since", "5m"]).command).toMatchObject({
+      name: "logs",
+      since: { ms: 300_000 },
+    })
+    expect(parseCliArgs(["logs", "--since", "42"]).command).toMatchObject({
+      name: "logs",
+      since: { cursor: 42 },
+    })
+    expect(() => parseCliArgs(["logs", "--since", "soon"])).toThrow(CliUsageError)
+  })
+
+  it("names the flag it could not read in the message", () => {
+    expect(() => parseCliArgs(["wait", "--for", "soon"])).toThrow(/--for/)
+    expect(() => parseCliArgs(["push", "a.slua", "--tail", "soon"])).toThrow(/--tail/)
+  })
+
   it("treats --json as global", () => {
     expect(parseCliArgs(["objects", "--json"]).global.json).toBe(true)
   })
@@ -191,6 +269,10 @@ describe("helpText", () => {
       "set-running",
       "logs",
       "syntax",
+      "connect",
+      "status",
+      "wait",
+      "mcp",
       "--object",
       "--item",
       "--link",
@@ -202,6 +284,15 @@ describe("helpText", () => {
       "--key",
       "--follow",
       "--targets",
+      "--tail",
+      "--no-tail",
+      "--watch",
+      "--debounce",
+      "--edge",
+      "--exec",
+      "--since",
+      "--for",
+      "--direct",
       "--wait",
       "--port",
       "--timeout",

@@ -9,6 +9,9 @@ import {
   ViewerUnavailableError,
 } from "../protocol/errors.js"
 import { CliUsageError, helpText, parseCliArgs } from "./args.js"
+import { connectCommand } from "./commands/connect.js"
+import { statusCommand, waitCommand } from "./commands/control.js"
+import { mcpCommand } from "./commands/mcp.js"
 import { linkCommand } from "./commands/link.js"
 import { objectsCommand } from "./commands/objects.js"
 import { logsCommand } from "./commands/logs.js"
@@ -16,7 +19,7 @@ import { pullCommand } from "./commands/pull.js"
 import { pushCommand } from "./commands/push.js"
 import { resetCommand, setRunningCommand } from "./commands/script.js"
 import { syntaxCommand } from "./commands/syntax.js"
-import { publishOptions, withClient } from "./connect.js"
+import { publishOptions, withClient, withControl } from "./connect.js"
 import { createReporter } from "./output.js"
 
 /** Whether stdout owes a JSON document, even when nothing parses. */
@@ -48,28 +51,54 @@ async function main(): Promise<number> {
     case "logs":
       return await logsCommand(global, command, reporter, publish)
 
+    case "connect":
+      return await connectCommand(global, command, reporter, publish)
+
+    case "mcp":
+      return await mcpCommand(global, reporter)
+
+    case "status":
+      return await withControl(global, reporter, (control) => statusCommand(control, reporter))
+
+    case "wait":
+      return await withControl(global, reporter, (control) =>
+        waitCommand(control, command, reporter),
+      )
+
     case "objects":
-      return await withClient(global, (client) => objectsCommand(client, reporter, publish))
+      return await withClient(global, reporter, (client) =>
+        objectsCommand(client, reporter, publish),
+      )
 
     case "pull":
-      return await withClient(global, (client) => pullCommand(client, command, reporter, publish))
+      return await withClient(global, reporter, (client) =>
+        pullCommand(client, command, reporter, publish),
+      )
 
     case "push":
-      return await withClient(global, (client) => pushCommand(client, command, reporter, publish))
+      return await withClient(global, reporter, (client) =>
+        pushCommand(client, command, reporter, publish),
+      )
 
     case "reset":
-      return await withClient(global, (client) => resetCommand(client, command, reporter, publish))
+      return await withClient(global, reporter, (client) =>
+        resetCommand(client, command, reporter, publish),
+      )
 
     case "set-running":
-      return await withClient(global, (client) =>
+      return await withClient(global, reporter, (client) =>
         setRunningCommand(client, command, reporter, publish),
       )
 
     case "syntax":
-      return await withClient(global, (client) => syntaxCommand(client, command, reporter))
+      return await withClient(global, reporter, (client) =>
+        syntaxCommand(client, command, reporter),
+      )
 
     case "link":
-      return await withClient(global, (client) => linkCommand(client, command, reporter, publish))
+      return await withClient(global, reporter, (client) =>
+        linkCommand(client, command, reporter, publish),
+      )
   }
 }
 

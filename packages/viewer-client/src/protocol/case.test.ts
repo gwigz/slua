@@ -69,7 +69,7 @@ describe("toSnake", () => {
 
   it("still converts anything indistinguishable from one of our fields", () => {
     // A bare lowerCamelCase key cannot be told apart from a field name, so it
-    // is converted. That is the irreducible edge of a generic transform.
+    // is converted. That is the edge a generic transform cannot avoid.
     expect(toSnake({ llSay: 1 })).toEqual({ ll_say: 1 })
   })
 })

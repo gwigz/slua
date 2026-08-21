@@ -11,7 +11,13 @@ import {
 import type { ViewerClient } from "../../client.js"
 import { type CompileLanguage, diagnosticsFrom } from "../../compile-errors.js"
 import { ConnectionClosedError } from "../../protocol/errors.js"
-import type { Diagnostic, ObjectInventoryItem, ScriptVM } from "../../protocol/types.js"
+import type {
+  Diagnostic,
+  ObjectInventoryItem,
+  RuntimeDebug,
+  RuntimeError,
+  ScriptVM,
+} from "../../protocol/types.js"
 import { loadSourceMapFor, type SourceMap } from "../../sourcemap.js"
 import {
   type Config,
@@ -24,6 +30,17 @@ import {
 } from "../../targets.js"
 import type { Command } from "../args.js"
 import { displayPath, type Reporter } from "../output.js"
+import {
+  cursor,
+  fromObject,
+  loadTargets,
+  namesTarget,
+  recordPayload,
+  type RuntimeRecord,
+  type TargetMap,
+  toRecord,
+  writeRecord,
+} from "../runtime-view.js"
 
 /** What we built is a stronger signal than what the item currently is. */
 function vmFromExtension(file: string): ScriptVM | undefined {
@@ -72,7 +89,6 @@ function lineReader() {
   }
 }
 
-/** Works out which targets a `push` invocation refers to. */
 export async function collectTargets(
   command: Extract<Command, { name: "push" }>,
   config: Config | undefined,
@@ -144,6 +160,121 @@ async function readHeader(
   return await readHeaderTagsFor(file)
 }
 
+export interface PushScope {
+  objectId: string
+  primId: string
+  item: string
+}
+
+/**
+ * Collects the runtime output a push produces.
+ *
+ * A save restarts the script, so whatever its `state_entry` says is on the
+ * wire before the save call returns. With nothing listening across that gap
+ * the output lands on a closed socket and is gone.
+ */
+interface Drain {
+  /** Scopes the drain to a target the push resolved. */
+  add(scope: PushScope): void
+  /** Waits the window out, printing the result document at the right moment. */
+  settle(document: Record<string, unknown>): Promise<void>
+}
+
+function startDrain(
+  client: ViewerClient,
+  reporter: Reporter,
+  maps: TargetMap[],
+  tail: number | "forever",
+): Drain {
+  const buffered: RuntimeRecord[] = []
+  const ids = new Set<string>()
+  const items = new Set<string>()
+
+  let deliver: ((record: RuntimeRecord) => void) | undefined
+
+  const receive = (level: "debug" | "error", params: RuntimeDebug | RuntimeError) => {
+    const record = toRecord(level, params, maps)
+
+    // Held until the pushes name what they touched, since output can arrive
+    // before the save call that caused it has even returned.
+    if (deliver) deliver(record)
+    else buffered.push(record)
+  }
+
+  // Subscribed before the first save, never after. The script restarts the
+  // moment the save lands, so a subscription set up afterwards has already
+  // missed its startup output. Do not move this below the push.
+  const unsubscribe = [
+    client.on("runtime.debug", (params) => receive("debug", params)),
+    client.on("runtime.error", (params) => receive("error", params)),
+  ]
+
+  const wanted = (record: RuntimeRecord) =>
+    fromObject(record.event, ids) && namesTarget(record.event, items)
+
+  /** Resolves when the window closes, the socket drops, or ctrl-c arrives. */
+  const window = () =>
+    new Promise<void>((done) => {
+      const finish = () => {
+        clearTimeout(timer)
+        offClose()
+        process.off("SIGINT", finish)
+        done()
+      }
+
+      const timer = tail === "forever" ? undefined : setTimeout(finish, tail)
+      const offClose = client.connection.onClose(finish)
+
+      if (tail === "forever") {
+        reporter.note(pc.dim("tailing output, press ctrl-c to stop"))
+        process.on("SIGINT", finish)
+      }
+    })
+
+  return {
+    add(scope) {
+      ids.add(scope.objectId)
+      ids.add(scope.primId)
+      items.add(scope.item.toLowerCase())
+    },
+
+    async settle(document) {
+      // Nothing resolved, so there is no object whose output this could be.
+      if (ids.size === 0) {
+        for (const off of unsubscribe) off()
+
+        reporter.data(document)
+
+        return
+      }
+
+      // Under --json the document has to come out whole, so a bounded drain
+      // collects rather than prints. An unbounded one has no end to wait for,
+      // so it prints the document first and then streams, the same exception
+      // `logs --json` makes.
+      const collect = reporter.json && tail !== "forever"
+      const logs: Record<string, unknown>[] = []
+
+      deliver = (record) => {
+        if (!wanted(record)) return
+
+        if (collect) logs.push(recordPayload(record))
+        else writeRecord(reporter, record)
+      }
+
+      if (!collect) reporter.data(document)
+
+      for (const record of buffered.splice(0)) deliver(record)
+
+      await window()
+
+      for (const off of unsubscribe) off()
+
+      if (collect) reporter.data({ ...document, logs })
+    },
+  }
+}
+
 export async function pushCommand(
   client: ViewerClient,
   command: Extract<Command, { name: "push" }>,
@@ -152,6 +283,12 @@ export async function pushCommand(
 ): Promise<number> {
   const targets = await collectTargets(command, await loadConfig())
   const results: Record<string, unknown>[] = []
+  const tail = command.tail ?? 0
+
+  // Source maps bring the drained output home to TypeScript, the same way
+  // `logs` does. Loaded before the drain so the first record already maps.
+  const drain =
+    tail === 0 ? undefined : startDrain(client, reporter, (await loadTargets()).maps, tail)
 
   let failed = 0
 
@@ -161,6 +298,7 @@ export async function pushCommand(
 
       results.push(result.payload)
 
+      if (result.scope) drain?.add(result.scope)
       if (!result.ok) failed++
     } catch (error) {
       // A dead connection will not improve for the next target, and a single
@@ -177,22 +315,38 @@ export async function pushCommand(
     }
   }
 
-  reporter.data(targets.length === 1 ? results[0] : { ok: failed === 0, targets: results })
+  const document = targets.length === 1 ? results[0]! : { ok: failed === 0, targets: results }
+
+  // One drain at the end scoped to every target it touched, rather than one
+  // window per target. `push --all` would otherwise wait once per script.
+  if (drain) await drain.settle(document)
+  else reporter.data(document)
 
   return failed === 0 ? 0 : 1
 }
 
-async function pushTarget(
+/**
+ * Deploys one target and reports what happened.
+ *
+ * Exported for `connect`, which pushes on a watch event and must take this
+ * path. The stale-listing retry, the vm inference and the mapped diagnostics
+ * are not worth having twice.
+ */
+export async function pushTarget(
   client: ViewerClient,
   target: Target,
   reporter: Reporter,
   labelled: boolean,
   publish: PublishOptions,
-): Promise<{ ok: boolean; payload: Record<string, unknown> }> {
+): Promise<{ ok: boolean; payload: Record<string, unknown>; scope?: PushScope }> {
   const label = labelled ? `${target.name}: ` : ""
   const content = await readFile(target.file, "utf8")
 
-  // Lookup and save retry together: right after a save the viewer rejects the
+  // Taken before the save, so it names the point everything this push causes
+  // comes after. `logs --since` keys off it.
+  const from = cursor()
+
+  // Lookup and save retry together. Right after a save the viewer rejects the
   // next one as "item not found in prim inventory", and a retry has to start
   // from a fresh listing. Only the first lookup waits on the publish button,
   // since a retry is for a listing that settles in milliseconds.
@@ -225,6 +379,13 @@ async function pushTarget(
     itemId: resolved.itemId,
     item: resolved.item.name,
     vm,
+    cursor: from,
+  }
+
+  const scope: PushScope = {
+    objectId: resolved.object.objectId,
+    primId: resolved.primId,
+    item: resolved.item.name,
   }
 
   if (!response?.success) {
@@ -232,18 +393,19 @@ async function pushTarget(
 
     return {
       ok: false,
+      scope,
       payload: { ok: false, ...base, compiled: false, errors: [], message: response?.message },
     }
   }
 
-  // A save can succeed while the compile fails; the source is stored either way.
+  // A save can succeed while the compile fails. The source is stored either way.
   if (response.compiled === false) {
     const language: CompileLanguage = vm === "luau" ? "luau" : "lsl"
     const errors = diagnosticsFrom(response, language)
     const sourceMap = await loadSourceMapFor(target.file)
     const payload = await reportCompileErrors(errors, target.file, sourceMap, reporter, base, label)
 
-    return { ok: false, payload }
+    return { ok: false, scope, payload }
   }
 
   reporter.note(
@@ -256,6 +418,7 @@ async function pushTarget(
 
   return {
     ok: savedBack !== false,
+    scope,
     payload: {
       ok: savedBack !== false,
       ...base,

@@ -6,6 +6,8 @@ import {
   PUBLISH_WAIT_MS,
 } from "../addressing.js"
 import { DEFAULT_PORT } from "../protocol/peer.js"
+import { DEBOUNCE_MS } from "../watch.js"
+import type { Since } from "./commands/control.js"
 import type { ScriptVM, SyntaxKind } from "../protocol/types.js"
 
 export class CliUsageError extends Error {
@@ -22,6 +24,8 @@ export interface GlobalFlags {
   timeoutMs?: number
   /** How long to hold the connection open waiting for the viewer to publish. */
   waitMs?: number
+  /** Talk to the viewer itself, even with a session running for this project. */
+  direct: boolean
 }
 
 export type Command =
@@ -38,11 +42,31 @@ export type Command =
       target?: string
       all: boolean
       saveBack?: boolean
+      /**
+       * How long to keep listening for the output the push produced.
+       *
+       * Milliseconds, `"forever"` for `--tail` on its own, 0 for `--no-tail`.
+       */
+      tail: number | "forever"
     }
   | { name: "link"; target: string; object?: string; item?: string; file?: string; key?: string }
   | { name: "reset"; ref: ObjectRef }
   | { name: "set-running"; ref: ObjectRef; running: boolean }
-  | { name: "logs"; object?: string; follow: boolean; targets: boolean }
+  | { name: "logs"; object?: string; follow: boolean; targets: boolean; since?: Since }
+  | { name: "status" }
+  | { name: "mcp" }
+  | { name: "wait"; since?: Since; timeoutMs?: number }
+  | {
+      name: "connect"
+      /** One target from slua.json, rather than every one of them. */
+      target?: string
+      /** Unset means on when there are targets to watch. */
+      watch?: boolean
+      debounceMs?: number
+      edge?: "trailing" | "leading"
+      /** A build command to run alongside the session. */
+      exec?: string
+    }
   | { name: "syntax"; kind?: SyntaxKind }
 
 export interface CliArgs {
@@ -68,14 +92,115 @@ const OPTIONS = {
   key: { type: "string" },
   follow: { type: "boolean", short: "f" },
   targets: { type: "boolean" },
+  tail: { type: "string" },
+  "no-tail": { type: "boolean" },
+  watch: { type: "boolean" },
+  "no-watch": { type: "boolean" },
+  debounce: { type: "string" },
+  edge: { type: "string" },
+  exec: { type: "string" },
+  since: { type: "string" },
+  for: { type: "string" },
+  direct: { type: "boolean" },
   wait: { type: "boolean" },
   help: { type: "boolean", short: "h" },
   version: { type: "boolean", short: "v" },
 } as const
 
+/** How long a plain `push` keeps listening for the output its save produced. */
+export const DRAIN_MS = 1_500
+
+/** Stands in for a `--tail` given without a duration. */
+const TAIL_FOREVER = "forever"
+
+/**
+ * Lets `--tail` stand on its own.
+ *
+ * parseArgs has no optional-argument option, so a bare `--tail` is rejected
+ * for the value it does not need. Rewriting it before parsing keeps "until I
+ * stop it" spellable without a second flag.
+ */
+function withBareTail(argv: string[]): string[] {
+  return argv.map((token, index) => {
+    if (token !== "--tail") return token
+
+    const next = argv[index + 1]
+
+    return next === undefined || next.startsWith("-") ? `--tail=${TAIL_FOREVER}` : token
+  })
+}
+
+const DURATION = /^(\d+)(ms|s|m)?$/
+
+function isDuration(raw: string): boolean {
+  return raw === TAIL_FOREVER || DURATION.test(raw.trim())
+}
+
+/**
+ * A `--since` value: a cursor, or how far back to look.
+ *
+ * A bare number is a cursor, since that is what the JSON output hands back.
+ * Anything with a unit is a duration, which is the form that still means
+ * something after the session that numbered the output has gone.
+ */
+function parseSince(raw: string | undefined): Since | undefined {
+  if (raw === undefined) return undefined
+
+  const match = DURATION.exec(raw.trim())
+
+  if (!match) throw new CliUsageError(`--since takes a cursor or a duration, got "${raw}"`)
+
+  if (match[2] === undefined) return { cursor: Number(match[1]) }
+
+  const value = duration(raw, "--since")
+
+  return { ms: value === "forever" ? 0 : value }
+}
+
+/** Bare milliseconds, or a `5s` / `2m` duration. */
+function duration(raw: string, flag: string): number | "forever" {
+  if (raw === TAIL_FOREVER) return TAIL_FOREVER
+
+  const match = DURATION.exec(raw.trim())
+
+  if (!match) {
+    throw new CliUsageError(`${flag} takes a duration like 5s or 1500, got "${raw}"`)
+  }
+
+  const value = Number(match[1])
+
+  switch (match[2]) {
+    case "s":
+      return value * 1_000
+
+    case "m":
+      return value * 60_000
+
+    default:
+      return value
+  }
+}
+
 function rawParse(argv: string[]) {
   try {
-    return parseArgs({ args: argv, options: OPTIONS, allowPositionals: true })
+    const { values, positionals, tokens } = parseArgs({
+      args: withBareTail(argv),
+      options: OPTIONS,
+      allowPositionals: true,
+      tokens: true,
+    })
+
+    const tail = tokens.find((token) => token.kind === "option" && token.name === "tail")
+
+    // The command itself is the first positional, so the second is the first
+    // one the command was given.
+    const first = tokens.filter((token) => token.kind === "positional")[1]
+
+    // `push --tail main.slua` and `push main.slua --tail soon` are one shape to
+    // parseArgs, and only the order says which token --tail was reaching for.
+    const tailLeads = tail !== undefined && (first === undefined || first.index > tail.index)
+
+    return { values, positionals, tailLeads }
   } catch (error) {
     throw new CliUsageError(error instanceof Error ? error.message : String(error))
   }
@@ -126,13 +251,14 @@ function targetRef(
 }
 
 export function parseCliArgs(argv: string[]): CliArgs {
-  const { values, positionals } = rawParse(argv)
+  const { values, positionals, tailLeads } = rawParse(argv)
 
   const global: GlobalFlags = {
     port: integer(values.port, "port") ?? DEFAULT_PORT,
     json: values.json === true,
     timeoutMs: integer(values.timeout, "timeout"),
     waitMs: values.wait === true ? PUBLISH_WAIT_MS : undefined,
+    direct: values.direct === true,
   }
 
   if (values.version === true) return { global, command: { name: "version" } }
@@ -168,8 +294,21 @@ export function parseCliArgs(argv: string[]): CliArgs {
         throw new CliUsageError(`--vm must be one of ${VM_VALUES.join(", ")}`)
       }
 
-      const file = rest[0] ?? values.file
       const all = values.all === true
+
+      // `push --tail main.slua` hands the file over as the tail value, and
+      // leaves the push with nothing to deploy. A value no duration could be,
+      // where the flag came first and no file did, is the file.
+      const swallowed =
+        values.tail !== undefined &&
+        tailLeads &&
+        values.file === undefined &&
+        values.target === undefined &&
+        !all &&
+        !isDuration(values.tail)
+
+      const file = swallowed ? values.tail : (rest[0] ?? values.file)
+      const tail = swallowed ? TAIL_FOREVER : values.tail
 
       if (file === undefined && values.target === undefined && !all) {
         throw new CliUsageError(
@@ -188,11 +327,16 @@ export function parseCliArgs(argv: string[]): CliArgs {
         command: {
           name: "push",
           file,
-          ref: optionalTargetRef(rest[1], values),
+          // One position earlier when --tail took the file, since the ref is
+          // then the first positional rather than the second.
+          ref: optionalTargetRef(swallowed ? rest[0] : rest[1], values),
           vm: values.vm as ScriptVM | undefined,
           target: values.target,
           all,
           saveBack: values["save-back"],
+          // Something has to drain the window the save opens, and a bare
+          // `push` is the case that loses output, so it drains too.
+          tail: values["no-tail"] === true ? 0 : duration(tail ?? String(DRAIN_MS), "--tail"),
         },
       }
     }
@@ -241,8 +385,50 @@ export function parseCliArgs(argv: string[]): CliArgs {
           object: values.object,
           follow: values.follow === true,
           targets: values.targets === true,
+          since: parseSince(values.since),
         },
       }
+
+    case "status":
+      return { global, command: { name: "status" } }
+
+    case "mcp":
+      return { global, command: { name: "mcp" } }
+
+    case "wait": {
+      const budget = values.for === undefined ? undefined : duration(values.for, "--for")
+
+      return {
+        global,
+        command: {
+          name: "wait",
+          since: parseSince(values.since),
+          timeoutMs: budget === "forever" ? undefined : budget,
+        },
+      }
+    }
+
+    case "connect": {
+      const edge = values.edge
+
+      if (edge !== undefined && edge !== "trailing" && edge !== "leading") {
+        throw new CliUsageError("--edge must be trailing or leading")
+      }
+
+      return {
+        global,
+        command: {
+          name: "connect",
+          target: values.target,
+          // Unset rather than defaulted. Whether watching makes sense depends
+          // on slua.json, which the parser does not read.
+          watch: values["no-watch"] === true ? false : values.watch === true ? true : undefined,
+          debounceMs: integer(values.debounce, "debounce"),
+          edge,
+          exec: values.exec,
+        },
+      }
+    }
 
     case "syntax": {
       const kind = rest[0]
@@ -274,6 +460,10 @@ Commands
   set-running on|off <object>/<item>
                                    Start or stop a script
   logs                             Stream runtime output from published objects
+  connect                          Hold a session: watch, push and tail in one
+  status                           What the running session is doing
+  wait                             Block until the next push settles
+  mcp                              Serve the session to an agent over MCP
   syntax [defs.lsl|defs.lua]       Dump language definitions
   help                             Show this message
 
@@ -314,6 +504,21 @@ Options
   --key <key>          Description key to pair on (default slua:<name>)
   -f, --follow         Keep streaming (logs)
   --targets            Only output from items your slua.json targets (logs)
+  --tail [duration]    Keep listening after a push, e.g. 5s; on its own,
+                       until interrupted (default ${DRAIN_MS}ms)
+  --no-tail            Push without waiting for output (push)
+  --watch/--no-watch   Push when a target's output changes (connect, on by
+                       default when slua.json has targets)
+  --debounce <ms>      How long a target must be quiet before it is pushed
+                       (connect, default ${DEBOUNCE_MS}ms)
+  --edge <edge>        Which end of that window to push on: trailing or
+                       leading (connect, default trailing)
+  --exec <command>     Run a build alongside the session (connect)
+  --since <cursor|duration>
+                       Output after a cursor, or from the last 5m (logs, wait)
+  --for <duration>     How long to block (wait, default 30s); "forever" is
+                       accepted but the session still caps the wait at 30s
+  --direct             Talk to the viewer even when a session is running
   --wait               Wait for the viewer to publish, so "Explore in IDE"
                        has a client to publish to
   --port <port>        Viewer websocket port (default ${DEFAULT_PORT})
@@ -329,7 +534,13 @@ Examples
   slua-viewer push dist/main.slua --wait
   slua-viewer link main
   slua-viewer push --all
+  slua-viewer push --all --tail 10s
   slua-viewer logs --object 4f2b... --follow
   slua-viewer logs --targets --follow
+  slua-viewer connect
+  slua-viewer connect --exec "tstl -p tsconfig.json --watch"
+  slua-viewer status --json
+  slua-viewer wait --since 412 --for 20s
+  slua-viewer logs --since 5m
 `
 }

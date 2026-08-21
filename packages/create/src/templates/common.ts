@@ -1,6 +1,7 @@
 export const GITIGNORE = `node_modules/
 dist/
 out/
+.slua/
 `
 
 export const VSCODE_SETTINGS = `{

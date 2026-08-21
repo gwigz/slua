@@ -1,5 +1,11 @@
 # @gwigz/slua-create
 
+## 0.6.0
+
+### Minor Changes
+
+- [#124](https://github.com/gwigz/slua/pull/124) [`a19a38c`](https://github.com/gwigz/slua/commit/a19a38cdc254905e644bce958c6f2900aa8a4e42) Thanks [@gwigz](https://github.com/gwigz)! - scaffolded `dev` now runs `slua-viewer connect`, and the watch build moves to `build:watch`
+
 ## 0.5.0
 
 ### Minor Changes

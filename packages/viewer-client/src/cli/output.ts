@@ -47,6 +47,29 @@ export function createReporter(json: boolean): Reporter {
   }
 }
 
+/**
+ * Repeats `message` on stderr every `intervalMs` `work` stays pending, so a
+ * save stuck on the sim upload doesn't look like a hang. The first beat waits
+ * a full interval, so an ordinary sub-second save stays quiet.
+ */
+export async function withHeartbeat<T>(
+  reporter: Reporter,
+  message: string,
+  work: Promise<T>,
+  intervalMs = 15_000,
+): Promise<T> {
+  const timer = setInterval(() => reporter.note(pc.dim(message)), intervalMs)
+
+  // Never keep a one-shot command alive on its own.
+  timer.unref?.()
+
+  try {
+    return await work
+  } finally {
+    clearInterval(timer)
+  }
+}
+
 /** Whichever of the relative or absolute path is easier to read. */
 export function displayPath(path: string): string {
   const relativePath = relative(process.cwd(), path)

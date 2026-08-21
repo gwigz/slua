@@ -29,7 +29,7 @@ import {
   type Target,
 } from "../../targets.js"
 import type { Command } from "../args.js"
-import { displayPath, type Reporter } from "../output.js"
+import { displayPath, type Reporter, withHeartbeat } from "../output.js"
 import {
   cursor,
   fromObject,
@@ -350,27 +350,31 @@ export async function pushTarget(
   // next one as "item not found in prim inventory", and a retry has to start
   // from a fresh listing. Only the first lookup waits on the publish button,
   // since a retry is for a listing that settles in milliseconds.
-  const { resolved, vm, response } = await withStaleRetry(async (attempt) => {
-    const found = await resolveItem(
-      client,
-      target.ref,
-      attempt === 0 ? publish : withoutWait(publish),
-    )
-    const compileAs = resolveVm(target.vm, target.file, found.item)
+  const { resolved, vm, response } = await withHeartbeat(
+    reporter,
+    `${label}still waiting on the viewer to save`,
+    withStaleRetry(async (attempt) => {
+      const found = await resolveItem(
+        client,
+        target.ref,
+        attempt === 0 ? publish : withoutWait(publish),
+      )
+      const compileAs = resolveVm(target.vm, target.file, found.item)
 
-    return {
-      resolved: found,
-      vm: compileAs,
-      response: await client.objectContentSave({
-        primId: found.primId,
-        itemId: found.itemId,
-        content,
+      return {
+        resolved: found,
         vm: compileAs,
-        // Preserve the script's current state rather than silently starting it.
-        running: found.item.type === "script" ? found.item.running : undefined,
-      }),
-    }
-  })
+        response: await client.objectContentSave({
+          primId: found.primId,
+          itemId: found.itemId,
+          content,
+          vm: compileAs,
+          // Preserve the script's current state rather than silently starting it.
+          running: found.item.type === "script" ? found.item.running : undefined,
+        }),
+      }
+    }),
+  )
 
   const base = {
     target: target.name,

@@ -79,6 +79,14 @@ export async function runSession({
 
         current = client
 
+        // An interrupt during the connect had nothing to close yet, so setting
+        // up on top of it would publish and subscribe on the way out.
+        if (stopping) {
+          client.close()
+
+          break
+        }
+
         try {
           await onConnected?.(client)
         } catch (error) {

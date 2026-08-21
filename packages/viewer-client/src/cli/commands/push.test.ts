@@ -93,6 +93,7 @@ function collectingReporter(): Reporter & { payload?: unknown; errors: string[] 
       this.payload = payload
     },
     line() {},
+    raw() {},
     note() {},
     error(text) {
       errors.push(text)
@@ -397,6 +398,7 @@ describe("pushCommand with a drain window", () => {
         level: "error",
         error: "attempt to call a nil value",
         line: 12,
+        stack: ["Main:12", "Main:3"],
       }),
     ])
   })

@@ -95,8 +95,26 @@ describe("parseCliArgs", () => {
     })
   })
 
+  it("leaves the file alone when --tail comes before it", () => {
+    // parseArgs hands the file to --tail, leaving the push nothing to deploy.
+    expect(parseCliArgs(["push", "--tail", "dist/main.slua"]).command).toMatchObject({
+      name: "push",
+      file: "dist/main.slua",
+      tail: "forever",
+    })
+
+    expect(parseCliArgs(["push", "--tail", "--target", "main"]).command).toMatchObject({
+      name: "push",
+      target: "main",
+      tail: "forever",
+    })
+  })
+
   it("rejects a --tail value that is not a duration", () => {
     expect(() => parseCliArgs(["push", "--tail", "soon", "--all"])).toThrow(CliUsageError)
+
+    // The file is already given, so the value has nothing else it could be.
+    expect(() => parseCliArgs(["push", "dist/main.slua", "--tail", "soon"])).toThrow(/--tail/)
   })
 
   it("allows push with only a file, leaving the target to config or a header", () => {

@@ -32,6 +32,23 @@ describe("openState", () => {
     expect(await readSession(dir)).toBeUndefined()
   })
 
+  it("leaves the session file a later session wrote", async () => {
+    const dir = await root()
+    const first = await openState(dir, { port: 9020, root: dir })
+
+    // Teardown releases the control socket before the state, so the session
+    // that replaced this one can already be up.
+    const second = await openState(dir, { port: 9021, root: dir })
+
+    await first.close()
+
+    expect(await readSession(dir)).toMatchObject({ port: 9021 })
+
+    await second.close()
+
+    expect(await readSession(dir)).toBeUndefined()
+  })
+
   it("appends one JSON object per line, in order", async () => {
     const dir = await root()
     const state = await openState(dir, { port: 9020, root: dir })

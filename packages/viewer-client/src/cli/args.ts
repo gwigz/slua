@@ -132,6 +132,10 @@ function withBareTail(argv: string[]): string[] {
 
 const DURATION = /^(\d+)(ms|s|m)?$/
 
+function isDuration(raw: string): boolean {
+  return raw === TAIL_FOREVER || DURATION.test(raw.trim())
+}
+
 /**
  * A `--since` value: a cursor, or how far back to look.
  *
@@ -273,8 +277,21 @@ export function parseCliArgs(argv: string[]): CliArgs {
         throw new CliUsageError(`--vm must be one of ${VM_VALUES.join(", ")}`)
       }
 
-      const file = rest[0] ?? values.file
       const all = values.all === true
+
+      // `push --tail main.slua` hands the file over as the tail value, and
+      // leaves the push with nothing to deploy. With no file of its own, and a
+      // value no duration could be, that token is the file.
+      const swallowed =
+        values.tail !== undefined &&
+        rest[0] === undefined &&
+        values.file === undefined &&
+        values.target === undefined &&
+        !all &&
+        !isDuration(values.tail)
+
+      const file = swallowed ? values.tail : (rest[0] ?? values.file)
+      const tail = swallowed ? TAIL_FOREVER : values.tail
 
       if (file === undefined && values.target === undefined && !all) {
         throw new CliUsageError(
@@ -300,8 +317,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
           saveBack: values["save-back"],
           // Something has to drain the window the save opens, and a bare
           // `push` is the case that loses output, so it drains too.
-          tail:
-            values["no-tail"] === true ? 0 : duration(values.tail ?? String(DRAIN_MS), "--tail"),
+          tail: values["no-tail"] === true ? 0 : duration(tail ?? String(DRAIN_MS), "--tail"),
         },
       }
     }

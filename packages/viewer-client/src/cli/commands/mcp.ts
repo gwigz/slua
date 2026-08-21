@@ -97,6 +97,14 @@ function reply(message: Record<string, unknown>): void {
   process.stdout.write(`${JSON.stringify(message)}\n`)
 }
 
+/** The most one unterminated frame may buffer before the client is refused. */
+const MAX_FRAME_BYTES = 4 * 1024 * 1024
+
+/** A JSON object, rather than the null and arrays that also type as one. */
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
 function result(id: unknown, value: unknown): void {
   reply({ jsonrpc: "2.0", id, result: value })
 }
@@ -148,6 +156,7 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
 
   return await new Promise<number>((done) => {
     let buffer = ""
+    let dropping = false
 
     process.stdin.setEncoding("utf8")
 
@@ -163,7 +172,31 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
 
         buffer = buffer.slice(end + 1)
 
-        if (line.trim() !== "") void handle(line)
+        // The tail of a frame already refused, not a frame of its own.
+        if (dropping) {
+          dropping = false
+
+          continue
+        }
+
+        if (line.trim() !== "") {
+          // A rejection here would otherwise take the server down over one frame.
+          void handle(line).catch((error: unknown) => {
+            reporter.note(`mcp: ${error instanceof Error ? error.message : String(error)}`)
+          })
+        }
+      }
+
+      // A client that never sends a newline would grow this string until the
+      // process runs out of memory. No real request comes near the cap.
+      if (buffer.length > MAX_FRAME_BYTES) {
+        buffer = ""
+
+        if (!dropping) {
+          dropping = true
+
+          failure(null, -32700, `Parse error: frame exceeded ${MAX_FRAME_BYTES} bytes`)
+        }
       }
     })
 
@@ -175,7 +208,7 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
     process.stdin.on("error", () => done(0))
 
     const handle = async (line: string) => {
-      let message: { id?: unknown; method?: string; params?: Record<string, unknown> }
+      let message: unknown
 
       try {
         message = JSON.parse(line)
@@ -185,10 +218,25 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
         return
       }
 
-      const { id, method, params = {} } = message
+      // `null` is valid JSON and not a request, and destructuring it throws.
+      if (!isObject(message)) {
+        failure(null, -32600, "Invalid Request")
+
+        return
+      }
+
+      const { id, method } = message as { id?: unknown; method?: unknown }
+
+      const params = isObject(message.params) ? message.params : {}
 
       // A notification has no id and takes no answer, `initialized` included.
       if (id === undefined || id === null) return
+
+      if (typeof method !== "string") {
+        failure(id, -32600, "Invalid Request")
+
+        return
+      }
 
       switch (method) {
         case "initialize": {
@@ -228,7 +276,7 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
           const name = String(params.name ?? "")
 
           try {
-            const value = await call(name, (params.arguments as Record<string, unknown>) ?? {})
+            const value = await call(name, isObject(params.arguments) ? params.arguments : {})
 
             result(id, { content: [{ type: "text", text: JSON.stringify(value, null, 2) }] })
           } catch (error) {

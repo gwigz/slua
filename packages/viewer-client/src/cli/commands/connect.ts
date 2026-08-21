@@ -296,6 +296,9 @@ export async function connectCommand(
   let pushing = false
   let lastRun: PushRun | undefined
 
+  /** Targets saved while the viewer was away, owed to the next connection. */
+  const pending = new Set<string>()
+
   /** Recent output, for a client that attached after it was printed. */
   const buffer: Record<string, unknown>[] = []
   const outcomes = new Map<string, Record<string, unknown>>()
@@ -342,11 +345,23 @@ export async function connectCommand(
 
     pushing = true
 
+    // Nothing settles on a run with no viewer behind it. The watcher has
+    // already recorded the content as pushed, so these targets are held for
+    // the reconnect, and a client waiting reads an empty run as a clean push.
+    const reached = client !== undefined
+
+    if (!reached) {
+      for (const target of changed) pending.add(target.name)
+
+      reporter.note(pc.yellow("not connected; the change will be pushed on reconnect"))
+    }
+
     try {
-      await pushEach(changed, run)
+      if (reached) await pushEach(changed, run)
     } finally {
       pushing = false
-      lastRun = run
+
+      if (reached) lastRun = run
 
       // Reloaded after every push: the build that prompted it rewrote the
       // source maps, and this run's output through the last build's maps
@@ -355,7 +370,7 @@ export async function connectCommand(
 
       // Snapshotted, since settling removes the waiter from the set it is
       // being iterated out of.
-      const waiting = [...waiters]
+      const waiting = reached ? [...waiters] : []
 
       for (const waiter of waiting) {
         if (run.cursor > waiter.since) {
@@ -367,11 +382,7 @@ export async function connectCommand(
   }
 
   const pushEach = async (changed: readonly Target[], run: PushRun) => {
-    if (!client) {
-      reporter.note(pc.yellow("not connected; the change will be pushed on reconnect"))
-
-      return
-    }
+    if (!client) return
 
     for (const target of changed) {
       const result = await pushTarget(client, target, reporter, changed.length > 1, {
@@ -602,6 +613,18 @@ export async function connectCommand(
       // Re-published on every reconnect: a viewer that restarted has
       // forgotten everything the old connection published.
       await publishTargets(connected, targets, reporter, publish)
+
+      // After publishing, since a push to an unpublished object is the error
+      // publishing is there to avoid.
+      if (pending.size > 0) {
+        const owed = [...pending]
+
+        pending.clear()
+
+        reporter.note(pc.dim(`pushing ${owed.join(", ")}, saved while disconnected`))
+
+        void watcher?.trigger(owed)
+      }
     },
     onStop: async () => {
       // Awaited: a push in flight owns the connection this teardown is about

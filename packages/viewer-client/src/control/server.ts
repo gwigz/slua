@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto"
-import { chmod, mkdtemp, rm, unlink, writeFile } from "node:fs/promises"
+import { chmod, mkdtemp, rm, stat, unlink, writeFile } from "node:fs/promises"
 import { connect, createServer, type Server, type Socket } from "node:net"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -92,6 +92,17 @@ function answering(path: string): Promise<boolean> {
   })
 }
 
+function inUse(error: unknown): boolean {
+  return (error as NodeJS.ErrnoException | undefined)?.code === "EADDRINUSE"
+}
+
+/** Names the socket file, so a start cannot unlink one it never looked at. */
+async function identity(path: string): Promise<string | undefined> {
+  const stats = await stat(path).catch(() => undefined)
+
+  return stats && `${stats.dev}:${stats.ino}`
+}
+
 /**
  * The auth challenge, the way the viewer does it.
  *
@@ -126,13 +137,6 @@ export async function startControlServer(
 ): Promise<ControlServer> {
   const path = controlPath(root)
   const peers = new Set<JsonRpcPeer>()
-
-  // A socket left behind by a crashed session would refuse the bind, and only
-  // connecting settles whether one is live. Unlinking a socket that still
-  // answers would strand the session behind it with its clients attached.
-  if (await answering(path)) throw new SessionAlreadyRunningError(path)
-
-  await unlink(path).catch(() => {})
 
   const serve = async (socket: Socket) => {
     const peer = new JsonRpcPeer(socketTransport(socket))
@@ -199,13 +203,43 @@ export async function startControlServer(
     void serve(socket)
   })
 
-  await new Promise<void>((ready, failed) => {
-    server.once("error", failed)
-    server.listen(path, () => {
-      server.off("error", failed)
-      ready()
+  const listen = () =>
+    new Promise<void>((ready, failed) => {
+      server.once("error", failed)
+      server.listen(path, () => {
+        server.off("error", failed)
+        ready()
+      })
     })
-  })
+
+  // Binding is what settles who owns the project. Probing first and unlinking
+  // after leaves a window where two starts both find nothing there, and the
+  // loser deletes the winner's socket.
+  try {
+    await listen()
+  } catch (error) {
+    if (!inUse(error)) throw error
+
+    // Only connecting settles whether the socket that refused the bind is
+    // live. Unlinking one that still answers would strand the session behind
+    // it with its clients attached.
+    const refused = await identity(path)
+
+    if (await answering(path)) throw new SessionAlreadyRunningError(path)
+
+    // Another start may have cleaned the same corpse up while we were asking.
+    // Its socket is live, and not ours to remove.
+    if ((await identity(path)) === refused) await unlink(path).catch(() => {})
+
+    try {
+      await listen()
+    } catch (retry) {
+      if (!inUse(retry)) throw retry
+
+      // Somebody bound it between the unlink and here; the project is theirs.
+      throw new SessionAlreadyRunningError(path)
+    }
+  }
 
   // Only this user, which is what actually keeps the socket private. Named
   // pipes on Windows are not files, so there is nothing to chmod there.

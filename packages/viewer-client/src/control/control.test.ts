@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, it } from "bun:test"
-import { mkdtemp, rm } from "node:fs/promises"
+import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import { connect as connectSocket } from "node:net"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import type { SessionHandshake } from "../protocol/types.js"
 import { attachControl, type ControlClient } from "./client"
-import { type ControlServer, startControlServer } from "./server"
+import { controlPath } from "./socket"
+import { type ControlServer, SessionAlreadyRunningError, startControlServer } from "./server"
 
 const roots: string[] = []
 const servers: ControlServer[] = []
@@ -34,14 +35,11 @@ interface Recorded {
   pushed: (string[] | undefined)[]
 }
 
-async function session(overrides: Partial<Parameters<typeof startControlServer>[1]> = {}) {
-  const root = await mkdtemp(join(tmpdir(), "slua-control-"))
-
-  roots.push(root)
-
-  const recorded: Recorded = { forwarded: [], pushed: [] }
-
-  const server = await startControlServer(root, {
+/** The session a control client sees, with nothing behind it but this file. */
+function handlers(
+  recorded: Recorded = { forwarded: [], pushed: [] },
+): Parameters<typeof startControlServer>[1] {
+  return {
     handshake: () => HANDSHAKE,
     status: () => ({ connected: true, watching: true, pushing: false, cursor: 7, targets: [] }),
     logs: ({ since = 0 }) => ({
@@ -66,8 +64,17 @@ async function session(overrides: Partial<Parameters<typeof startControlServer>[
 
       return { objects: [] }
     },
-    ...overrides,
-  })
+  }
+}
+
+async function session(overrides: Partial<Parameters<typeof startControlServer>[1]> = {}) {
+  const root = await mkdtemp(join(tmpdir(), "slua-control-"))
+
+  roots.push(root)
+
+  const recorded: Recorded = { forwarded: [], pushed: [] }
+
+  const server = await startControlServer(root, { ...handlers(recorded), ...overrides })
 
   servers.push(server)
 
@@ -169,6 +176,64 @@ describe("the control socket", () => {
     expect(seen).toContain("-32601")
 
     rogue.destroy()
+  })
+
+  it("lets only one of two concurrent starts own the project", async () => {
+    const root = await mkdtemp(join(tmpdir(), "slua-control-"))
+
+    roots.push(root)
+
+    // Both find nothing listening, which is the moment a probe-then-unlink
+    // start deletes the socket the other one just bound.
+    const starts = await Promise.allSettled([
+      startControlServer(root, handlers()),
+      startControlServer(root, handlers()),
+    ])
+
+    for (const start of starts) {
+      if (start.status === "fulfilled") servers.push(start.value)
+    }
+
+    const bound = starts.filter((start) => start.status === "fulfilled")
+    const refused = starts.find((start) => start.status === "rejected")
+
+    expect(bound.length).toBe(1)
+    expect(refused?.reason).toBeInstanceOf(SessionAlreadyRunningError)
+
+    // Reachable, rather than listening on a socket the loser unlinked away.
+    const client = await attachControl(root, { path: controlPath(root) })
+
+    clients.push(client)
+
+    expect(await client.status()).toMatchObject({ cursor: 7 })
+  })
+
+  it("takes over a socket a crashed session left behind", async () => {
+    const root = await mkdtemp(join(tmpdir(), "slua-control-"))
+
+    roots.push(root)
+
+    // What a SIGKILLed session leaves behind, refusing the bind and answering
+    // nothing.
+    await writeFile(controlPath(root), "", "utf8")
+
+    const server = await startControlServer(root, handlers())
+
+    servers.push(server)
+
+    const client = await attachControl(root, { path: server.path })
+
+    clients.push(client)
+
+    expect(await client.status()).toMatchObject({ cursor: 7 })
+  })
+
+  it("refuses a second session while the first is listening", async () => {
+    const { root } = await session()
+
+    await expect(startControlServer(root, handlers())).rejects.toBeInstanceOf(
+      SessionAlreadyRunningError,
+    )
   })
 
   it("refuses a client that cannot answer the challenge", async () => {

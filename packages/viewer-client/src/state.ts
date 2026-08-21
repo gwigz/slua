@@ -35,7 +35,7 @@ export interface SessionState {
   /** Appends one record. Ordering is preserved; failures are reported once. */
   append(record: Record<string, unknown>): void
   flush(): Promise<void>
-  /** Flushes, then forgets the session, so a stale file never outlives it. */
+  /** Forgets the session, then flushes, so a stale file never outlives it. */
   close(): Promise<void>
 }
 
@@ -93,9 +93,14 @@ export async function openState(
   // Written aside and renamed over. A reader that opens this file mid-write
   // would otherwise parse half a document and conclude there is no session.
   const pending = `${sessionPath}.${process.pid}.tmp`
+  const document = `${JSON.stringify(session, null, 2)}\n`
 
-  await writeFile(pending, `${JSON.stringify(session, null, 2)}\n`, "utf8")
+  await writeFile(pending, document, "utf8")
   await rename(pending, sessionPath)
+
+  /** Whether the file on disk is still the one this session wrote, byte for byte. */
+  const owned = async () =>
+    (await readFile(sessionPath, "utf8").catch(() => undefined)) === document
 
   let size = await stat(logPath)
     .then((stats) => stats.size)
@@ -152,11 +157,12 @@ export async function openState(
     },
 
     async close() {
-      await chain
+      // Teardown releases the control socket first, so a replacement session
+      // may already have written its own file. Deleting that one would hide a
+      // session that is running.
+      if (await owned()) await rm(sessionPath, { force: true })
 
-      // A session file that outlives its session is worse than none. It points
-      // at a pid that may since have become something else.
-      await rm(sessionPath, { force: true })
+      await chain
     },
   }
 }

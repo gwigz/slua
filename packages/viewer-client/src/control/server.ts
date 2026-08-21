@@ -245,6 +245,8 @@ export async function startControlServer(
   // pipes on Windows are not files, so there is nothing to chmod there.
   if (process.platform !== "win32") await chmod(path, 0o600).catch(() => {})
 
+  const bound = await identity(path)
+
   return {
     path,
 
@@ -268,7 +270,10 @@ export async function startControlServer(
       peers.clear()
 
       await new Promise<void>((done) => server.close(() => done()))
-      await unlink(path).catch(() => {})
+
+      // Only while the path is still the socket this session bound. A session
+      // that took the project over in the meantime owns what is there now.
+      if ((await identity(path)) === bound) await unlink(path).catch(() => {})
     },
   }
 }

@@ -23,6 +23,12 @@ describe("openState", () => {
     const dir = await root()
     const state = await openState(dir, { port: 9020, root: dir })
 
+    // Held back until the control socket is this session's, so a start that
+    // loses that race never describes itself.
+    expect(await readSession(dir)).toBeUndefined()
+
+    await state.announce()
+
     expect(await readSession(dir)).toMatchObject({ pid: process.pid, port: 9020, root: dir })
 
     await state.close()
@@ -36,9 +42,13 @@ describe("openState", () => {
     const dir = await root()
     const first = await openState(dir, { port: 9020, root: dir })
 
+    await first.announce()
+
     // Teardown releases the control socket before the state, so the session
     // that replaced this one can already be up.
     const second = await openState(dir, { port: 9021, root: dir })
+
+    await second.announce()
 
     await first.close()
 

@@ -108,6 +108,16 @@ describe("parseCliArgs", () => {
       target: "main",
       tail: "forever",
     })
+
+    // The ref is then the first positional rather than the second.
+    expect(parseCliArgs(["push", "--tail", "dist/main.slua", "Rezzer/Main"]).command).toMatchObject(
+      {
+        name: "push",
+        file: "dist/main.slua",
+        ref: { object: { kind: "name", value: "Rezzer" }, item: "Main" },
+        tail: "forever",
+      },
+    )
   })
 
   it("rejects a --tail value that is not a duration", () => {

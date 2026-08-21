@@ -577,6 +577,10 @@ export async function connectCommand(
     )
   }
 
+  // Only now the socket is ours. A start that loses the race for it exits
+  // above, rather than leaving the winner's file describing this process.
+  await state.announce()
+
   await runSession({
     // A session outlives a viewer restart by definition.
     follow: true,

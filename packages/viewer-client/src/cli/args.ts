@@ -183,7 +183,24 @@ function duration(raw: string, flag: string): number | "forever" {
 
 function rawParse(argv: string[]) {
   try {
-    return parseArgs({ args: withBareTail(argv), options: OPTIONS, allowPositionals: true })
+    const { values, positionals, tokens } = parseArgs({
+      args: withBareTail(argv),
+      options: OPTIONS,
+      allowPositionals: true,
+      tokens: true,
+    })
+
+    const tail = tokens.find((token) => token.kind === "option" && token.name === "tail")
+
+    // The command itself is the first positional, so the second is the first
+    // one the command was given.
+    const first = tokens.filter((token) => token.kind === "positional")[1]
+
+    // `push --tail main.slua` and `push main.slua --tail soon` are one shape to
+    // parseArgs, and only the order says which token --tail was reaching for.
+    const tailLeads = tail !== undefined && (first === undefined || first.index > tail.index)
+
+    return { values, positionals, tailLeads }
   } catch (error) {
     throw new CliUsageError(error instanceof Error ? error.message : String(error))
   }
@@ -234,7 +251,7 @@ function targetRef(
 }
 
 export function parseCliArgs(argv: string[]): CliArgs {
-  const { values, positionals } = rawParse(argv)
+  const { values, positionals, tailLeads } = rawParse(argv)
 
   const global: GlobalFlags = {
     port: integer(values.port, "port") ?? DEFAULT_PORT,
@@ -280,11 +297,11 @@ export function parseCliArgs(argv: string[]): CliArgs {
       const all = values.all === true
 
       // `push --tail main.slua` hands the file over as the tail value, and
-      // leaves the push with nothing to deploy. With no file of its own, and a
-      // value no duration could be, that token is the file.
+      // leaves the push with nothing to deploy. A value no duration could be,
+      // where the flag came first and no file did, is the file.
       const swallowed =
         values.tail !== undefined &&
-        rest[0] === undefined &&
+        tailLeads &&
         values.file === undefined &&
         values.target === undefined &&
         !all &&
@@ -310,7 +327,9 @@ export function parseCliArgs(argv: string[]): CliArgs {
         command: {
           name: "push",
           file,
-          ref: optionalTargetRef(rest[1], values),
+          // One position earlier when --tail took the file, since the ref is
+          // then the first positional rather than the second.
+          ref: optionalTargetRef(swallowed ? rest[0] : rest[1], values),
           vm: values.vm as ScriptVM | undefined,
           target: values.target,
           all,

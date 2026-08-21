@@ -208,25 +208,29 @@ describe("the control socket", () => {
     expect(await client.status()).toMatchObject({ cursor: 7 })
   })
 
-  it("takes over a socket a crashed session left behind", async () => {
-    const root = await mkdtemp(join(tmpdir(), "slua-control-"))
+  // A named pipe is not a file, so there is no leftover to write on Windows.
+  it.skipIf(process.platform === "win32")(
+    "takes over a socket a crashed session left behind",
+    async () => {
+      const root = await mkdtemp(join(tmpdir(), "slua-control-"))
 
-    roots.push(root)
+      roots.push(root)
 
-    // What a SIGKILLed session leaves behind, refusing the bind and answering
-    // nothing.
-    await writeFile(controlPath(root), "", "utf8")
+      // What a SIGKILLed session leaves behind, refusing the bind and answering
+      // nothing.
+      await writeFile(controlPath(root), "", "utf8")
 
-    const server = await startControlServer(root, handlers())
+      const server = await startControlServer(root, handlers())
 
-    servers.push(server)
+      servers.push(server)
 
-    const client = await attachControl(root, { path: server.path })
+      const client = await attachControl(root, { path: server.path })
 
-    clients.push(client)
+      clients.push(client)
 
-    expect(await client.status()).toMatchObject({ cursor: 7 })
-  })
+      expect(await client.status()).toMatchObject({ cursor: 7 })
+    },
+  )
 
   it("refuses a second session while the first is listening", async () => {
     const { root } = await session()

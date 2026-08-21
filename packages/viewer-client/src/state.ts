@@ -32,6 +32,8 @@ export interface SessionInfo {
 export interface SessionState {
   readonly directory: string
   readonly logPath: string
+  /** Writes the session file, once the socket it names is this session's. */
+  announce(): Promise<void>
   /** Appends one record. Ordering is preserved; failures are reported once. */
   append(record: Record<string, unknown>): void
   flush(): Promise<void>
@@ -66,7 +68,7 @@ export interface StateOptions {
 }
 
 /**
- * Opens `.slua/` for a session, writing its session file and a log sink.
+ * Opens `.slua/` for a session, with a log sink and a session file to write.
  *
  * The sink is what an agent reads with no integration at all. `tail -n 100
  * .slua/logs.jsonl` needs nothing from us, and it survives `connect` crashing,
@@ -90,13 +92,18 @@ export async function openState(
     ...info,
   }
 
-  // Written aside and renamed over. A reader that opens this file mid-write
-  // would otherwise parse half a document and conclude there is no session.
-  const pending = `${sessionPath}.${process.pid}.tmp`
   const document = `${JSON.stringify(session, null, 2)}\n`
 
-  await writeFile(pending, document, "utf8")
-  await rename(pending, sessionPath)
+  /**
+   * Written aside and renamed over. A reader that opens this file mid-write
+   * would otherwise parse half a document and conclude there is no session.
+   */
+  const announce = async () => {
+    const pending = `${sessionPath}.${process.pid}.tmp`
+
+    await writeFile(pending, document, "utf8")
+    await rename(pending, sessionPath)
+  }
 
   /** Whether the file on disk is still the one this session wrote, byte for byte. */
   const owned = async () =>
@@ -132,6 +139,7 @@ export async function openState(
   return {
     directory,
     logPath,
+    announce,
 
     append(record) {
       const line = `${JSON.stringify(record)}\n`

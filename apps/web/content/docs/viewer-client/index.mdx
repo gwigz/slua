@@ -83,14 +83,13 @@ bun add -d @gwigz/slua-viewer-client
 }
 ```
 
-## Not an LSL toolchain
+## LSL support
 
-The viewer's protocol is bilingual, and so is this. `push`, `pull`, `reset`,
-`set-running` and `logs` all work on LSL scripts, and a mixed project, a few
-hand-written LSL scripts alongside your compiled SLua, needs no special
+`push`, `pull`, `reset`, `set-running` and `logs` all work on LSL scripts too,
+so a project that mixes hand-written LSL with compiled SLua needs no special
 handling.
 
-What it is not is an LSL toolchain: there is no preprocessor, no `#include`
+It is not an LSL toolchain though. There is no preprocessor, no `#include`
 expansion, and no LSL linting. It deploys LSL, it does not build it.
 
 <Cards>

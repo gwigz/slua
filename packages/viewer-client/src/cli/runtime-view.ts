@@ -34,9 +34,9 @@ export interface Targets {
  * What `slua.json` says about the scripts this project deploys.
  *
  * Runtime output reports positions in the generated Lua (`lua_script:5`),
- * which is not a file anyone wrote, so the same maps that bring compile errors
- * home are worth having here too. The item names are what `--targets` filters
- * on, and a target without a source map still counts for that.
+ * which nobody wrote, so the maps that bring compile errors home are worth
+ * having here too. `--targets` filters on the item names, and a target with no
+ * source map still counts for that.
  */
 export async function loadTargets(): Promise<Targets> {
   const config = await loadConfig()
@@ -61,10 +61,10 @@ export async function loadTargets(): Promise<Targets> {
 /**
  * A position at the head of a runtime line.
  *
- * The viewer reports the error as `lua_script:4: message` and each traceback
- * frame as a bare `lua_script:4`, so both shapes count. Anchoring the row to
- * the start of the line, and requiring a colon or the line's end after it,
- * keeps ordinary output like `http:80 responded` from reading as a position.
+ * The viewer reports an error as `lua_script:4: message` and each traceback
+ * frame as a bare `lua_script:4`. Anchoring to the start of the line and
+ * requiring a colon or the line's end after the row keeps ordinary output like
+ * `http:80 responded` from reading as a position.
  */
 const RUNTIME_POSITION = /^(?:\[[^\]]*\]|[\w./\\-]*):(\d+)(?::|$)/
 
@@ -78,10 +78,9 @@ export function rowIn(text: string): number {
 /**
  * The maps that could describe the script an event came from.
  *
- * A viewer advertising `unifiedDiagnostics` names the item its output came
- * from, so a row that several targets' maps happen to cover need no longer be
- * reported against all of them. An event with no item, or one naming an item
- * no target claims, still falls back to every map.
+ * A viewer advertising `unifiedDiagnostics` names the item, so a row several
+ * maps happen to cover is no longer reported against all of them. An event
+ * with no item, or naming one no target claims, falls back to every map.
  */
 export function mapsFor(params: RuntimeDebug, maps: TargetMap[]): TargetMap[] {
   const script = params.item?.name
@@ -97,15 +96,14 @@ export function mapsFor(params: RuntimeDebug, maps: TargetMap[]): TargetMap[] {
  * Every id a runtime event could name for one published object.
  *
  * A viewer advertising `unifiedDiagnostics` reports `objectId` as the
- * linkset's root and the speaking prim as `primId`; an older one puts the
+ * linkset's root and the speaking prim as `primId`. An older one puts the
  * speaking prim in `objectId` alone, so a script in a child prim never names
- * the root at all. Listing every prim matches both.
+ * the root. Listing every prim matches both.
  */
 export function objectIds(object: PublishedObject): Set<string> {
   return new Set(eachPrim(object).map((prim) => prim.primId))
 }
 
-/** Adds any prims an update brought with it. */
 export function withUpdate(ids: Set<string>, update: ObjectUpdateMessage): Set<string> {
   const links = update.changes?.linkedObjects?.added ?? update.linkedObjects ?? []
 
@@ -124,7 +122,7 @@ export function fromObject(params: RuntimeDebug, ids: Set<string>): boolean {
  * Whether an event names an item one of the config's targets deploys to.
  *
  * A viewer that sends no item reference cannot be filtered this way, so its
- * output is kept rather than quietly dropped. `logs` says so once instead.
+ * output is kept and `logs` says so once.
  */
 export function namesTarget(params: RuntimeDebug, items: Set<string>): boolean {
   const script = params.item?.name
@@ -137,9 +135,9 @@ export function namesTarget(params: RuntimeDebug, items: Set<string>): boolean {
 /**
  * Whether a runtime event belongs to the stream the flags asked for.
  *
- * `ids` is unset until the named object resolves, a hold as long as `--wait`
- * allows, so naming one holds output back rather than letting every other
- * object's through in the meantime.
+ * `ids` is unset until the named object resolves, which under `--wait` can
+ * take minutes. Naming an object holds output back for that long rather than
+ * letting every other object's through in the meantime.
  */
 export function wantedEvent(
   params: RuntimeDebug,
@@ -164,9 +162,8 @@ export function mapRow(row: number, maps: TargetMap[]): MappedLocation[] {
 }
 
 /**
- * Nothing here names the script that produced the output, so a row can map
- * through more than one target's map. Naming the target keeps that honest
- * rather than picking one and hoping.
+ * A row can map through more than one target's map, and nothing here names the
+ * script that produced it. Naming the target beats picking one and hoping.
  */
 function formatLocation(location: MappedLocation, ambiguous: boolean): string {
   const where = `${displayPath(location.source)}:${location.line}`
@@ -181,11 +178,10 @@ function position(line: number, column: number): string {
 /**
  * The text of a runtime event.
  *
- * The message is the whole raw chat line and carries the traceback with it,
- * so it wins over the viewer's extracted `error`. On a viewer without
- * `unifiedDiagnostics` both that and `line` arrive empty, and the detail
- * follows as a separate `runtime.debug` message, so an error would otherwise
- * print as a bare object name and nothing else.
+ * `message` is the whole raw chat line and carries the traceback, so it wins
+ * over the viewer's extracted `error`. Without `unifiedDiagnostics` both that
+ * and `line` arrive empty and the detail follows as a separate `runtime.debug`
+ * message, which would otherwise print as a bare object name.
  */
 export function runtimeText(params: RuntimeDebug | RuntimeError, level: "debug" | "error"): string {
   const { error = "", line = 0, column = 0 } = params as RuntimeError
@@ -194,9 +190,9 @@ export function runtimeText(params: RuntimeDebug | RuntimeError, level: "debug" 
   if (text) {
     if (line <= 0) return text
 
-    // The text usually names the line itself, as `lua_script:4: ...`, but it
-    // never names the column, so suppressing the whole position would lose a
-    // column the viewer went to the trouble of reporting.
+    // The text usually names the line itself, as `lua_script:4: ...`, but
+    // never the column, so suppressing the whole position would lose one the
+    // viewer went to the trouble of reporting.
     if (!text.includes(`:${line}:`)) return `${text} (${position(line, column)})`
 
     return column > 0 ? `${text} (column ${column})` : text
@@ -212,10 +208,10 @@ export function runtimeText(params: RuntimeDebug | RuntimeError, level: "debug" 
 /**
  * One event's worth of lines, and everywhere they map back to.
  *
- * The viewer packs the error text and its traceback into a single multi-line
+ * The viewer packs the error text and its traceback into one multi-line
  * message, so a line at a time is the only way to find the positions in it.
- * Locations are deduplicated because the error line and its first traceback
- * frame report the same row.
+ * Rows are deduplicated: the error line and its first traceback frame report
+ * the same one.
  */
 export function runtimeLines(
   params: RuntimeDebug | RuntimeError,
@@ -239,10 +235,8 @@ export function runtimeLines(
 }
 
 /**
- * The tag a line carries.
- *
- * `owner_say` is the script talking to its owner rather than debug output,
- * and the two are indistinguishable without the channel the viewer now sends.
+ * `owner_say` is the script talking to its owner rather than debug output. The
+ * two are indistinguishable without the channel the viewer now sends.
  */
 export function tagFor(level: "debug" | "error", params: RuntimeDebug): string {
   if (level === "error") return pc.red("error")
@@ -251,11 +245,9 @@ export function tagFor(level: "debug" | "error", params: RuntimeDebug): string {
 }
 
 /**
- * Who produced a line.
- *
- * The same `object/item` addressing the other commands take, so a name read
- * out of the stream can be pasted straight into a `pull` or a `push`. The
- * item half needs a viewer advertising `unifiedDiagnostics`.
+ * Who produced a line, in the `object/item` addressing the other commands take,
+ * so a name read out of the stream pastes straight into a `pull` or a `push`.
+ * The item half needs a viewer advertising `unifiedDiagnostics`.
  */
 export function sourceName(params: RuntimeDebug): string {
   const object = params.objectName || params.objectId
@@ -267,10 +259,9 @@ export function sourceName(params: RuntimeDebug): string {
 /**
  * Numbers every runtime event this process has formatted.
  *
- * Monotonic and process-local. It exists so a caller can say "output after
- * this point", which is what the drain window on `push`, `logs --since` and an
- * agent waiting on the next push all ask for. Nothing needs it to survive a
- * restart.
+ * Monotonic and process-local, so a caller can say "output after this point".
+ * That is what `push --tail`, `logs --since` and an agent waiting on the next
+ * push all ask for. Nothing needs it to survive a restart.
  */
 let sequence = 0
 
@@ -282,19 +273,18 @@ export function cursor(): number {
 /**
  * Takes the next number in the sequence.
  *
- * A push takes one so it has a position of its own in the same ordering the
- * output has. That is what lets "wait for a push newer than this cursor" be
- * asked without ambiguity: a push's number is never shared with an event.
+ * A push takes one too, so it has a position in the same ordering as the
+ * output and never shares a number with an event. That is what makes "wait for
+ * a push newer than this cursor" unambiguous.
  */
 export function nextCursor(): number {
   return ++sequence
 }
 
-/** One formatted runtime event, ready to print or to collect. */
 export interface RuntimeRecord {
   /** Position in this process's event stream. */
   seq: number
-  /** When the event was formatted, which is as close as we get to when it happened. */
+  /** When the event was formatted, the closest we get to when it happened. */
   time: string
   level: "debug" | "error"
   event: RuntimeDebug | RuntimeError
@@ -306,10 +296,8 @@ export interface RuntimeRecord {
 }
 
 /**
- * Formats a runtime event without printing it.
- *
- * Nothing here writes to stdout, so a caller that wants to collect events
- * rather than stream them, as `push --tail` does, gets the same shape `logs`
+ * Formats a runtime event without printing it, so a caller collecting events
+ * rather than streaming them, as `push --tail` does, gets the shape `logs`
  * prints.
  */
 export function toRecord(
@@ -320,8 +308,8 @@ export function toRecord(
   const scoped = mapsFor(event, maps)
   const { lines, mapped } = runtimeLines(event, level, scoped)
 
-  // Numbered here rather than at each call site, so every path that formats an
-  // event lands in the same sequence.
+  // Numbered here, not at each call site, so every path that formats an event
+  // lands in the same sequence.
   return {
     seq: nextCursor(),
     time: new Date().toISOString(),
@@ -347,9 +335,8 @@ export function recordPayload(record: RuntimeRecord): Record<string, unknown> {
 /**
  * Rebuilds a record from one this process wrote earlier.
  *
- * A replayed line has already been mapped and numbered, so nothing here
- * recomputes either: reading `.slua/logs.jsonl` back has to print what was
- * printed at the time, not what today's source maps would say about it.
+ * Nothing is remapped or renumbered. Reading `.slua/logs.jsonl` back has to
+ * print what was printed at the time, not what today's source maps say.
  */
 export function fromPayload(payload: Record<string, unknown>): RuntimeRecord {
   const level = payload.level === "error" ? "error" : "debug"
@@ -372,7 +359,7 @@ export function fromPayload(payload: Record<string, unknown>): RuntimeRecord {
 export function writeRecord(reporter: Reporter, record: RuntimeRecord): void {
   if (reporter.json) {
     // A stream gets one JSON object per line, not one document.
-    process.stdout.write(`${JSON.stringify(recordPayload(record))}\n`)
+    reporter.raw(JSON.stringify(recordPayload(record)))
 
     return
   }

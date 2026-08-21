@@ -70,8 +70,8 @@ describe("openState", () => {
     expect(current.length).toBeLessThanOrEqual(200)
     expect(previous.length).toBeGreaterThan(0)
 
-    // Whatever survived is still readable line by line, which is the whole
-    // point of the format.
+    // Whatever survived is still readable line by line, which is the point of
+    // the format.
     for (const entry of `${previous}${current}`.split("\n").filter((text) => text !== "")) {
       expect(() => JSON.parse(entry)).not.toThrow()
     }

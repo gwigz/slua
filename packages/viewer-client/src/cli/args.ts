@@ -116,9 +116,9 @@ const TAIL_FOREVER = "forever"
 /**
  * Lets `--tail` stand on its own.
  *
- * parseArgs has no optional-argument option, so a bare `--tail` would be
- * rejected for the value it does not need. Rewriting it before parsing keeps
- * "until I stop it" spellable without a second flag for it.
+ * parseArgs has no optional-argument option, so a bare `--tail` is rejected
+ * for the value it does not need. Rewriting it before parsing keeps "until I
+ * stop it" spellable without a second flag.
  */
 function withBareTail(argv: string[]): string[] {
   return argv.map((token, index) => {
@@ -148,19 +148,19 @@ function parseSince(raw: string | undefined): Since | undefined {
 
   if (match[2] === undefined) return { cursor: Number(match[1]) }
 
-  const value = duration(raw)
+  const value = duration(raw, "--since")
 
   return { ms: value === "forever" ? 0 : value }
 }
 
-/** A `--tail` value: bare milliseconds, or a `5s` / `2m` duration. */
-function duration(raw: string): number | "forever" {
+/** Bare milliseconds, or a `5s` / `2m` duration. */
+function duration(raw: string, flag: string): number | "forever" {
   if (raw === TAIL_FOREVER) return TAIL_FOREVER
 
   const match = DURATION.exec(raw.trim())
 
   if (!match) {
-    throw new CliUsageError(`--tail takes a duration like 5s or 1500, got "${raw}"`)
+    throw new CliUsageError(`${flag} takes a duration like 5s or 1500, got "${raw}"`)
   }
 
   const value = Number(match[1])
@@ -299,8 +299,9 @@ export function parseCliArgs(argv: string[]): CliArgs {
           all,
           saveBack: values["save-back"],
           // Something has to drain the window the save opens, and a bare
-          // `push` is the case that loses output today, so it drains too.
-          tail: values["no-tail"] === true ? 0 : duration(values.tail ?? String(DRAIN_MS)),
+          // `push` is the case that loses output, so it drains too.
+          tail:
+            values["no-tail"] === true ? 0 : duration(values.tail ?? String(DRAIN_MS), "--tail"),
         },
       }
     }
@@ -360,7 +361,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
       return { global, command: { name: "mcp" } }
 
     case "wait": {
-      const budget = values.for === undefined ? undefined : duration(values.for)
+      const budget = values.for === undefined ? undefined : duration(values.for, "--for")
 
       return {
         global,
@@ -384,7 +385,7 @@ export function parseCliArgs(argv: string[]): CliArgs {
         command: {
           name: "connect",
           target: values.target,
-          // Unset rather than defaulted: whether watching makes sense depends
+          // Unset rather than defaulted. Whether watching makes sense depends
           // on slua.json, which the parser does not read.
           watch: values["no-watch"] === true ? false : values.watch === true ? true : undefined,
           debounceMs: integer(values.debounce, "debounce"),
@@ -480,7 +481,8 @@ Options
   --exec <command>     Run a build alongside the session (connect)
   --since <cursor|duration>
                        Output after a cursor, or from the last 5m (logs, wait)
-  --for <duration>     How long to block (wait, default 30s)
+  --for <duration>     How long to block (wait, default 30s); "forever" is
+                       accepted but the session still caps the wait at 30s
   --direct             Talk to the viewer even when a session is running
   --wait               Wait for the viewer to publish, so "Explore in IDE"
                        has a client to publish to

@@ -8,6 +8,7 @@ import {
   waitForAnyPublish,
 } from "../../addressing.js"
 import type { ViewerClient } from "../../client.js"
+import type { ControlClient } from "../../control/client.js"
 import type { RuntimeDebug } from "../../protocol/types.js"
 import type { Command, GlobalFlags } from "../args.js"
 import { openClient, projectRoot } from "../connect.js"
@@ -80,12 +81,11 @@ async function streamOnce(
 
       reporter.note(pc.dim(`watching ${object.objectName} (${object.objectId})`))
     } else {
-      // Subscribed before the listing that decides whether to wait, since a
-      // publish landing between the two would otherwise be missed.
+      // Subscribed before the listing that decides whether to wait, or a
+      // publish landing between the two would be missed.
       watcher = publish.waitMs ? waitForAnyPublish(client, publish.waitMs) : undefined
 
-      // Nothing awaits it when something is already published, so swallow the
-      // timeout rather than leave it unhandled.
+      // Nothing awaits it when something is already published.
       watcher?.published.catch(() => {})
 
       // With nothing published there is nothing to forward, so either wait for
@@ -107,8 +107,8 @@ async function streamOnce(
       }
     }
   } catch (error) {
-    // The wait is the only thing here holding the event loop open; the session
-    // closes the socket itself once this rethrows.
+    // The wait is the only thing here holding the event loop open. The session
+    // closes the socket once this rethrows.
     watcher?.cancel()
 
     throw error
@@ -128,7 +128,7 @@ export async function logsCommand(
   }
 
   // Nothing to stream from, but the session that died wrote down what it saw,
-  // and that is exactly the moment someone asks what the script said.
+  // which is when someone asks what the script said.
   if (command.since && !command.follow) {
     const { client, control } = await openClient(global, reporter)
 
@@ -139,7 +139,7 @@ export async function logsCommand(
     }
 
     try {
-      await replay(client, command, reporter)
+      await replay(control, command, reporter)
     } finally {
       client.close()
     }
@@ -147,16 +147,31 @@ export async function logsCommand(
     return 0
   }
 
+  // Printed once, on the first connection. A reconnect asking again would
+  // reprint everything since the same cursor.
+  let replayed = false
+  let control: ControlClient | undefined
+
   await runSession({
     follow: command.follow,
     reporter,
-    // Through a running session when there is one: it already holds the
-    // connection, and the cursor `--since` refers to is the one it numbers.
-    connect: async () => (await openClient(global, reporter)).client,
+    // Through a running session when there is one. It already holds the
+    // connection, and it numbers the cursor `--since` refers to.
+    connect: async () => {
+      const opened = await openClient(global, reporter)
+
+      control = opened.control
+
+      return opened.client
+    },
     onConnected: async (client) => {
       // Backlog first, so a `--since` that runs into a live stream reads in
       // order rather than interleaving the two.
-      await replay(client, command, reporter)
+      if (!replayed) {
+        replayed = true
+
+        await replay(control, command, reporter)
+      }
 
       await streamOnce(client, command, reporter, targets, publish)
     },
@@ -167,13 +182,13 @@ export async function logsCommand(
 
 /** Prints what the session already has, for a `--since` that asks for it. */
 async function replay(
-  client: ViewerClient,
+  control: ControlClient | undefined,
   command: Extract<Command, { name: "logs" }>,
   reporter: Reporter,
 ): Promise<void> {
-  if (!command.since || !isControl(client)) return
+  if (!command.since || !control) return
 
-  const { logs, truncated, logPath } = await client.logs(sinceParams(command.since))
+  const { logs, truncated, logPath } = await control.logs(sinceParams(command.since))
 
   for (const payload of logs) writeRecord(reporter, fromPayload(payload))
 
@@ -182,14 +197,4 @@ async function replay(
       pc.dim(`${truncated} older records left out; the whole stream is in ${logPath ?? "the log"}`),
     )
   }
-}
-
-/** Whether the client is attached to a session rather than to the viewer. */
-function isControl(client: ViewerClient): client is ViewerClient & {
-  logs(params: {
-    since?: number
-    sinceMs?: number
-  }): Promise<{ logs: Record<string, unknown>[]; truncated: number; logPath?: string }>
-} {
-  return typeof (client as { logs?: unknown }).logs === "function"
 }

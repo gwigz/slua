@@ -9,7 +9,11 @@ import {
   withoutWait,
 } from "../../addressing.js"
 import { ViewerClient } from "../../client.js"
-import { startControlServer, type ControlServer } from "../../control/server.js"
+import {
+  SessionAlreadyRunningError,
+  startControlServer,
+  type ControlServer,
+} from "../../control/server.js"
 import { ConnectionClosedError } from "../../protocol/errors.js"
 import { controlPath } from "../../control/socket.js"
 import { SAVE_TIMEOUT_MS } from "../../protocol/peer.js"
@@ -34,9 +38,9 @@ import { collectTargets, pushTarget } from "./push.js"
 /**
  * Runs the build in a child process, prefixed, so this is one terminal.
  *
- * The compiler stays the scaffold's business: tstl's incremental watch is
- * better than anything here, and the multi template's build script means
- * there is no single invocation to assume. This just carries its output.
+ * The compiler stays the scaffold's business. tstl's incremental watch beats
+ * anything here, and the multi template's build script means there is no
+ * single invocation to assume. This only carries the output.
  */
 function runBuild(exec: string, reporter: Reporter): () => void {
   reporter.note(pc.dim(`build ${exec}`))
@@ -67,7 +71,7 @@ function runBuild(exec: string, reporter: Reporter): () => void {
       // Negative pid is the group, which is the point of detaching it.
       process.kill(-child.pid)
     } catch {
-      // Already gone, which is the outcome we wanted anyway.
+      // Already gone, which is the outcome we wanted.
     }
   }
 }
@@ -75,10 +79,10 @@ function runBuild(exec: string, reporter: Reporter): () => void {
 /**
  * Publishes the objects the targets deploy to.
  *
- * Runtime output is only forwarded for published objects, so a session that
- * skipped this would connect, watch, push and then sit in silence. Failing to
- * publish one object is reported rather than fatal: the object may simply not
- * be rezzed yet, and the next push will ask for it again.
+ * Runtime output only reaches us for published objects, so a session that
+ * skipped this would connect, watch, push and sit in silence. One object
+ * failing is reported rather than fatal, since it may not be rezzed yet and
+ * the next push asks again.
  */
 async function publishTargets(
   client: ViewerClient,
@@ -150,8 +154,8 @@ const NO_VIEWER =
  * How long `control.wait` keeps listening after the push it was waiting for.
  *
  * A save settles the moment the viewer answers, but the script it restarted
- * says its first words a beat later, and "results plus output" with no output
- * in it is the answer an agent would then have to poll for anyway.
+ * speaks a beat later, and results with no output in them leave an agent
+ * polling for the rest.
  */
 const SETTLE_DRAIN_MS = 1_500
 
@@ -171,7 +175,7 @@ interface Waiter {
  * Consecutive identical lines, as one record with a count.
  *
  * A script looping on `llOwnerSay` outruns any reader, and a thousand copies
- * of one line is not a thousand times as informative.
+ * of one line say no more than one.
  */
 function collapse(records: Record<string, unknown>[]): Record<string, unknown>[] {
   const out: Record<string, unknown>[] = []
@@ -200,15 +204,14 @@ function collapse(records: Record<string, unknown>[]): Record<string, unknown>[]
  * Waits for the build to catch up with the source, before an explicit push.
  *
  * The session does not own the compiler, so "push now" means "push what is on
- * disk now". A human typing `push` has already watched their build run; an
- * agent that edits a file and asks for a push in the same breath has not, and
- * would deploy the build from before its own edit, then read the output as
- * though it were the new one.
+ * disk now". A human typing `push` has watched their build run. An agent that
+ * edits a file and asks for a push in the same breath has not, and would
+ * deploy the build from before its own edit, then read the output as the new
+ * one.
  *
- * The source map names the inputs, so a source newer than the output is a
- * build still owed. A build that never arrives, because it is broken or
- * because there is no build at all, must not hang the push, so this gives up
- * and says so rather than waiting forever.
+ * The source map names the inputs, so a source newer than the output means a
+ * build is still owed. One that never arrives, broken or absent, gives up here
+ * rather than hanging the push.
  */
 async function awaitBuild(targets: readonly Target[], reporter: Reporter): Promise<number> {
   const started = Date.now()
@@ -270,7 +273,7 @@ export async function connectCommand(
 
   // A freshly scaffolded project has no slua.json until `link` writes one, and
   // `dev` is the first thing anyone runs, so a session with nothing to watch
-  // still holds the connection and streams output rather than refusing.
+  // still holds the connection and streams output.
   const targets = config
     ? await collectTargets(
         { name: "push", all: command.target === undefined, target: command.target, tail: 0 },
@@ -283,9 +286,8 @@ export async function connectCommand(
   // Source maps, so runtime output arrives already mapped back to TypeScript.
   let view = await loadTargets()
 
-  // Watching is a behaviour of the session, not the other way round: a session
-  // with it off still holds the connection and captures output, which is what
-  // an agent driving pushes explicitly wants.
+  // A session with watching off still holds the connection and captures
+  // output, which is what an agent driving its own pushes wants.
   const watching = command.watch ?? targets.length > 0
 
   let client: ViewerClient | undefined
@@ -302,7 +304,7 @@ export async function connectCommand(
   const remember = (payload: Record<string, unknown>) => {
     buffer.push(payload)
 
-    // Bounded: the file sink is the complete record, this is only what a
+    // Bounded. The file sink holds the complete record; this is only what a
     // client can still ask for after the fact.
     if (buffer.length > BUFFER_RECORDS) buffer.splice(0, buffer.length - BUFFER_RECORDS)
   }
@@ -323,7 +325,7 @@ export async function connectCommand(
     return { logs, truncated: matching.length - logs.length }
   }
 
-  // Written before anything can be logged, so a session that dies in its first
+  // Opened before anything can be logged, so a session that dies in its first
   // second still leaves the reason behind.
   const state: SessionState = await openState(
     root,
@@ -346,10 +348,9 @@ export async function connectCommand(
       pushing = false
       lastRun = run
 
-      // Reloaded after every push, because the build that prompted it rewrote
-      // the source maps. Mapping this run's output through the last build's
-      // maps quietly points at whatever used to be on those lines, which is
-      // worse than not mapping at all.
+      // Reloaded after every push: the build that prompted it rewrote the
+      // source maps, and this run's output through the last build's maps
+      // points at whatever used to be on those lines.
       view = await loadTargets()
 
       // Snapshotted, since settling removes the waiter from the set it is
@@ -375,7 +376,7 @@ export async function connectCommand(
     for (const target of changed) {
       const result = await pushTarget(client, target, reporter, changed.length > 1, {
         // A watch event is not the moment to sit on the publish button for
-        // five minutes; the session already asked for that at startup.
+        // five minutes. The session already asked for that at startup.
         ...withoutWait(publish),
       })
 
@@ -384,9 +385,8 @@ export async function connectCommand(
       run.targets.push(result.payload)
 
       // A save can succeed while the compile fails, and the source is stored
-      // either way, so the item now holds code that never ran. A human who
-      // typed `push` reads the error; three edits later nobody does, so say
-      // plainly what is actually running out there.
+      // either way, so the item now holds code that never ran. Three edits
+      // later nobody is reading the error, so say what is actually running.
       if (result.payload.compiled === false && result.payload.ok !== undefined) {
         reporter.note(
           pc.yellow(
@@ -400,7 +400,7 @@ export async function connectCommand(
   const stopBuild = command.exec ? runBuild(command.exec, reporter) : undefined
 
   watcher = watchTargets(targets, push, {
-    // Always built, watching or not: it owns the queue that keeps two saves
+    // Always built, watching or not. It owns the queue that keeps two saves
     // from racing against one prim, and `control.push` goes through it too.
     enabled: watching,
     debounceMs: command.debounceMs,
@@ -553,6 +553,11 @@ export async function connectCommand(
 
     reporter.note(pc.dim(`control socket at ${control.path}`))
   } catch (error) {
+    // Two sessions on one project would push the same targets twice and
+    // restart the same script twice, so this one is a stop rather than a
+    // downgrade.
+    if (error instanceof SessionAlreadyRunningError) throw error
+
     // A session without a socket is still a session: it watches, pushes and
     // logs. Only the calls an agent would make are missing, so say so and
     // carry on.
@@ -562,7 +567,7 @@ export async function connectCommand(
   }
 
   await runSession({
-    // A session is a session: it outlives a viewer restart by definition.
+    // A session outlives a viewer restart by definition.
     follow: true,
     reporter,
     connect: () => ViewerClient.connect({ port: global.port, timeoutMs: global.timeoutMs }),
@@ -599,7 +604,10 @@ export async function connectCommand(
       await publishTargets(connected, targets, reporter, publish)
     },
     onStop: async () => {
-      watcher?.close()
+      // Awaited: a push in flight owns the connection this teardown is about
+      // to close, and its result still has to reach the log.
+      await watcher?.close()
+
       stopBuild?.()
 
       // Waiters first: a client blocked on `wait` should be told the session

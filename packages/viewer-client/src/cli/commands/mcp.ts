@@ -7,6 +7,9 @@ import type { Reporter } from "../output.js"
 /** Answered when the client asks for something we have never heard of. */
 const DEFAULT_PROTOCOL = "2025-06-18"
 
+/** Every protocol revision this server speaks. */
+const PROTOCOLS = new Set([DEFAULT_PROTOCOL, "2025-03-26", "2024-11-05"])
+
 const START_SESSION =
   'no slua session is running for this project. Start one in a terminal with "slua-viewer connect", then try again.'
 
@@ -41,8 +44,8 @@ const TOOLS: Tool[] = [
       },
     },
     run: async (control, args) => {
-      // The cursor comes back from before the push starts, so waiting on it
-      // cannot report the previous run's results as if they were this one's.
+      // The cursor comes from before the push starts, so waiting on it cannot
+      // report the previous run's results as this one's.
       const { cursor } = await control.pushNow(args.targets as string[] | undefined)
 
       return await control.wait({
@@ -105,10 +108,9 @@ function failure(id: unknown, code: number, message: string): void {
 /**
  * Serves MCP over stdio, backed by a running `connect`.
  *
- * Thin on purpose: the control socket already decided what an agent needs, so
- * this is a name, a schema and a call for each of them. Nothing here may write
- * to stdout except a protocol frame, which is why every human-facing message
- * in this path goes to stderr.
+ * Thin on purpose. The control socket already decided what an agent needs, so
+ * this is a name, a schema and a call for each. Nothing here writes to stdout
+ * except a protocol frame, so every human-facing message goes to stderr.
  */
 export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promise<number> {
   const quiet: Reporter = { ...reporter, json: false, data: () => {}, line: () => {} }
@@ -130,9 +132,9 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
 
     if (!tool) throw new Error(`unknown tool: ${name}`)
 
-    // Attached per call rather than held: a session restarted under a
-    // long-lived agent should not leave every later call talking to a socket
-    // that closed hours ago.
+    // Attached per call rather than held. A session restarted under a
+    // long-lived agent would otherwise leave every later call talking to a
+    // socket that closed hours ago.
     const control = await attach()
 
     try {
@@ -168,6 +170,10 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
     process.stdin.on("close", () => done(0))
     process.stdin.on("end", () => done(0))
 
+    // A broken stdin is the transport going away, same as it closing. Left
+    // unhandled it would be an uncaught error rather than a clean exit.
+    process.stdin.on("error", () => done(0))
+
     const handle = async (line: string) => {
       let message: { id?: unknown; method?: string; params?: Record<string, unknown> }
 
@@ -185,16 +191,21 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
       if (id === undefined || id === null) return
 
       switch (method) {
-        case "initialize":
+        case "initialize": {
+          const asked = params.protocolVersion as string | undefined
+
           result(id, {
-            // Echoed back when the client names one, so a newer client is not
-            // told its own version is unsupported by a server that is fine.
-            protocolVersion: (params.protocolVersion as string | undefined) ?? DEFAULT_PROTOCOL,
+            // Echoed only when it is a version this server speaks. Reflecting
+            // whatever the client asked for would claim support for a protocol
+            // we have never seen. The spec says to name ours instead and let
+            // the client decide whether to go on.
+            protocolVersion: asked !== undefined && PROTOCOLS.has(asked) ? asked : DEFAULT_PROTOCOL,
             capabilities: { tools: {} },
             serverInfo: { name: "slua-viewer", version: cliVersion() },
           })
 
           return
+        }
 
         case "ping":
           result(id, {})
@@ -221,8 +232,8 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
 
             result(id, { content: [{ type: "text", text: JSON.stringify(value, null, 2) }] })
           } catch (error) {
-            // A tool failure is a result, not a protocol error: the agent is
-            // meant to read it and decide what to do.
+            // A tool failure is a result, not a protocol error. The agent
+            // reads it and decides what to do.
             result(id, {
               isError: true,
               content: [

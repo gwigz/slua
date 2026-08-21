@@ -415,7 +415,7 @@ describe("listPublished", () => {
 describe("resolveItem", () => {
   it("retries a listing that is briefly stale after a save", async () => {
     // The viewer drops the object, then the item, from object.list for a
-    // moment after a content save; both settle within a couple of reads.
+    // moment after a content save. Both settle within a couple of reads.
     const listings = [[], [{ ...object, inventory: [] }], [object]]
 
     let calls = 0

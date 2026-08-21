@@ -7,7 +7,7 @@ import { loadConfig } from "../targets.js"
 import type { GlobalFlags } from "./args.js"
 import { displayPath, type Reporter } from "./output.js"
 
-/** The directory a session's state belongs to, which is where `slua.json` is. */
+/** The directory holding `slua.json`, which a session's state sits beside. */
 export async function projectRoot(): Promise<string> {
   return (await loadConfig())?.root ?? process.cwd()
 }
@@ -22,9 +22,8 @@ export interface OpenedClient {
  * Connects, through a running session when there is one.
  *
  * A session already holds a viewer connection, has the objects published and
- * is numbering output, so going through it means a command shares all of that
- * rather than starting again beside it. With none running this is exactly the
- * direct connection it always was.
+ * is numbering output, so going through it shares all of that rather than
+ * starting again beside it. With none running, this is the direct connection.
  */
 export async function openClient(global: GlobalFlags, reporter: Reporter): Promise<OpenedClient> {
   const direct = async (): Promise<OpenedClient> => ({
@@ -42,7 +41,7 @@ export async function openClient(global: GlobalFlags, reporter: Reporter): Promi
     const control = await attachControl(root, { timeoutMs: global.timeoutMs })
 
     if (session.version !== cliVersion()) {
-      // Reported rather than worked around: the two speak the same viewer
+      // Reported rather than worked around. The two speak the same viewer
       // protocol, but the control namespace is ours and it can move.
       reporter.note(
         pc.yellow(
@@ -54,9 +53,18 @@ export async function openClient(global: GlobalFlags, reporter: Reporter): Promi
     reporter.note(pc.dim(`through the session in ${displayPath(root)}`))
 
     return { client: control, control }
-  } catch {
-    // A session file outlives the process that wrote it, so liveness is
-    // decided by connecting, and failing to means there is nobody there.
+  } catch (error) {
+    // A session file outlives the process that wrote it, so failing to connect
+    // means nobody is there. Said out loud all the same, since a timed-out
+    // handshake is a wedged session and reads exactly like an absent one.
+    reporter.note(
+      pc.dim(
+        `could not attach to the session in ${displayPath(root)}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      ),
+    )
+
     return await direct()
   }
 }
@@ -115,9 +123,9 @@ export async function withControl<T>(
 /**
  * Turns the global flags into the policy commands resolve their targets with.
  *
- * `--wait` is the answer to the viewer publishing only when an editor client
- * is already connected: the command connects, says what it is waiting for, and
- * holds the socket open until the button is pressed.
+ * The viewer only publishes when an editor client is already connected, so
+ * `--wait` connects, says what it is waiting for, and holds the socket open
+ * until the button is pressed.
  */
 export function publishOptions(global: GlobalFlags, reporter: Reporter): PublishOptions {
   return {

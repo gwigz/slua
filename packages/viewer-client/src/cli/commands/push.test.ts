@@ -116,8 +116,8 @@ const published: PublishedObject = {
 
 describe("pushCommand with --all", () => {
   it("keeps going after a target fails, and still reports every one", async () => {
-    // The first target names an object that is not published, so it throws;
-    // the second must still be pushed and the --json document must list both.
+    // The first target names an object that is not published, so it throws.
+    // The second must still be pushed and the --json document list both.
     const dir = await mkdtemp(join(tmpdir(), "slua-push-"))
 
     await mkdir(join(dir, "dist"))
@@ -184,7 +184,7 @@ describe("pushCommand with --wait", () => {
     )
 
     // The listing goes briefly empty after the rejected save, which a retry
-    // that kept --wait would wait out rather than simply read again.
+    // that kept --wait would sit out rather than read again.
     const listings = [[published], [], [published]]
     const notes: string[] = []
 
@@ -275,18 +275,41 @@ describe("pushCommand on a failed compile", () => {
   })
 })
 
-/** A client that talks back while the save is still in flight, as the viewer does. */
-function chattyClient(say: (emit: (message: string, objectId?: string) => void) => void) {
-  const listeners: ((params: Record<string, unknown>) => void)[] = []
+/** What a chatty client's script says while the save is in flight. */
+interface Say {
+  (message: string, objectId?: string): void
+  /** The same, as the `runtime.error` a script that threw produces. */
+  fail(error: string, line?: number, stack?: string[]): void
+}
 
-  const emit = (message: string, objectId = published.objectId) => {
-    for (const listener of listeners) {
+/** A client that talks back while the save is still in flight, as the viewer does. */
+function chattyClient(say: (emit: Say) => void) {
+  const listeners: Record<string, ((params: Record<string, unknown>) => void)[]> = {
+    "runtime.debug": [],
+    "runtime.error": [],
+  }
+
+  const base = (objectId: string) => ({
+    scriptId: "",
+    objectId,
+    objectName: "Second",
+    item: { rootId: objectId, name: "Main" },
+  })
+
+  const emit = ((message: string, objectId = published.objectId) => {
+    for (const listener of listeners["runtime.debug"]!) {
+      listener({ ...base(objectId), message })
+    }
+  }) as Say
+
+  emit.fail = (error, line = 0, stack = []) => {
+    for (const listener of listeners["runtime.error"]!) {
       listener({
-        scriptId: "",
-        objectId,
-        objectName: "Second",
-        item: { rootId: objectId, name: "Main" },
-        message,
+        ...base(published.objectId),
+        message: `${published.objectName}/Main: ${error}`,
+        error,
+        line,
+        stack,
       })
     }
   }
@@ -301,7 +324,7 @@ function chattyClient(say: (emit: (message: string, objectId?: string) => void) 
       return { success: true, compiled: true }
     },
     on: (event: string, handler: (params: Record<string, unknown>) => void) => {
-      if (event === "runtime.debug") listeners.push(handler)
+      listeners[event]?.push(handler)
 
       return () => {}
     },
@@ -326,10 +349,7 @@ async function project(): Promise<string> {
   return dir
 }
 
-async function drained(
-  say: (emit: (message: string, objectId?: string) => void) => void,
-  tail: number,
-): Promise<Record<string, unknown>> {
+async function drained(say: (emit: Say) => void, tail: number): Promise<Record<string, unknown>> {
   const dir = await project()
   const reporter = collectingReporter()
   const cwd = process.cwd()
@@ -364,6 +384,21 @@ describe("pushCommand with a drain window", () => {
     const payload = await drained((emit) => emit("not ours", "somebody-else"), 50)
 
     expect(payload.logs).toEqual([])
+  })
+
+  it("keeps a runtime error, with the line and traceback it named", async () => {
+    const payload = await drained(
+      (emit) => emit.fail("attempt to call a nil value", 12, ["Main:12", "Main:3"]),
+      50,
+    )
+
+    expect(payload.logs).toEqual([
+      expect.objectContaining({
+        level: "error",
+        error: "attempt to call a nil value",
+        line: 12,
+      }),
+    ])
   })
 
   it("skips the window entirely with --no-tail", async () => {

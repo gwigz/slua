@@ -75,7 +75,7 @@ Examples below use the `slua-viewer` bin name, which resolves inside a package s
 
 A save restarts the script, so whatever its `state_entry` says is on the wire within milliseconds, and a command that disconnects as soon as the save returns never sees it. `push` keeps listening for a moment (1.5s) and prints what arrives under the compile result:
 
-```
+```text
 compiled Main.luau in My Rezzer
 say My Rezzer/Main  ready
 ```

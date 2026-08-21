@@ -15,8 +15,8 @@ export async function resetCommand(
   reporter: Reporter,
   publish: PublishOptions = {},
 ): Promise<number> {
-  // Only the first lookup waits on the publish button: a stale-listing retry is
-  // for an inventory that settles in milliseconds, not for an absent object.
+  // Only the first lookup waits on the publish button. A stale-listing retry
+  // is for an inventory that settles in milliseconds, not an absent object.
   const { target, response } = await withStaleRetry(async (attempt) => {
     const found = await resolveItem(
       client,

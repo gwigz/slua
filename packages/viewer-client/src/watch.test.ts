@@ -6,6 +6,9 @@ import { watchTargets, type WatchTarget, type Watcher } from "./watch"
 
 const DEBOUNCE_MS = 40
 
+/** The leading-edge window, which has to cover fs.watch delivery jitter. */
+const LEADING_DEBOUNCE_MS = 500
+
 /** Long enough for fs.watch to deliver and the window to close after it. */
 const SETTLE_MS = 250
 
@@ -18,7 +21,7 @@ const open: Watcher[] = []
 const made: string[] = []
 
 afterEach(async () => {
-  for (const watcher of open.splice(0)) watcher.close()
+  for (const watcher of open.splice(0)) await watcher.close()
 
   for (const dir of made.splice(0)) await rm(dir, { recursive: true, force: true })
 })
@@ -38,10 +41,9 @@ async function project(): Promise<{ dir: string; target: WatchTarget }> {
 /**
  * Starts a watcher and waits for it to be armed.
  *
- * A write that lands in the moment between `watch()` returning and the OS
- * actually reporting on the directory is simply not seen, which is a test
- * harness problem rather than a watcher one: real edits come long after the
- * session started.
+ * A write that lands between `watch()` returning and the OS reporting on the
+ * directory is not seen. That is a harness problem rather than a watcher one,
+ * since real edits come long after the session started.
  */
 async function start<T extends WatchTarget>(
   targets: readonly T[],
@@ -103,7 +105,10 @@ describe("watchTargets", () => {
     const { batches, onChange } = collector()
 
     await start([target], onChange, {
-      debounceMs: DEBOUNCE_MS,
+      // Wider than the trailing tests use. The window has to outlast the gap
+      // between the two writes reaching fs.watch, or the second fires a
+      // leading edge of its own and this passes for the wrong reason.
+      debounceMs: LEADING_DEBOUNCE_MS,
       minIntervalMs: 0,
       edge: "leading",
     })

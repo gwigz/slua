@@ -1,5 +1,7 @@
-import { readFile } from "node:fs/promises"
+import { createReadStream } from "node:fs"
+import { access } from "node:fs/promises"
 import { join } from "node:path"
+import { createInterface } from "node:readline"
 import pc from "picocolors"
 import type { ControlClient } from "../../control/client.js"
 import { LOG_FILE, stateDirectory } from "../../state.js"
@@ -67,8 +69,8 @@ export async function waitCommand(
     )
   }
 
-  // Without a cursor, "wait" means the next push, not every push this session
-  // has ever run, so the current cursor is where it starts from.
+  // Without a cursor, "wait" means the next push rather than every push this
+  // session has run, so it starts from the current one.
   const since =
     command.since && "cursor" in command.since
       ? command.since.cursor
@@ -106,9 +108,9 @@ export async function waitCommand(
 /**
  * Reads back what a session recorded, after it has gone.
  *
- * The sink is the only place output survives the session that captured it, and
- * a session that died is exactly when someone wants to know what the script
- * said, so `--since` answers from the file when no socket does.
+ * The sink is the only place output outlives the session that captured it,
+ * and a dead session is when someone wants to know what the script said, so
+ * `--since` answers from the file when no socket does.
  */
 export async function replayLogs(
   root: string,
@@ -117,10 +119,8 @@ export async function replayLogs(
 ): Promise<number> {
   const path = join(stateDirectory(root), LOG_FILE)
 
-  let text: string
-
   try {
-    text = await readFile(path, "utf8")
+    await access(path)
   } catch {
     throw new Error(
       `no session log in ${displayPath(path)}; --since reads what a "slua-viewer connect" session recorded`,
@@ -131,7 +131,12 @@ export async function replayLogs(
   const cursor = since && "cursor" in since ? since.cursor : undefined
   const records: Record<string, unknown>[] = []
 
-  for (const line of text.split("\n")) {
+  // A line at a time rather than the whole file. This caps at 5 MB before it
+  // rotates, and only the records passing the filters below are worth holding,
+  // usually a handful.
+  const lines = createInterface({ crlfDelay: Infinity, input: createReadStream(path, "utf8") })
+
+  for await (const line of lines) {
     if (line.trim() === "") continue
 
     let entry: Record<string, unknown>

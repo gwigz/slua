@@ -11,7 +11,6 @@ import { loadSourceMapFor } from "./sourcemap.js"
 
 const VM_VALUES: ScriptVM[] = ["luau", "mono", "lsl2"]
 
-/** Everything needed to deploy one built script. */
 export interface Target {
   name: string
   /** Absolute path to the built output. */
@@ -92,7 +91,7 @@ export interface HeaderTagOptions {
   /**
    * Skip unrecognised `@slua-*` tags instead of failing.
    *
-   * Set when sweeping the inputs behind a bundle: those include vendored code
+   * Set when sweeping the inputs behind a bundle. Those include vendored code
    * nobody here wrote, and one stray tag in a dependency should not stop a
    * push.
    */
@@ -184,7 +183,7 @@ async function tagsIn(
 /**
  * Reads the header tags for a file about to be pushed.
  *
- * For a compiled bundle that means the sources behind it; for a hand-written
+ * For a compiled bundle that means the sources behind it. For a hand-written
  * script, LSL or otherwise, the file is its own source.
  */
 export async function readHeaderTagsFor(file: string): Promise<PartialTarget | undefined> {
@@ -308,7 +307,7 @@ export interface ResolveOptions {
 /**
  * Combines the layers into a deployable target.
  *
- * Precedence is command line, then config, then the source header: the header
+ * Precedence is command line, then config, then the source header. The header
  * is the default a script ships with, and config retargets it per environment
  * without touching the source.
  */

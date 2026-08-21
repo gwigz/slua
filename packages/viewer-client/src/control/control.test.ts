@@ -143,6 +143,34 @@ describe("the control socket", () => {
     expect(seen).toEqual(["hello"])
   })
 
+  it("serves nothing before the challenge is answered", async () => {
+    const { server, recorded } = await session()
+
+    const rogue = connectSocket(server.path)
+    const lines: string[] = []
+
+    rogue.setEncoding("utf8")
+    rogue.on("data", (chunk: string) => lines.push(chunk))
+
+    await new Promise((done) => setTimeout(done, 100))
+
+    // Asked without ever answering the handshake the session just sent.
+    rogue.write(`${JSON.stringify({ jsonrpc: "2.0", id: 1, method: "control.status" })}\n`)
+    rogue.write(`${JSON.stringify({ jsonrpc: "2.0", id: 2, method: "object.list" })}\n`)
+
+    await new Promise((done) => setTimeout(done, 100))
+
+    const seen = lines.join("")
+
+    // Method not found, rather than the session's state or a call the viewer
+    // would have run on this caller's behalf.
+    expect(seen).not.toContain('"cursor":7')
+    expect(recorded.forwarded).toEqual([])
+    expect(seen).toContain("-32601")
+
+    rogue.destroy()
+  })
+
   it("refuses a client that cannot answer the challenge", async () => {
     const { server } = await session()
 

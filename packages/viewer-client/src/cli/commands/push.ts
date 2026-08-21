@@ -89,7 +89,6 @@ function lineReader() {
   }
 }
 
-/** Works out which targets a `push` invocation refers to. */
 export async function collectTargets(
   command: Extract<Command, { name: "push" }>,
   config: Config | undefined,
@@ -161,7 +160,6 @@ async function readHeader(
   return await readHeaderTagsFor(file)
 }
 
-/** The object and item one pushed target's output will name. */
 export interface PushScope {
   objectId: string
   primId: string
@@ -172,9 +170,8 @@ export interface PushScope {
  * Collects the runtime output a push produces.
  *
  * A save restarts the script, so whatever its `state_entry` says is on the
- * wire before the save call has even returned. Without something listening
- * across that gap the output lands on a closed socket and is gone, which is
- * the whole reason this exists.
+ * wire before the save call returns. With nothing listening across that gap
+ * the output lands on a closed socket and is gone.
  */
 interface Drain {
   /** Scopes the drain to a target the push resolved. */
@@ -204,9 +201,9 @@ function startDrain(
     else buffered.push(record)
   }
 
-  // IMPORTANT: subscribed before the first save, not after it. The script
-  // restarts the moment the save lands, so a subscription set up afterwards
-  // has already missed its startup output. Do not move this below the push.
+  // Subscribed before the first save, never after. The script restarts the
+  // moment the save lands, so a subscription set up afterwards has already
+  // missed its startup output. Do not move this below the push.
   const unsubscribe = [
     client.on("runtime.debug", (params) => receive("debug", params)),
     client.on("runtime.error", (params) => receive("error", params)),
@@ -252,9 +249,9 @@ function startDrain(
       }
 
       // Under --json the document has to come out whole, so a bounded drain
-      // collects rather than prints. An unbounded one cannot wait for an end
-      // that never comes, so it prints the document first and then streams,
-      // the same exception `logs --json` already makes.
+      // collects rather than prints. An unbounded one has no end to wait for,
+      // so it prints the document first and then streams, the same exception
+      // `logs --json` makes.
       const collect = reporter.json && tail !== "forever"
       const logs: Record<string, unknown>[] = []
 
@@ -320,8 +317,8 @@ export async function pushCommand(
 
   const document = targets.length === 1 ? results[0]! : { ok: failed === 0, targets: results }
 
-  // One drain at the end, scoped to every target it touched, rather than one
-  // window per target: `push --all` would otherwise wait once per script.
+  // One drain at the end scoped to every target it touched, rather than one
+  // window per target. `push --all` would otherwise wait once per script.
   if (drain) await drain.settle(document)
   else reporter.data(document)
 
@@ -331,9 +328,9 @@ export async function pushCommand(
 /**
  * Deploys one target and reports what happened.
  *
- * Exported for `connect`, which pushes on a watch event and must go through
- * exactly this path: the stale-listing retry, the vm inference and the mapped
- * diagnostics are not worth having twice.
+ * Exported for `connect`, which pushes on a watch event and must take this
+ * path. The stale-listing retry, the vm inference and the mapped diagnostics
+ * are not worth having twice.
  */
 export async function pushTarget(
   client: ViewerClient,
@@ -349,7 +346,7 @@ export async function pushTarget(
   // comes after. `logs --since` keys off it.
   const from = cursor()
 
-  // Lookup and save retry together: right after a save the viewer rejects the
+  // Lookup and save retry together. Right after a save the viewer rejects the
   // next one as "item not found in prim inventory", and a retry has to start
   // from a fresh listing. Only the first lookup waits on the publish button,
   // since a retry is for a listing that settles in milliseconds.
@@ -401,7 +398,7 @@ export async function pushTarget(
     }
   }
 
-  // A save can succeed while the compile fails; the source is stored either way.
+  // A save can succeed while the compile fails. The source is stored either way.
   if (response.compiled === false) {
     const language: CompileLanguage = vm === "luau" ? "luau" : "lsl"
     const errors = diagnosticsFrom(response, language)

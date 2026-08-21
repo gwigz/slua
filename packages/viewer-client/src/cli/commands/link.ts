@@ -18,9 +18,9 @@ import type { Reporter } from "../output.js"
 /**
  * Pairs a target with the object currently open in the viewer.
  *
- * Object UUIDs do not survive a take and re-rez, so this stamps a key into the
- * object's description, which does, and records that key in slua.json. The
- * pairing then holds even after the object is rezzed afresh.
+ * Object UUIDs do not survive a take and re-rez. Descriptions do, so this
+ * stamps a key into one and records it in slua.json, and the pairing holds
+ * after the object is rezzed afresh.
  */
 export async function linkCommand(
   client: ViewerClient,
@@ -35,7 +35,7 @@ export async function linkCommand(
   const config = await loadConfig()
   const root = config?.root ?? process.cwd()
 
-  // If the source already names the item, let it keep owning that; only the
+  // If the source already names the item, let it keep owning that. Only the
   // object pairing needs recording.
   const header = await readHeaderTagsFor(resolve(root, file))
   const item = command.item ?? header?.item ?? command.target

@@ -192,6 +192,30 @@ describe("parseCliArgs", () => {
     expect(parseCliArgs(["push", "a.slua", "--wait"]).global.waitMs).toBeGreaterThan(0)
   })
 
+  it("parses the connect flags a watched session takes", () => {
+    const command = parseCliArgs(["connect", "--edge", "leading", "--debounce", "500"]).command
+
+    expect(command).toMatchObject({ name: "connect", edge: "leading", debounceMs: 500 })
+    expect(() => parseCliArgs(["connect", "--edge", "sideways"])).toThrow(CliUsageError)
+  })
+
+  it("reads --since as either a cursor or a duration", () => {
+    expect(parseCliArgs(["logs", "--since", "5m"]).command).toMatchObject({
+      name: "logs",
+      since: { ms: 300_000 },
+    })
+    expect(parseCliArgs(["logs", "--since", "42"]).command).toMatchObject({
+      name: "logs",
+      since: { cursor: 42 },
+    })
+    expect(() => parseCliArgs(["logs", "--since", "soon"])).toThrow(CliUsageError)
+  })
+
+  it("names the flag it could not read in the message", () => {
+    expect(() => parseCliArgs(["wait", "--for", "soon"])).toThrow(/--for/)
+    expect(() => parseCliArgs(["push", "a.slua", "--tail", "soon"])).toThrow(/--tail/)
+  })
+
   it("treats --json as global", () => {
     expect(parseCliArgs(["objects", "--json"]).global.json).toBe(true)
   })
@@ -217,6 +241,10 @@ describe("helpText", () => {
       "set-running",
       "logs",
       "syntax",
+      "connect",
+      "status",
+      "wait",
+      "mcp",
       "--object",
       "--item",
       "--link",
@@ -228,6 +256,15 @@ describe("helpText", () => {
       "--key",
       "--follow",
       "--targets",
+      "--tail",
+      "--no-tail",
+      "--watch",
+      "--debounce",
+      "--edge",
+      "--exec",
+      "--since",
+      "--for",
+      "--direct",
       "--wait",
       "--port",
       "--timeout",

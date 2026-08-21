@@ -9,8 +9,8 @@ const CHAR_TO_INT = new Map<string, number>([...BASE64].map((char, index) => [ch
 /**
  * Decodes one line's worth of base64 VLQ segments.
  *
- * Rolled by hand rather than pulled from a dependency: we only ever need line
- * granularity, so this is a few dozen lines against a whole package.
+ * Rolled by hand rather than pulled from a dependency. Line granularity is
+ * all we need, so this is a few dozen lines against a whole package.
  */
 function decodeSegments(line: string): number[][] {
   const segments: number[][] = []
@@ -127,8 +127,8 @@ export class SourceMap {
         // compiler's line number refers to.
         const source = sources[sourceIndex]
 
-        // A segment pointing outside `sources` is no better than no mapping:
-        // an empty path would be reported as the error's file and hide the
+        // A segment pointing outside `sources` is no better than no mapping.
+        // An empty path would be reported as the error's file and hide the
         // fallback to the pushed file.
         if (source !== undefined && generatedColumn < bestColumn) {
           bestColumn = generatedColumn
@@ -176,8 +176,8 @@ export function resolveExistingSource(source: string, mapDir: string): string {
 /**
  * Loads the map TSTL writes beside an emitted file (`<output>.map`).
  *
- * Returns undefined when there is no map, or it cannot be read or parsed —
- * callers fall back to reporting raw generated line numbers.
+ * Returns undefined when there is no map, or it cannot be read or parsed.
+ * Callers then report raw generated line numbers.
  */
 export async function loadSourceMapFor(filePath: string): Promise<SourceMap | undefined> {
   const mapPath = `${filePath}.map`

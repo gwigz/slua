@@ -8,7 +8,6 @@ import { controlPath, socketTransport } from "./socket.js"
 
 const CONNECT_TIMEOUT_MS = 5_000
 
-/** What a control client sees of the session it attached to. */
 export interface ControlStatus {
   connected: boolean
   watching: boolean

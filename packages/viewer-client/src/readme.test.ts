@@ -6,8 +6,8 @@ import ts from "typescript"
 /**
  * Typechecks the TypeScript examples in the README.
  *
- * Documented code drifts silently as the API changes, and a broken example is
- * worse than none: it costs a reader more to debug than to write from scratch.
+ * Documented code drifts silently as the API changes, and a broken example
+ * costs a reader more to debug than writing one from scratch would.
  */
 const PACKAGE_ROOT = dirname(import.meta.dir)
 const README = join(PACKAGE_ROOT, "README.md")

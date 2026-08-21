@@ -34,9 +34,9 @@ const JSONRPC_VERSION = "2.0"
 /**
  * JSON-RPC 2.0 over a text transport: one object per frame, no batching.
  *
- * This is a peer rather than a client — the viewer calls us as often as we
- * call it (`session.handshake`, `session.ping`, `command.execute`), so both
- * directions are first class.
+ * A peer rather than a client. The viewer calls us as often as we call it
+ * (`session.handshake`, `session.ping`, `command.execute`), so both directions
+ * are first class.
  */
 export class JsonRpcPeer {
   private readonly transport: Transport
@@ -103,7 +103,7 @@ export class JsonRpcPeer {
       throw new ConnectionClosedError()
     }
 
-    // Notifications must omit `id` entirely — a null id reads as a request to
+    // Notifications must omit `id` entirely. A null id reads as a request to
     // some implementations, including sl-vscode-plugin's.
     this.transport.send(
       JSON.stringify({ jsonrpc: JSONRPC_VERSION, method, params: toSnake(params) }),

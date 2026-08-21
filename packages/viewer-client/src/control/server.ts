@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto"
 import { chmod, mkdtemp, rm, unlink, writeFile } from "node:fs/promises"
-import { createServer, type Server, type Socket } from "node:net"
+import { connect, createServer, type Server, type Socket } from "node:net"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { JsonRpcPeer } from "../protocol/jsonrpc.js"
@@ -10,9 +10,9 @@ import { controlPath, socketTransport } from "./socket.js"
 /**
  * The viewer calls a control client may make through the session.
  *
- * Listed rather than pattern-matched, because a handler is registered per
- * method and a client asking for anything else deserves the protocol's own
- * "method not found" rather than a forwarded surprise.
+ * Listed rather than pattern-matched. A handler is registered per method, and
+ * a client asking for anything else deserves the protocol's own "method not
+ * found" rather than a forwarded surprise.
  */
 export const FORWARDED_METHODS = [
   "object.list",
@@ -36,7 +36,18 @@ export const FORWARDED_METHODS = [
   "command.list",
 ]
 
-/** Everything a running session offers over the socket. */
+/** How long a leftover socket has to answer before it counts as alive. */
+const LIVENESS_TIMEOUT_MS = 500
+
+/** Raised when the project already has a session listening on its socket. */
+export class SessionAlreadyRunningError extends Error {
+  constructor(readonly path: string) {
+    super(`a session is already running for this project; its control socket is ${path}`)
+
+    this.name = "SessionAlreadyRunningError"
+  }
+}
+
 export interface ControlHandlers {
   /** The viewer's own handshake, so a client sees the real feature set. */
   handshake(): SessionHandshake | undefined
@@ -44,25 +55,49 @@ export interface ControlHandlers {
   logs(params: { since?: number; sinceMs?: number; limit?: number }): unknown
   push(params: { targets?: string[] }): Promise<unknown>
   wait(params: { since?: number; timeoutMs?: number }): Promise<unknown>
-  /** Passes a call through to the viewer. */
   forward(method: string, params: unknown): Promise<unknown>
 }
 
 export interface ControlServer {
   readonly path: string
-  /** Sends a viewer notification on to every attached client. */
+  /** Passes a viewer notification on to every attached client. */
   broadcast(method: string, params: unknown): void
   readonly clients: number
   close(): Promise<void>
+}
+
+/** Whether something is listening on `path` right now. */
+function answering(path: string): Promise<boolean> {
+  return new Promise<boolean>((done) => {
+    const socket = connect(path)
+
+    const settle = (live: boolean) => {
+      socket.destroy()
+      done(live)
+    }
+
+    // A socket that connects but never speaks is still one somebody owns, so
+    // the timeout answers yes.
+    const timer = setTimeout(() => settle(true), LIVENESS_TIMEOUT_MS)
+
+    socket.once("connect", () => {
+      clearTimeout(timer)
+      settle(true)
+    })
+
+    socket.once("error", () => {
+      clearTimeout(timer)
+      settle(false)
+    })
+  })
 }
 
 /**
  * The auth challenge, the way the viewer does it.
  *
  * A unix socket at mode 0600 is already only reachable by this user, so this
- * is not what makes the socket safe. It is here because it is what makes
- * `ViewerClient` connect to a session with no changes at all: the client
- * answers the same handshake it answers for the viewer.
+ * is not what keeps it safe. It is here so `ViewerClient` attaches to a
+ * session unchanged, answering the same handshake it answers for the viewer.
  */
 async function challenge(): Promise<{ path: string; value: string; clean: () => Promise<void> }> {
   const directory = await mkdtemp(join(tmpdir(), "slua-control-"))
@@ -92,8 +127,11 @@ export async function startControlServer(
   const path = controlPath(root)
   const peers = new Set<JsonRpcPeer>()
 
-  // A socket left behind by a session that crashed would refuse the bind, and
-  // the liveness question is settled by connecting, not by the file existing.
+  // A socket left behind by a crashed session would refuse the bind, and only
+  // connecting settles whether one is live. Unlinking a socket that still
+  // answers would strand the session behind it with its clients attached.
+  if (await answering(path)) throw new SessionAlreadyRunningError(path)
+
   await unlink(path).catch(() => {})
 
   const serve = async (socket: Socket) => {
@@ -109,26 +147,17 @@ export async function startControlServer(
 
     peer.on("session.disconnect", () => peer.close())
 
-    peer.handle("control.status", () => handlers.status())
-    peer.handle("control.logs", (params) => handlers.logs(params ?? {}))
-    peer.handle("control.push", (params) => handlers.push(params ?? {}))
-    peer.handle("control.wait", (params) => handlers.wait(params ?? {}))
-
-    // Anything else the client knows how to say to a viewer, the session says
-    // on its behalf. Ids are remapped for free: this is a fresh call upstream.
-    for (const method of FORWARDED_METHODS) {
-      peer.handle(method, (params) => handlers.forward(method, params))
-    }
-
-    const auth = await challenge()
+    let auth: Awaited<ReturnType<typeof challenge>> | undefined
 
     try {
+      auth = await challenge()
+
       const upstream = handlers.handshake()
 
       const response = await peer.call<SessionHandshakeResponse>("session.handshake", {
         ...upstream,
         // The viewer's own challenge file is long gone, and echoing a path we
-        // do not own would be nonsense; this one is ours.
+        // do not own would be nonsense. This one is ours.
         challenge: auth.path,
         serverVersion: upstream?.serverVersion ?? "1.0.0",
         protocolVersion: upstream?.protocolVersion ?? "1.0",
@@ -147,7 +176,20 @@ export async function startControlServer(
 
       return
     } finally {
-      await auth.clean()
+      await auth?.clean()
+    }
+
+    // Registered only now. Everything below reaches the viewer or this
+    // session's own state, and an unauthenticated caller reaches neither.
+    peer.handle("control.status", () => handlers.status())
+    peer.handle("control.logs", (params) => handlers.logs(params ?? {}))
+    peer.handle("control.push", (params) => handlers.push(params ?? {}))
+    peer.handle("control.wait", (params) => handlers.wait(params ?? {}))
+
+    // Anything else the client knows how to say to a viewer, the session says
+    // on its behalf. Ids remap for free, since this is a fresh call upstream.
+    for (const method of FORWARDED_METHODS) {
+      peer.handle(method, (params) => handlers.forward(method, params))
     }
 
     peer.notify("session.ok", {})

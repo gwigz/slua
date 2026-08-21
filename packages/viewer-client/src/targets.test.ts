@@ -268,7 +268,7 @@ describe("readHeaderTagsFor", () => {
   })
 
   it("treats a hand-written script as its own source", async () => {
-    // An .lsl file has no source map; the header is right there in the file.
+    // An .lsl file has no source map. The header is right there in the file.
     const dir = await mkdtemp(join(tmpdir(), "slua-hdr-"))
     const file = join(dir, "door.lsl")
 

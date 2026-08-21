@@ -87,7 +87,7 @@ describe("diagnosticsFrom", () => {
 describe("diagnosticsFrom on a viewer that sends rubbish", () => {
   it("keeps the row but replaces a message of uninitialised memory", () => {
     // Verbatim from YATPV Dev 26.3.0.0, answering a save whose Lua would not
-    // parse: the row is right, the message is 58 NUL bytes.
+    // parse. The row is right, the message is 58 NUL bytes.
     const response = {
       diagnostics: [{ row: 3, column: 0, level: "ERROR", message: "\u0000".repeat(58) }],
     }
@@ -100,6 +100,26 @@ describe("diagnosticsFrom on a viewer that sends rubbish", () => {
         message: "the viewer reported an error here but sent no message with it",
       },
     ])
+  })
+
+  it("replaces a message that arrived empty in the first place", () => {
+    const response = {
+      diagnostics: [{ row: 4, column: 0, level: "ERROR", message: "" }],
+    }
+
+    expect(diagnosticsFrom(response, "luau")[0]!.message).toBe(
+      "the viewer reported an error here but sent no message with it",
+    )
+  })
+
+  it("strips a colour escape whole rather than leaving its bracket behind", () => {
+    const response = {
+      diagnostics: [
+        { row: 2, column: 0, level: "ERROR", message: "\u001b[31mExpected identifier\u001b[0m" },
+      ],
+    }
+
+    expect(diagnosticsFrom(response, "luau")[0]!.message).toBe("Expected identifier")
   })
 
   it("strips control characters out of a message that still says something", () => {

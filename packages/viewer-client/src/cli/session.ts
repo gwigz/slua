@@ -25,10 +25,9 @@ export interface SessionOptions {
 /**
  * Resolves when the connection drops, or when `interrupted` is called.
  *
- * Closing the connection ourselves does not reach `onClose`: `close()` marks
- * the connection disposed before the transport reports back, and that is the
- * check that stops listeners firing twice. So an interrupt has to end this
- * wait directly rather than through the close it triggers.
+ * Closing the connection ourselves does not reach `onClose`. `close()` marks
+ * it disposed before the transport reports back, and that check is what stops
+ * listeners firing twice, so an interrupt has to end this wait directly.
  */
 function untilClosed(client: ViewerClient, interrupted: (end: () => void) => void): Promise<void> {
   return new Promise<void>((done) => {
@@ -42,12 +41,12 @@ function untilClosed(client: ViewerClient, interrupted: (end: () => void) => voi
 /**
  * Holds a viewer connection, reconnecting with backoff while it is asked to.
  *
- * Shared by `logs -f` and `connect`, which want the same loop for different
- * reasons: one to keep a stream alive, the other to keep a session alive.
+ * Shared by `logs -f`, keeping a stream alive, and `connect`, keeping a
+ * session alive.
  *
  * Interrupting returns rather than calling `process.exit`, so a caller with
- * buffered writes gets to flush them. A crash is exactly when a log file
- * matters, and half a line in it is worse than none.
+ * buffered writes gets to flush them. Half a line in a log file is worse than
+ * none, and a crash is when that file matters most.
  */
 export async function runSession({
   connect,
@@ -90,6 +89,14 @@ export async function runSession({
           throw error
         }
 
+        // An interrupt during setup has already closed the client, and
+        // `untilClosed` would then wait for a close that has been and gone.
+        if (stopping) {
+          client.close()
+
+          break
+        }
+
         attempt = 0
 
         await untilClosed(client, (end) => {
@@ -99,8 +106,7 @@ export async function runSession({
         wake = undefined
 
         // A `session.disconnect` can arrive with the socket still open, so the
-        // old client goes before a replacement takes its place. Already-closed
-        // connections ignore this.
+        // old client goes before a replacement takes its place.
         client.close()
       } catch (error) {
         if (!follow) throw error

@@ -56,7 +56,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   }
 
   if (extras.stylua) {
-    scripts.format = "stylua --syntax luau out/"
+    scripts.format = "stylua --syntax luau dist/"
   }
   if (extras.linting) {
     scripts.lint = "oxlint --type-aware"
@@ -93,7 +93,9 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
     lib: ["ESNext"],
     types: ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
     rootDir: ".",
-    outDir: "out",
+    // Matches what "slua-viewer link" records, so the session started by
+    // "dev" resolves the target its watch build writes.
+    outDir: "dist",
   }
 
   if (extras.jsx) {

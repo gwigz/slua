@@ -6,11 +6,11 @@ import { dirname } from "node:path"
 /**
  * How long a target has to be quiet before it is pushed.
  *
- * Every push restarts the script and costs a simulator asset upload, so the
- * job here is not to notice a change quickly, it is to decide when a burst of
- * changes has finished. Too short and six small edits become six restarts, too
- * long and someone waits at a terminal wondering whether it noticed. Restarts
- * are the more expensive mistake, so this errs long.
+ * Every push restarts the script and costs an asset upload, so the job is
+ * deciding when a burst of edits has finished, not noticing one quickly. Too
+ * short and six small edits become six restarts. Too long and someone waits at
+ * a terminal wondering whether it noticed. Restarts cost more, so this errs
+ * long.
  */
 export const DEBOUNCE_MS = 3_000
 
@@ -29,8 +29,8 @@ export interface WatchOptions<T extends WatchTarget = WatchTarget> {
    * Whether to watch at all.
    *
    * Off still leaves `trigger`, and with it the queue that keeps two saves
-   * from racing against one prim, so a session driven entirely by explicit
-   * pushes goes through exactly the same path as a watched one.
+   * from racing against one prim, so a session driven by explicit pushes takes
+   * the same path as a watched one.
    */
   enabled?: boolean
   debounceMs?: number
@@ -39,9 +39,8 @@ export interface WatchOptions<T extends WatchTarget = WatchTarget> {
    *
    * Trailing collapses a burst into one push and is the right default. Leading
    * gives instant feedback but pushes whatever half-finished state the first
-   * write happened to contain. The two together would mean two pushes and two
-   * restarts per burst, which is what this whole module exists to prevent, so
-   * it is deliberately not offered.
+   * write held. Both at once would mean two pushes and two restarts per burst,
+   * which is what this module exists to prevent, so it is not offered.
    */
   edge?: "trailing" | "leading"
   minIntervalMs?: number
@@ -53,22 +52,23 @@ export interface WatchOptions<T extends WatchTarget = WatchTarget> {
 export interface Watcher {
   /** Pushes now, skipping the debounce. An explicit ask, so no guard applies. */
   trigger(names?: readonly string[]): Promise<void>
-  close(): void
+  /** Stops watching, once the push already in flight has finished. */
+  close(): Promise<void>
 }
 
-/** The content of a file, or undefined if it cannot be read right now. */
+/** A digest of a file's content, or undefined if it cannot be read now. */
 async function digestOf(file: string): Promise<string | undefined> {
   try {
     return createHash("sha1")
       .update(await readFile(file))
       .digest("hex")
   } catch {
-    // Mid-write, or gone: let the push report it rather than guessing here.
+    // Mid-write, or gone. Let the push report it rather than guess here.
     return undefined
   }
 }
 
-/** The same, at startup, where a race with the first change matters more. */
+/** The same, synchronously, to seed digests before the first watch goes on. */
 function digestNow(file: string): string | undefined {
   try {
     return createHash("sha1").update(readFileSync(file)).digest("hex")
@@ -80,9 +80,9 @@ function digestNow(file: string): string | undefined {
 /**
  * Watches built outputs and calls back once a change has settled.
  *
- * Deliberately not a compiler: scaffolds already ship a watch build, tstl's
- * incremental watch beats anything here, and watching the output works for a
- * hand-written `.lsl` with no build step at all.
+ * Deliberately not a compiler. Scaffolds already ship a watch build, tstl's
+ * incremental watch beats anything here, and watching the output also works
+ * for a hand-written `.lsl` with no build step.
  */
 export function watchTargets<T extends WatchTarget>(
   targets: readonly T[],
@@ -96,7 +96,7 @@ export function watchTargets<T extends WatchTarget>(
   /** Targets waiting to be pushed. A map, so a burst collapses to one entry. */
   const ready = new Map<string, T>()
   const timers = new Map<string, ReturnType<typeof setTimeout>>()
-  /** When the leading edge stops swallowing changes for a target. */
+  /** When the leading edge stops swallowing changes for a target it pushed. */
   const suppressed = new Map<string, number>()
   const pushedAt = new Map<string, number>()
 
@@ -104,8 +104,7 @@ export function watchTargets<T extends WatchTarget>(
    * The content each target had when we last acted on it.
    *
    * Seeded from disk before the first watch is installed, so an event naming
-   * something else in the directory cannot be mistaken for a change to a
-   * target that has not actually moved.
+   * something else in the directory is not mistaken for a change.
    */
   const digests = new Map<string, string>()
 
@@ -126,7 +125,7 @@ export function watchTargets<T extends WatchTarget>(
    *
    * Two saves in flight against one prim is how the viewer's "item not found
    * in prim inventory" staleness gets worse, and an upload cannot be
-   * cancelled, so work queues behind the one in flight rather than racing it.
+   * cancelled, so work queues behind the one in flight.
    */
   const serialise = <R>(fn: () => Promise<R>): Promise<R> => {
     const run = chain.then(fn, fn)
@@ -150,13 +149,13 @@ export function watchTargets<T extends WatchTarget>(
     try {
       await onChange(batch)
     } catch (error) {
-      // A failed push must not take the watcher down with it; the next save
+      // A failed push must not take the watcher down with it. The next save
       // is the user's next chance to fix it.
       options.onError?.(error instanceof Error ? error : new Error(String(error)))
     } finally {
-      // Measured from when the push finished, not when it started: the
-      // interval exists to space out script restarts, and the upload is most
-      // of the time between them.
+      // Measured from when the push finished, not when it started. The
+      // interval spaces out script restarts, and the upload is most of the
+      // time between them.
       const now = Date.now()
 
       for (const target of batch) pushedAt.set(target.name, now)
@@ -199,6 +198,12 @@ export function watchTargets<T extends WatchTarget>(
 
         if (digest !== undefined) digests.set(name, digest)
 
+        // Set here rather than at mark time. The directory watch fires for
+        // anything in the directory, and a window burned by an event that
+        // moved nothing would swallow the write behind it. Only a real push
+        // starts one.
+        if (leading) suppressed.set(name, Date.now() + debounceMs)
+
         batch.push(target)
       }
 
@@ -220,7 +225,7 @@ export function watchTargets<T extends WatchTarget>(
 
       // Changes that landed while that push was in flight, as one follow-up
       // rather than one per write. Only after a push actually happened, or a
-      // batch that was entirely deferred would spin here until its retry.
+      // wholly deferred batch would spin here until its retry.
       if (ready.size > 0 && !closed) void flush()
     })
 
@@ -228,11 +233,8 @@ export function watchTargets<T extends WatchTarget>(
     if (closed) return
 
     if (leading) {
-      const now = Date.now()
+      if (Date.now() < (suppressed.get(target.name) ?? 0)) return
 
-      if (now < (suppressed.get(target.name) ?? 0)) return
-
-      suppressed.set(target.name, now + debounceMs)
       ready.set(target.name, target)
 
       void flush()
@@ -264,15 +266,14 @@ export function watchTargets<T extends WatchTarget>(
 
   for (const [directory, watched] of (options.enabled ?? true) ? byDirectory : []) {
     try {
-      // The directory rather than each file: an editor, or a build, that
-      // writes a temporary file and renames it over the old one leaves a watch
-      // on the path itself reporting nothing ever again.
+      // The directory rather than each file. An editor or a build that writes
+      // a temporary file and renames it over the old one leaves a watch on the
+      // path itself reporting nothing ever again.
       //
-      // Every target in the directory is marked, whatever the event names,
-      // because macOS coalesces a staging write and the rename that follows it
-      // into a single event naming only the staging file. The digest check at
-      // flush time is what decides whether anything moved, so marking a target
-      // that did not costs one file read and nothing else.
+      // Every target in the directory is marked whatever the event names,
+      // because macOS coalesces a staging write and its rename into a single
+      // event naming only the staging file. The digest check at flush time
+      // decides whether anything moved, so a spurious mark costs one read.
       const watcher = watch(directory, () => {
         for (const target of watched) mark(target)
       })
@@ -309,7 +310,7 @@ export function watchTargets<T extends WatchTarget>(
       })
     },
 
-    close() {
+    async close() {
       closed = true
 
       clearTimeout(retry)
@@ -320,6 +321,12 @@ export function watchTargets<T extends WatchTarget>(
       ready.clear()
 
       for (const watcher of watchers) watcher.close()
+
+      // An upload cannot be cancelled, so a push in flight will finish
+      // whatever happens here. Waiting for it puts the session's teardown, log
+      // flush included, after that push rather than under it. `closed` is set
+      // above, so nothing new joins the queue.
+      await chain
     },
   }
 }

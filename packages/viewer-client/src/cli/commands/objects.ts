@@ -15,16 +15,16 @@ export async function objectsCommand(
   publish: PublishOptions = {},
 ): Promise<number> {
   // Nothing is published until the viewer's publish button is pressed, and it
-  // only publishes to a client that is already connected, so waiting here is
-  // what makes that button work at all.
+  // only publishes to a client already connected, so waiting here is what
+  // makes that button work.
   const list = await listPublished(client, publish)
 
   reporter.data({
     objects: list.map((object) => ({
       objectId: object.objectId,
       objectName: object.objectName,
-      // Description keys are how targets pin to an object, so a listing that
-      // hides them cannot show what `link` stamped.
+      // Description keys are how targets pin to an object, so hiding them
+      // would hide what `link` stamped.
       objectDescription: object.objectDescription ?? "",
       region: object.region,
       canSaveBack: object.canSaveBack,

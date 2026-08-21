@@ -93,7 +93,11 @@ function answering(path: string): Promise<boolean> {
 }
 
 function inUse(error: unknown): boolean {
-  return (error as NodeJS.ErrnoException | undefined)?.code === "EADDRINUSE"
+  const code = (error as NodeJS.ErrnoException | undefined)?.code
+
+  // Node says the address is taken; bun says the path already exists, which is
+  // the same refusal and the only one either of them gives for a live session.
+  return code === "EADDRINUSE" || code === "EEXIST"
 }
 
 /** Names the socket file, so a start cannot unlink one it never looked at. */

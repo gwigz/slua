@@ -41,5 +41,9 @@ export function createReporter(json: boolean): Reporter {
 export function displayPath(path: string): string {
   const relativePath = relative(process.cwd(), path)
 
+  // The working directory itself relativises to nothing at all, which reads as
+  // a missing path rather than as "here".
+  if (relativePath === "") return "."
+
   return relativePath.startsWith("..") && relativePath.length >= path.length ? path : relativePath
 }

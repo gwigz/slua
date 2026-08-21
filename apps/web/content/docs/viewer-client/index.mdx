@@ -57,6 +57,28 @@ That stamps a `slua:main` key into the object's description and records the
 target in `slua.json`, so later deploys find the object again even after it has
 been taken and rezzed. See [Targets](/docs/viewer-client/targets).
 
+## Working on a script
+
+Deploying a script and working on one want different things. A script's runtime
+output reaches you as it happens or not at all. The viewer sends it to whatever
+connections are open at the moment the script speaks, buffers nothing, and the
+protocol has no way to ask for what it already sent. A command that has exited
+hears none of it, and leaves the viewer's publish button with nothing to
+publish to.
+
+That is the argument for keeping a session up. Most of what a script says
+follows a touch, a listen, a timer or an HTTP response rather than anything you
+typed. `connect` holds one connection open the whole time you are working,
+rebuilds, pushes when the output changes, and prints what your scripts say as
+you poke at them:
+
+```bash
+bunx @gwigz/slua-viewer-client connect --exec "bun run build:watch"
+```
+
+Scaffolded projects wire that up as `bun run dev`. See
+[connect](/docs/viewer-client/cli#connect).
+
 ## As part of a build
 
 Once deploying is part of your build, add it as a devDependency and pin it.

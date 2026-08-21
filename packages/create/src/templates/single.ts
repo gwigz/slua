@@ -20,6 +20,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   const devDependencies: Record<string, string> = {
     "@gwigz/slua-tstl-plugin": VERSIONS["@gwigz/slua-tstl-plugin"],
     "@gwigz/slua-types": VERSIONS["@gwigz/slua-types"],
+    "@gwigz/slua-viewer-client": VERSIONS["@gwigz/slua-viewer-client"],
     "@gwigz/tstl-bundle-flatten": VERSIONS["@gwigz/tstl-bundle-flatten"],
     "@typescript-to-lua/language-extensions": VERSIONS["@typescript-to-lua/language-extensions"],
     "darklua-wasm": VERSIONS["darklua-wasm"],
@@ -48,7 +49,10 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
 
   const scripts: Record<string, string> = {
     build: "tstl -p tsconfig.json",
-    dev: "tstl -p tsconfig.json --watch",
+    // One command to learn: the session runs the watch build, pushes what it
+    // produces and tails the script's output, in one terminal.
+    dev: 'slua-viewer connect --exec "tstl -p tsconfig.json --watch"',
+    "build:watch": "tstl -p tsconfig.json --watch",
   }
 
   if (extras.stylua) {

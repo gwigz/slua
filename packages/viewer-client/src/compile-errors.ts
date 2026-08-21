@@ -62,5 +62,32 @@ export function diagnosticsFrom(
   response: Pick<ObjectContentSaveResponse, "diagnostics" | "errors"> | undefined,
   language: CompileLanguage,
 ): Diagnostic[] {
-  return response?.diagnostics ?? parseCompileErrors(response?.errors, language)
+  const diagnostics = response?.diagnostics ?? parseCompileErrors(response?.errors, language)
+
+  return diagnostics.map(readable)
+}
+
+/** Control characters, which a terminal renders as anything from nothing to a mess. */
+// oxlint-disable-next-line no-control-regex -- stripping them is the point
+const UNPRINTABLE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g
+
+/**
+ * A diagnostic fit to print.
+ *
+ * A viewer has been seen answering a failed compile with a message of nothing
+ * but NUL bytes, which is uninitialised memory rather than an error, and
+ * printing it puts 58 invisible characters through the terminal, the JSON
+ * output and the log file alike. The row it came with is still worth having,
+ * so the message is replaced rather than the diagnostic dropped.
+ */
+function readable(diagnostic: Diagnostic): Diagnostic {
+  const message = diagnostic.message.replaceAll(UNPRINTABLE, "").trim()
+
+  if (message === diagnostic.message) return diagnostic
+
+  return {
+    ...diagnostic,
+    message:
+      message === "" ? "the viewer reported an error here but sent no message with it" : message,
+  }
 }

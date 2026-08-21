@@ -1,19 +1,22 @@
 import { describe, expect, it } from "bun:test"
-import { SourceMap } from "../../sourcemap"
+import { SourceMap } from "../sourcemap"
 import {
+  cursor,
   fromObject,
   mapRow,
   mapsFor,
   namesTarget,
   objectIds,
+  recordPayload,
   rowIn,
   runtimeLines,
   runtimeText,
   sourceName,
   tagFor,
+  toRecord,
   wantedEvent,
   withUpdate,
-} from "./logs"
+} from "./runtime-view"
 
 // Generated line 1 -> source line 1, generated line 2 -> source line 3.
 const map = SourceMap.parse(
@@ -282,5 +285,24 @@ describe("wantedEvent", () => {
         items,
       ),
     ).toBe(false)
+  })
+})
+
+describe("toRecord", () => {
+  it("numbers events in order and stamps them", () => {
+    const first = toRecord("debug", { ...event, message: "one" }, [])
+    const second = toRecord("debug", { ...event, message: "two" }, [])
+
+    expect(second.seq).toBe(first.seq + 1)
+    expect(cursor()).toBe(second.seq)
+    expect(new Date(second.time).getTime()).not.toBeNaN()
+  })
+
+  it("carries the sequence and stamp into the JSON shape", () => {
+    const record = toRecord("error", { ...event, message: "boom" }, [])
+
+    expect(recordPayload(record)).toEqual(
+      expect.objectContaining({ seq: record.seq, time: record.time, level: "error", mapped: [] }),
+    )
   })
 })

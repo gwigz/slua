@@ -83,3 +83,40 @@ describe("diagnosticsFrom", () => {
     expect(diagnosticsFrom({ diagnostics: [], errors: ["a.luau:1: first"] }, "luau")).toEqual([])
   })
 })
+
+describe("diagnosticsFrom on a viewer that sends rubbish", () => {
+  it("keeps the row but replaces a message of uninitialised memory", () => {
+    // Verbatim from YATPV Dev 26.3.0.0, answering a save whose Lua would not
+    // parse: the row is right, the message is 58 NUL bytes.
+    const response = {
+      diagnostics: [{ row: 3, column: 0, level: "ERROR", message: "\u0000".repeat(58) }],
+    }
+
+    expect(diagnosticsFrom(response, "luau")).toEqual([
+      {
+        row: 3,
+        column: 0,
+        level: "ERROR",
+        message: "the viewer reported an error here but sent no message with it",
+      },
+    ])
+  })
+
+  it("strips control characters out of a message that still says something", () => {
+    const response = {
+      diagnostics: [
+        { row: 2, column: 0, level: "ERROR", message: "Expected identifier\u0000\u0007" },
+      ],
+    }
+
+    expect(diagnosticsFrom(response, "luau")[0]!.message).toBe("Expected identifier")
+  })
+
+  it("leaves an ordinary message exactly as it was", () => {
+    const response = {
+      diagnostics: [{ row: 2, column: 0, level: "ERROR", message: "Unknown global 'foo'" }],
+    }
+
+    expect(diagnosticsFrom(response, "luau")[0]!.message).toBe("Unknown global 'foo'")
+  })
+})

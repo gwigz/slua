@@ -121,6 +121,23 @@ async function handle(ws: any, message: any): Promise<void> {
 
       if (process.env.MOCK_STALE_SAVE === "1") staleReads = 2
 
+      // A save restarts the script, so its startup output follows immediately.
+      // That is the gap `push --tail` drains.
+      setTimeout(() => {
+        send(ws, {
+          jsonrpc: "2.0",
+          method: "runtime.debug",
+          params: {
+            script_id: "",
+            object_id: OBJECT_ID,
+            object_name: object.object_name,
+            item: { root_id: OBJECT_ID, name: "Main" },
+            channel: "owner_say",
+            message: "hello from state_entry",
+          },
+        })
+      }, 150)
+
       return result(ws, id, {
         success: true,
         prim_id: params.prim_id,

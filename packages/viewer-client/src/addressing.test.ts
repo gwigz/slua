@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test"
+import { describe, expect, it, spyOn } from "bun:test"
 import {
   descriptionMatches,
   displayName,
@@ -49,6 +49,23 @@ const object: PublishedObject = {
 
 const byId = (value: string): ObjectSelector => ({ kind: "id", value })
 const byName = (value: string): ObjectSelector => ({ kind: "name", value })
+
+// Pins Math.random and records setTimeout delays so jitter is a number, not a range.
+async function backoffDelays(random: number, run: () => Promise<unknown>): Promise<number[]> {
+  const randomSpy = spyOn(Math, "random").mockReturnValue(random)
+  const timeoutSpy = spyOn(globalThis, "setTimeout")
+
+  try {
+    await run()
+
+    return timeoutSpy.mock.calls
+      .map((call) => call[1])
+      .filter((ms): ms is number => typeof ms === "number")
+  } finally {
+    randomSpy.mockRestore()
+    timeoutSpy.mockRestore()
+  }
+}
 
 describe("isUuid", () => {
   it("accepts a canonical uuid and rejects a name", () => {
@@ -466,6 +483,23 @@ describe("resolveItem", () => {
       resolveItem(client, { object: byName("Test Object"), item: "Nope" }),
     ).rejects.toThrow(/no item "Nope"/)
   })
+
+  it("jitters the listing retry so concurrent lookups do not lock-step", async () => {
+    const listings = [[], [object]]
+
+    let calls = 0
+
+    const client = {
+      objectList: async () => ({ objects: listings[Math.min(calls++, listings.length - 1)] }),
+      on: () => () => {},
+    } as unknown as ViewerClient
+
+    const delays = await backoffDelays(0.5, () =>
+      resolveItem(client, { object: byName("Test Object"), item: "Main" }),
+    )
+
+    expect(delays).toContain(150 + Math.floor(0.5 * 150))
+  })
 })
 
 // What the viewer answers for a beat after a save, though the item is there
@@ -513,6 +547,20 @@ describe("withStaleRetry", () => {
     ).rejects.toThrow(/bad vm/)
 
     expect(calls).toBe(1)
+  })
+
+  it("jitters the inventory retry so concurrent deploys do not lock-step", async () => {
+    let calls = 0
+
+    const delays = await backoffDelays(0.5, () =>
+      withStaleRetry(async () => {
+        if (++calls < 2) throw stale()
+
+        return "saved"
+      }),
+    )
+
+    expect(delays).toContain(150 + Math.floor(0.5 * 150))
   })
 })
 

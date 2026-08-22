@@ -243,6 +243,16 @@ export const PUBLISH_WAIT_MS = 300_000
 const LOOKUP_RETRY_MS = [150, 300, 600]
 
 /**
+ * Stale-listing backoff with up to full jitter, so two deploys racing the same
+ * object don't retry in lock-step and keep colliding.
+ */
+function staleBackoffMs(attempt: number): number {
+  const base = LOOKUP_RETRY_MS[attempt]
+
+  return base + Math.floor(Math.random() * base)
+}
+
+/**
  * Whether an error is the viewer's prim inventory still settling.
  *
  * The window that empties a listing also fails a call naming the item.
@@ -271,7 +281,7 @@ export async function withStaleRetry<T>(fn: (attempt: number) => Promise<T>): Pr
     } catch (error) {
       if (!isStaleInventory(error) || attempt >= LOOKUP_RETRY_MS.length) throw error
 
-      await new Promise((sleep) => setTimeout(sleep, LOOKUP_RETRY_MS[attempt]))
+      await new Promise((sleep) => setTimeout(sleep, staleBackoffMs(attempt)))
     }
   }
 }
@@ -523,7 +533,7 @@ export async function resolveItem(
       // A closed connection will not have improved by the next look.
       if (error instanceof ConnectionClosedError || attempt >= LOOKUP_RETRY_MS.length) throw error
 
-      await new Promise((sleep) => setTimeout(sleep, LOOKUP_RETRY_MS[attempt]))
+      await new Promise((sleep) => setTimeout(sleep, staleBackoffMs(attempt)))
     }
   }
 }

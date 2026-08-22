@@ -5,6 +5,7 @@ import {
   ConnectionClosedError,
   HandshakeError,
   RpcError,
+  RpcErrorCode,
   RpcTimeoutError,
   ViewerUnavailableError,
 } from "../protocol/errors.js"
@@ -117,6 +118,14 @@ function explain(error: unknown): string {
   }
 
   if (error instanceof RpcError) {
+    // Compile errors trip a std::stoi in the viewer's diagnostics parser,
+    // which throws before returning the line and message.
+    if (error.code === RpcErrorCode.InternalError && /\bstoi\b/i.test(error.message)) {
+      return `the viewer could not read the compiler output (${error.message})\n${pc.dim(
+        "your source was saved but not compiled; this is a viewer bug, not a fault in your script",
+      )}`
+    }
+
     return `${error.message} (${error.code})`
   }
 

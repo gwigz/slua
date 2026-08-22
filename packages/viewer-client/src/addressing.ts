@@ -533,7 +533,7 @@ export async function resolveItem(
       // A closed connection will not have improved by the next look.
       if (error instanceof ConnectionClosedError || attempt >= LOOKUP_RETRY_MS.length) throw error
 
-      await new Promise((sleep) => setTimeout(sleep, LOOKUP_RETRY_MS[attempt]))
+      await new Promise((sleep) => setTimeout(sleep, staleBackoffMs(attempt)))
     }
   }
 }

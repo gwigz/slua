@@ -1,5 +1,15 @@
 # @gwigz/slua-viewer-client
 
+## 0.2.1
+
+### Patch Changes
+
+- [#126](https://github.com/gwigz/slua/pull/126) [`b39c732`](https://github.com/gwigz/slua/commit/b39c73281823de0261412e4e6ad3398d7b7c1def) Thanks [@gwigz](https://github.com/gwigz)! - concurrent deploys no longer collide in lock-step on a stale listing, since the retry backoff is now jittered
+
+- [#126](https://github.com/gwigz/slua/pull/126) [`b39c732`](https://github.com/gwigz/slua/commit/b39c73281823de0261412e4e6ad3398d7b7c1def) Thanks [@gwigz](https://github.com/gwigz)! - `push` prints a heartbeat while a slow save is still running, so it no longer looks like the viewer has hung
+
+- [#126](https://github.com/gwigz/slua/pull/126) [`b39c732`](https://github.com/gwigz/slua/commit/b39c73281823de0261412e4e6ad3398d7b7c1def) Thanks [@gwigz](https://github.com/gwigz)! - `push` reports the viewer's `stoi` compile-error failure in plain language instead of the raw internal error
+
 ## 0.2.0
 
 ### Minor Changes

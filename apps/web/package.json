@@ -18,7 +18,7 @@
     "@monaco-editor/react": "^4.6.0",
     "@shikijs/twoslash": "^4.0.2",
     "@tabler/icons-react": "^3.40.0",
-    "@takumi-rs/image-response": "^1.0.9",
+    "@takumi-rs/image-response": "^2.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "fumadocs-core": "16.14.4",

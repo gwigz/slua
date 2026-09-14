@@ -114,72 +114,67 @@ declare interface DetectedEvent {
 
 /** @noSelf */
 declare interface LLEventMap {
-  /** Triggered when the script's rotation (ourrot) comes within a defined angle (error) of the target rotation (targetrot) set by a call to llRotTarget (which returns the associated handle). */
-  at_rot_target: (handle: number, targetrot: Quaternion, ourrot: Quaternion) => void
-  /** Triggered when the scripted object's position (ourpos) comes within the defined range of the target position (targetpos) set by llTarget (which returns the associated handle tnum). */
-  at_target: (tnum: number, targetpos: Vector, ourpos: Vector) => void
-  /** Triggered whenever the object is attached to or detached from an avatar. Passes the UUID key of the avatar if attached, or NULL_KEY if detached. */
-  attach: (avatar: UUID) => void
-  /** Triggered when various properties of the object change. The parameter changes is a bitfield of CHANGED_* flags. */
-  changed: (changes: number) => void
+  /** Triggered when an avatar first touches the object. Passes num_detected, representing the number of touching agents. */
+  touch_start: (detected: DetectedEvent[]) => void
+  /** Triggered continuously while an avatar touches the object. Passes num_detected, representing the number of touching agents. */
+  touch: (detected: DetectedEvent[]) => void
+  /** Triggered when an avatar stops touching the object. Passes num_detected, representing the number of touching agents. */
+  touch_end: (detected: DetectedEvent[]) => void
+  /** Triggered when an avatar or another object first begins colliding with the object containing the script. Passes num_detected, representing the number of detected collisions. */
+  collision_start: (detected: DetectedEvent[]) => void
   /** Triggered continuously while an avatar or another object is colliding with the object containing the script. Passes num_detected, representing the number of detected collisions. */
   collision: (detected: DetectedEvent[]) => void
   /** Triggered when an avatar or another object stops colliding with the object containing the script. Passes num_detected, representing the number of detected collisions. */
   collision_end: (detected: DetectedEvent[]) => void
-  /** Triggered when an avatar or another object first begins colliding with the object containing the script. Passes num_detected, representing the number of detected collisions. */
-  collision_start: (detected: DetectedEvent[]) => void
-  /** Triggered to pass captured avatar control inputs into the script. The parameter level indicates held controls, and edge indicates change in controls (both are bitfields of CONTROL_* constants). */
-  control: (id: UUID, level: number, edge: number) => void
-  /** Triggered when requested data is returned to the script (e.g., from llRequestAgentData, llRequestInventoryData, or llGetNotecardLine). */
-  dataserver: (queryid: UUID, data: string) => void
-  /** Receive an email requested by llGetNextEmail(). NumberRemaining indicates the number of emails remaining in the queue for llGetNextEmail() to retrieve. */
-  email: (time: string, address: string, subject: string, msg: string, numLeft: number) => void
-  /** Triggered when the agent specified by agent_id approves an experience permissions request (interactively or automatically if previously approved). */
-  experience_permissions: (agentId: UUID) => void
-  /** Triggered when the agent specified by agent_id denies experience permissions, or when permission is blocked for other reasons (specified by the error code reason). */
-  experience_permissions_denied: (agentId: UUID, reason: number) => void
-  /** Triggered after all on_damage events across all scripts have completed and damage is actively applied to the avatar or distributed among seated avatars. Collision detected functions (llDetected*) and llDetectedDamage are available. */
-  final_damage: (detected: DetectedEvent[]) => void
-  /** Triggered when a compatible viewer sends game controller input changes for the avatar specified by id. Only triggers for scripts in attachments or seats. */
-  game_control: (id: UUID, buttonLevels: number, axes: number[]) => void
-  /** Triggered when the script's registered URL receives an incoming HTTP request identified by request_id. */
-  http_request: (requestId: UUID, method: string, body: string) => void
-  /** Triggered when an HTTP response body is received for a pending request_id, or if the request fails or times out. */
-  http_response: (requestId: UUID, status: number, metadata: list, body: string) => void
+  /** Triggered in the root prim when a physical object or attached avatar first begins colliding with the ground at position pos. */
+  land_collision_start: (pos: Vector) => void
   /** Triggered in the root prim when a physical object or attached avatar is colliding with the ground at position pos. */
   land_collision: (pos: Vector) => void
   /** Triggered in the root prim when a physical object or attached avatar stops colliding with the ground at position pos. */
   land_collision_end: (pos: Vector) => void
-  /** Triggered in the root prim when a physical object or attached avatar first begins colliding with the ground at position pos. */
-  land_collision_start: (pos: Vector) => void
-  /** Triggered when the script receives a link message from sender_num, containing the parameters num, str, and id sent via llMessageLinked. */
-  link_message: (senderNum: number, num: number, str: string, id: string) => void
-  /** Fires in all scripts in the linkset whenever the datastore has been modified via an llLinksetData function. Passes the action taken, the affected key name, and the new value. */
-  linkset_data: (action: number, name: string, value: string) => void
+  /**
+   * Triggered at regular periodic intervals configured by llSetTimerEvent.
+   * @deprecated Use 'LLTimers' instead.
+   */
+  timer: () => void
   /** Triggered when a chat message matching active llListen filters is received on channel. Passes the sender's name and UUID key id, along with the spoken string msg. */
   listen: (channel: number, name: string, id: UUID, msg: string) => void
-  /** Triggered when a resident specified by id pays an amount of Linden dollars (L$) to the prim. */
-  money: (id: UUID, amount: number) => void
-  /** Triggered whenever the physical or moving object containing the script stops moving. */
-  moving_end: () => void
-  /** Triggered whenever the physical or moving object containing the script starts moving. */
-  moving_start: () => void
-  /** Triggered when active sensors (from llSensor or llSensorRepeat) complete a scan without finding any matching targets. */
-  no_sensor: () => void
-  /** Triggered continuously while the object's rotation is outside the leeway angle of targets set via llRotTarget. */
-  not_at_rot_target: () => void
-  /** Triggered continuously while the object's position has not yet reached the range of targets set via llTarget. */
-  not_at_target: () => void
-  /** Triggered when this object successfully rezzes another object from its inventory. Passes the key (UUID) id of the newly rezzed object. */
-  object_rez: (id: UUID) => void
-  /** Triggered when damage has been inflicted on an avatar or task, but before it is applied or distributed. Collision detected functions (llDetected*), llDetectedDamage, and llAdjustDamage are available. Passes num_detected, representing the number of pending damage events. */
-  on_damage: (detected: DetectedEvent[]) => void
-  /** Triggered on all worn attachments when the wearing avatar's health reaches 0. */
-  on_death: () => void
   /** Triggered when the object is rezzed into the world (by a script or user). Passes start_param from the rezzing call (or 0 if rezzed from inventory). Also triggers on attachments during login or when attached from inventory. */
   on_rez: (startParam: number) => void
-  /** Triggered to inform the script of changes or failures in the pathfinding character's status. */
-  path_update: (type: number, reserved: list) => void
+  /** Triggered when objects matching constraints of llSensor or llSensorRepeat are successfully detected. Passes num_detected, representing the number of detected targets. */
+  sensor: (detected: DetectedEvent[]) => void
+  /** Triggered when active sensors (from llSensor or llSensorRepeat) complete a scan without finding any matching targets. */
+  no_sensor: () => void
+  /** Triggered to pass captured avatar control inputs into the script. The parameter level indicates held controls, and edge indicates change in controls (both are bitfields of CONTROL_* constants). */
+  control: (id: UUID, level: number, edge: number) => void
+  /** Triggered when a resident specified by id pays an amount of Linden dollars (L$) to the prim. */
+  money: (id: UUID, amount: number) => void
+  /** Receive an email requested by llGetNextEmail(). NumberRemaining indicates the number of emails remaining in the queue for llGetNextEmail() to retrieve. */
+  email: (time: string, address: string, subject: string, msg: string, numLeft: number) => void
+  /** Triggered when the scripted object's position (ourpos) comes within the defined range of the target position (targetpos) set by llTarget (which returns the associated handle tnum). */
+  at_target: (tnum: number, targetpos: Vector, ourpos: Vector) => void
+  /** Triggered continuously while the object's position has not yet reached the range of targets set via llTarget. */
+  not_at_target: () => void
+  /** Triggered when the script's rotation (ourrot) comes within a defined angle (error) of the target rotation (targetrot) set by a call to llRotTarget (which returns the associated handle). */
+  at_rot_target: (handle: number, targetrot: Quaternion, ourrot: Quaternion) => void
+  /** Triggered continuously while the object's rotation is outside the leeway angle of targets set via llRotTarget. */
+  not_at_rot_target: () => void
+  /** Triggered when an agent grants or denies runtime permissions requested by llRequestPermissions. Passes the active integer permissions bitfield perm (returns 0 if no permissions are currently granted). */
+  run_time_permissions: (perm: number) => void
+  /** Triggered when various properties of the object change. The parameter changes is a bitfield of CHANGED_* flags. */
+  changed: (changes: number) => void
+  /** Triggered whenever the object is attached to or detached from an avatar. Passes the UUID key of the avatar if attached, or NULL_KEY if detached. */
+  attach: (avatar: UUID) => void
+  /** Triggered when requested data is returned to the script (e.g., from llRequestAgentData, llRequestInventoryData, or llGetNotecardLine). */
+  dataserver: (queryid: UUID, data: string) => void
+  /** Triggered when the script receives a link message from sender_num, containing the parameters num, str, and id sent via llMessageLinked. */
+  link_message: (senderNum: number, num: number, str: string, id: string) => void
+  /** Triggered whenever the physical or moving object containing the script starts moving. */
+  moving_start: () => void
+  /** Triggered whenever the physical or moving object containing the script stops moving. */
+  moving_end: () => void
+  /** Triggered when this object successfully rezzes another object from its inventory. Passes the key (UUID) id of the newly rezzed object. */
+  object_rez: (id: UUID) => void
   /**
    * Deprecated. Triggered by incoming XML-RPC calls, passing event_type, channel, message_id, sender, idata, and sdata.
    * @deprecated
@@ -192,71 +187,76 @@ declare interface LLEventMap {
     idata: number,
     sdata: string,
   ) => void
-  /** Triggered when an agent grants or denies runtime permissions requested by llRequestPermissions. Passes the active integer permissions bitfield perm (returns 0 if no permissions are currently granted). */
-  run_time_permissions: (perm: number) => void
-  /** Triggered when objects matching constraints of llSensor or llSensorRepeat are successfully detected. Passes num_detected, representing the number of detected targets. */
-  sensor: (detected: DetectedEvent[]) => void
-  /**
-   * Triggered at regular periodic intervals configured by llSetTimerEvent.
-   * @deprecated Use 'LLTimers' instead.
-   */
-  timer: () => void
-  /** Triggered continuously while an avatar touches the object. Passes num_detected, representing the number of touching agents. */
-  touch: (detected: DetectedEvent[]) => void
-  /** Triggered when an avatar stops touching the object. Passes num_detected, representing the number of touching agents. */
-  touch_end: (detected: DetectedEvent[]) => void
-  /** Triggered when an avatar first touches the object. Passes num_detected, representing the number of touching agents. */
-  touch_start: (detected: DetectedEvent[]) => void
+  /** Triggered when an HTTP response body is received for a pending request_id, or if the request fails or times out. */
+  http_response: (requestId: UUID, status: number, metadata: list, body: string) => void
+  /** Triggered when the script's registered URL receives an incoming HTTP request identified by request_id. */
+  http_request: (requestId: UUID, method: string, body: string) => void
+  /** Triggered when the agent specified by agent_id approves an experience permissions request (interactively or automatically if previously approved). */
+  experience_permissions: (agentId: UUID) => void
   /** Triggered when an asynchronous L$ transfer (such as llTransferLindenDollars) is completed. Passes transaction info id, success status, and CSV or error data. */
   transaction_result: (id: UUID, success: boolean, data: string) => void
+  /** Triggered to inform the script of changes or failures in the pathfinding character's status. */
+  path_update: (type: number, reserved: list) => void
+  /** Triggered when the agent specified by agent_id denies experience permissions, or when permission is blocked for other reasons (specified by the error code reason). */
+  experience_permissions_denied: (agentId: UUID, reason: number) => void
+  /** Fires in all scripts in the linkset whenever the datastore has been modified via an llLinksetData function. Passes the action taken, the affected key name, and the new value. */
+  linkset_data: (action: number, name: string, value: string) => void
+  /** Triggered when a compatible viewer sends game controller input changes for the avatar specified by id. Only triggers for scripts in attachments or seats. */
+  game_control: (id: UUID, buttonLevels: number, axes: number[]) => void
+  /** Triggered on all worn attachments when the wearing avatar's health reaches 0. */
+  on_death: () => void
+  /** Triggered when damage has been inflicted on an avatar or task, but before it is applied or distributed. Collision detected functions (llDetected*), llDetectedDamage, and llAdjustDamage are available. Passes num_detected, representing the number of pending damage events. */
+  on_damage: (detected: DetectedEvent[]) => void
+  /** Triggered after all on_damage events across all scripts have completed and damage is actively applied to the avatar or distributed among seated avatars. Collision detected functions (llDetected*) and llDetectedDamage are available. */
+  final_damage: (detected: DetectedEvent[]) => void
 }
 
 /** 'rotation' is an alias for 'quaternion' */
 declare type rotation = Quaternion
 declare type list = (string | number | Vector | UUID | Quaternion | boolean)[]
 declare type LLDetectedEventName =
-  | "collision"
-  | "collision_end"
-  | "collision_start"
-  | "final_damage"
-  | "on_damage"
-  | "sensor"
+  | "touch_start"
   | "touch"
   | "touch_end"
-  | "touch_start"
+  | "collision_start"
+  | "collision"
+  | "collision_end"
+  | "sensor"
+  | "on_damage"
+  | "final_damage"
 declare type LLNonDetectedEventName =
-  | "at_rot_target"
-  | "at_target"
-  | "attach"
-  | "changed"
-  | "control"
-  | "dataserver"
-  | "email"
-  | "experience_permissions"
-  | "experience_permissions_denied"
-  | "game_control"
-  | "http_request"
-  | "http_response"
+  | "land_collision_start"
   | "land_collision"
   | "land_collision_end"
-  | "land_collision_start"
-  | "link_message"
-  | "linkset_data"
-  | "listen"
-  | "money"
-  | "moving_end"
-  | "moving_start"
-  | "no_sensor"
-  | "not_at_rot_target"
-  | "not_at_target"
-  | "object_rez"
-  | "on_death"
-  | "on_rez"
-  | "path_update"
-  | "remote_data"
-  | "run_time_permissions"
   | "timer"
+  | "listen"
+  | "on_rez"
+  | "no_sensor"
+  | "control"
+  | "money"
+  | "email"
+  | "at_target"
+  | "not_at_target"
+  | "at_rot_target"
+  | "not_at_rot_target"
+  | "run_time_permissions"
+  | "changed"
+  | "attach"
+  | "dataserver"
+  | "link_message"
+  | "moving_start"
+  | "moving_end"
+  | "object_rez"
+  | "remote_data"
+  | "http_response"
+  | "http_request"
+  | "experience_permissions"
   | "transaction_result"
+  | "path_update"
+  | "experience_permissions_denied"
+  | "linkset_data"
+  | "game_control"
+  | "on_death"
 declare type LLEventName = keyof LLEventMap
 declare type LLEventHandler = (this: void, ...args: any[]) => void
 declare type LLDetectedEventHandler = (this: void, detected: DetectedEvent[]) => void
@@ -2300,7 +2300,10 @@ declare namespace ll {
   /** Sends an instant message containing msg to the agent identified by their key. */
   export function InstantMessage(agent: UUID, msg: string): void
 
-  /** Returns an 8-character Base64 string representing the big-endian encoded value of number. */
+  /**
+   * Returns an 8-character Base64 string representing the big-endian encoded value of number.
+   * @deprecated Use 'llbase64.encode' and 'string.pack' or 'buffer.writei32' instead.
+   */
   export function IntegerToBase64(number: number): string
 
   /** Returns TRUE if agent_id and the owner of the script are friends, and FALSE otherwise. */

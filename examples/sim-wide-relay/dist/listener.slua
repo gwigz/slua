@@ -500,6 +500,7 @@ function handleRelayedMessage(text)
 
 		ll.RegionSay(
 			config.PRIVATE_CHANNEL,
+
 			sign(
 				(((("SAY|" .. tostring(assignedAvatar)) .. "|") .. speakerId) .. "|") .. message,
 				config.SIGN_NONCE,
@@ -531,10 +532,11 @@ recentMessages = {}
 recentCount = 0
 
 local function forwardCommand(avatar, text)
-	ll.RegionSay(
-		config.PRIVATE_CHANNEL,
-		sign((("CMD|" .. tostring(avatar)) .. "|") .. text, config.SIGN_NONCE, config.SIGN_WINDOW)
-	)
+	ll.RegionSay(config.PRIVATE_CHANNEL, sign(
+		(("CMD|" .. tostring(avatar)) .. "|") .. text,
+		config.SIGN_NONCE,
+		config.SIGN_WINDOW
+	))
 end
 
 LLEvents:on("listen", function(channel, _name, id, text)

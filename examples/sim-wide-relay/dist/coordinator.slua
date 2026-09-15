@@ -410,6 +410,7 @@ local function assignListener(avatar)
 	ll.RegionSayTo(
 		avatar,
 		0,
+
 		ll.ReplaceSubString(
 			config.WELCOME_MESSAGE,
 			"{help}",

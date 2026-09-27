@@ -1,6 +1,11 @@
 // Auto-generated from slua_definitions.yaml and lsl_definitions.yaml
 // Do not edit manually.
 /// <reference types="@typescript-to-lua/language-extensions" />
+/** Opaque SLua byte buffer. Create values through the buffer namespace. */
+declare interface buffer {
+  readonly __bufferBrand: unique symbol
+}
+
 /**
  * A set of four float values. Used to represent rotations and orientations.
  * @customConstructor quaternion.create

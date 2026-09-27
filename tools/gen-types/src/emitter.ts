@@ -1045,6 +1045,13 @@ export function emitAll(
   ])
 
   // 2. Base types -- build constructor info from modules
+  sf.addInterface({
+    name: "buffer",
+    hasDeclareKeyword: true,
+    docs: ["Opaque SLua byte buffer. Create values through the buffer namespace."],
+    properties: [{ name: "__bufferBrand", type: "unique symbol", isReadonly: true }],
+  })
+
   const constructorMap: Record<string, ConstructorInfo> = {}
 
   for (const mod of slua.modules) {

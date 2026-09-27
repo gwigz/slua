@@ -426,6 +426,8 @@ describe("emitAll (end-to-end)", () => {
   })
 
   it("contains base type classes with constructors", () => {
+    expect(output).toContain("declare interface buffer {")
+    expect(output).toContain("readonly __bufferBrand: unique symbol")
     expect(output).toContain("declare class Vector {")
     expect(output).toContain("declare class Quaternion {")
     expect(output).toContain("declare class UUID {")

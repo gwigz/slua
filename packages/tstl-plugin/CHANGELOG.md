@@ -1,5 +1,13 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.8.1
+
+### Patch Changes
+
+- [`5cabddd`](https://github.com/gwigz/slua/commit/5cabdddc04101f8c6d66d97dd7c227c372682947) Thanks [@gwigz](https://github.com/gwigz)! - transpile multi-value and spread `arr.push()` statements to native `table.append`/`table.extend` instead of the `__TS__ArrayPush` lualib helper
+- Updated dependencies [[`543a638`](https://github.com/gwigz/slua/commit/543a638fa9a10bcd74d429cdce0e365da1429b2a)]:
+  - @gwigz/slua-types@1.5.2
+
 ## 1.8.0
 
 ### Minor Changes

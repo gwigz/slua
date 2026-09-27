@@ -1,5 +1,11 @@
 # @gwigz/slua-types
 
+## 1.5.2
+
+### Patch Changes
+
+- [`543a638`](https://github.com/gwigz/slua/commit/543a638fa9a10bcd74d429cdce0e365da1429b2a) Thanks [@gwigz](https://github.com/gwigz)! - make `buffer` an opaque type
+
 ## 1.5.1
 
 ### Patch Changes

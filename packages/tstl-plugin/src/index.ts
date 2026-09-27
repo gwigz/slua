@@ -14,6 +14,7 @@ import {
   extractIndexOfPresence,
   extractConcatSelfAssignment,
   extractSpreadSelfAssignment,
+  extractArrayPush,
   emitChainedExtend,
   getLLIndexSemantics,
   emitLLIndexCall,
@@ -299,8 +300,27 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           }
         }
 
-        // Builder chain detection (e.g. $setPrimParams(LINK_THIS).color(0, v, 1))
         if (ts.isCallExpression(node.expression)) {
+          // Multi-value push -> table.append, spread push -> table.extend,
+          // instead of __TS__ArrayPush packing its arguments into a new table
+          const push = extractArrayPush(node.expression, context.checker)
+
+          if (push) {
+            const target = context.transformExpression(push.target)
+            const args = push.args.map((a) => context.transformExpression(a)) as [
+              tstl.Expression,
+              ...tstl.Expression[],
+            ]
+
+            const call =
+              push.kind === "append"
+                ? createNamespacedCall("table", "append", [target, ...args], node)
+                : emitChainedExtend(target, args, node)
+
+            return [tstl.createExpressionStatement(call, node)]
+          }
+
+          // Builder chain detection (e.g. $setPrimParams(LINK_THIS).color(0, v, 1))
           const chain = matchBuilderChain(node.expression)
           if (chain) {
             return [emitBuilderChain(chain, context, node)]

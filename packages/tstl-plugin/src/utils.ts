@@ -383,6 +383,41 @@ export function extractSpreadSelfAssignment(
 }
 
 /**
+ * Detects `arr.push(a, b, ...)` and `arr.push(...b, ...c)` on an array, for
+ * use where the returned length is discarded. Two or more plain values map to
+ * `table.append`, and array spreads map to `table.extend`. A single plain
+ * value is left to TSTL, which already emits `arr[#arr + 1] = value`, and so
+ * are mixed plain and spread arguments.
+ */
+export function extractArrayPush(
+  call: ts.CallExpression,
+  checker: ts.TypeChecker,
+): { target: ts.Expression; kind: "append" | "extend"; args: ts.Expression[] } | null {
+  if (call.questionDotToken) return null
+  if (!ts.isPropertyAccessExpression(call.expression)) return null
+  if (call.expression.questionDotToken) return null
+  if (call.expression.name.text !== "push") return null
+
+  const target = call.expression.expression
+  if (!isArrayType(target, checker)) return null
+
+  const spreads = call.arguments.filter(ts.isSpreadElement)
+
+  if (spreads.length === 0) {
+    if (call.arguments.length < 2) return null
+    return { target, kind: "append", args: [...call.arguments] }
+  }
+
+  if (spreads.length !== call.arguments.length) return null
+
+  for (const spread of spreads) {
+    if (!isArrayType(spread.expression, checker)) return null
+  }
+
+  return { target, kind: "extend", args: spreads.map((spread) => spread.expression) }
+}
+
+/**
  * Builds nested `table.extend` calls:
  * - Single arg: `table.extend(arr, b)`
  * - Multiple: `table.extend(table.extend(arr, b), c)`

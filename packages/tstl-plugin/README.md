@@ -51,6 +51,7 @@ To enable output optimizations, pass `optimize: true` for all flags, or pick ind
 - Translates TypeScript patterns to native Luau/LSL equivalents (see below)
 - Automatically adjusts `ll.*` index arguments and return values from 0-based to 1-based
 - Optimizes self-reassignment array concat/spread to in-place `table.extend`
+- Optimizes multi-value `push` to native `table.append` and `table.extend`
 - Handles adjusting `Vector`, `Quaternion`, and `UUID` casing
 - Validates `luaTarget` is set to `Luau`
 
@@ -166,6 +167,24 @@ This optimization only applies when:
 - The expression is a statement (not `const result = arr.concat(b)`)
 - The LHS is a simple identifier matching the receiver/first spread
 - All concat arguments / spread expressions are array-typed
+
+### Array push
+
+A `push` with more than one value compiles to TSTL's `__TS__ArrayPush`, which packs its arguments into a new table on every call. When the returned length is unused, the plugin emits SLua's native `table.append` or `table.extend` instead:
+
+| TypeScript             | Lua output                              |
+| ---------------------- | --------------------------------------- |
+| `arr.push(a, b)`       | `table.append(arr, a, b)`               |
+| `arr.push(...b)`       | `table.extend(arr, b)`                  |
+| `arr.push(...b, ...c)` | `table.extend(table.extend(arr, b), c)` |
+
+This optimization only applies when:
+
+- The expression is a statement (not `const length = arr.push(a, b)`)
+- The receiver is array-typed
+- The arguments are all plain values or all array-typed spreads
+
+A single value (`arr.push(a)`) already compiles to `arr[#arr + 1] = a` and is left unchanged.
 
 ### Floor division
 

@@ -873,6 +873,98 @@ describe("array concat self-assignment", () => {
   })
 })
 
+describe("array push", () => {
+  describe("positive cases", () => {
+    it("translates arr.push(a, b) to table.append", () => {
+      const lua = transpileSimple(
+        "declare const arr: number[];\ndeclare const a: number, b: number;\narr.push(a, b)",
+      )
+
+      expect(lua).toContain("table.append(arr, a, b)")
+      expect(lua).not.toContain("__TS__ArrayPush")
+    })
+
+    it("keeps argument order for many values", () => {
+      const lua = transpileSimple(
+        'declare const rules: unknown[];\ndeclare const face: number;\nrules.push("color", face, 1, 0.5)',
+      )
+
+      expect(lua).toMatch(/table\.append\(\s*rules,\s*"color",\s*face,\s*1,\s*0\.5\s*\)/)
+    })
+
+    it("translates a push on a property to table.append", () => {
+      const lua = transpileSimple(
+        "declare const state: { rules: number[] };\nstate.rules.push(1, 2)",
+      )
+
+      expect(lua).toContain("table.append(state.rules, 1, 2)")
+    })
+
+    it("translates arr.push(...b) to table.extend", () => {
+      const lua = transpileSimple(
+        "declare const arr: number[];\ndeclare const b: number[];\narr.push(...b)",
+      )
+
+      expect(lua).toContain("table.extend(arr, b)")
+      expect(lua).not.toContain("__TS__ArrayPush")
+    })
+
+    it("translates arr.push(...b, ...c) to nested table.extend", () => {
+      const lua = transpileSimple(
+        "declare const arr: number[];\ndeclare const b: number[], c: number[];\narr.push(...b, ...c)",
+      )
+
+      expect(lua).toMatch(/table\.extend\(\s*table\.extend\(arr, b\),\s*c\s*\)/)
+    })
+  })
+
+  describe("negative cases", () => {
+    it("leaves a single value to TSTL's inline append", () => {
+      const lua = transpileSimple("declare const arr: number[];\narr.push(1)")
+
+      expect(lua).toContain("arr[#arr + 1] = 1")
+      expect(lua).not.toContain("table.append")
+    })
+
+    it("does not transform when the returned length is used", () => {
+      const lua = transpileSimple("declare const arr: number[];\nconst n = arr.push(1, 2)")
+
+      expect(lua).not.toContain("table.append")
+    })
+
+    it("does not transform mixed values and spreads", () => {
+      const lua = transpileSimple(
+        "declare const arr: number[];\ndeclare const b: number[];\narr.push(1, ...b)",
+      )
+
+      expect(lua).not.toContain("table.append")
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform a spread that is not array-typed", () => {
+      const lua = transpileSimple(
+        "declare const arr: number[];\ndeclare const b: Iterable<number>;\narr.push(...b)",
+      )
+
+      expect(lua).not.toContain("table.extend")
+    })
+
+    it("does not transform push on a non-array receiver", () => {
+      const lua = transpileSimple(
+        "declare const stack: { push(a: number, b: number): void };\nstack.push(1, 2)",
+      )
+
+      expect(lua).not.toContain("table.append")
+    })
+
+    it("does not transform optional chaining", () => {
+      const lua = transpileSimple("declare const arr: number[] | undefined;\narr?.push(1, 2)")
+
+      expect(lua).not.toContain("table.append")
+    })
+  })
+})
+
 describe("optimize: filter", () => {
   it("transforms arr.filter(cb) to inline ipairs loop", () => {
     const lua = transpileOptimized(

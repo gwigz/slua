@@ -212,6 +212,10 @@ export function isArrayType(expr: ts.Expression, checker: ts.TypeChecker) {
   return checker.isArrayLikeType(type)
 }
 
+export function isAnyType(expr: ts.Expression, checker: ts.TypeChecker) {
+  return (checker.getTypeAtLocation(expr).flags & ts.TypeFlags.Any) !== 0
+}
+
 export function isDetectedEventType(expr: ts.Expression, checker: ts.TypeChecker) {
   const type = checker.getTypeAtLocation(expr)
   return type.symbol?.name === "DetectedEvent"
@@ -399,7 +403,9 @@ export function extractArrayPush(
   if (call.expression.name.text !== "push") return null
 
   const target = call.expression.expression
-  if (!isArrayType(target, checker)) return null
+
+  // `any` counts as array-like, but TSTL calls `push` as a method on it
+  if (isAnyType(target, checker) || !isArrayType(target, checker)) return null
 
   const spreads = call.arguments.filter(ts.isSpreadElement)
 
@@ -411,7 +417,9 @@ export function extractArrayPush(
   if (spreads.length !== call.arguments.length) return null
 
   for (const spread of spreads) {
-    if (!isArrayType(spread.expression, checker)) return null
+    if (isAnyType(spread.expression, checker) || !isArrayType(spread.expression, checker)) {
+      return null
+    }
   }
 
   return { target, kind: "extend", args: spreads.map((spread) => spread.expression) }

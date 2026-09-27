@@ -1069,6 +1069,20 @@ describe("array push", () => {
 
       expect(lua).not.toContain("table.append")
     })
+
+    it("does not transform an any-typed receiver", () => {
+      const lua = transpileSimple("declare const x: any;\nx.push(1, 2)")
+
+      expect(lua).not.toContain("table.append")
+    })
+
+    it("does not transform an any-typed spread", () => {
+      const lua = transpileSimple(
+        "declare const arr: number[];\ndeclare const b: any;\narr.push(...b)",
+      )
+
+      expect(lua).not.toContain("table.extend")
+    })
   })
 })
 

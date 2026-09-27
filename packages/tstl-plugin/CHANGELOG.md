@@ -1,5 +1,17 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.9.0
+
+### Minor Changes
+
+- [`b57aad1`](https://github.com/gwigz/slua/commit/b57aad107cc48ee43c836e2f38984d72219234ea) Thanks [@gwigz](https://github.com/gwigz)! - add `reportLualib` option to warn with the lualib helpers each output file uses, and native alternatives where known
+
+- [`c33ae67`](https://github.com/gwigz/slua/commit/c33ae67d2480206e4b847ff120f263d698ab744f) Thanks [@gwigz](https://github.com/gwigz)! - add `tableClear` optimize flag to compile `arr.length = 0` to `table.clear(arr)` instead of the `__TS__ArraySetLength` lualib helper
+
+### Patch Changes
+
+- [`850000a`](https://github.com/gwigz/slua/commit/850000aaadff69c37c7e583b7db0d12ad95e3797) Thanks [@gwigz](https://github.com/gwigz)! - leave `push` on `any`-typed values to TSTL instead of rewriting it to `table.append`/`table.extend`
+
 ## 1.8.1
 
 ### Patch Changes

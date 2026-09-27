@@ -68,9 +68,17 @@ export const OPTIMIZE_OPTIONS: OptimizeOption[] = [
     label: "Minify names",
     description: "Rename locals, local functions and params to short names.",
   },
+  {
+    key: "tableClear",
+    label: "Table clear",
+    description: "Compile arr.length = 0 to table.clear(arr), which keeps the capacity.",
+  },
 ]
 
-/** Most optimizations on by default; minifyNames stays off to keep output readable. */
+/**
+ * Most optimizations on by default. minifyNames stays off to keep output
+ * readable, and tableClear because it changes how cleared arrays hold memory.
+ */
 export const DEFAULT_OPTIMIZE: Required<OptimizeFlags> = {
   indexOf: true,
   foldBitwise: true,
@@ -83,4 +91,5 @@ export const DEFAULT_OPTIMIZE: Required<OptimizeFlags> = {
   inlineLocals: true,
   shortenTemps: true,
   minifyNames: false,
+  tableClear: false,
 }

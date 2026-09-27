@@ -207,6 +207,19 @@ describe("reportLualib", () => {
 
       expect(reportText(withFlag[0])).toMatch(/\n {2}__TS__ArrayFilter$/)
     })
+
+    it("drops the tableClear hint once the flag is on", () => {
+      // `arr.length = 1` still needs the helper with the flag on
+      const files = { "main.ts": "declare const arr: number[];\narr.length = 1" }
+
+      expect(reportText(lualibReports(files)[0])).toMatch(
+        /__TS__ArraySetLength: the `tableClear` optimize flag compiles `arr\.length = 0` to `table\.clear\(arr\)`/,
+      )
+
+      const withFlag = lualibReports(files, { reportLualib: true, optimize: { tableClear: true } })
+
+      expect(reportText(withFlag[0])).toMatch(/\n {2}__TS__ArraySetLength$/)
+    })
   })
 })
 
@@ -1560,6 +1573,83 @@ describe("optimize: simplifyNilChecks", () => {
 
     expect(lua).toContain("not (x ~= nil)")
     expect(lua).not.toContain("if x == nil then")
+  })
+})
+
+describe("optimize: tableClear", () => {
+  describe("positive cases", () => {
+    it("translates arr.length = 0 to table.clear", () => {
+      const lua = transpileWithOptimize("declare const arr: number[];\narr.length = 0", {
+        tableClear: true,
+      })
+
+      expect(lua).toContain("table.clear(arr)")
+      expect(lua).not.toContain("__TS__ArraySetLength")
+    })
+
+    it("translates a length reset on a property", () => {
+      const lua = transpileWithOptimize(
+        "declare const state: { queue: string[] };\nstate.queue.length = 0",
+        { tableClear: true },
+      )
+
+      expect(lua).toMatch(/table\.clear\(\s*state\.queue\s*\)/)
+    })
+  })
+
+  describe("negative cases", () => {
+    it("does not transform without the tableClear flag", () => {
+      const lua = transpileSimple("declare const arr: number[];\narr.length = 0")
+
+      expect(lua).toContain("__TS__ArraySetLength(arr, 0)")
+      expect(lua).not.toContain("table.clear")
+    })
+
+    it("is not enabled by optimize: true", () => {
+      const lua = transpileOptimized("declare const arr: number[];\narr.length = 0")
+
+      expect(lua).toContain("__TS__ArraySetLength(arr, 0)")
+      expect(lua).not.toContain("table.clear")
+    })
+
+    it("does not transform other lengths", () => {
+      const lua = transpileWithOptimize(
+        "declare const arr: number[];\ndeclare const n: number;\narr.length = 1;\narr.length = n",
+        { tableClear: true },
+      )
+
+      expect(lua).toContain("__TS__ArraySetLength(arr, 1)")
+      expect(lua).toContain("__TS__ArraySetLength(arr, n)")
+      expect(lua).not.toContain("table.clear")
+    })
+
+    it("does not transform non-statement context", () => {
+      const lua = transpileWithOptimize(
+        "declare const arr: number[];\nconst n = (arr.length = 0)",
+        { tableClear: true },
+      )
+
+      expect(lua).toContain("__TS__ArraySetLength(arr, 0)")
+      expect(lua).not.toContain("table.clear")
+    })
+
+    it("does not transform a non-array receiver", () => {
+      const lua = transpileWithOptimize("declare const box: { length: number };\nbox.length = 0", {
+        tableClear: true,
+      })
+
+      expect(lua).toContain("box.length = 0")
+      expect(lua).not.toContain("table.clear")
+    })
+
+    it("does not transform an any-typed receiver", () => {
+      const lua = transpileWithOptimize("declare const x: any;\nx.length = 0", {
+        tableClear: true,
+      })
+
+      expect(lua).toContain("x.length = 0")
+      expect(lua).not.toContain("table.clear")
+    })
   })
 })
 

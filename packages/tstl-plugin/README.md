@@ -217,7 +217,7 @@ This applies when:
 
 ## Optimizations
 
-Pass `optimize: true` to enable all optimizations, or pass an object to pick individual flags. All flags default to `false` when not specified.
+Pass `optimize: true` to enable all optimizations except `tableClear`, or pass an object to pick individual flags. All flags default to `false` when not specified.
 
 ### `filter`
 
@@ -371,6 +371,24 @@ end
 
 Safe for string and number defaults (both truthy in Lua). Not applied to `false` defaults.
 
+### `tableClear`
+
+Compiles the statement `arr.length = 0` to SLua's native `table.clear(arr)` instead of TSTL's `__TS__ArraySetLength` helper.
+
+| TypeScript       | Lua output         |
+| ---------------- | ------------------ |
+| `arr.length = 0` | `table.clear(arr)` |
+
+`table.clear` keeps the table's allocated capacity, so the memory stays reserved for the next items. To get the memory back, assign a new array or call `table.shrink(arr)` after clearing.
+
+`table.clear` also removes hash keys. An array normally has none, but a string key set on one (`arr["tag"] = 1`) survives the helper and not `table.clear`.
+
+`optimize: true` leaves this flag off. Set `tableClear: true` to enable it. It only applies when:
+
+- The expression is a statement (not `const n = (arr.length = 0)`)
+- The receiver is array-typed
+- The right side is the literal `0`, so `arr.length = n` still uses the helper
+
 ## Keeping output small
 
 Some TypeScript patterns pull in large TSTL runtime helpers. Here are recommendations for keeping output lean.
@@ -478,7 +496,7 @@ The plugin adds one warning per output file that uses any. A helper with a nativ
 ```text
 warning TS90002: dist/queue.slua uses 7 lualib helpers
   __TS__ArrayPush: `push` as a statement compiles to `table.append` or `table.extend`, unless it mixes values and spreads
-  __TS__ArraySetLength
+  __TS__ArraySetLength: the `tableClear` optimize flag compiles `arr.length = 0` to `table.clear(arr)`
   __TS__New
   Set: a `Record<K, true>` table avoids the polyfill
   __TS__Class, __TS__Iterator, __TS__Symbol: pulled in by the helpers above

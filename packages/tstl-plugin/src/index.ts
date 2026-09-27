@@ -15,6 +15,7 @@ import {
   extractConcatSelfAssignment,
   extractSpreadSelfAssignment,
   extractArrayPush,
+  extractArrayClear,
   emitChainedExtend,
   getLLIndexSemantics,
   emitLLIndexCall,
@@ -301,6 +302,18 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
             const call = emitChainedExtend(target, args, node)
 
             return [tstl.createExpressionStatement(call, node)]
+          }
+
+          // `arr.length = 0` -> table.clear(arr), instead of __TS__ArraySetLength
+          if (opt.tableClear) {
+            const cleared = extractArrayClear(node.expression, context.checker)
+
+            if (cleared) {
+              const target = context.transformExpression(cleared)
+              const call = createNamespacedCall("table", "clear", [target], node)
+
+              return [tstl.createExpressionStatement(call, node)]
+            }
           }
         }
 

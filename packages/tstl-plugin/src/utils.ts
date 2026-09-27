@@ -418,6 +418,28 @@ export function extractArrayPush(
 }
 
 /**
+ * Detects the statement `arr.length = 0` on an array, which TSTL lowers to
+ * `__TS__ArraySetLength(arr, 0)`, and returns the array expression.
+ */
+export function extractArrayClear(
+  expr: ts.BinaryExpression,
+  checker: ts.TypeChecker,
+): ts.Expression | null {
+  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return null
+  if (!isZeroLiteral(expr.right)) return null
+  if (!ts.isPropertyAccessExpression(expr.left)) return null
+  if (expr.left.name.text !== "length") return null
+
+  const target = expr.left.expression
+
+  // `any` counts as array-like, but TSTL writes a plain `length` field for it
+  if (checker.getTypeAtLocation(target).flags & ts.TypeFlags.Any) return null
+  if (!isArrayType(target, checker)) return null
+
+  return target
+}
+
+/**
  * Builds nested `table.extend` calls:
  * - Single arg: `table.extend(arr, b)`
  * - Multiple: `table.extend(table.extend(arr, b), c)`

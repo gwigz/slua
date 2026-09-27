@@ -41,6 +41,10 @@ const LUALIB_HINTS: Partial<Record<LuaLibFeature, LualibHint>> = {
   [tstl.LuaLibFeature.ArrayPush]: {
     text: "`push` as a statement compiles to `table.append` or `table.extend`, unless it mixes values and spreads",
   },
+  [tstl.LuaLibFeature.ArraySetLength]: {
+    text: "the `tableClear` optimize flag compiles `arr.length = 0` to `table.clear(arr)`",
+    unlessFlag: "tableClear",
+  },
   [tstl.LuaLibFeature.ArraySplice]: { text: "rebuild the array in a loop instead" },
   [tstl.LuaLibFeature.Delete]: {
     text: "assign `undefined` instead, which compiles to `t[k] = nil`",

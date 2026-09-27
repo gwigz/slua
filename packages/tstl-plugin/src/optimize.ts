@@ -26,6 +26,8 @@ export interface OptimizeFlags {
   simplifyNilChecks?: boolean
   /** Rename local variables, local functions, and parameters to short names. */
   minifyNames?: boolean
+  /** Compile the statement `arr.length = 0` to `table.clear(arr)`, which keeps the capacity. */
+  tableClear?: boolean
 }
 
 export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
@@ -40,6 +42,8 @@ export const ALL_OPTIMIZE: Required<OptimizeFlags> = {
   foldBitwise: true,
   simplifyNilChecks: true,
   minifyNames: false,
+  // Keeps the cleared table's capacity, so it stays opt-in
+  tableClear: false,
 }
 
 /**

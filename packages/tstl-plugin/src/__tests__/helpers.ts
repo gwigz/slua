@@ -4,6 +4,8 @@ import { getPlugins } from "typescript-to-lua/dist/transpilation/plugins"
 import { getProgramTranspileResult } from "typescript-to-lua/dist/transpilation/transpile"
 import createPlugin from "../index"
 
+import type { SluaPluginOptions } from "../index"
+
 const plugin = createPlugin()
 const optimizedPlugin = createPlugin({ optimize: true })
 
@@ -162,6 +164,25 @@ export function transpileWithOptimize(
   }
 
   return transpileWith({ "main.ts": code }, optOptions, undefined).code
+}
+
+// Full emit through TSTL's transpiler, so beforeEmit and bundling run too.
+// Returns every diagnostic, for options that report at emit time.
+export function emitDiagnostics(
+  files: Record<string, string>,
+  pluginOptions: SluaPluginOptions,
+  options: tstl.CompilerOptions = {},
+) {
+  const emitPlugin = createPlugin(pluginOptions)
+
+  const emitOptions: tstl.CompilerOptions = {
+    ...simpleOptions,
+    luaLibImport: tstl.LuaLibImportKind.Inline,
+    luaPlugins: [{ plugin: emitPlugin as tstl.Plugin }],
+    ...options,
+  }
+
+  return tstl.transpileVirtualProject(files, emitOptions).diagnostics
 }
 
 // Full transpile, includes SLua types + language extensions

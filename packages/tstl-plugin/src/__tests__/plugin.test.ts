@@ -10,8 +10,11 @@ import {
   transpileOptimized,
   transpileWithDefine,
   transpileWithOptimize,
+  emitDiagnostics,
   initFull,
 } from "./helpers"
+
+import type { SluaPluginOptions } from "../index"
 
 const TYPES_PATH = resolve(import.meta.dir, "../../../../packages/types/index.d.ts")
 
@@ -113,6 +116,97 @@ describe("ts-slua plugin", () => {
 
     expect(diagnostics).toHaveLength(1)
     expect((diagnostics as ts.Diagnostic[])[0].code).toBe(90001)
+  })
+})
+
+function lualibReports(
+  files: Record<string, string>,
+  pluginOptions: SluaPluginOptions = { reportLualib: true },
+  options?: tstl.CompilerOptions,
+) {
+  return emitDiagnostics(files, pluginOptions, options).filter((d) => d.code === 90002)
+}
+
+function reportText(diagnostic: ts.Diagnostic) {
+  return ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")
+}
+
+describe("reportLualib", () => {
+  describe("positive cases", () => {
+    it("reports each output file's helpers and their dependencies", () => {
+      const reports = lualibReports({
+        "main.ts": "declare const arr: number[];\narr.splice(0, 1)",
+        "clean.ts": "export const x = 1",
+      })
+
+      expect(reports).toHaveLength(1)
+      expect(reports[0].category).toBe(ts.DiagnosticCategory.Warning)
+
+      const text = reportText(reports[0])
+
+      expect(text).toMatch(/^main\.lua uses 2 lualib helpers\n/)
+      expect(text).toContain("\n  __TS__ArraySplice: rebuild the array in a loop instead")
+      expect(text).toContain("\n  __TS__CountVarargs: pulled in by the helpers above")
+      expect(text).not.toContain("clean.lua")
+    })
+
+    it("points helpers at native alternatives", () => {
+      const reports = lualibReports({
+        "main.ts": "declare const arr: number[];\nconst i = arr.indexOf(1, 2)",
+      })
+
+      expect(reportText(reports[0])).toMatch(/__TS__ArrayIndexOf: .*`table\.find`/)
+    })
+
+    it("reports a bundle once, naming the modules that use each helper", () => {
+      const reports = lualibReports(
+        {
+          "main.ts": 'import { reset } from "./mod"\nreset()',
+          "mod.ts": "const arr: number[] = []\nexport function reset() { arr.splice(0, 1) }",
+        },
+        { reportLualib: true },
+        { luaBundle: "out.lua", luaBundleEntry: "main.ts" },
+      )
+
+      expect(reports).toHaveLength(1)
+
+      const text = reportText(reports[0])
+
+      expect(text).toMatch(/^out\.lua uses 2 lualib helpers\n/)
+      expect(text).toContain("__TS__ArraySplice (mod.ts): ")
+      expect(text).not.toContain("main.ts")
+    })
+  })
+
+  describe("negative cases", () => {
+    it("reports nothing without the option", () => {
+      const reports = lualibReports(
+        { "main.ts": "declare const arr: number[];\narr.splice(0, 1)" },
+        {},
+      )
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it("skips output files without helpers", () => {
+      const reports = lualibReports({ "main.ts": "export const x = [1, 2].length" })
+
+      expect(reports).toHaveLength(0)
+    })
+
+    it("drops a hint once its optimize flag is on", () => {
+      // Two filter calls keep the shared helper even with the flag on
+      const files = {
+        "main.ts":
+          "declare const arr: number[];\nconst a = arr.filter(x => x > 0);\nconst b = arr.filter(x => x < 9)",
+      }
+
+      expect(reportText(lualibReports(files)[0])).toContain("`filter` optimize flag")
+
+      const withFlag = lualibReports(files, { reportLualib: true, optimize: { filter: true } })
+
+      expect(reportText(withFlag[0])).toMatch(/\n {2}__TS__ArrayFilter$/)
+    })
   })
 })
 

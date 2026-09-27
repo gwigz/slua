@@ -461,6 +461,31 @@ const lookup: Record<string, UUID | undefined> = {}
 const seen: Record<string, boolean> = {}
 ```
 
+### Report lualib helpers
+
+Set `reportLualib: true` to see which TSTL lualib helpers each output file uses:
+
+```jsonc
+{
+  "tstl": {
+    "luaPlugins": [{ "name": "@gwigz/slua-tstl-plugin", "reportLualib": true }],
+  },
+}
+```
+
+The plugin adds one warning per output file that uses any. A helper with a native alternative says what to write instead. The last line lists helpers that only come in as dependencies of the others.
+
+```text
+warning TS90002: dist/queue.slua uses 7 lualib helpers
+  __TS__ArrayPush: `push` as a statement compiles to `table.append` or `table.extend`, unless it mixes values and spreads
+  __TS__ArraySetLength
+  __TS__New
+  Set: a `Record<K, true>` table avoids the polyfill
+  __TS__Class, __TS__Iterator, __TS__Symbol: pulled in by the helpers above
+```
+
+With `luaBundle`, the bundle gets one warning, and each helper names the modules that use it.
+
 ## Build
 
 ```bash

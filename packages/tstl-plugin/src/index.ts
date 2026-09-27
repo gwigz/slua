@@ -28,6 +28,7 @@ import { matchOptionsCall, emitOptionsCall } from "./options-transform.js"
 import { tryFoldBitwise } from "./fold-bitwise.js"
 import { createOptimizeTransforms, countFilterCalls, ALL_OPTIMIZE } from "./optimize.js"
 import { tryEvaluateCondition, shouldStripDefineGuard } from "./define.js"
+import { recordLualibFeatures, reportLualibHelpers } from "./lualib-report.js"
 import {
   stripInternalJSDocTags,
   stripEmptyModuleBoilerplate,
@@ -39,7 +40,7 @@ import {
   minifyLocalNames,
 } from "./lua-transforms.js"
 
-import type { ProcessedFile } from "typescript-to-lua"
+import type { LuaLibFeature, ProcessedFile } from "typescript-to-lua"
 import type { CallTransform } from "./transforms.js"
 import type { OptimizeFlags } from "./optimize.js"
 import type { DefineMap } from "./define.js"
@@ -51,6 +52,8 @@ export interface SluaPluginOptions {
   optimize?: boolean | OptimizeFlags
   /** Compile-time defines for dead code elimination. */
   define?: Record<string, boolean | number | string>
+  /** Warn once per output file, listing the TSTL lualib helpers it uses. */
+  reportLualib?: boolean
   [key: string]: any
 }
 
@@ -61,6 +64,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
   const transforms = [...CALL_TRANSFORMS, ...optTransforms]
   const defineMap: DefineMap = new Map(options.define ? Object.entries(options.define) : [])
   const foldedBitwiseComments = new Map<string, { value: number; source: string }[]>()
+  const lualibFeatures = new Map<string, ReadonlySet<LuaLibFeature>>()
 
   function recordFoldedComment(fileName: string, folded: { value: number; source: string }) {
     const arr = foldedBitwiseComments.get(fileName)
@@ -512,6 +516,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
     beforeTransform(program, compilerOptions) {
       foldedBitwiseComments.clear()
+      lualibFeatures.clear()
       const diagnostics: ts.Diagnostic[] = []
 
       if (compilerOptions.luaTarget !== tstl.LuaTarget.Luau) {
@@ -573,6 +578,8 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
     },
 
     afterPrint(program, _options, emitHost, result: ProcessedFile[]) {
+      if (options.reportLualib) recordLualibFeatures(result, lualibFeatures)
+
       for (const file of result) {
         if (!file.luaAst) continue
         let dirty = false
@@ -648,6 +655,12 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         }
       }
     },
+
+    // Runs after bundling, so a bundle reports once with every module's helpers
+    beforeEmit: options.reportLualib
+      ? (_program, compilerOptions, emitHost, result) =>
+          reportLualibHelpers(result, lualibFeatures, compilerOptions, emitHost, opt)
+      : undefined,
   }
 
   return plugin

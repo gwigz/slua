@@ -71,13 +71,13 @@ export const OPTIMIZE_OPTIONS: OptimizeOption[] = [
   {
     key: "tableClear",
     label: "Table clear",
-    description: "Compile arr.length = 0 to table.clear(arr), which keeps the capacity.",
+    description: "Compile arr.length = 0 to table.clear(arr) instead of a lualib helper.",
   },
 ]
 
 /**
  * Most optimizations on by default. minifyNames stays off to keep output
- * readable, and tableClear because it changes how cleared arrays hold memory.
+ * readable.
  */
 export const DEFAULT_OPTIMIZE: Required<OptimizeFlags> = {
   indexOf: true,
@@ -91,5 +91,5 @@ export const DEFAULT_OPTIMIZE: Required<OptimizeFlags> = {
   inlineLocals: true,
   shortenTemps: true,
   minifyNames: false,
-  tableClear: false,
+  tableClear: true,
 }

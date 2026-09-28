@@ -1640,18 +1640,18 @@ describe("optimize: tableClear", () => {
 
       expect(lua).toMatch(/table\.clear\(\s*state\.queue\s*\)/)
     })
+
+    it("is enabled by optimize: true", () => {
+      const lua = transpileOptimized("declare const arr: number[];\narr.length = 0")
+
+      expect(lua).toContain("table.clear(arr)")
+      expect(lua).not.toContain("__TS__ArraySetLength")
+    })
   })
 
   describe("negative cases", () => {
     it("does not transform without the tableClear flag", () => {
       const lua = transpileSimple("declare const arr: number[];\narr.length = 0")
-
-      expect(lua).toContain("__TS__ArraySetLength(arr, 0)")
-      expect(lua).not.toContain("table.clear")
-    })
-
-    it("is not enabled by optimize: true", () => {
-      const lua = transpileOptimized("declare const arr: number[];\narr.length = 0")
 
       expect(lua).toContain("__TS__ArraySetLength(arr, 0)")
       expect(lua).not.toContain("table.clear")

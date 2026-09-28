@@ -342,7 +342,7 @@ When the flags array isn't a const tuple (e.g. a dynamic `ObjectDetailFlag[]`), 
 
 ## Optimizations
 
-Pass `optimize: true` to enable all optimizations except `tableClear`, or pass an object to pick individual flags. All flags default to `false` when not specified.
+Pass `optimize: true` to enable all optimizations, or pass an object to pick individual flags. All flags default to `false` when not specified.
 
 ```jsonc title="tsconfig.json"
 {
@@ -578,11 +578,11 @@ Compiles the statement `arr.length = 0` to SLua's native `table.clear(arr)` inst
 | ---------------- | ------------------ |
 | `arr.length = 0` | `table.clear(arr)` |
 
-`table.clear` keeps the table's allocated capacity, so the memory stays reserved for the next items. To get the memory back, assign a new array or call `table.shrink(arr)` after clearing.
+Both keep the table's allocated capacity, so the memory stays reserved for the next items. In Second Life, clearing a list of 200 numbers freed nothing either way, and dropping the helper saved 316 B of script memory. To get the memory back, assign a new array or call `table.shrink(arr)` after clearing.
 
 `table.clear` also removes hash keys. An array normally has none, but a string key set on one (`arr["tag"] = 1`) survives the helper and not `table.clear`.
 
-`optimize: true` leaves this flag off. Set `tableClear: true` to enable it. It only applies when:
+It only applies when:
 
 - The expression is a statement (not `const n = (arr.length = 0)`)
 - The receiver is array-typed

@@ -1,5 +1,15 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.10.0
+
+### Minor Changes
+
+- [`91254d0`](https://github.com/gwigz/slua/commit/91254d02bc0290bbe75eeca7b719868afe100d42) Thanks [@gwigz](https://github.com/gwigz)! - include `tableClear` in `optimize: true`, since `table.clear` keeps the same capacity as `__TS__ArraySetLength` without the helper
+
+### Patch Changes
+
+- [`4d3e69a`](https://github.com/gwigz/slua/commit/4d3e69a3693b0682f13b3ab3500070f0b39ebafe) Thanks [@gwigz](https://github.com/gwigz)! - parenthesize `if` expressions used as operands, callees, or indexed tables, so `(ok ? 1 : 2) + n` no longer compiles to `if ok then 1 else 2 + n`
+
 ## 1.9.0
 
 ### Minor Changes

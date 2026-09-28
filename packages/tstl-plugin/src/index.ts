@@ -33,6 +33,7 @@ import { recordLualibFeatures, reportLualibHelpers } from "./lualib-report.js"
 import {
   stripInternalJSDocTags,
   stripEmptyModuleBoilerplate,
+  parenthesizeIfExpressions,
   collapseDefaultParamNilChecks,
   simplifyNegatedInequality,
   shortenTempNames,
@@ -600,6 +601,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         // Always-on transforms
         dirty = stripInternalJSDocTags(file.luaAst) || dirty
         dirty = stripEmptyModuleBoilerplate(file.luaAst, file.sourceFiles) || dirty
+        dirty = parenthesizeIfExpressions(file.luaAst) || dirty
 
         // Opt-in transforms
         if (opt.defaultParams) dirty = collapseDefaultParamNilChecks(file.luaAst) || dirty

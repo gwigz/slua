@@ -247,6 +247,37 @@ describe("transpilation output", () => {
   })
 })
 
+describe("if-expression parentheses", () => {
+  const conditional = (expression: string) =>
+    transpileSimple(
+      `declare const ok: boolean, n: number, a: number[], b: number[], f: () => number, g: () => number;\nexport const x = ${expression}`,
+    )
+
+  it("parenthesizes a left operand", () => {
+    expect(conditional("(ok ? 1 : 2) + n")).toContain("(if ok then 1 else 2) + n")
+  })
+
+  it("parenthesizes an operand with more after it", () => {
+    expect(conditional("n + (ok ? 1 : 2) + n")).toContain("n + (if ok then 1 else 2) + n")
+  })
+
+  it("parenthesizes a unary operand", () => {
+    expect(conditional("-(ok ? 1 : 2) * n")).toContain("-(if ok then 1 else 2) * n")
+  })
+
+  it("parenthesizes an indexed table", () => {
+    expect(conditional("(ok ? a : b)[0]")).toContain("(if ok then a else b)[1]")
+  })
+
+  it("parenthesizes a callee", () => {
+    expect(conditional("(ok ? f : g)()")).toContain("(if ok then f else g)()")
+  })
+
+  it("leaves a whole right-hand side bare", () => {
+    expect(conditional("ok ? 1 : 2")).toContain("x = if ok then 1 else 2")
+  })
+})
+
 describe("floor division", () => {
   it("translates Math.floor(a / b) to floor division operator", () => {
     const lua = transpileSimple("declare const a: number, b: number;\nconst x = Math.floor(a / b)")

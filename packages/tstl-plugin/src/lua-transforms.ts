@@ -1,6 +1,6 @@
 import * as ts from "typescript"
 import * as lua from "typescript-to-lua"
-import { walkBlocks, walkIdentifiers, containsIdentifier } from "./lua-ast-walk.js"
+import { walkBlocks, walkExpressions, walkIdentifiers, containsIdentifier } from "./lua-ast-walk.js"
 import { SLUA_GLOBAL_NAMES } from "./generated/slua-globals.js"
 
 const JSDOC_TAG_RE = /@(?:index(?:Arg|Return)|define)\b/
@@ -125,6 +125,38 @@ export function stripEmptyModuleBoilerplate(
   stmts.splice(declIdx, 1) // then remove decl
 
   return true
+}
+
+/**
+ * Parenthesize `if` expressions used as operands, callees, or indexed tables.
+ * TSTL's printer never does, so `(ok ? 1 : 2) + n` printed as
+ * `if ok then 1 else 2 + n`, which Luau reads as `if ok then 1 else (2 + n)`.
+ */
+export function parenthesizeIfExpressions(file: lua.File): boolean {
+  let changed = false
+
+  const wrap = (expr: lua.Expression): lua.Expression => {
+    if (!lua.isConditionalExpression(expr)) return expr
+    changed = true
+    return lua.createParenthesizedExpression(expr)
+  }
+
+  walkExpressions(file, (expr) => {
+    if (lua.isBinaryExpression(expr)) {
+      expr.left = wrap(expr.left)
+      expr.right = wrap(expr.right)
+    } else if (lua.isUnaryExpression(expr)) {
+      expr.operand = wrap(expr.operand)
+    } else if (lua.isCallExpression(expr)) {
+      expr.expression = wrap(expr.expression)
+    } else if (lua.isMethodCallExpression(expr)) {
+      expr.prefixExpression = wrap(expr.prefixExpression)
+    } else if (lua.isTableIndexExpression(expr)) {
+      expr.table = wrap(expr.table)
+    }
+  })
+
+  return changed
 }
 
 /**

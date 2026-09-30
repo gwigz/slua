@@ -1,0 +1,223 @@
+--[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+
+--[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+--- Bytes in one preset buffer.
+local PRESET_BYTES = 11
+--[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+--- What the menu shows, in `ll.Dialog` order.
+local LABELS = {
+
+    "Save",
+    "Load",
+    "Reset",
+    "Smaller",
+    "Larger",
+    "Cast light",
+    "Less glow",
+    "More glow",
+    "Fullbright",
+    "Dimmer",
+    "Brighter",
+    "On/Off"
+}
+
+--[[ Generated with https://github.com/TypeScriptToLua/TypeScriptToLua ]]
+--- How long an unanswered menu keeps listening.
+local MENU_SECONDS = 60
+local FALLOFF = 0.75
+
+--- A negative channel, which avatars can only reach through a menu.
+local CHANNEL = -1 - math.random(1, 2000000000)
+
+--- The preset the light starts with, and returns to on Reset.
+local defaults = buffer.create(PRESET_BYTES)
+
+buffer.writeu8(defaults, 2, 75)
+buffer.writeu8(defaults, 3, 10)
+buffer.writeu8(defaults, 4, 10)
+buffer.writeu8(defaults, 5, 255)
+buffer.writeu8(defaults, 6, 180)
+buffer.writeu8(defaults, 7, 96)
+
+buffer.writeu8(
+    defaults,
+    10,
+
+    bit32.bor(
+        bit32.bor(1, 4),
+        16
+    )
+)
+
+--- The preset the light shows now.
+local live = buffer.create(PRESET_BYTES)
+
+--- The preset Save writes and Load reads.
+local saved = buffer.create(PRESET_BYTES)
+
+buffer.copy(live, 0, defaults)
+buffer.copy(saved, 0, defaults)
+
+local function isOn(flag)
+    return bit32.btest(
+        buffer.readu8(live, 10),
+        flag
+    )
+end
+
+local function toggle(flag)
+    local flags = buffer.readu8(live, 10)
+
+    buffer.writeu8(live, 10, if isOn(flag) then bit32.band(
+        flags,
+        bit32.bnot(flag)
+    ) else bit32.bor(flags, flag))
+end
+
+--- Moves a one-byte field by `by`, kept within 0 and `max`. A byte holds 0 to
+-- 255 and wraps outside that, so 256 would read back as 0.
+local function step(offset, by, max)
+    local value = buffer.readu8(live, offset) + by
+
+    buffer.writeu8(
+        live,
+        offset,
+        math.clamp(value, 0, max)
+    )
+end
+
+local function apply()
+    local color = vector.create(
+
+        buffer.readu8(live, 5) / 255,
+        buffer.readu8(live, 6) / 255,
+        buffer.readu8(live, 7) / 255
+    )
+
+    ll.SetLinkPrimitiveParamsFast(
+        LINK_THIS,
+        {
+            PRIM_POINT_LIGHT,
+            isOn(1) and isOn(4),
+            color,
+            buffer.readu8(live, 2) / 100,
+            buffer.readu8(live, 4),
+            FALLOFF,
+            PRIM_GLOW,
+            ALL_SIDES,
+
+            if isOn(1) then buffer.readu8(live, 3) / 100 else 0,
+            PRIM_FULLBRIGHT,
+            ALL_SIDES,
+            isOn(1) and isOn(2)
+        }
+    )
+end
+
+--- Runs one button. An `if` chain compiles to plain comparisons.
+local function press(button)
+    if button == 9 then
+        step(2, -10, 100)
+    elseif button == 10 then
+        step(2, 10, 100)
+    elseif button == 6 then
+        step(3, -5, 100)
+    elseif button == 7 then
+        step(3, 5, 100)
+    elseif button == 3 then
+        step(4, -1, 20)
+    elseif button == 4 then
+        step(4, 1, 20)
+    elseif button == 11 then
+        toggle(1)
+    elseif button == 8 then
+        toggle(2)
+    elseif button == 5 then
+        toggle(4)
+    elseif button == 0 then
+        buffer.copy(saved, 0, live)
+    elseif button == 1 then
+        buffer.copy(live, 0, saved)
+    elseif button == 2 then
+        buffer.copy(live, 0, defaults)
+    end
+
+    apply()
+end
+
+--- What the menu says above its buttons.
+local function describe()
+    local state = if isOn(1) then "On" else "Off"
+    local intensity = buffer.readu8(live, 2)
+    local glow = buffer.readu8(live, 3)
+    local radius = buffer.readu8(live, 4)
+
+    return (state .. ". Brightness " .. tostring(intensity) .. "%, glow " .. tostring(glow) .. "%, radius " .. tostring(radius)) .. " m."
+end
+
+local listener
+local expiry
+
+local function closeMenu()
+    if listener ~= nil then
+        ll.ListenRemove(listener)
+    end
+
+    if expiry ~= nil then
+        LLTimers:off(expiry)
+    end
+
+    listener = nil
+    expiry = nil
+end
+
+local function openMenu(avatar)
+    closeMenu()
+    listener = ll.Listen(CHANNEL, "", avatar, "")
+    expiry = LLTimers:once(MENU_SECONDS, closeMenu)
+
+    ll.Dialog(
+        avatar,
+        describe(),
+        LABELS,
+        CHANNEL
+    )
+end
+
+--- Opens the menu for whoever touched, if they may use it.
+local function touched(avatar)
+    if isOn(16) and avatar ~= ll.GetOwner() then
+        ll.RegionSayTo(avatar, 0, "Only the owner can adjust this light.")
+
+        return
+    end
+
+    openMenu(avatar)
+end
+
+--- Handles a menu reply. The listener filters by channel and avatar, but the
+-- avatar can type anything on that channel, so only a known label counts.
+local function replied(avatar, message)
+    local button = (table.find(LABELS, message) or 0) - 1
+
+    if button < 0 then
+        return
+    end
+
+    press(button)
+    openMenu(avatar)
+end
+
+LLEvents:on(
+    "touch_start",
+
+    function(detected) return touched(detected[1]:getKey()) end
+)
+
+LLEvents:on(
+    "listen",
+
+    function(_channel, _name, id, message) return replied(id, message) end
+)
+
+apply()

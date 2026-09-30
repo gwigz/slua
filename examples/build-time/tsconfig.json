@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/TypeScriptToLua/TypeScriptToLua/master/tsconfig-schema.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    // Writes dist/main.slua.map, which turns Second Life's line numbers back
+    // into TypeScript lines. It stays beside the script, not in it.
+    "sourceMap": true,
+    "lib": ["ESNext"],
+    "types": ["@typescript-to-lua/language-extensions", "@gwigz/slua-types"],
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "tstl": {
+    "luaTarget": "Luau",
+    "luaLibImport": "require-minimal",
+    "luaBundle": "main.slua",
+    "luaBundleEntry": "src/main.ts",
+    "noImplicitSelf": true,
+    "noImplicitGlobalVariables": true,
+    "luaPlugins": [
+      // The release build: every `if (TRACING)` block compiles to nothing
+      { "name": "@gwigz/slua-tstl-plugin", "define": { "TRACING": false } },
+      { "name": "@gwigz/tstl-bundle-flatten", "shake": true }
+    ],
+    "extension": "slua"
+  },
+  "include": ["src"]
+}

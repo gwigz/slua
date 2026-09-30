@@ -1,0 +1,22 @@
+{
+  "name": "@gwigz/slua-example-build-time",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "bun tools/generate.ts",
+    "build": "bun run generate && tstl -p tsconfig.json && tstl -p tsconfig.debug.json",
+    "build:release": "bun run generate && tstl -p tsconfig.json",
+    "build:debug": "bun run generate && tstl -p tsconfig.debug.json",
+    "where": "bun tools/where.ts"
+  },
+  "devDependencies": {
+    "@gwigz/slua-tstl-plugin": "workspace:*",
+    "@gwigz/slua-types": "workspace:*",
+    "@gwigz/slua-viewer-client": "workspace:*",
+    "@gwigz/tstl-bundle-flatten": "^1.4.0",
+    "@types/bun": "^1.4.2",
+    "@typescript-to-lua/language-extensions": "^1.19.0",
+    "darklua-wasm": "^0.1.0",
+    "typescript-to-lua": "^1.37.1"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/TypeScriptToLua/TypeScriptToLua/master/tsconfig-schema.json",
+  // Everything from tsconfig.json, with tracing on and its own output folder
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist-debug"
+  },
+  "tstl": {
+    // Replaces the release list whole, so both plugins are listed again
+    "luaPlugins": [
+      { "name": "@gwigz/slua-tstl-plugin", "define": { "TRACING": true } },
+      { "name": "@gwigz/tstl-bundle-flatten", "shake": true }
+    ]
+  }
+}

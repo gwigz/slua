@@ -29,6 +29,8 @@ I use this toolchain for my own projects, it's how I find the rough edges:
 | [`examples/sim-wide-relay`](examples/sim-wide-relay)                | Region-wide chat relay, deployed at my favorite sim                             |
 | [`slua-derez-patcher`](https://github.com/gwigz/slua-derez-patcher) | Skips the rez-edit-take-replace cycle; patches rezzables using `ll.DerezObject` |
 
+I also write about using this toolchain, such as what the build can settle before a script ever runs, in the [TypeScript posts on nya.place](https://nya.place/posts?tag=typescript).
+
 ### Related Projects
 
 These packages also pair well with the TSTL pipeline, and LSL HTTP-in features:

@@ -357,7 +357,7 @@ declare interface LLTimers {
  * Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast
  * @noSelf
  */
-declare interface PrimParamsSetterType {
+declare interface PrimParamSetterType {
   /** Call ll.SetLinkPrimitiveParamsFast with my instance list */
   apply(link?: number): void
 }
@@ -938,7 +938,7 @@ declare namespace llprim {
   export function setMedia(face: number, params?: MediaParams, link?: number): number
 
   /** Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast */
-  export const ParamsSetter: PrimParamsSetterTypeMeta
+  export const ParamSetter: PrimParamSetterTypeMeta
 }
 
 /** Mathematical functions library. */

@@ -4,6 +4,7 @@ import path from "path-browserify"
 const patched = { ...path, win32: path, posix: path }
 
 export default patched
+
 export const {
   resolve,
   normalize,
@@ -18,5 +19,7 @@ export const {
   parse,
   format,
 } = patched
+
 export const win32 = patched
+
 export const posix = patched

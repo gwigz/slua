@@ -78,7 +78,10 @@ export function recordLualibFeatures(
 ) {
   for (const file of files) {
     const features = file.luaAst?.luaLibFeatures
-    if (!features || features.size === 0) continue
+
+    if (!features || features.size === 0) {
+      continue
+    }
 
     for (const sourceFile of file.sourceFiles ?? []) {
       into.set(sourceFile.fileName, new Set(features))
@@ -122,12 +125,18 @@ export function reportLualibHelpers(
     for (const sourceFile of sourceFiles) {
       for (const feature of featuresBySource.get(sourceFile.fileName) ?? []) {
         const list = users.get(feature)
-        if (list) list.push(sourceFile.fileName)
-        else users.set(feature, [sourceFile.fileName])
+
+        if (list) {
+          list.push(sourceFile.fileName)
+        } else {
+          users.set(feature, [sourceFile.fileName])
+        }
       }
     }
 
-    if (users.size === 0) continue
+    if (users.size === 0) {
+      continue
+    }
 
     const modulesInfo = (info ??= getLuaLibModulesInfo(luaTarget, emitHost))
     const all = resolveRecursiveLualibFeatures(users.keys(), luaTarget, emitHost, modulesInfo)

@@ -58,7 +58,9 @@ const challenges = new WeakMap<object, { dir: string; path: string; value: strin
 async function clearChallenge(ws: object) {
   const challenge = challenges.get(ws)
 
-  if (!challenge) return
+  if (!challenge) {
+    return
+  }
 
   challenges.delete(ws)
 
@@ -78,7 +80,9 @@ async function handle(ws: any, message: any): Promise<void> {
 
   switch (method) {
     case "object.list": {
-      if (!published) return result(ws, id, { objects: [] })
+      if (!published) {
+        return result(ws, id, { objects: [] })
+      }
 
       // The viewer's listing goes briefly stale after a save: first the object
       // disappears, then it comes back with the item still missing.
@@ -119,7 +123,9 @@ async function handle(ws: any, message: any): Promise<void> {
 
       contents.set(params.item_id, params.content)
 
-      if (process.env.MOCK_STALE_SAVE === "1") staleReads = 2
+      if (process.env.MOCK_STALE_SAVE === "1") {
+        staleReads = 2
+      }
 
       // A save restarts the script, so its startup output follows immediately.
       // That is the gap `push --tail` drains.
@@ -155,7 +161,9 @@ async function handle(ws: any, message: any): Promise<void> {
         object.object_description = params.description
       }
 
-      if (params.name !== undefined) object.object_name = params.name
+      if (params.name !== undefined) {
+        object.object_name = params.name
+      }
 
       return result(ws, id, { success: true, prim_id: params.prim_id })
     }

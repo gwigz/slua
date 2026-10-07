@@ -68,7 +68,9 @@ export async function runPrompts(flags: CliFlags): Promise<ProjectOptions | unde
       validate: validateDirectory,
     })
 
-    if (p.isCancel(result)) return undefined
+    if (p.isCancel(result)) {
+      return undefined
+    }
 
     directory = result
   }
@@ -96,7 +98,9 @@ export async function runPrompts(flags: CliFlags): Promise<ProjectOptions | unde
       ],
     })
 
-    if (p.isCancel(result)) return undefined
+    if (p.isCancel(result)) {
+      return undefined
+    }
 
     template = result
   }
@@ -126,7 +130,9 @@ export async function runPrompts(flags: CliFlags): Promise<ProjectOptions | unde
       required: false,
     })
 
-    if (p.isCancel(result)) return undefined
+    if (p.isCancel(result)) {
+      return undefined
+    }
 
     selectedExtras = result
   }
@@ -143,7 +149,9 @@ export async function runPrompts(flags: CliFlags): Promise<ProjectOptions | unde
       initialValue: true,
     })
 
-    if (p.isCancel(result)) return undefined
+    if (p.isCancel(result)) {
+      return undefined
+    }
 
     git = result
   }

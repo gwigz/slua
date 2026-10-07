@@ -16,7 +16,9 @@ function decodeSegments(line: string): number[][] {
   const segments: number[][] = []
 
   for (const raw of line.split(",")) {
-    if (raw === "") continue
+    if (raw === "") {
+      continue
+    }
 
     const values: number[] = []
 
@@ -26,7 +28,9 @@ function decodeSegments(line: string): number[][] {
     for (const char of raw) {
       const digit = CHAR_TO_INT.get(char)
 
-      if (digit === undefined) return segments
+      if (digit === undefined) {
+        return segments
+      }
 
       const continued = (digit & 32) !== 0
 
@@ -74,7 +78,9 @@ export class SourceMap {
 
   /** Maps a 1-based generated line to its original location. */
   mapRow(row: number): SourceLocation | undefined {
-    if (row < 1) return undefined
+    if (row < 1) {
+      return undefined
+    }
 
     return this.lines[row - 1]
   }
@@ -118,7 +124,9 @@ export class SourceMap {
       for (const segment of decodeSegments(group)) {
         generatedColumn += segment[0]
 
-        if (segment.length < 4) continue
+        if (segment.length < 4) {
+          continue
+        }
 
         sourceIndex += segment[1]
         sourceLine += segment[2]
@@ -158,7 +166,9 @@ function defaultResolve(source: string, mapDir: string): string {
 export function resolveExistingSource(source: string, mapDir: string): string {
   const direct = resolve(mapDir, source)
 
-  if (existsSync(direct)) return direct
+  if (existsSync(direct)) {
+    return direct
+  }
 
   let trimmed = source
 
@@ -167,7 +177,9 @@ export function resolveExistingSource(source: string, mapDir: string): string {
 
     const candidate = resolve(mapDir, trimmed)
 
-    if (existsSync(candidate)) return candidate
+    if (existsSync(candidate)) {
+      return candidate
+    }
   }
 
   return direct

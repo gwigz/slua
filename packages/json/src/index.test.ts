@@ -269,6 +269,7 @@ describe("sldecode", () => {
   // Uppercase accepted, canonicalized to lowercase
   it("accepts uppercase UUIDs", () => {
     const result = sldecode<UUID>('"!u00000000-0000-0000-0000-00000000000A"')
+
     expect(result).toBeInstanceOf(UUID)
     expect(result.value).toBe("00000000-0000-0000-0000-00000000000a")
   })
@@ -735,14 +736,17 @@ describe("createCodec", () => {
 
     // Custom vector
     const v = vectorOnlyCodec.sldecode<MyVec>('"!v<1,2,3>"')
+
     expect(v._type).toBe("vec")
 
     // Default quaternion
     const q = vectorOnlyCodec.sldecode<Quaternion>('"!q<0,0,0,1>"')
+
     expect(q).toBeInstanceOf(Quaternion)
 
     // Default UUID
     const u = vectorOnlyCodec.sldecode<UUID>('"!u12345678-1234-1234-1234-123456789abc"')
+
     expect(u).toBeInstanceOf(UUID)
   })
 })

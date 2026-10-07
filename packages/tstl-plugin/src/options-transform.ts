@@ -22,20 +22,33 @@ interface OptionsCallMatch {
  * e.g. $httpRequest(url, { method: "POST", body: "payload" })
  */
 export function matchOptionsCall(node: ts.CallExpression): OptionsCallMatch | null {
-  if (!ts.isIdentifier(node.expression)) return null
+  if (!ts.isIdentifier(node.expression)) {
+    return null
+  }
 
   const rootName = node.expression.text
   const rootDef = BUILDER_ROOTS[rootName]
-  if (!rootDef?.optionsArg) return null
+
+  if (!rootDef?.optionsArg) {
+    return null
+  }
 
   const setDef = BUILDER_SETS[rootDef.paramSet]
-  if (!setDef) return null
+
+  if (!setDef) {
+    return null
+  }
 
   // Options object is right after pre-list args (post-list args are inside the object now)
-  if (node.arguments.length !== rootDef.preListArgs + 1) return null
+  if (node.arguments.length !== rootDef.preListArgs + 1) {
+    return null
+  }
 
   const optionsArg = node.arguments[rootDef.preListArgs]
-  if (!ts.isObjectLiteralExpression(optionsArg)) return null
+
+  if (!ts.isObjectLiteralExpression(optionsArg)) {
+    return null
+  }
 
   return {
     rootCall: node,
@@ -83,10 +96,12 @@ export function emitOptionsCall(
 
     if (postArgNames.has(name)) {
       postArgValues.set(name, value)
+
       continue
     }
 
     const methodDef = setDef.methods[name]
+
     if (!methodDef) {
       return context.superTransformExpression(match.rootCall)
     }
@@ -117,10 +132,16 @@ export function emitOptionsCall(
 
   // Emit default values for params that weren't specified
   for (const [paramName, defaultValue] of Object.entries(defaults)) {
-    if (postArgNames.has(paramName)) continue
-    if (seenProps.has(paramName)) continue
+    if (postArgNames.has(paramName)) {
+      continue
+    }
+
+    if (seenProps.has(paramName)) {
+      continue
+    }
 
     const methodDef = setDef.methods[paramName]
+
     if (methodDef) {
       listElements.push(tstl.createIdentifier(methodDef.constant))
       listElements.push(tstl.createStringLiteral(stripDefaultQuotes(defaultValue)))
@@ -129,12 +150,15 @@ export function emitOptionsCall(
 
   // Build post-list args, using defaults for missing ones
   const transformedPostArgs: tstl.Expression[] = []
+
   for (const argName of rootDef.postListArgNames ?? []) {
     const value = postArgValues.get(argName)
+
     if (value) {
       transformedPostArgs.push(context.transformExpression(value))
     } else {
       const def = defaults[argName] ?? '""'
+
       transformedPostArgs.push(tstl.createStringLiteral(stripDefaultQuotes(def)))
     }
   }

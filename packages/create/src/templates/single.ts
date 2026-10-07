@@ -58,9 +58,11 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   if (extras.stylua) {
     scripts.format = "stylua --syntax luau dist/"
   }
+
   if (extras.linting) {
     scripts.lint = "oxlint --type-aware"
   }
+
   if (extras.formatting) {
     scripts.fmt = "oxfmt --write ."
   }
@@ -164,6 +166,7 @@ export function generateSingleTemplate(options: ProjectOptions): Record<string, 
   if (extras.linting || extras.formatting) {
     files[".vscode/extensions.json"] = VSCODE_EXTENSIONS
   }
+
   files[".gitignore"] = GITIGNORE
   files[".editorconfig"] = EDITORCONFIG
 

@@ -21,9 +21,13 @@ const open: Watcher[] = []
 const made: string[] = []
 
 afterEach(async () => {
-  for (const watcher of open.splice(0)) await watcher.close()
+  for (const watcher of open.splice(0)) {
+    await watcher.close()
+  }
 
-  for (const dir of made.splice(0)) await rm(dir, { recursive: true, force: true })
+  for (const dir of made.splice(0)) {
+    await rm(dir, { recursive: true, force: true })
+  }
 })
 
 async function project(): Promise<{ dir: string; target: WatchTarget }> {
@@ -79,7 +83,9 @@ function collector() {
 async function until(check: () => boolean, timeoutMs = 10_000): Promise<void> {
   const deadline = Date.now() + timeoutMs
 
-  while (!check() && Date.now() < deadline) await sleep(10)
+  while (!check() && Date.now() < deadline) {
+    await sleep(10)
+  }
 }
 
 describe("watchTargets", () => {
@@ -142,7 +148,9 @@ describe("watchTargets", () => {
         batches.push(changed.map((entry) => entry.name))
 
         // Only the first push is held open, standing in for the upload.
-        if (calls++ === 0) await held
+        if (calls++ === 0) {
+          await held
+        }
       },
       { debounceMs: DEBOUNCE_MS, minIntervalMs: 0 },
     )
@@ -262,7 +270,9 @@ describe("watchTargets", () => {
     await start(
       [target],
       async () => {
-        if (calls++ === 0) throw new Error("viewer said no")
+        if (calls++ === 0) {
+          throw new Error("viewer said no")
+        }
       },
       {
         debounceMs: DEBOUNCE_MS,

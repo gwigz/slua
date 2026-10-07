@@ -5,9 +5,13 @@ import { useEffect, type RefObject } from "react"
 export function useTwoslashPortal(ref: RefObject<HTMLElement | null>, deps: unknown[] = []) {
   useEffect(() => {
     const el = ref.current
-    if (!el) return
+
+    if (!el) {
+      return
+    }
 
     const portal = document.createElement("div")
+
     portal.className = "twoslash-portal"
     portal.style.cssText = "position:fixed;z-index:50;display:none"
     document.body.appendChild(portal)
@@ -16,14 +20,20 @@ export function useTwoslashPortal(ref: RefObject<HTMLElement | null>, deps: unkn
 
     for (const hover of el.querySelectorAll<HTMLElement>(".twoslash-hover")) {
       const popup = hover.querySelector<HTMLElement>(".twoslash-popup-container")
-      if (!popup) continue
+
+      if (!popup) {
+        continue
+      }
 
       hover.addEventListener(
         "mouseenter",
         () => {
           const rect = hover.getBoundingClientRect()
+
           portal.innerHTML = popup.outerHTML
+
           const clone = portal.firstElementChild as HTMLElement
+
           clone.style.opacity = "1"
           clone.style.pointerEvents = "auto"
           clone.style.position = "static"

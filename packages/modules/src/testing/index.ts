@@ -49,6 +49,7 @@ class MockVector {
 
   static normalize(vec: MockVector): MockVector {
     const magnitude = MockVector.magnitude(vec)
+
     return new MockVector(vec.x / magnitude, vec.y / magnitude, vec.z / magnitude)
   }
 
@@ -132,9 +133,11 @@ class MockVector {
     if (typeof other === "number") {
       return new MockVector(this.x * other, this.y * other, this.z * other)
     }
+
     if (other instanceof MockQuaternion) {
       return rotateByQuaternion(this, other)
     }
+
     return new MockVector(this.x * other.x, this.y * other.y, this.z * other.z)
   }
 
@@ -142,9 +145,11 @@ class MockVector {
     if (typeof other === "number") {
       return new MockVector(this.x / other, this.y / other, this.z / other)
     }
+
     if (other instanceof MockQuaternion) {
       return rotateByQuaternion(this, MockQuaternion.conjugate(other))
     }
+
     return new MockVector(this.x / other.x, this.y / other.y, this.z / other.z)
   }
 
@@ -184,7 +189,10 @@ class MockQuaternion {
 
   static normalize(quat: MockQuaternion): MockQuaternion {
     const magnitude = MockQuaternion.magnitude(quat)
-    if (magnitude === 0) return MockQuaternion.identity
+
+    if (magnitude === 0) {
+      return MockQuaternion.identity
+    }
 
     return new MockQuaternion(
       quat.x / magnitude,
@@ -350,18 +358,27 @@ const mockLLEvents = {
     if (!eventHandlers[event]) {
       eventHandlers[event] = []
     }
+
     eventHandlers[event].push(callback)
+
     return callback
   },
 
   off(event: string, callback: (...args: any[]) => void) {
     const handlers = eventHandlers[event]
-    if (!handlers) return false
+
+    if (!handlers) {
+      return false
+    }
 
     const index = handlers.indexOf(callback)
-    if (index === -1) return false
+
+    if (index === -1) {
+      return false
+    }
 
     handlers.splice(index, 1)
+
     return true
   },
 
@@ -390,11 +407,13 @@ const mockLLEvents = {
 const mockLLTimers = {
   every(_seconds: number, callback: (...args: any[]) => void) {
     timerCallbacks.add(callback)
+
     return callback
   },
 
   once(_seconds: number, callback: (...args: any[]) => void) {
     timerCallbacks.add(callback)
+
     return callback
   },
 
@@ -410,8 +429,15 @@ const mockLLTimers = {
 const mockLL: Record<string, (...args: any[]) => any> = {
   GetNotecardLineSync(name: string, lineNum: number): string {
     const lines = notecards[name]
-    if (!lines) return NAK_VALUE
-    if (lineNum >= lines.length) return EOF_VALUE
+
+    if (!lines) {
+      return NAK_VALUE
+    }
+
+    if (lineNum >= lines.length) {
+      return EOF_VALUE
+    }
+
     return lines[lineNum]
   },
 
@@ -423,6 +449,7 @@ const mockLL: Record<string, (...args: any[]) => any> = {
     if (!inventoryKeys[name]) {
       inventoryKeys[name] = nextKey()
     }
+
     return inventoryKeys[name]
   },
 
@@ -541,6 +568,7 @@ const mockLljson = {
 
 function mockToNumber(s: string, base?: number): number | undefined {
   const n = base !== undefined ? parseInt(s, base) : Number(s)
+
   return isNaN(n) ? undefined : n
 }
 
@@ -589,7 +617,10 @@ const mockCoroutine = {
   },
 
   close(co: any) {
-    if (co) co.__status = "dead"
+    if (co) {
+      co.__status = "dead"
+    }
+
     return [true, undefined]
   },
 }
@@ -751,6 +782,7 @@ export function teardown(): void {
  */
 export function notecard(name: string, content: string | string[]): void {
   const lines = typeof content === "string" ? content.split("\n") : content
+
   notecards[name] = lines
 
   // Update inventory key so onConfigChanged detects the change
@@ -768,7 +800,10 @@ export function notecard(name: string, content: string | string[]): void {
  */
 export function emit(event: string, ...args: any[]): void {
   const handlers = eventHandlers[event]
-  if (!handlers) return
+
+  if (!handlers) {
+    return
+  }
 
   // Copy to avoid issues if handlers modify the array (e.g., off() inside once())
   // oxlint-disable-next-line unicorn/no-useless-spread
@@ -789,6 +824,7 @@ export function emit(event: string, ...args: any[]): void {
  */
 export function tick(): void {
   const callbacks = [...timerCallbacks]
+
   timerCallbacks.clear()
 
   for (const callback of callbacks) {

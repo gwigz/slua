@@ -8,7 +8,9 @@ export async function GET(_req: Request, { params }: RouteContext<"/llms.mdx/doc
   const { slug } = await params
   const page = source.getPage(slug?.slice(0, -1))
 
-  if (!page) notFound()
+  if (!page) {
+    notFound()
+  }
 
   return new Response(await getLLMText(page), {
     headers: {

@@ -39,6 +39,7 @@ export function matchBuilderChain(node: ts.CallExpression): BuilderChain | null 
     // Check for callback arg (last arg being arrow/function)
     const lastArg = args[args.length - 1]
     let callback: ts.ArrowFunction | ts.FunctionExpression | undefined
+
     if (lastArg && (ts.isArrowFunction(lastArg) || ts.isFunctionExpression(lastArg))) {
       callback = lastArg
       args.pop()
@@ -55,10 +56,16 @@ export function matchBuilderChain(node: ts.CallExpression): BuilderChain | null 
 
   const rootName = current.expression.text
   const rootDef = BUILDER_ROOTS[rootName]
-  if (!rootDef) return null
+
+  if (!rootDef) {
+    return null
+  }
 
   const setDef = BUILDER_SETS[rootDef.paramSet]
-  if (!setDef) return null
+
+  if (!setDef) {
+    return null
+  }
 
   return { rootCall: current, rootName, rootDef, setDef, entries }
 }
@@ -113,34 +120,43 @@ function flattenEntries(
     // Check for link callback
     if (setDef.linkMethod && entry.methodName === setDef.linkMethod) {
       elements.push(tstl.createIdentifier(setDef.linkConstant!))
+
       for (const arg of entry.args) {
         elements.push(context.transformExpression(arg))
       }
+
       // Flatten the callback's chain
       if (entry.callback) {
         const innerEntries = extractCallbackChain(entry.callback)
+
         if (innerEntries) {
           elements.push(...flattenEntries(innerEntries, setDef, context))
         }
       }
+
       continue
     }
 
     // Check for sub-dispatch (e.g. .typeBox())
     const subMatch = setDef.subDispatch?.find((s) => s.methodName === entry.methodName)
+
     if (subMatch) {
       elements.push(tstl.createIdentifier(subMatch.dispatchConstant))
       elements.push(tstl.createIdentifier(subMatch.shapeConstant))
+
       for (const arg of entry.args) {
         elements.push(context.transformExpression(arg))
       }
+
       continue
     }
 
     // Regular method
     const methodDef = setDef.methods[entry.methodName]
+
     if (methodDef) {
       elements.push(tstl.createIdentifier(methodDef.constant))
+
       for (const arg of entry.args) {
         elements.push(context.transformExpression(arg))
       }
@@ -161,7 +177,11 @@ function extractCallbackChain(cb: ts.ArrowFunction | ts.FunctionExpression): Cha
   if (ts.isBlock(cb.body)) {
     // Block body, look for a single return statement
     const returnStmt = cb.body.statements.find(ts.isReturnStatement)
-    if (!returnStmt?.expression) return null
+
+    if (!returnStmt?.expression) {
+      return null
+    }
+
     expr = returnStmt.expression
   } else {
     // Expression body
@@ -170,7 +190,11 @@ function extractCallbackChain(cb: ts.ArrowFunction | ts.FunctionExpression): Cha
 
   // The parameter name (e.g. "link"), we walk until we hit an identifier matching it
   const paramName = cb.parameters[0]?.name
-  if (!paramName || !ts.isIdentifier(paramName)) return null
+
+  if (!paramName || !ts.isIdentifier(paramName)) {
+    return null
+  }
+
   const paramText = paramName.text
 
   const entries: ChainEntry[] = []
@@ -182,6 +206,7 @@ function extractCallbackChain(cb: ts.ArrowFunction | ts.FunctionExpression): Cha
 
     let callback: ts.ArrowFunction | ts.FunctionExpression | undefined
     const lastArg = args[args.length - 1]
+
     if (lastArg && (ts.isArrowFunction(lastArg) || ts.isFunctionExpression(lastArg))) {
       callback = lastArg
       args.pop()
@@ -192,7 +217,9 @@ function extractCallbackChain(cb: ts.ArrowFunction | ts.FunctionExpression): Cha
   }
 
   // current should be the parameter identifier
-  if (!ts.isIdentifier(current) || current.text !== paramText) return null
+  if (!ts.isIdentifier(current) || current.text !== paramText) {
+    return null
+  }
 
   return entries
 }

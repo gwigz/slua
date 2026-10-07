@@ -5,9 +5,9 @@ Shared [oxlint](https://oxc.rs/docs/guide/usage/linter) config for [TSTL-SLua](h
 ## Installation
 
 ```sh
-npm install -D @gwigz/slua-oxlint-config oxlint oxlint-tsgolint
+npm install -D @gwigz/slua-oxlint-config @stylistic/eslint-plugin oxlint oxlint-tsgolint
 # or
-bun add -D @gwigz/slua-oxlint-config oxlint oxlint-tsgolint
+bun add -D @gwigz/slua-oxlint-config @stylistic/eslint-plugin oxlint oxlint-tsgolint
 ```
 
 `oxlint-tsgolint` is only needed for the type-aware rule (see below). If you
@@ -31,6 +31,14 @@ oxlint --type-aware
 ```
 
 ## What's Enforced
+
+### Code style
+
+Control statements require braces. Statements require a blank line between them,
+except that adjacent declarations or expression statements can stay grouped and
+import groups retain their existing spacing.
+Run `oxlint --fix` to apply these rules. Overlapping brace and spacing fixes can
+require a second pass.
 
 ### Banned Globals
 

@@ -37,4 +37,5 @@ for (const [file, content] of files) {
   console.log(`Generated ${file}`)
 }
 
+await $`oxlint --fix ${written}`
 await $`oxfmt --write ${written}`

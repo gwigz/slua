@@ -29,6 +29,7 @@ export function createTsconfigResolverPlugin(options: ResolverOptions): Plugin {
 
   for (const [pattern, substitutions] of Object.entries(paths)) {
     const starIndex = pattern.indexOf("*")
+
     if (starIndex === -1) {
       exactMatchers.set(pattern, substitutions)
     } else {
@@ -45,10 +46,14 @@ export function createTsconfigResolverPlugin(options: ResolverOptions): Plugin {
 
     resolveId(source, importer) {
       const exact = exactMatchers.get(source)
+
       if (exact) {
         for (const sub of exact) {
           const full = join(baseUrl, sub)
-          if (ts.sys.fileExists(full)) return full
+
+          if (ts.sys.fileExists(full)) {
+            return full
+          }
         }
       }
 
@@ -75,20 +80,31 @@ export function createTsconfigResolverPlugin(options: ResolverOptions): Plugin {
         const dir = dirname(importer)
 
         const withExt = join(dir, `${source}.ts`)
-        if (ts.sys.fileExists(withExt)) return withExt
+
+        if (ts.sys.fileExists(withExt)) {
+          return withExt
+        }
 
         const asIndex = join(dir, source, "index.ts")
-        if (ts.sys.fileExists(asIndex)) return asIndex
+
+        if (ts.sys.fileExists(asIndex)) {
+          return asIndex
+        }
       }
 
       return null
     },
 
     load(id) {
-      if (!id.endsWith(".ts")) return null
+      if (!id.endsWith(".ts")) {
+        return null
+      }
 
       const source = ts.sys.readFile(id)
-      if (source === undefined) return null
+
+      if (source === undefined) {
+        return null
+      }
 
       const result = ts.transpileModule(source, {
         compilerOptions: STRIP_TYPES_OPTIONS,

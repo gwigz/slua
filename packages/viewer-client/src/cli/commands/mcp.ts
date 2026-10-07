@@ -138,7 +138,9 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
   const call = async (name: string, args: Record<string, unknown>) => {
     const tool = TOOLS.find((entry) => entry.name === name)
 
-    if (!tool) throw new Error(`unknown tool: ${name}`)
+    if (!tool) {
+      throw new Error(`unknown tool: ${name}`)
+    }
 
     // Attached per call rather than held. A session restarted under a
     // long-lived agent would otherwise leave every later call talking to a
@@ -166,7 +168,9 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
       for (;;) {
         const end = buffer.indexOf("\n")
 
-        if (end < 0) break
+        if (end < 0) {
+          break
+        }
 
         const line = buffer.slice(0, end)
 
@@ -230,7 +234,9 @@ export async function mcpCommand(global: GlobalFlags, reporter: Reporter): Promi
       const params = isObject(message.params) ? message.params : {}
 
       // A notification has no id and takes no answer, `initialized` included.
-      if (id === undefined || id === null) return
+      if (id === undefined || id === null) {
+        return
+      }
 
       if (typeof method !== "string") {
         failure(id, -32600, "Invalid Request")

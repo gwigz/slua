@@ -35,6 +35,7 @@ function detectAndReplace(value: unknown, options: DetectionOptions): unknown {
 
     if (options.detectVectors) {
       const vm = VECTOR_STRING_RE.exec(value)
+
       if (vm) {
         return new Vector(Number(vm[1]), Number(vm[2]), Number(vm[3]))
       }
@@ -109,8 +110,8 @@ export function jsonToSlencode(
 
     try {
       parsed = JSON.parse(input)
-    } catch (e) {
-      return { output: "", error: `Invalid JSON: ${(e as Error).message}` }
+    } catch (error) {
+      return { output: "", error: `Invalid JSON: ${(error as Error).message}` }
     }
 
     const detected = detectAndReplace(parsed, detection)
@@ -125,7 +126,7 @@ export function jsonToSlencode(
     }
 
     return { output: result, error: null }
-  } catch (e) {
-    return { output: "", error: (e as Error).message }
+  } catch (error) {
+    return { output: "", error: (error as Error).message }
   }
 }

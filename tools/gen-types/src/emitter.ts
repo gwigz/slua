@@ -264,7 +264,10 @@ function argAcceptsEmptyString(
   ruleName: string,
   argName: string,
 ): boolean {
-  if (toCamelCase(argName) === "face") return false
+  if (toCamelCase(argName) === "face") {
+    return false
+  }
+
   return setClearable === true || CLEARABLE_PRIM_PARAMS.has(ruleName)
 }
 
@@ -288,7 +291,10 @@ function mapLslType(lslType: string) {
 }
 
 function mapListArgType(lslType: string): string {
-  if (lslType === "boolean") return "boolean"
+  if (lslType === "boolean") {
+    return "boolean"
+  }
+
   return mapLslType(lslType)
 }
 
@@ -325,7 +331,9 @@ function toCamelCase(name: string) {
     return name
       .split("_")
       .map((seg, i) => {
-        if (i === 0) return seg.toLowerCase()
+        if (i === 0) {
+          return seg.toLowerCase()
+        }
 
         return seg[0].toUpperCase() + seg.slice(1).toLowerCase()
       })
@@ -345,7 +353,9 @@ function toCamelCase(name: string) {
 
   return words
     .map((word, i) => {
-      if (i === 0) return word.toLowerCase()
+      if (i === 0) {
+        return word.toLowerCase()
+      }
 
       return word[0].toUpperCase() + word.slice(1).toLowerCase()
     })
@@ -378,6 +388,7 @@ function sanitizeConstName(name: string) {
   if (TS_RESERVED_WORDS.has(name)) {
     return `${name}_`
   }
+
   return name
 }
 
@@ -464,18 +475,21 @@ function buildDocs(
 
 function serializeJSDoc(docs: OptionalKind<JSDocStructure>[]): string {
   const parts: string[] = []
+
   for (const doc of docs) {
     if (doc.description) {
       for (const line of (doc.description as string).split("\n")) {
         parts.push(` * ${line}`)
       }
     }
+
     if (doc.tags) {
       for (const tag of doc.tags as OptionalKind<JSDocTagStructure>[]) {
         parts.push(` * @${tag.tagName}${tag.text ? ` ${tag.text}` : ""}`)
       }
     }
   }
+
   return parts.length > 0 ? `\n/**\n${parts.join("\n")}\n */\n` : ""
 }
 
@@ -654,9 +668,17 @@ const SELF_CLASSES = new Set(["LLEvents", "LLTimers", "DetectedEvent"])
 function buildInterfaceComment(name: string, comment: string | undefined): string | undefined {
   const useSelf = SELF_CLASSES.has(name)
 
-  if (comment && useSelf) return sanitizeComment(comment)
-  if (comment) return `${sanitizeComment(comment)}\n@noSelf`
-  if (useSelf) return undefined
+  if (comment && useSelf) {
+    return sanitizeComment(comment)
+  }
+
+  if (comment) {
+    return `${sanitizeComment(comment)}\n@noSelf`
+  }
+
+  if (useSelf) {
+    return undefined
+  }
 
   return "@noSelf"
 }
@@ -767,6 +789,7 @@ function functionSignatures(fn: FunctionDef) {
 function withNoSelf(docs: ReturnType<typeof buildDocs>) {
   if (docs.length > 0) {
     const last = docs[docs.length - 1]
+
     last.tags = [...(last.tags ?? []), { tagName: "noSelf" }]
   } else {
     docs.push({ tags: [{ tagName: "noSelf" }] })
@@ -867,6 +890,7 @@ function addVariadicOverloads(ns: ModuleDeclaration, fn: FunctionDef) {
     if (p.type?.endsWith("?")) {
       return Object.assign({}, p, { type: p.type.slice(0, -1) })
     }
+
     return p
   })
 
@@ -884,6 +908,7 @@ function addModuleMembers(ns: ModuleDeclaration, mod: ModuleDef) {
     for (const fn of mod.functions) {
       if (fn.returnType?.startsWith("...") && VARIADIC_OVERLOAD_FUNCTIONS.has(fn.name)) {
         addVariadicOverloads(ns, fn)
+
         continue
       }
 
@@ -898,6 +923,7 @@ function addModuleMembers(ns: ModuleDeclaration, mod: ModuleDef) {
           typeParameters: cleanTypeParams(fn.typeParameters),
           ...(docs.length > 0 ? { docs } : {}),
         })
+
         continue
       }
 
@@ -1203,25 +1229,32 @@ export function emitAll(
       constantComments.set(name, comment)
     }
   }
+
   if (typedListParams) {
     for (const set of typedListParams.sets) {
       const flagsOnly = set.params.every((r) => r.args.length === 0) && !set.subDispatch
       const hasReturns = set.params.some((r) => r.returns && r.returns.length > 0)
+
       setFlagsOnly.set(set.name, flagsOnly)
+
       for (const rule of set.params) {
         literalConstants.set(rule.name, rule.value)
         addConstantComment(rule.name, rule.comment)
       }
+
       if (set.subDispatch) {
         for (const rule of set.subDispatch.params) {
           literalConstants.set(rule.name, rule.value)
           addConstantComment(rule.name, rule.comment)
         }
+
         const dispatchConst = lsl.constants[set.subDispatch.constant]
+
         if (dispatchConst) {
           literalConstants.set(set.subDispatch.constant, parseInt(dispatchConst.value, 10))
         }
       }
+
       for (const fn of set.functions) {
         typedFunctionMap.set(fn, { name: set.name, flagsOnly, hasReturns })
       }
@@ -1288,6 +1321,7 @@ export function emitAll(
       if (indexTags.length > 0) {
         if (docs.length > 0) {
           const last = docs[docs.length - 1]
+
           last.tags = [...(last.tags ?? []), ...indexTags]
         } else {
           docs.push({ tags: indexTags })
@@ -1295,25 +1329,30 @@ export function emitAll(
       }
 
       const typedSet = typedFunctionMap.get(lslName)
+
       if (typedSet && typedSet.flagsOnly) {
         const flagType = `${typedSet.name}Flag`
+
         if (typedSet.hasReturns) {
           const mapperType = `Map${typedSet.name}`
           const typedParams = params.map((p) => {
             if (p.type === "list" || p.type === "number[]") {
               return `${p.name}: T`
             }
+
             return `${p.name}: ${p.type}`
           })
 
           const jsdoc = serializeJSDoc(docs)
           const sig = `${jsdoc}export function ${name}<const T extends readonly ${flagType}[]>(${typedParams.join(", ")}): ${mapperType}<T> | [];\n`
+
           llNs.insertText(llNs.getEnd() - 1, sig)
         } else {
           // Flags-only without return info: keep old behavior
           const simpleParams = params.map((p) =>
             p.type === "list" || p.type === "number[]" ? { ...p, type: `${flagType}[]` } : p,
           )
+
           llNs.addFunction({
             name,
             isExported: true,
@@ -1329,6 +1368,7 @@ export function emitAll(
           if (p.type === "list" || p.type === "number[]") {
             return `${p.name}: T & ${parseType}<T>`
           }
+
           return `${p.name}: ${p.type}`
         })
 
@@ -1336,6 +1376,7 @@ export function emitAll(
 
         const mappedReturn = typedSet.hasReturns ? `Map${typedSet.name}<T> | []` : returnType
         const sig = `${jsdoc}export function ${name}<const T extends readonly unknown[]>(${typedParams.join(", ")}): ${mappedReturn};\n`
+
         llNs.insertText(llNs.getEnd() - 1, sig)
       } else {
         llNs.addFunction({
@@ -1362,10 +1403,12 @@ export function emitAll(
     // Determine the type annotation: prefer typed-list-params literal, then
     // parse the YAML value for integer constants, then slua-type, then LSL type.
     let constType: string
+
     if (literalValue !== undefined) {
       constType = String(literalValue)
     } else if (c.type === "integer" && c.value != null) {
       const v = String(c.value)
+
       constType = String(parseInt(v, v.startsWith("0x") ? 16 : 10))
     } else if (c["slua-type"]) {
       constType = mapType(c["slua-type"])
@@ -1437,16 +1480,20 @@ export function emitAll(
       lines.push("")
       lines.push(`/** ${comment} */`)
       lines.push(`interface ${mapName} {`)
+
       for (const rule of rules) {
         const namedArgs = rule.args
           .map((a) => {
             const t = mapListArgType(a.type)
             const clear = argAcceptsEmptyString(clearable, rule.name, a.name)
+
             return `${toCamelCase(a.name)}: ${clear ? `${t} | ""` : t}`
           })
           .join(", ")
+
         lines.push(`  [${rule.name}]: [${namedArgs}]`)
       }
+
       lines.push("}")
     }
 
@@ -1454,9 +1501,11 @@ export function emitAll(
       lines.push("")
       lines.push(`/** Reverse map from numeric value to constant name for error messages. */`)
       lines.push(`interface ${nameMapName} {`)
+
       for (const rule of rules) {
         lines.push(`  ${rule.value}: "${rule.name}"`)
       }
+
       lines.push("}")
     }
 
@@ -1471,22 +1520,28 @@ export function emitAll(
 
         if (hasReturns) {
           const returnMapName = `${set.name}ReturnMap`
+
           lines.push("")
           lines.push(`/** Maps each ${set.name} constant to the tuple of values it returns. */`)
           lines.push(`interface ${returnMapName} {`)
+
           for (const rule of set.params) {
             if (!rule.returns?.length) {
               throw new Error(`${set.name} has hasReturns but ${rule.name} is missing returns`)
             }
+
             const returns = rule.returns
             const namedReturns = returns
               .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)} | undefined`)
               .join(", ")
+
             lines.push(`  [${rule.name}]: [${namedReturns}]`)
           }
+
           lines.push("}")
 
           const mapName = `Map${set.name}`
+
           lines.push("")
           lines.push(`/** Recursively maps a tuple of ${set.name} flags to their return types. */`)
           lines.push(`type ${mapName}<T extends readonly ${flagType}[]> =`)
@@ -1518,6 +1573,7 @@ export function emitAll(
 
       if (set.subDispatch) {
         const subNameMapName = `${set.subDispatch.name}NameMap`
+
         emitParamMap(
           `${set.subDispatch.name}Map`,
           "Maps each sub-dispatch constant to the tuple of arguments that follow it.",
@@ -1538,6 +1594,7 @@ export function emitAll(
       if (set.subDispatch) {
         const subMapName = `${set.subDispatch.name}Map`
         const subNameMapName = `${set.subDispatch.name}NameMap`
+
         lines.push(`    ? K extends typeof ${set.subDispatch.constant}`)
         lines.push("      ? Rest extends readonly [infer S, ...infer ShapeRest]")
         lines.push(`        ? S extends keyof ${subMapName}`)
@@ -1567,6 +1624,7 @@ export function emitAll(
 
       // Emit return map and recursive output mapper for sets with return types
       const hasReturns = set.params.some((r) => r.returns && r.returns.length > 0)
+
       if (hasReturns) {
         const returnMapName = `${set.name}ReturnMap`
         const mapperName = `Map${set.name}`
@@ -1580,26 +1638,33 @@ export function emitAll(
           )?.subDispatch
         const subDispatchConstant = subDispatch?.constant
         let subReturnType: string | undefined
+
         if (subDispatch) {
           const variants = subDispatch.params.map((shape) => {
             const shapeReturns = shape.args
               .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)} | undefined`)
               .join(", ")
+
             return `[type: typeof ${shape.name}, ${shapeReturns}]`
           })
+
           subReturnType = variants.join(" | ")
         }
 
         lines.push("")
         lines.push(`/** Maps each ${set.name} constant to the tuple of values it returns. */`)
         lines.push(`interface ${returnMapName} {`)
+
         for (const rule of set.params) {
           if (subDispatchConstant && rule.name === subDispatchConstant && subReturnType) {
             // Sub-dispatch: return is a union of all shape return tuples
             lines.push(`  [${rule.name}]: ${subReturnType}`)
+
             continue
           }
+
           const returns = rule.returns ?? []
+
           if (returns.length === 0) {
             // Flags with no return (e.g. PRIM_LINK_TARGET) produce no output
             lines.push(`  [${rule.name}]: []`)
@@ -1607,9 +1672,11 @@ export function emitAll(
             const namedReturns = returns
               .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)} | undefined`)
               .join(", ")
+
             lines.push(`  [${rule.name}]: [${namedReturns}]`)
           }
         }
+
         lines.push("}")
 
         // Recursive output mapper: consumes input args, emits return values
@@ -1623,6 +1690,7 @@ export function emitAll(
 
         if (subDispatch) {
           const subMapName = `${subDispatch.name}Map`
+
           lines.push(`    ? K extends typeof ${subDispatch.constant}`)
           lines.push("      ? Rest extends readonly [infer S, ...infer ShapeRest]")
           lines.push(`        ? S extends keyof ${subMapName}`)
@@ -1658,7 +1726,10 @@ export function emitAll(
 
     for (const config of BUILDER_CONFIGS) {
       const set = typedListParams.sets.find((s) => s.name === config.setName)
-      if (!set) continue
+
+      if (!set) {
+        continue
+      }
 
       // Options-only roots skip the fluent builder interface entirely
       const optionsOnly = config.roots.every((r) => r.optionsArg)
@@ -1668,18 +1739,23 @@ export function emitAll(
 
         // Collect builder methods from params
         const methods: string[] = []
+
         for (const rule of set.params) {
           // Skip the link constant, it becomes .link() with a callback
-          if (config.linkConstant && rule.name === config.linkConstant) continue
+          if (config.linkConstant && rule.name === config.linkConstant) {
+            continue
+          }
 
           const methodName = constantToMethodName(rule.name, config.prefix)
           const args = rule.args
             .map((a) => {
               const t = mapListArgType(a.type)
               const clear = argAcceptsEmptyString(config.clearable, rule.name, a.name)
+
               return `${toCamelCase(a.name)}: ${clear ? `${t} | ""` : t}`
             })
             .join(", ")
+
           methods.push(`  ${methodName}(${args}): ${interfaceName}`)
         }
 
@@ -1690,6 +1766,7 @@ export function emitAll(
             const args = shape.args
               .map((a) => `${toCamelCase(a.name)}: ${mapListArgType(a.type)}`)
               .join(", ")
+
             methods.push(`  ${shapeName}(${args}): ${interfaceName}`)
           }
         }
@@ -1712,8 +1789,12 @@ export function emitAll(
 
         // Emit builder root function declarations (non-options roots only)
         for (const root of config.roots) {
-          if (root.optionsArg) continue
+          if (root.optionsArg) {
+            continue
+          }
+
           const args = root.preListArgs.concat(root.postListArgs ?? []).join(", ")
+
           builderLines.push("")
           builderLines.push(`declare function ${root.name}(${args}): ${interfaceName}`)
         }
@@ -1721,26 +1802,38 @@ export function emitAll(
 
       // Emit options-object interfaces and overloads
       for (const root of config.roots) {
-        if (!root.optionsArg) continue
+        if (!root.optionsArg) {
+          continue
+        }
+
         const optionsName = `${set.name}Options`
         const preArgs = root.preListArgs.join(", ")
 
         builderLines.push("")
         builderLines.push(`/** Options object for ${root.name}. All properties are optional. */`)
         builderLines.push(`interface ${optionsName} {`)
+
         for (const rule of set.params) {
-          if (config.linkConstant && rule.name === config.linkConstant) continue
+          if (config.linkConstant && rule.name === config.linkConstant) {
+            continue
+          }
+
           const methodName = constantToMethodName(rule.name, config.prefix)
           const argTypes = rule.args.map((a) => mapListArgType(a.type))
           const type = argTypes.length === 1 ? argTypes[0] : `[${argTypes.join(", ")}]`
+
           builderLines.push(`  ${methodName}?: ${type}`)
         }
+
         // Include post-list args as properties (e.g. body for httpRequest)
         for (const postArg of root.postListArgs ?? []) {
           const [name, type] = postArg.split(": ")
+
           builderLines.push(`  ${name}?: ${type}`)
         }
+
         builderLines.push("}")
+
         // Look up the actual return type from the LSL function
         const lslFn = lsl.functions[`ll${root.llFunction}`]
         const retType = lslFn
@@ -1750,8 +1843,10 @@ export function emitAll(
           : "list"
 
         builderLines.push("")
+
         if (root.optionsReturnType) {
           const generic = `<const Opts extends ${optionsName}>`
+
           builderLines.push(
             `declare function ${root.name}${generic}(${preArgs}${preArgs ? ", " : ""}options: Opts): ${root.optionsReturnType}`,
           )
@@ -1780,6 +1875,7 @@ export function emitAll(
  */
 function constantToMethodName(name: string, prefix: string): string {
   const stripped = name.startsWith(prefix) ? name.slice(prefix.length) : name
+
   return toCamelCase(stripped)
 }
 
@@ -1825,9 +1921,14 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
 
   // Emit root function map
   const rootEntries: string[] = []
+
   for (const config of BUILDER_CONFIGS) {
     const set = typedListParams.sets.find((s) => s.name === config.setName)
-    if (!set) continue
+
+    if (!set) {
+      continue
+    }
+
     for (const root of config.roots) {
       const optionsFlag = root.optionsArg ? ", optionsArg: true" : ""
       const postNames =
@@ -1840,11 +1941,13 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
               .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
               .join(", ")} }`
           : ""
+
       rootEntries.push(
         `  ${root.name}: { llFunction: "${root.llFunction}", paramSet: "${set.name}", preListArgs: ${root.preListArgs.length}, postListArgs: ${root.postListArgs?.length ?? 0}${optionsFlag}${postNames}${defaults} },`,
       )
     }
   }
+
   lines.push("export const BUILDER_ROOTS: Record<string, BuilderRootDef> = {")
   lines.push(...rootEntries)
   lines.push("}")
@@ -1852,14 +1955,23 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
 
   // Emit per-set method maps
   const setEntries: string[] = []
+
   for (const config of BUILDER_CONFIGS) {
     const set = typedListParams.sets.find((s) => s.name === config.setName)
-    if (!set) continue
+
+    if (!set) {
+      continue
+    }
 
     const methodEntries: string[] = []
+
     for (const rule of set.params) {
-      if (config.linkConstant && rule.name === config.linkConstant) continue
+      if (config.linkConstant && rule.name === config.linkConstant) {
+        continue
+      }
+
       const methodName = constantToMethodName(rule.name, config.prefix)
+
       methodEntries.push(
         `      ${methodName}: { constant: "${rule.name}", argCount: ${rule.args.length} },`,
       )
@@ -1867,9 +1979,11 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
 
     // Sub-dispatch shapes
     const subEntries: string[] = []
+
     if (set.subDispatch) {
       for (const shape of set.subDispatch.params) {
         const shapeName = constantToMethodName(shape.name, config.prefix)
+
         subEntries.push(
           `      { dispatchConstant: "${set.subDispatch.constant}", shapeConstant: "${shape.name}", argCount: ${shape.args.length}, methodName: "${shapeName}" },`,
         )
@@ -1880,17 +1994,21 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
     setEntries.push(`    methods: {`)
     setEntries.push(...methodEntries)
     setEntries.push(`    },`)
+
     if (subEntries.length > 0) {
       setEntries.push(`    subDispatch: [`)
       setEntries.push(...subEntries)
       setEntries.push(`    ],`)
     }
+
     if (config.linkConstant) {
       setEntries.push(`    linkConstant: "${config.linkConstant}",`)
       setEntries.push(`    linkMethod: "link",`)
     }
+
     setEntries.push(`  },`)
   }
+
   lines.push("export const BUILDER_SETS: Record<string, BuilderSetDef> = {")
   lines.push(...setEntries)
   lines.push("}")
@@ -1907,19 +2025,36 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
 export function emitSluaGlobals(slua: SLuaDefinitions, lsl: LSLDefinitions): string {
   const names = new Set<string>()
 
-  for (const mod of slua.modules) names.add(mod.name)
-
-  for (const gv of slua.globalVariables) {
-    if (!gv["slua-removed"]) names.add(gv.name)
+  for (const mod of slua.modules) {
+    names.add(mod.name)
   }
 
-  for (const fn of slua.globalFunctions) names.add(fn.name)
-  for (const fn of slua.builtinFunctions) names.add(fn.name)
-  for (const c of slua.constants) names.add(c.name)
-  for (const c of slua.builtinConstants) names.add(c.name)
+  for (const gv of slua.globalVariables) {
+    if (!gv["slua-removed"]) {
+      names.add(gv.name)
+    }
+  }
+
+  for (const fn of slua.globalFunctions) {
+    names.add(fn.name)
+  }
+
+  for (const fn of slua.builtinFunctions) {
+    names.add(fn.name)
+  }
+
+  for (const c of slua.constants) {
+    names.add(c.name)
+  }
+
+  for (const c of slua.builtinConstants) {
+    names.add(c.name)
+  }
 
   for (const [name, c] of Object.entries(lsl.constants)) {
-    if (!c["slua-removed"]) names.add(name)
+    if (!c["slua-removed"]) {
+      names.add(name)
+    }
   }
 
   // Only names the minifier could generate (MINIFY_ALPHABET is letters-only).

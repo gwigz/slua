@@ -24,6 +24,7 @@ function readTsconfigPaths(tsconfigPath: string) {
 
   if (configFile.error) {
     const msg = ts.flattenDiagnosticMessageText(configFile.error.messageText, "\n")
+
     throw new Error(`shakeModules: failed to read tsconfig at ${absolute}: ${msg}`)
   }
 
@@ -33,6 +34,7 @@ function readTsconfigPaths(tsconfigPath: string) {
     const msg = parsed.errors
       .map((e) => ts.flattenDiagnosticMessageText(e.messageText, "\n"))
       .join("\n")
+
     throw new Error(`shakeModules: tsconfig errors in ${absolute}: ${msg}`)
   }
 
@@ -64,11 +66,17 @@ export async function shakeModules(options: ShakeOptions): Promise<ShakeResult> 
 
     resolveId(source, importer) {
       const result = (resolverPlugin.resolveId as Function).call(this, source, importer)
+
       if (typeof result === "string") {
         resolvedModuleFiles.add(result)
+
         return result
       }
-      if (!importer) return null
+
+      if (!importer) {
+        return null
+      }
+
       return { id: source, external: true }
     },
 
@@ -93,7 +101,9 @@ export async function shakeModules(options: ShakeOptions): Promise<ShakeResult> 
   const survivingExports = new Map<string, Set<string>>()
 
   for (const chunk of output) {
-    if (chunk.type !== "chunk" || !chunk.facadeModuleId) continue
+    if (chunk.type !== "chunk" || !chunk.facadeModuleId) {
+      continue
+    }
 
     if (resolvedModuleFiles.has(chunk.facadeModuleId)) {
       survivingExports.set(chunk.facadeModuleId, new Set(chunk.exports))
@@ -101,6 +111,7 @@ export async function shakeModules(options: ShakeOptions): Promise<ShakeResult> 
   }
 
   const fileSet = new Set(entryFiles)
+
   for (const moduleFile of resolvedModuleFiles) {
     fileSet.add(moduleFile)
   }

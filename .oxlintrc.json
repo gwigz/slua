@@ -1,6 +1,31 @@
 {
   "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "jsPlugins": ["@stylistic/eslint-plugin"],
   "rules": {
+    "curly": ["error", "all"],
+    "@stylistic/padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": "*" },
+      {
+        "blankLine": "any",
+        "prev": ["const", "let", "var"],
+        "next": ["const", "let", "var"]
+      },
+      { "blankLine": "any", "prev": "expression", "next": "expression" },
+      { "blankLine": "never", "prev": "*", "next": "break" },
+      { "blankLine": "any", "prev": "import", "next": "import" },
+      {
+        "blankLine": "never",
+        "prev": { "selector": "ExportNamedDeclaration[source], ExportAllDeclaration" },
+        "next": { "selector": "ExportNamedDeclaration[source], ExportAllDeclaration" }
+      },
+      { "blankLine": "any", "prev": "empty", "next": "*" },
+      {
+        "blankLine": "never",
+        "prev": { "selector": "SwitchCase[consequent.length=0]" },
+        "next": ["case", "default"]
+      }
+    ],
     "unicorn/require-post-message-target-origin": "off",
     // Nested arrow helpers stay beside their only caller; the rule still
     // catches hoistable function declarations.

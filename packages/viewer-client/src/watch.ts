@@ -52,6 +52,7 @@ export interface WatchOptions<T extends WatchTarget = WatchTarget> {
 export interface Watcher {
   /** Pushes now, skipping the debounce. An explicit ask, so no guard applies. */
   trigger(names?: readonly string[]): Promise<void>
+
   /** Stops watching, once the push already in flight has finished. */
   close(): Promise<void>
 }
@@ -111,7 +112,9 @@ export function watchTargets<T extends WatchTarget>(
   for (const target of targets) {
     const digest = digestNow(target.file)
 
-    if (digest !== undefined) digests.set(target.name, digest)
+    if (digest !== undefined) {
+      digests.set(target.name, digest)
+    }
   }
 
   const watchers: FSWatcher[] = []
@@ -141,8 +144,11 @@ export function watchTargets<T extends WatchTarget>(
   const remember = async (target: T) => {
     const digest = await digestOf(target.file)
 
-    if (digest === undefined) digests.delete(target.name)
-    else digests.set(target.name, digest)
+    if (digest === undefined) {
+      digests.delete(target.name)
+    } else {
+      digests.set(target.name, digest)
+    }
   }
 
   const run = async (batch: T[]) => {
@@ -158,13 +164,17 @@ export function watchTargets<T extends WatchTarget>(
       // time between them.
       const now = Date.now()
 
-      for (const target of batch) pushedAt.set(target.name, now)
+      for (const target of batch) {
+        pushedAt.set(target.name, now)
+      }
     }
   }
 
   const flush = () =>
     serialise(async () => {
-      if (closed || ready.size === 0) return
+      if (closed || ready.size === 0) {
+        return
+      }
 
       const now = Date.now()
       const batch: T[] = []
@@ -194,15 +204,21 @@ export function watchTargets<T extends WatchTarget>(
 
         // The cheapest guard of the lot, and it catches the no-op rebuild that
         // would otherwise restart a running script for nothing.
-        if (digest !== undefined && digest === digests.get(name)) continue
+        if (digest !== undefined && digest === digests.get(name)) {
+          continue
+        }
 
-        if (digest !== undefined) digests.set(name, digest)
+        if (digest !== undefined) {
+          digests.set(name, digest)
+        }
 
         // Set here rather than at mark time. The directory watch fires for
         // anything in the directory, and a window burned by an event that
         // moved nothing would swallow the write behind it. Only a real push
         // starts one.
-        if (leading) suppressed.set(name, Date.now() + debounceMs)
+        if (leading) {
+          suppressed.set(name, Date.now() + debounceMs)
+        }
 
         batch.push(target)
       }
@@ -219,21 +235,29 @@ export function watchTargets<T extends WatchTarget>(
         }, wait)
       }
 
-      if (batch.length === 0) return
+      if (batch.length === 0) {
+        return
+      }
 
       await run(batch)
 
       // Changes that landed while that push was in flight, as one follow-up
       // rather than one per write. Only after a push actually happened, or a
       // wholly deferred batch would spin here until its retry.
-      if (ready.size > 0 && !closed) void flush()
+      if (ready.size > 0 && !closed) {
+        void flush()
+      }
     })
 
   const mark = (target: T) => {
-    if (closed) return
+    if (closed) {
+      return
+    }
 
     if (leading) {
-      if (Date.now() < (suppressed.get(target.name) ?? 0)) return
+      if (Date.now() < (suppressed.get(target.name) ?? 0)) {
+        return
+      }
 
       ready.set(target.name, target)
 
@@ -275,7 +299,9 @@ export function watchTargets<T extends WatchTarget>(
       // event naming only the staging file. The digest check at flush time
       // decides whether anything moved, so a spurious mark costs one read.
       const watcher = watch(directory, () => {
-        for (const target of watched) mark(target)
+        for (const target of watched) {
+          mark(target)
+        }
       })
 
       watcher.on("error", (error) => options.onError?.(error))
@@ -315,12 +341,16 @@ export function watchTargets<T extends WatchTarget>(
 
       clearTimeout(retry)
 
-      for (const timer of timers.values()) clearTimeout(timer)
+      for (const timer of timers.values()) {
+        clearTimeout(timer)
+      }
 
       timers.clear()
       ready.clear()
 
-      for (const watcher of watchers) watcher.close()
+      for (const watcher of watchers) {
+        watcher.close()
+      }
 
       // An upload cannot be cancelled, so a push in flight will finish
       // whatever happens here. Waiting for it puts the session's teardown, log

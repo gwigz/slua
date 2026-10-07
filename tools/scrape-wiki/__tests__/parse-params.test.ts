@@ -32,6 +32,7 @@ describe("parseUsageString", () => {
     const result = parseUsageString(
       "[ PRIM_SPECULAR, integer face, string texture, vector repeats, vector offsets, float rotation_in_radians, vector color, integer glossiness integer environment ]",
     )
+
     expect(result).toContainEqual({ type: "integer", name: "glossiness" })
     expect(result).toContainEqual({ type: "integer", name: "environment" })
   })

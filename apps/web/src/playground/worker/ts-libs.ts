@@ -49,6 +49,7 @@ const contents = [
 
 // Re-export the canonical name list from ts-lib-names.ts
 export { TS_LIB_NAMES } from "./ts-lib-names"
+
 import { TS_LIB_NAMES } from "./ts-lib-names"
 
 /** [filename, content] pairs for all bundled TypeScript lib files. */

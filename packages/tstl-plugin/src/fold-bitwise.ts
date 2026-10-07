@@ -17,14 +17,27 @@ const BITWISE_JS_OPS: Record<number, (a: number, b: number) => number> = {
  */
 function evaluate(node: ts.Expression, checker: ts.TypeChecker | undefined): number | null {
   // Unwrap parentheses and type assertions: (expr), expr as T, <T>expr
-  if (ts.isParenthesizedExpression(node)) return evaluate(node.expression, checker)
-  if (ts.isAsExpression(node)) return evaluate(node.expression, checker)
-  if (ts.isTypeAssertionExpression(node)) return evaluate(node.expression, checker)
+  if (ts.isParenthesizedExpression(node)) {
+    return evaluate(node.expression, checker)
+  }
+
+  if (ts.isAsExpression(node)) {
+    return evaluate(node.expression, checker)
+  }
+
+  if (ts.isTypeAssertionExpression(node)) {
+    return evaluate(node.expression, checker)
+  }
+
   // TS 5.x satisfies expression
-  if (ts.isSatisfiesExpression?.(node)) return evaluate((node as any).expression, checker)
+  if (ts.isSatisfiesExpression?.(node)) {
+    return evaluate((node as any).expression, checker)
+  }
 
   // Numeric literal
-  if (ts.isNumericLiteral(node)) return Number(node.text)
+  if (ts.isNumericLiteral(node)) {
+    return Number(node.text)
+  }
 
   // Identifier — resolve via the type checker to a numeric literal type
   if (ts.isIdentifier(node) && checker) {
@@ -41,11 +54,13 @@ function evaluate(node: ts.Expression, checker: ts.TypeChecker | undefined): num
   if (ts.isPrefixUnaryExpression(node)) {
     if (node.operator === ts.SyntaxKind.TildeToken) {
       const val = evaluate(node.operand, checker)
+
       return val === null ? null : ~val >>> 0
     }
 
     if (node.operator === ts.SyntaxKind.MinusToken) {
       const val = evaluate(node.operand, checker)
+
       return val === null ? null : -val
     }
 
@@ -55,13 +70,22 @@ function evaluate(node: ts.Expression, checker: ts.TypeChecker | undefined): num
   // Binary bitwise expression
   if (ts.isBinaryExpression(node)) {
     const op = BITWISE_JS_OPS[node.operatorToken.kind]
-    if (!op) return null
+
+    if (!op) {
+      return null
+    }
 
     const left = evaluate(node.left, checker)
-    if (left === null) return null
+
+    if (left === null) {
+      return null
+    }
 
     const right = evaluate(node.right, checker)
-    if (right === null) return null
+
+    if (right === null) {
+      return null
+    }
 
     return op(left, right)
   }
@@ -87,7 +111,10 @@ export function tryFoldBitwise(
   checker?: ts.TypeChecker,
 ): { value: number; source: string } | null {
   const value = evaluate(node, checker)
-  if (value === null) return null
+
+  if (value === null) {
+    return null
+  }
 
   return { value, source: node.getText() }
 }

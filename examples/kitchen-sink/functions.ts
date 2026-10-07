@@ -51,6 +51,7 @@ function makeCounter(start: number = 0): { next: () => number; value: () => numb
   return {
     next: () => {
       current += 1
+
       return current
     },
     value: () => current,

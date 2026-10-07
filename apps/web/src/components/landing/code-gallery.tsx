@@ -34,6 +34,7 @@ function CodePanel({
       <div
         ref={(el) => {
           scrollRef.current = el
+
           if (twoslash && portalRef.current !== el) {
             ;(portalRef as React.MutableRefObject<HTMLDivElement | null>).current = el
           }
@@ -54,7 +55,10 @@ export function CodeGallery({ tabs }: { tabs: CodeGalleryTab[] }) {
   const syncing = useRef(false)
 
   const syncScroll = useCallback((source: HTMLDivElement | null, target: HTMLDivElement | null) => {
-    if (syncing.current || !source || !target) return
+    if (syncing.current || !source || !target) {
+      return
+    }
+
     syncing.current = true
     target.scrollLeft = source.scrollLeft
     syncing.current = false

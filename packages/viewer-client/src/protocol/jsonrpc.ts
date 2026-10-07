@@ -8,6 +8,7 @@ import { ConnectionClosedError, RpcError, RpcErrorCode, RpcTimeoutError } from "
  */
 export interface Transport {
   send(data: string): void
+
   close(): void
   onmessage: ((data: string) => void) | null
   onclose: (() => void) | null
@@ -15,6 +16,7 @@ export interface Transport {
 }
 
 export type RequestHandler = (params: any) => unknown | Promise<unknown>
+
 export type NotificationHandler = (params: any) => void
 
 export interface JsonRpcOptions {
@@ -138,14 +140,18 @@ export class JsonRpcPeer {
   }
 
   close(): void {
-    if (this.closed) return
+    if (this.closed) {
+      return
+    }
 
     this.transport.close()
     this.handleClose()
   }
 
   private handleClose(): void {
-    if (this.closed) return
+    if (this.closed) {
+      return
+    }
 
     this.closed = true
 
@@ -202,7 +208,9 @@ export class JsonRpcPeer {
   private dispatchNotification(message: { method: string; params?: unknown }): void {
     const handlers = this.notificationHandlers.get(message.method)
 
-    if (!handlers) return
+    if (!handlers) {
+      return
+    }
 
     const params = toCamel(message.params)
 
@@ -248,11 +256,15 @@ export class JsonRpcPeer {
     // to echo the same type back, so "7" has to find the call that sent 7.
     const id = typeof message.id === "number" ? message.id : Number(message.id)
 
-    if (!Number.isInteger(id)) return
+    if (!Number.isInteger(id)) {
+      return
+    }
 
     const pending = this.pending.get(id)
 
-    if (!pending) return
+    if (!pending) {
+      return
+    }
 
     clearTimeout(pending.timer)
     this.pending.delete(id)
@@ -278,7 +290,9 @@ export class JsonRpcPeer {
   }
 
   private send(payload: unknown): void {
-    if (this.closed) return
+    if (this.closed) {
+      return
+    }
 
     this.transport.send(JSON.stringify(payload))
   }

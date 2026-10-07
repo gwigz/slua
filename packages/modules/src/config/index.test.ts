@@ -199,6 +199,7 @@ describe("loadConfig", () => {
 describe("onConfigChanged", () => {
   it("fires callback when notecard changes", () => {
     notecard("settings.yml", ["KEY: original"])
+
     let callCount = 0
 
     const config = { KEY: "" }
@@ -225,6 +226,7 @@ describe("onConfigChanged", () => {
 
   it("ignores changed events without CHANGED_INVENTORY flag", () => {
     notecard("settings.yml", ["KEY: original"])
+
     let callCount = 0
 
     const config = { KEY: "" }
@@ -243,6 +245,7 @@ describe("onConfigChanged", () => {
 
   it("ignores changed events when inventory key hasn't changed", () => {
     notecard("settings.yml", ["KEY: original"])
+
     let callCount = 0
 
     const config = { KEY: "" }

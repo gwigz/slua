@@ -22,7 +22,9 @@ export class PlaygroundErrorBoundary extends Component<Props, State> {
   }
 
   render() {
-    if (!this.state.error) return this.props.children
+    if (!this.state.error) {
+      return this.props.children
+    }
 
     return (
       <div className="flex flex-1 items-center justify-center p-6 bg-fd-background text-fd-foreground">

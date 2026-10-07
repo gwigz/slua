@@ -67,13 +67,17 @@ export function socketTransport(socket: Socket): Transport {
     for (;;) {
       const end = buffer.indexOf("\n")
 
-      if (end < 0) break
+      if (end < 0) {
+        break
+      }
 
       const line = buffer.slice(0, end)
 
       buffer = buffer.slice(end + 1)
 
-      if (line.trim() !== "") transport.onmessage?.(line)
+      if (line.trim() !== "") {
+        transport.onmessage?.(line)
+      }
     }
 
     // A peer that never sends a newline would grow this string until the

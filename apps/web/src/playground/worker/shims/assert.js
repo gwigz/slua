@@ -4,7 +4,9 @@
 // others it wraps with `__importStar` (so consumers call `assert.ok(value)`).
 // Exposing both forms keeps TSTL working either way.
 function assert(value, message) {
-  if (!value) throw new Error(message || "Assertion failed")
+  if (!value) {
+    throw new Error(message || "Assertion failed")
+  }
 }
 
 function fail(message) {
@@ -15,17 +17,25 @@ assert.ok = assert
 assert.fail = fail
 assert.equal = function (actual, expected, message) {
   // eslint-disable-next-line eqeqeq
-  if (actual != expected) throw new Error(message || `${actual} == ${expected}`)
+  if (actual != expected) {
+    throw new Error(message || `${actual} == ${expected}`)
+  }
 }
 assert.strictEqual = function (actual, expected, message) {
-  if (actual !== expected) throw new Error(message || `${actual} === ${expected}`)
+  if (actual !== expected) {
+    throw new Error(message || `${actual} === ${expected}`)
+  }
 }
 assert.notEqual = function (actual, expected, message) {
   // eslint-disable-next-line eqeqeq
-  if (actual == expected) throw new Error(message || `${actual} != ${expected}`)
+  if (actual == expected) {
+    throw new Error(message || `${actual} != ${expected}`)
+  }
 }
 assert.notStrictEqual = function (actual, expected, message) {
-  if (actual === expected) throw new Error(message || `${actual} !== ${expected}`)
+  if (actual === expected) {
+    throw new Error(message || `${actual} !== ${expected}`)
+  }
 }
 
 module.exports = assert

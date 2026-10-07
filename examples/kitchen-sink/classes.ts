@@ -33,6 +33,7 @@ class Counter {
 
   static increment(): number {
     Counter.count += 1
+
     return Counter.count
   }
 

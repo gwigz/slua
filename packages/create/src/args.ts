@@ -56,14 +56,21 @@ function resolveNegatable(
     throw new CliUsageError(`--${name} and --no-${name} cannot be combined`)
   }
 
-  if (positive) return true
-  if (negative) return false
+  if (positive) {
+    return true
+  }
+
+  if (negative) {
+    return false
+  }
 
   return undefined
 }
 
 function parseExtras(values: string[] | undefined): (keyof Extras)[] | undefined {
-  if (values === undefined || values.length === 0) return undefined
+  if (values === undefined || values.length === 0) {
+    return undefined
+  }
 
   const tokens = values.flatMap((value) => value.split(",")).map((token) => token.trim())
 
@@ -131,7 +138,9 @@ export function parseCliArgs(argv: string[]): CliFlags {
   if (directory !== undefined) {
     const problem = validateDirectory(directory)
 
-    if (problem) throw new CliUsageError(problem)
+    if (problem) {
+      throw new CliUsageError(problem)
+    }
   }
 
   if (

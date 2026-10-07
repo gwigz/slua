@@ -12,6 +12,17 @@ Submodules (for type generation) are pulled automatically. If you cloned without
 git submodule update --init
 ```
 
+## Code style
+
+Use braces for every control statement and blank lines between logical steps.
+Preserve blank lines between import groups. Keep consecutive assignments or calls together when they
+form one step, such as repeated string replacements or related state updates. Group adjacent declarations that describe one step, and separate
+declarations that start a different step.
+
+Run `bun run lint:fix` to apply lint fixes followed by Oxfmt. It retries lint fixes
+once to resolve overlapping brace and spacing edits. Verify with `bun run lint`
+and `bun run fmt:check`.
+
 ## Releasing
 
 This repo uses [Changesets](https://github.com/changesets/changesets) to manage versioning and publishing of `@gwigz/slua-types` and `@gwigz/slua-tstl-plugin`.

@@ -294,6 +294,7 @@ function transpileBundledExample(def: ExampleDef): { ts: string; lua: string } {
         d.file && d.start !== undefined
           ? ts.getLineAndCharacterOfPosition(d.file, d.start).line + 1
           : "?"
+
       console.error(`  Error [${file}:${line}]: ${msg}`)
     }
   }
@@ -328,7 +329,10 @@ function cleanLuaSpacing(code: string): string {
 /** Flatten a TSTL luaBundle, inlining all modules and removing the require system. */
 function flattenBundle(code: string): string {
   const runtimeStart = code.indexOf("\nlocal ____modules = {}\n")
-  if (runtimeStart < 0) return code
+
+  if (runtimeStart < 0) {
+    return code
+  }
 
   const header = code.substring(0, runtimeStart + 1)
   const moduleRegex = /\["([^"]+)"\] = function\([^)]*\)\s*\n([\s\S]*?)\n end,/g
@@ -373,9 +377,11 @@ function stripUnusedFunctions(code: string): string {
 
   while (changed) {
     changed = false
+
     const blocks: { name: string; start: number; end: number }[] = []
 
     let match
+
     fnBlockRegex.lastIndex = 0
 
     while ((match = fnBlockRegex.exec(result)) !== null) {
@@ -420,7 +426,9 @@ const examples: Record<string, { id: string; label: string; ts: string; lua: str
 
 for (const def of EXAMPLES) {
   console.log(`Transpiling ${def.file}${def.bundle ? " (bundled)" : ""}...`)
+
   const { ts: tsCode, lua } = def.bundle ? transpileBundledExample(def) : transpileExample(def)
+
   examples[def.id] = { id: def.id, label: def.label, ts: tsCode, lua }
 }
 

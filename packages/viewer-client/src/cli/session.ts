@@ -62,7 +62,9 @@ export async function runSession({
 
   const interrupt = () => {
     // A second ctrl-c means the first one did not get us out fast enough.
-    if (stopping) process.exit(130)
+    if (stopping) {
+      process.exit(130)
+    }
 
     stopping = true
     current?.close()
@@ -83,7 +85,6 @@ export async function runSession({
         // up on top of it would publish and subscribe on the way out.
         if (stopping) {
           client.close()
-
           break
         }
 
@@ -101,7 +102,6 @@ export async function runSession({
         // `untilClosed` would then wait for a close that has been and gone.
         if (stopping) {
           client.close()
-
           break
         }
 
@@ -117,13 +117,20 @@ export async function runSession({
         // old client goes before a replacement takes its place.
         client.close()
       } catch (error) {
-        if (!follow) throw error
-        if (stopping) break
+        if (!follow) {
+          throw error
+        }
+
+        if (stopping) {
+          break
+        }
 
         reporter.note(pc.dim(`disconnected: ${error instanceof Error ? error.message : error}`))
       }
 
-      if (!follow || stopping) break
+      if (!follow || stopping) {
+        break
+      }
 
       // Back off so a viewer that is closed or restarting isn't hammered.
       const delay = Math.min(RECONNECT_BASE_MS * 2 ** attempt++, RECONNECT_MAX_MS)

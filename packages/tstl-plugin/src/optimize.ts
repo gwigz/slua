@@ -63,7 +63,10 @@ export function countFilterCalls(program: ts.Program, bundle: boolean): Set<stri
 
     for (const sf of sourceFiles) {
       ts.forEachChild(sf, function visit(node) {
-        if (isArrayFilterCall(node, checker)) total++
+        if (isArrayFilterCall(node, checker)) {
+          total++
+        }
+
         ts.forEachChild(node, visit)
       })
     }
@@ -78,7 +81,10 @@ export function countFilterCalls(program: ts.Program, bundle: boolean): Set<stri
       let count = 0
 
       ts.forEachChild(sf, function visit(node) {
-        if (isArrayFilterCall(node, checker)) count++
+        if (isArrayFilterCall(node, checker)) {
+          count++
+        }
+
         ts.forEachChild(node, visit)
       })
 
@@ -108,7 +114,10 @@ export function createOptimizeTransforms(filterSkipFiles: Set<string>): CallTran
     // arr.filter(cb) -> inline for loop with ipairs
     {
       match: (node, checker) => {
-        if (filterSkipFiles.has(node.getSourceFile().fileName)) return false
+        if (filterSkipFiles.has(node.getSourceFile().fileName)) {
+          return false
+        }
+
         return isMethodCall(node, checker, isArrayType, "filter", 1)
       },
       emit: (node, context) => {

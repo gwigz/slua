@@ -11,13 +11,17 @@ const KNOWN_TYPES = new Set(["string", "integer", "float", "vector", "rotation",
  */
 export function parseInlineParam(text: string): TypedListArg[] {
   const tokens = text.trim().split(/\s+/)
+
   if (tokens.length >= 2 && KNOWN_TYPES.has(tokens[0])) {
     const name = tokens.slice(1).join("_")
+
     if (tokens[0] === "integer" && (name === "boolean" || name === "isActive")) {
       return [{ type: "boolean", name: name === "boolean" ? "enabled" : name }]
     }
+
     return [{ type: tokens[0], name }]
   }
+
   return []
 }
 
@@ -29,19 +33,23 @@ let _lslDefs: any | null = null
 function getLslDefs() {
   if (!_lslDefs) {
     const yamlPath = resolve(import.meta.dir, "../../../refs/lsl-definitions/lsl_definitions.yaml")
+
     _lslDefs = parseYaml(readFileSync(yamlPath, "utf8"))
   }
+
   return _lslDefs
 }
 
 export function loadConstantValues(prefix: string): Record<string, number> {
   const lslDefs = getLslDefs()
   const constants: Record<string, number> = {}
+
   for (const [name, def] of Object.entries(lslDefs.constants ?? {})) {
     if (name.startsWith(prefix) && (def as any).value != null) {
       constants[name] = parseInt(String((def as any).value), 10)
     }
   }
+
   return constants
 }
 
@@ -64,7 +72,11 @@ export function cleanDescription(text: string): string {
  */
 export async function fetchHtml(url: string): Promise<string> {
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`)
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`)
+  }
+
   return res.text()
 }
 
@@ -87,26 +99,36 @@ export async function scrapeConstantList(opts: {
   const $ = load(html)
 
   let table: ReturnType<typeof $> | null = null
+
   $("table").each((_, t) => {
     const text = $(t).text()
+
     if (opts.landmarks.every((l) => text.includes(l))) {
       table = $(t)
+
       return false
     }
   })
 
-  if (!table) throw new Error(`Could not find table on ${opts.url}`)
+  if (!table) {
+    throw new Error(`Could not find table on ${opts.url}`)
+  }
 
   const params: TypedListRule[] = []
 
   ;(table as ReturnType<typeof $>).find("tr").each((_, row) => {
     const cells = $(row).children("td")
-    if (cells.length < 2) return
+
+    if (cells.length < 2) {
+      return
+    }
 
     const flag = cells.eq(0).text().trim()
     const value = parseInt(cells.eq(1).text().trim(), 10)
 
-    if (!flag.startsWith(opts.prefix) || isNaN(value)) return
+    if (!flag.startsWith(opts.prefix) || isNaN(value)) {
+      return
+    }
 
     const comment =
       opts.descCol != null && cells.length > opts.descCol
@@ -146,12 +168,18 @@ export function parseUsageString(usage: string): TypedListArg[] {
   let inner = usage.replace(/^\[?\s*/, "").replace(/\s*\]?\s*$/, "")
 
   const firstComma = inner.indexOf(",")
-  if (firstComma === -1) return []
+
+  if (firstComma === -1) {
+    return []
+  }
+
   inner = inner.slice(firstComma + 1).trim()
 
   inner = inner.replace(/,\s*$/, "")
 
-  if (!inner) return []
+  if (!inner) {
+    return []
+  }
 
   const parts = inner
     .split(",")
@@ -164,6 +192,7 @@ export function parseUsageString(usage: string): TypedListArg[] {
     const tokens = part.split(/\s+/)
 
     let i = 0
+
     while (i < tokens.length) {
       const token = tokens[i]
 

@@ -6,6 +6,7 @@ import { JsonRpcPeer } from "./jsonrpc"
 describe("JsonRpcPeer", () => {
   it("omits id entirely on notifications", () => {
     const transport = new FakeTransport()
+
     new JsonRpcPeer(transport).notify("session.disconnect", { reason: 0, message: "bye" })
 
     expect(transport.sent).toHaveLength(1)
@@ -73,6 +74,7 @@ describe("JsonRpcPeer", () => {
     const seen: string[] = []
 
     peer.on("runtime.debug", (params: { message: string }) => seen.push(params.message))
+
     const off = peer.on("runtime.debug", () => seen.push("second"))
 
     transport.receive({ jsonrpc: "2.0", method: "runtime.debug", params: { message: "hi" } })

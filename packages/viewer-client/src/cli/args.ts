@@ -122,7 +122,9 @@ const TAIL_FOREVER = "forever"
  */
 function withBareTail(argv: string[]): string[] {
   return argv.map((token, index) => {
-    if (token !== "--tail") return token
+    if (token !== "--tail") {
+      return token
+    }
 
     const next = argv[index + 1]
 
@@ -144,13 +146,19 @@ function isDuration(raw: string): boolean {
  * something after the session that numbered the output has gone.
  */
 function parseSince(raw: string | undefined): Since | undefined {
-  if (raw === undefined) return undefined
+  if (raw === undefined) {
+    return undefined
+  }
 
   const match = DURATION.exec(raw.trim())
 
-  if (!match) throw new CliUsageError(`--since takes a cursor or a duration, got "${raw}"`)
+  if (!match) {
+    throw new CliUsageError(`--since takes a cursor or a duration, got "${raw}"`)
+  }
 
-  if (match[2] === undefined) return { cursor: Number(match[1]) }
+  if (match[2] === undefined) {
+    return { cursor: Number(match[1]) }
+  }
 
   const value = duration(raw, "--since")
 
@@ -159,7 +167,9 @@ function parseSince(raw: string | undefined): Since | undefined {
 
 /** Bare milliseconds, or a `5s` / `2m` duration. */
 function duration(raw: string, flag: string): number | "forever" {
-  if (raw === TAIL_FOREVER) return TAIL_FOREVER
+  if (raw === TAIL_FOREVER) {
+    return TAIL_FOREVER
+  }
 
   const match = DURATION.exec(raw.trim())
 
@@ -207,7 +217,9 @@ function rawParse(argv: string[]) {
 }
 
 function integer(raw: string | undefined, label: string): number | undefined {
-  if (raw === undefined) return undefined
+  if (raw === undefined) {
+    return undefined
+  }
 
   const value = Number(raw)
 
@@ -226,9 +238,13 @@ function optionalTargetRef(
   positional: string | undefined,
   values: { object?: string; item?: string; link?: string },
 ): ObjectRef | undefined {
-  if (positional !== undefined) return parseObjectRef(positional)
+  if (positional !== undefined) {
+    return parseObjectRef(positional)
+  }
 
-  if (values.object === undefined && values.item === undefined) return undefined
+  if (values.object === undefined && values.item === undefined) {
+    return undefined
+  }
 
   if (values.object === undefined || values.item === undefined) {
     throw new CliUsageError("--object and --item must be given together")
@@ -261,7 +277,9 @@ export function parseCliArgs(argv: string[]): CliArgs {
     direct: values.direct === true,
   }
 
-  if (values.version === true) return { global, command: { name: "version" } }
+  if (values.version === true) {
+    return { global, command: { name: "version" } }
+  }
 
   const [name, ...rest] = positionals
 

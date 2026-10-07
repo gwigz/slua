@@ -53,7 +53,10 @@ export function extractBtestPattern(
   node: ts.BinaryExpression,
 ): { band: ts.BinaryExpression; negate: boolean } | null {
   const op = node.operatorToken.kind
-  if (!EQUALITY_OPS.has(op)) return null
+
+  if (!EQUALITY_OPS.has(op)) {
+    return null
+  }
 
   let bandExpr: ts.Expression
 
@@ -128,9 +131,18 @@ export function extractIndexOfPresence(
 
   // Verify it's an indexOf call on a string or array with 1 arg
   const call = indexOfExpr as ts.CallExpression
-  if (!ts.isPropertyAccessExpression(call.expression)) return null
-  if (call.expression.name.text !== "indexOf") return null
-  if (call.arguments.length !== 1) return null
+
+  if (!ts.isPropertyAccessExpression(call.expression)) {
+    return null
+  }
+
+  if (call.expression.name.text !== "indexOf") {
+    return null
+  }
+
+  if (call.arguments.length !== 1) {
+    return null
+  }
 
   const receiver = call.expression.expression
   let isString: boolean
@@ -151,28 +163,44 @@ export function extractIndexOfPresence(
   if (isZeroLiteral(comparand)) {
     if (!flipped) {
       // indexOf >= 0 -> found; indexOf < 0 -> not found
-      if (op === ts.SyntaxKind.GreaterThanEqualsToken) negate = false
-      else if (op === ts.SyntaxKind.LessThanToken) negate = true
+      if (op === ts.SyntaxKind.GreaterThanEqualsToken) {
+        negate = false
+      } else if (op === ts.SyntaxKind.LessThanToken) {
+        negate = true
+      }
     } else {
       // 0 <= indexOf -> found; 0 > indexOf -> not found
-      if (op === ts.SyntaxKind.LessThanEqualsToken) negate = false
-      else if (op === ts.SyntaxKind.GreaterThanToken) negate = true
+      if (op === ts.SyntaxKind.LessThanEqualsToken) {
+        negate = false
+      } else if (op === ts.SyntaxKind.GreaterThanToken) {
+        negate = true
+      }
     }
   } else if (isMinusOneLiteral(comparand)) {
     if (!flipped) {
       // indexOf !== -1 -> found; indexOf === -1 -> not found; indexOf > -1 -> found
-      if (isNegatedEquality(op)) negate = false
-      else if (EQUALITY_OPS.has(op)) negate = true
-      else if (op === ts.SyntaxKind.GreaterThanToken) negate = false
+      if (isNegatedEquality(op)) {
+        negate = false
+      } else if (EQUALITY_OPS.has(op)) {
+        negate = true
+      } else if (op === ts.SyntaxKind.GreaterThanToken) {
+        negate = false
+      }
     } else {
       // -1 !== indexOf -> found; -1 === indexOf -> not found; -1 < indexOf -> found
-      if (isNegatedEquality(op)) negate = false
-      else if (EQUALITY_OPS.has(op)) negate = true
-      else if (op === ts.SyntaxKind.LessThanToken) negate = false
+      if (isNegatedEquality(op)) {
+        negate = false
+      } else if (EQUALITY_OPS.has(op)) {
+        negate = true
+      } else if (op === ts.SyntaxKind.LessThanToken) {
+        negate = false
+      }
     }
   }
 
-  if (negate === null) return null
+  if (negate === null) {
+    return null
+  }
 
   return { call, isString, negate }
 }
@@ -182,6 +210,7 @@ export function extractIndexOfPresence(
  */
 export function isStringType(expr: ts.Expression, checker: ts.TypeChecker) {
   const type = checker.getTypeAtLocation(expr)
+
   return !!(type.flags & ts.TypeFlags.StringLike)
 }
 
@@ -195,11 +224,15 @@ const STRING_OR_NUMBER = ts.TypeFlags.StringLike | ts.TypeFlags.NumberLike
  */
 export function isStringOrNumberLike(checker: ts.TypeChecker, expr: ts.Expression): boolean {
   const type = checker.getTypeAtLocation(expr)
-  if (type.flags & STRING_OR_NUMBER) return true
+
+  if (type.flags & STRING_OR_NUMBER) {
+    return true
+  }
 
   // Fallback: resolve the type from the variable's type annotation directly.
   const symbol = checker.getSymbolAtLocation(expr)
   const decl = symbol?.valueDeclaration
+
   if (decl && ts.isVariableDeclaration(decl) && decl.type) {
     return !!(checker.getTypeFromTypeNode(decl.type).flags & STRING_OR_NUMBER)
   }
@@ -209,6 +242,7 @@ export function isStringOrNumberLike(checker: ts.TypeChecker, expr: ts.Expressio
 
 export function isArrayType(expr: ts.Expression, checker: ts.TypeChecker) {
   const type = checker.getTypeAtLocation(expr)
+
   return checker.isArrayLikeType(type)
 }
 
@@ -218,6 +252,7 @@ export function isAnyType(expr: ts.Expression, checker: ts.TypeChecker) {
 
 export function isDetectedEventType(expr: ts.Expression, checker: ts.TypeChecker) {
   const type = checker.getTypeAtLocation(expr)
+
   return type.symbol?.name === "DetectedEvent"
 }
 
@@ -240,9 +275,18 @@ export function isMethodCall(
   method: string,
   argCount?: number,
 ): node is ts.CallExpression & { expression: ts.PropertyAccessExpression } {
-  if (!ts.isPropertyAccessExpression(node.expression)) return false
-  if (node.expression.name.text !== method) return false
-  if (argCount !== undefined && node.arguments.length !== argCount) return false
+  if (!ts.isPropertyAccessExpression(node.expression)) {
+    return false
+  }
+
+  if (node.expression.name.text !== method) {
+    return false
+  }
+
+  if (argCount !== undefined && node.arguments.length !== argCount) {
+    return false
+  }
+
   return typeGuard(node.expression.expression, checker)
 }
 
@@ -255,8 +299,13 @@ export function isNamespaceCall(
   namespace: string,
   method: string,
 ): node is ts.CallExpression & { expression: ts.PropertyAccessExpression } {
-  if (!ts.isPropertyAccessExpression(node.expression)) return false
-  if (node.expression.name.text !== method) return false
+  if (!ts.isPropertyAccessExpression(node.expression)) {
+    return false
+  }
+
+  if (node.expression.name.text !== method) {
+    return false
+  }
 
   return (
     ts.isIdentifier(node.expression.expression) && node.expression.expression.text === namespace
@@ -335,17 +384,42 @@ export function extractConcatSelfAssignment(
   expr: ts.BinaryExpression,
   checker: ts.TypeChecker,
 ): { name: ts.Identifier; args: readonly ts.Expression[] } | null {
-  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return null
-  if (!ts.isIdentifier(expr.left)) return null
-  if (!ts.isCallExpression(expr.right)) return null
-  if (!ts.isPropertyAccessExpression(expr.right.expression)) return null
-  if (expr.right.expression.name.text !== "concat") return null
-  if (!ts.isIdentifier(expr.right.expression.expression)) return null
-  if (expr.right.expression.expression.text !== expr.left.text) return null
-  if (expr.right.arguments.length === 0) return null
+  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) {
+    return null
+  }
+
+  if (!ts.isIdentifier(expr.left)) {
+    return null
+  }
+
+  if (!ts.isCallExpression(expr.right)) {
+    return null
+  }
+
+  if (!ts.isPropertyAccessExpression(expr.right.expression)) {
+    return null
+  }
+
+  if (expr.right.expression.name.text !== "concat") {
+    return null
+  }
+
+  if (!ts.isIdentifier(expr.right.expression.expression)) {
+    return null
+  }
+
+  if (expr.right.expression.expression.text !== expr.left.text) {
+    return null
+  }
+
+  if (expr.right.arguments.length === 0) {
+    return null
+  }
 
   for (const arg of expr.right.arguments) {
-    if (!isArrayType(arg, checker)) return null
+    if (!isArrayType(arg, checker)) {
+      return null
+    }
   }
 
   return { name: expr.left, args: expr.right.arguments }
@@ -360,26 +434,49 @@ export function extractSpreadSelfAssignment(
   expr: ts.BinaryExpression,
   checker: ts.TypeChecker,
 ): { name: ts.Identifier; args: ts.Expression[] } | null {
-  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return null
-  if (!ts.isIdentifier(expr.left)) return null
-  if (!ts.isArrayLiteralExpression(expr.right)) return null
+  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) {
+    return null
+  }
+
+  if (!ts.isIdentifier(expr.left)) {
+    return null
+  }
+
+  if (!ts.isArrayLiteralExpression(expr.right)) {
+    return null
+  }
 
   const elements = expr.right.elements
-  if (elements.length < 2) return null
+
+  if (elements.length < 2) {
+    return null
+  }
 
   for (const el of elements) {
-    if (!ts.isSpreadElement(el)) return null
+    if (!ts.isSpreadElement(el)) {
+      return null
+    }
   }
 
   const first = elements[0] as ts.SpreadElement
-  if (!ts.isIdentifier(first.expression)) return null
-  if (first.expression.text !== expr.left.text) return null
+
+  if (!ts.isIdentifier(first.expression)) {
+    return null
+  }
+
+  if (first.expression.text !== expr.left.text) {
+    return null
+  }
 
   const tailArgs: ts.Expression[] = []
 
   for (let i = 1; i < elements.length; i++) {
     const spread = elements[i] as ts.SpreadElement
-    if (!isArrayType(spread.expression, checker)) return null
+
+    if (!isArrayType(spread.expression, checker)) {
+      return null
+    }
+
     tailArgs.push(spread.expression)
   }
 
@@ -397,24 +494,42 @@ export function extractArrayPush(
   call: ts.CallExpression,
   checker: ts.TypeChecker,
 ): { target: ts.Expression; kind: "append" | "extend"; args: ts.Expression[] } | null {
-  if (call.questionDotToken) return null
-  if (!ts.isPropertyAccessExpression(call.expression)) return null
-  if (call.expression.questionDotToken) return null
-  if (call.expression.name.text !== "push") return null
+  if (call.questionDotToken) {
+    return null
+  }
+
+  if (!ts.isPropertyAccessExpression(call.expression)) {
+    return null
+  }
+
+  if (call.expression.questionDotToken) {
+    return null
+  }
+
+  if (call.expression.name.text !== "push") {
+    return null
+  }
 
   const target = call.expression.expression
 
   // `any` counts as array-like, but TSTL calls `push` as a method on it
-  if (isAnyType(target, checker) || !isArrayType(target, checker)) return null
+  if (isAnyType(target, checker) || !isArrayType(target, checker)) {
+    return null
+  }
 
   const spreads = call.arguments.filter(ts.isSpreadElement)
 
   if (spreads.length === 0) {
-    if (call.arguments.length < 2) return null
+    if (call.arguments.length < 2) {
+      return null
+    }
+
     return { target, kind: "append", args: [...call.arguments] }
   }
 
-  if (spreads.length !== call.arguments.length) return null
+  if (spreads.length !== call.arguments.length) {
+    return null
+  }
 
   for (const spread of spreads) {
     if (isAnyType(spread.expression, checker) || !isArrayType(spread.expression, checker)) {
@@ -433,16 +548,32 @@ export function extractArrayClear(
   expr: ts.BinaryExpression,
   checker: ts.TypeChecker,
 ): ts.Expression | null {
-  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return null
-  if (!isZeroLiteral(expr.right)) return null
-  if (!ts.isPropertyAccessExpression(expr.left)) return null
-  if (expr.left.name.text !== "length") return null
+  if (expr.operatorToken.kind !== ts.SyntaxKind.EqualsToken) {
+    return null
+  }
+
+  if (!isZeroLiteral(expr.right)) {
+    return null
+  }
+
+  if (!ts.isPropertyAccessExpression(expr.left)) {
+    return null
+  }
+
+  if (expr.left.name.text !== "length") {
+    return null
+  }
 
   const target = expr.left.expression
 
   // `any` counts as array-like, but TSTL writes a plain `length` field for it
-  if (checker.getTypeAtLocation(target).flags & ts.TypeFlags.Any) return null
-  if (!isArrayType(target, checker)) return null
+  if (checker.getTypeAtLocation(target).flags & ts.TypeFlags.Any) {
+    return null
+  }
+
+  if (!isArrayType(target, checker)) {
+    return null
+  }
 
   return target
 }
@@ -485,14 +616,24 @@ export function getLLIndexSemantics(
   checker: ts.TypeChecker,
 ): LLIndexSemantics | null {
   // Must be ll.Something(...)
-  if (!ts.isPropertyAccessExpression(node.expression)) return null
-  if (!ts.isIdentifier(node.expression.expression)) return null
-  if (node.expression.expression.text !== "ll") return null
+  if (!ts.isPropertyAccessExpression(node.expression)) {
+    return null
+  }
+
+  if (!ts.isIdentifier(node.expression.expression)) {
+    return null
+  }
+
+  if (node.expression.expression.text !== "ll") {
+    return null
+  }
 
   const sig = checker.getResolvedSignature(node)
   const decl = sig?.declaration
 
-  if (!decl || !ts.isFunctionDeclaration(decl)) return null
+  if (!decl || !ts.isFunctionDeclaration(decl)) {
+    return null
+  }
 
   const tags = ts.getJSDocTags(decl)
   const indexArgs = new Set<string>()
@@ -517,7 +658,9 @@ export function getLLIndexSemantics(
     }
   }
 
-  if (indexArgs.size === 0 && !indexReturn) return null
+  if (indexArgs.size === 0 && !indexReturn) {
+    return null
+  }
 
   return { indexArgs, indexReturn }
 }
@@ -539,6 +682,7 @@ export function adjustIndexArg(
   // These cancel out, so emit the raw property access directly.
   if (ts.isPropertyAccessExpression(arg) && isDetectedEventIndex(arg, context.checker)) {
     const obj = context.transformExpression(arg.expression)
+
     return tstl.createTableIndexExpression(obj, tstl.createStringLiteral("index"))
   }
 

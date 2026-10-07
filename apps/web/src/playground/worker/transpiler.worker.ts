@@ -14,7 +14,11 @@ const _readFile = ts.sys.readFile.bind(ts.sys)
 
 ts.sys.readFile = (filePath: string, encoding?: string) => {
   const name = filePath.split("/").pop()
-  if (name && name in lualibFiles) return lualibFiles[name]
+
+  if (name && name in lualibFiles) {
+    return lualibFiles[name]
+  }
+
   return _readFile(filePath, encoding)
 }
 

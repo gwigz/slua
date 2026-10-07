@@ -28,17 +28,23 @@ function layout() {
   const WIDTHS = { byte: 1, percent: 1, u16: 2 } as const
   const twice = repeated(FIELDS.map((field) => field.name))
 
-  if (twice.length > 0) throw new Error(`Repeated field names: ${twice.join(", ")}`)
+  if (twice.length > 0) {
+    throw new Error(`Repeated field names: ${twice.join(", ")}`)
+  }
 
   const flags = FIELDS.filter((field) => field.kind === "flag")
 
-  if (flags.length > 8) throw new Error(`${flags.length} flags don't fit in one byte`)
+  if (flags.length > 8) {
+    throw new Error(`${flags.length} flags don't fit in one byte`)
+  }
 
   const offsets: string[] = []
   let size = 0
 
   for (const field of FIELDS) {
-    if (field.kind === "flag") continue
+    if (field.kind === "flag") {
+      continue
+    }
 
     offsets.push(`  ${pascal(field.name)} = ${size},`)
     size += WIDTHS[field.kind]
@@ -71,18 +77,24 @@ function menu() {
   // ll.Dialog fills rows of three from the bottom left, so the bottom row comes first
   const buttons = ROWS.toReversed().flat()
 
-  if (buttons.length > 12) throw new Error(`${buttons.length} buttons don't fit in one menu`)
+  if (buttons.length > 12) {
+    throw new Error(`${buttons.length} buttons don't fit in one menu`)
+  }
 
   const twice = [
     ...repeated(buttons.map((button) => button.name)),
     ...repeated(buttons.map((button) => button.label)),
   ]
 
-  if (twice.length > 0) throw new Error(`Repeated buttons: ${twice.join(", ")}`)
+  if (twice.length > 0) {
+    throw new Error(`Repeated buttons: ${twice.join(", ")}`)
+  }
 
   const long = buttons.filter((button) => new TextEncoder().encode(button.label).length > 24)
 
-  if (long.length > 0) throw new Error(`Labels over 24 bytes: ${long.map((b) => b.label)}`)
+  if (long.length > 0) {
+    throw new Error(`Labels over 24 bytes: ${long.map((b) => b.label)}`)
+  }
 
   return `${HEADER("menu-buttons.ts")}
 /** Each button's position in \`LABELS\`, which is what a reply is matched against. */
@@ -101,7 +113,9 @@ async function write(file: string, source: string) {
   const path = resolve(import.meta.dir, "../src/generated", file)
 
   // Rewrite only on a change, so a watch build doesn't see a new file each time
-  if ((await readFile(path, "utf8").catch(() => "")) === source) return
+  if ((await readFile(path, "utf8").catch(() => "")) === source) {
+    return
+  }
 
   await writeFile(path, source)
   console.log(`Wrote ${path}`)

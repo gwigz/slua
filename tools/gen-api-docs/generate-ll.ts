@@ -51,12 +51,16 @@ function buildSignature(fn: FunctionDeclaration): string {
   })
 
   const returnType = fn.getReturnTypeNode()?.getText() ?? "void"
+
   return `function ${name}${typeParamStr}(${params.join(", ")}): ${returnType}`
 }
 
 function extractJsDoc(fn: FunctionDeclaration): { description: string; deprecated: string | null } {
   const jsDocs = fn.getJsDocs()
-  if (jsDocs.length === 0) return { description: "", deprecated: null }
+
+  if (jsDocs.length === 0) {
+    return { description: "", deprecated: null }
+  }
 
   let description = ""
   let deprecated: string | null = null
@@ -66,12 +70,14 @@ function extractJsDoc(fn: FunctionDeclaration): { description: string; deprecate
     for (const tag of doc.getTags()) {
       if (tag.getTagName() === "deprecated") {
         const comment = tag.getCommentText()?.trim()
+
         deprecated = comment || "This function is deprecated."
       }
     }
 
     // Extract description (non-tag text)
     const comment = doc.getCommentText()?.trim()
+
     if (comment) {
       description = escapeMdx(comment)
     }

@@ -13,9 +13,17 @@ const servers: ControlServer[] = []
 const clients: ControlClient[] = []
 
 afterEach(async () => {
-  for (const client of clients.splice(0)) client.close()
-  for (const server of servers.splice(0)) await server.close()
-  for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true })
+  for (const client of clients.splice(0)) {
+    client.close()
+  }
+
+  for (const server of servers.splice(0)) {
+    await server.close()
+  }
+
+  for (const root of roots.splice(0)) {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 /** What the viewer would have said, as the session reports it onwards. */
@@ -191,7 +199,9 @@ describe("the control socket", () => {
     ])
 
     for (const start of starts) {
-      if (start.status === "fulfilled") servers.push(start.value)
+      if (start.status === "fulfilled") {
+        servers.push(start.value)
+      }
     }
 
     const bound = starts.filter((start) => start.status === "fulfilled")

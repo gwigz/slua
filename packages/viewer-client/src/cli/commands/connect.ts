@@ -51,7 +51,9 @@ function runBuild(exec: string, reporter: Reporter): () => void {
 
   const forward = (chunk: Buffer) => {
     for (const line of chunk.toString().split("\n")) {
-      if (line.trim() !== "") reporter.note(`${pc.dim("build")} ${line}`)
+      if (line.trim() !== "") {
+        reporter.note(`${pc.dim("build")} ${line}`)
+      }
     }
   }
 
@@ -61,11 +63,15 @@ function runBuild(exec: string, reporter: Reporter): () => void {
   child.on("error", (error) => reporter.error(`build failed to start: ${error.message}`))
 
   child.on("exit", (code) => {
-    if (code !== 0 && code !== null) reporter.note(pc.yellow(`build exited with ${code}`))
+    if (code !== 0 && code !== null) {
+      reporter.note(pc.yellow(`build exited with ${code}`))
+    }
   })
 
   return () => {
-    if (child.pid === undefined || child.exitCode !== null) return
+    if (child.pid === undefined || child.exitCode !== null) {
+      return
+    }
 
     try {
       // Negative pid is the group, which is the point of detaching it.
@@ -97,7 +103,9 @@ async function publishTargets(
   for (const target of targets) {
     const key = formatObjectSelector(target.ref.object)
 
-    if (seen.has(key)) continue
+    if (seen.has(key)) {
+      continue
+    }
 
     seen.add(key)
 
@@ -220,24 +228,34 @@ async function awaitBuild(targets: readonly Target[], reporter: Reporter): Promi
   for (const target of targets) {
     const output = await stat(target.file).catch(() => undefined)
 
-    if (!output) continue
+    if (!output) {
+      continue
+    }
 
     const map = await loadSourceMapFor(target.file)
 
-    if (!map) continue
+    if (!map) {
+      continue
+    }
 
     let newest = 0
 
     for (const source of map.sources) {
       const input = await stat(source).catch(() => undefined)
 
-      if (input) newest = Math.max(newest, input.mtimeMs)
+      if (input) {
+        newest = Math.max(newest, input.mtimeMs)
+      }
     }
 
-    if (newest > output.mtimeMs) pending.push({ file: target.file, at: output.mtimeMs })
+    if (newest > output.mtimeMs) {
+      pending.push({ file: target.file, at: output.mtimeMs })
+    }
   }
 
-  if (pending.length === 0) return 0
+  if (pending.length === 0) {
+    return 0
+  }
 
   reporter.note(pc.dim("waiting for the build to catch up with the source"))
 
@@ -249,10 +267,14 @@ async function awaitBuild(targets: readonly Target[], reporter: Reporter): Promi
     for (const entry of pending) {
       const output = await stat(entry.file).catch(() => undefined)
 
-      if (!output || output.mtimeMs <= entry.at) stale.push(entry)
+      if (!output || output.mtimeMs <= entry.at) {
+        stale.push(entry)
+      }
     }
 
-    if (stale.length === 0) return Date.now() - started
+    if (stale.length === 0) {
+      return Date.now() - started
+    }
 
     pending.length = 0
     pending.push(...stale)
@@ -309,7 +331,9 @@ export async function connectCommand(
 
     // Bounded. The file sink holds the complete record; this is only what a
     // client can still ask for after the fact.
-    if (buffer.length > BUFFER_RECORDS) buffer.splice(0, buffer.length - BUFFER_RECORDS)
+    if (buffer.length > BUFFER_RECORDS) {
+      buffer.splice(0, buffer.length - BUFFER_RECORDS)
+    }
   }
 
   /** Records after a cursor or a moment, collapsed and capped, never dropped. */
@@ -318,7 +342,9 @@ export async function connectCommand(
 
     const matching = collapse(
       buffer.filter((entry) => {
-        if (cutoff !== undefined) return new Date(String(entry.time)).getTime() >= cutoff
+        if (cutoff !== undefined) {
+          return new Date(String(entry.time)).getTime() >= cutoff
+        }
 
         return (entry.seq as number) > from
       }),
@@ -351,17 +377,23 @@ export async function connectCommand(
     const reached = client !== undefined
 
     if (!reached) {
-      for (const target of changed) pending.add(target.name)
+      for (const target of changed) {
+        pending.add(target.name)
+      }
 
       reporter.note(pc.yellow("not connected; the change will be pushed on reconnect"))
     }
 
     try {
-      if (reached) await pushEach(changed, run)
+      if (reached) {
+        await pushEach(changed, run)
+      }
     } finally {
       pushing = false
 
-      if (reached) lastRun = run
+      if (reached) {
+        lastRun = run
+      }
 
       // Reloaded after every push: the build that prompted it rewrote the
       // source maps, and this run's output through the last build's maps
@@ -382,7 +414,9 @@ export async function connectCommand(
   }
 
   const pushEach = async (changed: readonly Target[], run: PushRun) => {
-    if (!client) return
+    if (!client) {
+      return
+    }
 
     for (const target of changed) {
       const result = await pushTarget(client, target, reporter, changed.length > 1, {
@@ -525,8 +559,11 @@ export async function connectCommand(
 
               // No run means the session is stopping, so there is nothing
               // left to drain for.
-              if (run) drain(run)
-              else settled(answer(undefined))
+              if (run) {
+                drain(run)
+              } else {
+                settled(answer(undefined))
+              }
             },
           }
 
@@ -542,7 +579,9 @@ export async function connectCommand(
         }),
 
       forward: async (method, params) => {
-        if (!client) throw new Error(NO_VIEWER)
+        if (!client) {
+          throw new Error(NO_VIEWER)
+        }
 
         try {
           // A save waits on an asset upload, which no default timeout covers.
@@ -555,7 +594,9 @@ export async function connectCommand(
           // An error's type does not survive the hop to a control client: it
           // arrives as a plain RPC failure, so whatever the type would have
           // explained has to be in the message instead.
-          if (error instanceof ConnectionClosedError) throw new Error(NO_VIEWER, { cause: error })
+          if (error instanceof ConnectionClosedError) {
+            throw new Error(NO_VIEWER, { cause: error })
+          }
 
           throw error
         }
@@ -567,7 +608,9 @@ export async function connectCommand(
     // Two sessions on one project would push the same targets twice and
     // restart the same script twice, so this one is a stop rather than a
     // downgrade.
-    if (error instanceof SessionAlreadyRunningError) throw error
+    if (error instanceof SessionAlreadyRunningError) {
+      throw error
+    }
 
     // A session without a socket is still a session: it watches, pushes and
     // logs. Only the calls an agent would make are missing, so say so and
@@ -611,7 +654,9 @@ export async function connectCommand(
       }
 
       connected.connection.onClose(() => {
-        if (client === connected) client = undefined
+        if (client === connected) {
+          client = undefined
+        }
       })
 
       // Re-published on every reconnect: a viewer that restarted has
@@ -639,7 +684,9 @@ export async function connectCommand(
 
       // Waiters first: a client blocked on `wait` should be told the session
       // is going rather than left holding a socket that just vanished.
-      for (const waiter of waiters) waiter.settle(undefined)
+      for (const waiter of waiters) {
+        waiter.settle(undefined)
+      }
 
       waiters.clear()
 

@@ -30,12 +30,16 @@ export async function openClient(global: GlobalFlags, reporter: Reporter): Promi
     client: await ViewerClient.connect({ port: global.port, timeoutMs: global.timeoutMs }),
   })
 
-  if (global.direct) return await direct()
+  if (global.direct) {
+    return await direct()
+  }
 
   const root = await projectRoot()
   const session = await readSession(root)
 
-  if (!session) return await direct()
+  if (!session) {
+    return await direct()
+  }
 
   try {
     const control = await attachControl(root, { timeoutMs: global.timeoutMs })

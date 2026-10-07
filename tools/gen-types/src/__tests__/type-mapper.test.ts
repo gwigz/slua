@@ -50,11 +50,13 @@ describe("mapType", () => {
     const result = mapType(
       "{ year: number, month: number, day: number, hour: number?, min: number? }",
     )
+
     expect(result).toBe("{ year: number; month: number; day: number; hour?: number; min?: number }")
   })
 
   it("maps struct types with indexer fields", () => {
     const result = mapType("{ n: number, [number]: V }")
+
     expect(result).toBe("{ n: number; [index: number]: V }")
   })
 
@@ -78,6 +80,7 @@ describe("mapType", () => {
 
   it("maps function types with unnamed params", () => {
     const result = mapType("({V}, number) -> (number?, V)")
+
     expect(result).toContain("=>")
     expect(result).toContain("arg0: V[]")
     expect(result).toContain("arg1: number")
@@ -85,6 +88,7 @@ describe("mapType", () => {
 
   it("parenthesizes function types in unions", () => {
     const result = mapType("LuaThread | ((...any) -> ...any) | number")
+
     expect(result).toContain("LuaThread")
     expect(result).toContain("number")
     // The function type should be parenthesized in the union
@@ -94,6 +98,7 @@ describe("mapType", () => {
 
   it("maps string | function type union with proper parens", () => {
     const result = mapType("string | { [string]: string } | (...string) -> string")
+
     expect(result).toContain("string")
     expect(result).toContain("Record<string, string>")
     expect(result).toContain("=>")
@@ -117,6 +122,7 @@ describe("mapType", () => {
 
   it("simplifies function types with variadic packs", () => {
     const result = mapType("(A...) -> R...")
+
     expect(result).toBe("(...args: any[]) => any")
   })
 

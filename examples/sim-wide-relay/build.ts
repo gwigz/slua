@@ -128,7 +128,10 @@ function build() {
     execSync(`bunx stylua --syntax luau --verify -- ${DIST_FILES.join(" ")}`)
   } catch (e: unknown) {
     console.warn("warning: stylua formatting failed")
-    if (e instanceof Error && "stderr" in e) console.warn(String(e.stderr))
+
+    if (e instanceof Error && "stderr" in e) {
+      console.warn(String(e.stderr))
+    }
   }
 
   console.log(`Built ${DIST_FILES.join(", ")}`)

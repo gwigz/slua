@@ -127,12 +127,16 @@ async function pickObject(
         object.objectId.toLowerCase() === wanted.toLowerCase() || object.objectName === wanted,
     )
 
-    if (!match) throw new Error(`no published object matching "${wanted}"`)
+    if (!match) {
+      throw new Error(`no published object matching "${wanted}"`)
+    }
 
     return match
   }
 
-  if (published.length === 1) return published[0]
+  if (published.length === 1) {
+    return published[0]
+  }
 
   if (published.length === 0) {
     throw new Error(`no published objects — ${PUBLISH_HINT}`)
@@ -155,7 +159,9 @@ async function readJson(
   try {
     return JSON.parse(await readFile(path, "utf8"))
   } catch (error) {
-    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") return {}
+    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") {
+      return {}
+    }
 
     throw error
   }

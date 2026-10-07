@@ -69,11 +69,16 @@ function buildSignature(fn: FunctionDeclaration): string {
 function extractJsDoc(fn: FunctionDeclaration): string {
   const jsDocs = fn.getJsDocs()
 
-  if (jsDocs.length === 0) return ""
+  if (jsDocs.length === 0) {
+    return ""
+  }
 
   for (const doc of jsDocs) {
     const comment = doc.getCommentText()?.trim()
-    if (comment) return escapeMdx(comment)
+
+    if (comment) {
+      return escapeMdx(comment)
+    }
   }
 
   return ""

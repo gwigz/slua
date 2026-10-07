@@ -96,7 +96,9 @@ function readable(diagnostic: Diagnostic): Diagnostic {
 
   // Only a message that survived untouched is already fit to print. One that
   // arrived empty needs the fallback just as much as one emptied here.
-  if (message === diagnostic.message && message !== "") return diagnostic
+  if (message === diagnostic.message && message !== "") {
+    return diagnostic
+  }
 
   return { ...diagnostic, message: message === "" ? NO_MESSAGE : message }
 }

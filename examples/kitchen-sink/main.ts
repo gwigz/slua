@@ -23,6 +23,7 @@ ll.Say(0, describe(42))
 
 /** Using imported classes */
 const greeter = new Greeter(0, "Bot")
+
 greeter.greet("World")
 
 /** Enums -- compile to bidirectional Lua tables */

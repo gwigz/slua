@@ -13,11 +13,13 @@ async function main() {
 
   if (flags.help) {
     console.log(helpText())
+
     return
   }
 
   if (flags.version) {
     console.log(createRequire(import.meta.url)("../package.json").version)
+
     return
   }
 

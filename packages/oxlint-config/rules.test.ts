@@ -39,6 +39,7 @@ function lint(code: string): Diagnostic[] {
   } catch (err: unknown) {
     // oxlint exits non-zero when it finds errors
     const stdout = (err as { stdout?: string }).stdout ?? ""
+
     return JSON.parse(stdout).diagnostics
   } finally {
     try {
@@ -86,6 +87,7 @@ describe("no-restricted-globals", () => {
   for (const [name, code] of globals) {
     it(`flags ${name}`, () => {
       const diags = errors(lint(code))
+
       expect(hasRule(diags, "eslint(no-restricted-globals)")).toBe(true)
       expect(hasMessage(diags, name)).toBe(true)
     })
@@ -97,11 +99,13 @@ describe("no-restricted-globals", () => {
 describe("no-async-await", () => {
   it("flags async function", () => {
     const diags = errors(lint("async function f() {}"))
+
     expect(hasRule(diags, "oxc(no-async-await)")).toBe(true)
   })
 
   it("flags async arrow", () => {
     const diags = errors(lint("const f = async () => {}"))
+
     expect(hasRule(diags, "oxc(no-async-await)")).toBe(true)
   })
 })
@@ -111,41 +115,48 @@ describe("no-async-await", () => {
 describe("no-restricted-syntax", () => {
   it("flags delete", () => {
     const diags = errors(lint("const o: any = {}; delete o.x"))
+
     expect(hasRule(diags, "eslint-js(no-restricted-syntax)")).toBe(true)
     expect(hasMessage(diags, "delete")).toBe(true)
   })
 
   it("flags .splice()", () => {
     const diags = errors(lint("const a = [1]; a.splice(0, 1)"))
+
     expect(hasRule(diags, "eslint-js(no-restricted-syntax)")).toBe(true)
     expect(hasMessage(diags, "splice")).toBe(true)
   })
 
   it("flags Object.entries()", () => {
     const diags = errors(lint("Object.entries({})"))
+
     expect(hasRule(diags, "eslint-js(no-restricted-syntax)")).toBe(true)
     expect(hasMessage(diags, "Object.keys()")).toBe(true)
   })
 
   it("flags .length = 0", () => {
     const diags = errors(lint("const a = [1]; a.length = 0"))
+
     expect(hasRule(diags, "eslint-js(no-restricted-syntax)")).toBe(true)
     expect(hasMessage(diags, "Reassign")).toBe(true)
   })
 
   it("flags function*", () => {
     const diags = errors(lint("function* g() { yield 1 }"))
+
     expect(hasRule(diags, "eslint-js(no-restricted-syntax)")).toBe(true)
     expect(hasMessage(diags, "Generators")).toBe(true)
   })
 
   it("flags yield", () => {
     const diags = errors(lint("function* g() { yield 1 }"))
+
     expect(hasMessage(diags, "@gwigz/slua-modules/yield")).toBe(true)
   })
 
   it("flags new Promise()", () => {
     const diags = errors(lint("new Promise(() => {})"))
+
     expect(hasRule(diags, "eslint-js(no-restricted-syntax)")).toBe(true)
     expect(hasMessage(diags, "@gwigz/slua-modules/yield")).toBe(true)
   })
@@ -158,13 +169,17 @@ describe("clean code", () => {
     const diags = errors(
       lint(`
 const obj: Record<string, number> = { a: 1 }
+
 obj.a = undefined!
+
 const _filtered = [1, 2, 3].filter((x) => x > 1)
+
 for (const key of Object.keys(obj)) {
   const _v = obj[key]
 }
 `),
     )
+
     expect(diags).toHaveLength(0)
   })
 })

@@ -62,6 +62,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
     }
 
     handlePrivateMessage(id, payload)
+
     return
   }
 
@@ -72,6 +73,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
   // Command channel from assigned avatar
   if (channel !== 0 && id === assignedAvatar) {
     forwardCommand(assignedAvatar, text)
+
     return
   }
 
@@ -83,6 +85,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
     // !-prefixed messages are commands, not chat
     if (text.startsWith("!")) {
       forwardCommand(assignedAvatar, text.substring(1))
+
       return
     }
 
@@ -91,6 +94,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
       config.PRIVATE_CHANNEL,
       sign(`CHAT|${tostring(assignedAvatar)}|${text}`, config.SIGN_NONCE, config.SIGN_WINDOW),
     )
+
     return
   }
 
@@ -115,6 +119,7 @@ function handlePrivateMessage(senderId: UUID, text: string) {
   // Relayed message from sender
   if (text.startsWith("RELAY|")) {
     handleRelayedMessage(text)
+
     return
   }
 
@@ -122,16 +127,19 @@ function handlePrivateMessage(senderId: UUID, text: string) {
   if (text.startsWith("ASSIGN|")) {
     coordinatorId = senderId
     assignAvatar(new UUID(text.substring(7)))
+
     return
   }
 
   if (text === "UNASSIGN") {
     unassignAvatar(senderId)
+
     return
   }
 
   if (text === "KILL") {
     ll.Die()
+
     return
   }
 }
@@ -295,6 +303,7 @@ function handleRelayedMessage(text: string) {
 loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   if (!ok) {
     print(`Config load failed: ${error}`)
+
     return
   }
 
@@ -303,6 +312,7 @@ loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
     if (!ok) {
       print(`Config reload failed: ${error}`)
+
       return
     }
 

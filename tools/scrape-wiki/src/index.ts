@@ -37,12 +37,14 @@ async function main() {
   const output: TypedListParams = { sets }
 
   const outPath = resolve(import.meta.dir, "../../../refs/typed-list-params.json")
+
   writeFileSync(outPath, JSON.stringify(output, null, 2) + "\n", "utf8")
 
   const totalRules = sets.reduce(
     (n, s) => n + s.params.length + (s.subDispatch?.params.length ?? 0),
     0,
   )
+
   console.log(`Written ${sets.length} sets (${totalRules} rules) to ${outPath}`)
 }
 

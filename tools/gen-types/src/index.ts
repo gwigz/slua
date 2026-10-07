@@ -14,6 +14,7 @@ export function generate(
   const lsl = parseLslDefinitions(lslYaml)
 
   let typedListParams: TypedListParams | undefined
+
   if (typedListParamsPath) {
     typedListParams = JSON.parse(readFileSync(typedListParamsPath, "utf8"))
   }

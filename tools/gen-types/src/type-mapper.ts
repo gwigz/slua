@@ -50,10 +50,15 @@ function isBalanced(input: string) {
   let depth = 0
 
   for (const ch of input) {
-    if (ch === "(" || ch === "{") depth++
-    else if (ch === ")" || ch === "}") depth--
+    if (ch === "(" || ch === "{") {
+      depth++
+    } else if (ch === ")" || ch === "}") {
+      depth--
+    }
 
-    if (depth < 0) return false
+    if (depth < 0) {
+      return false
+    }
   }
 
   return depth === 0
@@ -69,9 +74,13 @@ function findTopLevelColon(input: string) {
   for (let i = 0; i < input.length; i++) {
     const ch = input[i]
 
-    if (ch === "(" || ch === "{") depth++
-    else if (ch === ")" || ch === "}") depth--
-    else if (depth === 0 && ch === ":") return i
+    if (ch === "(" || ch === "{") {
+      depth++
+    } else if (ch === ")" || ch === "}") {
+      depth--
+    } else if (depth === 0 && ch === ":") {
+      return i
+    }
   }
 
   return -1
@@ -94,15 +103,20 @@ export function splitTopLevel(input: string, delimiter: string) {
     if (ch === '"' && !inString) {
       inString = true
       current += ch
+
       continue
     }
+
     if (ch === '"' && inString) {
       inString = false
       current += ch
+
       continue
     }
+
     if (inString) {
       current += ch
+
       continue
     }
 
@@ -168,6 +182,7 @@ function mapFunctionParams(params: string): string {
       // Bare type with no name -- auto-generate a parameter name
       const mapped = mapType(part)
       const argName = `arg${argCounter++}`
+
       return `${argName}: ${mapped}`
     })
     .join(", ")
@@ -180,15 +195,22 @@ function mapFunctionParams(params: string): string {
  */
 function isStructField(field: string) {
   const colonIdx = field.indexOf(":")
-  if (colonIdx <= 0) return false
+
+  if (colonIdx <= 0) {
+    return false
+  }
 
   const name = field.slice(0, colonIdx).trim()
 
   // Named field: simple identifier, possibly with trailing ?
-  if (/^\w+\??$/.test(name)) return true
+  if (/^\w+\??$/.test(name)) {
+    return true
+  }
 
   // Indexer field: [type]
-  if (/^\[\w+\]$/.test(name)) return true
+  if (/^\[\w+\]$/.test(name)) {
+    return true
+  }
 
   return false
 }
@@ -216,6 +238,7 @@ function isNamedStruct(inner: string) {
 
       if (colonIdx > 0) {
         const name = field.slice(0, colonIdx).trim()
+
         if (/^\w+$/.test(name)) {
           return true
         }
@@ -265,6 +288,7 @@ function mapNamedStruct(inner: string): string {
     if (indexerMatch) {
       const keyType = mapType(indexerMatch[1].trim())
       const valType = mapType(rawType)
+
       return `[index: ${keyType}]: ${valType}`
     }
 
@@ -283,6 +307,7 @@ function mapNamedStruct(inner: string): string {
     if (optional) {
       return `${name}?: ${mappedType}`
     }
+
     return `${name}: ${mappedType}`
   })
 
@@ -351,6 +376,7 @@ export function mapType(luauType: string): string {
   }
 
   const magicMatch = input.match(/^([a-z]\w*)<(.+)>$/)
+
   if (magicMatch && magicMatch[1] in MAGIC_TYPE_FUNCTIONS) {
     const args = splitTopLevel(magicMatch[2], ",").map((a) => a.trim())
 
@@ -443,6 +469,7 @@ export function mapType(luauType: string): string {
 
     // Union array: {A | B | C}
     const innerUnionParts = splitTopLevel(inner, " | ")
+
     if (innerUnionParts.length > 1) {
       const mapped = innerUnionParts.map((p) => mapType(p.trim())).join(" | ")
 
@@ -570,6 +597,7 @@ function findTopLevelArrow(input: string) {
 
     if (ch === '"') {
       inString = !inString
+
       continue
     }
 

@@ -98,7 +98,9 @@ export const webSocketTransport: TransportFactory = (url) =>
     })
 
     socket.addEventListener("error", () => {
-      if (!opened) return
+      if (!opened) {
+        return
+      }
 
       transport.onerror?.(new Error(`websocket error (${url})`))
     })
@@ -169,7 +171,9 @@ export class ViewerConnection {
 
   /** Sends `session.disconnect` so the viewer logs a clean shutdown, then closes. */
   close(reason: number = DisconnectReason.EditorClosed, message = "client exited"): void {
-    if (this.disposed) return
+    if (this.disposed) {
+      return
+    }
 
     try {
       this.peer.notify("session.disconnect", { reason, message })
@@ -183,7 +187,9 @@ export class ViewerConnection {
 
   /** The single exit from a live session: stop pinging, then notify once. */
   private handleClosed(): void {
-    if (this.disposed) return
+    if (this.disposed) {
+      return
+    }
 
     this.dispose()
 
@@ -193,7 +199,9 @@ export class ViewerConnection {
   }
 
   private dispose(): void {
-    if (this.disposed) return
+    if (this.disposed) {
+      return
+    }
 
     this.disposed = true
 

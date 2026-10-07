@@ -66,6 +66,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   if (extras.linting) {
     scripts.lint = "oxlint --type-aware"
   }
+
   if (extras.formatting) {
     scripts.fmt = "oxfmt --write ."
   }
@@ -165,6 +166,7 @@ export function generateMultiTemplate(options: ProjectOptions): Record<string, s
   if (extras.linting || extras.formatting) {
     files[".vscode/extensions.json"] = VSCODE_EXTENSIONS
   }
+
   files[".gitignore"] = GITIGNORE
   files[".editorconfig"] = EDITORCONFIG
 

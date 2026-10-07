@@ -100,21 +100,25 @@ function handleCommand(avatarId: UUID, text: string) {
         `  [secondlife:///app/chat/${ch}/blocked Show blocked list]\n` +
         "Alternatively type in local chat: !block @mention / !unblock @mention (or UUID)",
     )
+
     return
   }
 
   if (cmd === "mute" || cmd === "block") {
     ll.MessageLinked(LINK_THIS, 0, "block", avatarKey)
+
     return
   }
 
   if (cmd === "unmute" || cmd === "unblock") {
     if (getBlockList(avatarKey).length === 0) {
       sendCommandResponse(avatarId, "Your block list is empty")
+
       return
     }
 
     ll.MessageLinked(LINK_THIS, 0, "unblock", avatarKey)
+
     return
   }
 
@@ -123,11 +127,13 @@ function handleCommand(avatarId: UUID, text: string) {
   if (blockTarget !== undefined) {
     if (blockTarget.length !== 36) {
       sendCommandResponse(avatarId, "Invalid UUID format")
+
       return
     }
 
     if (blockTarget === avatarKey) {
       sendCommandResponse(avatarId, "You cannot block yourself")
+
       return
     }
 
@@ -135,6 +141,7 @@ function handleCommand(avatarId: UUID, text: string) {
 
     if (blocks.includes(blockTarget)) {
       sendCommandResponse(avatarId, "That avatar is already blocked")
+
       return
     }
 
@@ -143,6 +150,7 @@ function handleCommand(avatarId: UUID, text: string) {
         avatarId,
         `Block list full (max ${config.MAX_BLOCKS}), unblock someone first`,
       )
+
       return
     }
 
@@ -150,6 +158,7 @@ function handleCommand(avatarId: UUID, text: string) {
     setBlockList(avatarKey, blocks)
 
     sendCommandResponse(avatarId, `Blocked ${profileLink(blockTarget)}`)
+
     return
   }
 
@@ -161,6 +170,7 @@ function handleCommand(avatarId: UUID, text: string) {
 
     if (index === -1) {
       sendCommandResponse(avatarId, "That avatar is not on your block list")
+
       return
     }
 
@@ -179,10 +189,12 @@ function handleCommand(avatarId: UUID, text: string) {
 
     if (blocks.length === 0) {
       sendCommandResponse(avatarId, "Your block list is empty")
+
       return
     }
 
     sendCommandResponse(avatarId, "Blocked: " + blocks.map((key) => profileLink(key)).join(", "))
+
     return
   }
 
@@ -195,6 +207,7 @@ function relayToOutOfRange(speakerId: UUID, message: string) {
   if (!speakerPos) {
     return
   }
+
   const agents = ll.GetAgentList(AGENT_LIST_REGION, [])
   const speakerKey = tostring(speakerId)
   const relayText = `RELAY|${speakerKey}|${message}`
@@ -229,6 +242,7 @@ function relayToOutOfRange(speakerId: UUID, message: string) {
     if (!agentPos) {
       continue
     }
+
     const distance = ll.VecDist(speakerPos, agentPos)
 
     if (distance <= SAY_RANGE) {
@@ -286,6 +300,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
     }
 
     relayToOutOfRange(new UUID(speakerKey), payload.substring(42))
+
     return
   }
 
@@ -296,6 +311,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
     const message = payload.substring(78)
 
     ll.RegionSayTo(avatar, 0, formatRelayMessage(speakerId, message))
+
     return
   }
 
@@ -305,6 +321,7 @@ LLEvents.on("listen", (channel, _name, id, text) => {
     const cmdText = payload.substring(41)
 
     handleCommand(avatarId, cmdText)
+
     return
   }
 })
@@ -315,6 +332,7 @@ ll.SetObjectName("*")
 loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   if (!ok) {
     print(`Config load failed: ${error}`)
+
     return
   }
 
@@ -323,6 +341,7 @@ loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
     if (!ok) {
       print(`Config reload failed: ${error}`)
+
       return
     }
 

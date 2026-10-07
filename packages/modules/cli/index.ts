@@ -52,18 +52,21 @@ function parseAddArgs(args: string[]): AddArgs | undefined {
 
       if (!dir) {
         console.error(pc.red("error: --dir requires a path"))
+
         return undefined
       }
     } else if (isModuleName(arg)) {
       modules.push(arg)
     } else {
       console.error(pc.red(`error: unknown module "${arg}", available: ${MODULE_NAMES.join(", ")}`))
+
       return undefined
     }
   }
 
   if (modules.length === 0) {
     console.error(pc.red(`error: no modules given, available: ${MODULE_NAMES.join(", ")}`))
+
     return undefined
   }
 
@@ -82,7 +85,9 @@ async function add(args: AddArgs) {
     const changed = files.filter((file) => {
       const path = join(target, file.path)
 
-      if (!existsSync(path)) return true
+      if (!existsSync(path)) {
+        return true
+      }
 
       return readFileSync(path, "utf8") !== file.content
     })
@@ -104,6 +109,7 @@ async function add(args: AddArgs) {
 
       if (!overwrite) {
         log.warn(`Skipped ${name}`)
+
         continue
       }
     }
@@ -121,6 +127,7 @@ async function add(args: AddArgs) {
 
   if (added.length === 0) {
     outro("Nothing added.")
+
     return
   }
 
@@ -162,6 +169,7 @@ async function main() {
 
   if (command === "list") {
     list()
+
     return
   }
 
@@ -173,6 +181,7 @@ async function main() {
     }
 
     await add(args)
+
     return
   }
 

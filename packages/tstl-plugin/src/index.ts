@@ -70,8 +70,12 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
   function recordFoldedComment(fileName: string, folded: { value: number; source: string }) {
     const arr = foldedBitwiseComments.get(fileName)
-    if (arr) arr.push(folded)
-    else foldedBitwiseComments.set(fileName, [folded])
+
+    if (arr) {
+      arr.push(folded)
+    } else {
+      foldedBitwiseComments.set(fileName, [folded])
+    }
   }
 
   const plugin: tstl.Plugin = {
@@ -80,7 +84,10 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         defineMap.size > 0
           ? (node: ts.Identifier, context) => {
               const value = defineMap.get(node.text)
-              if (value === undefined) return context.superTransformExpression(node)
+
+              if (value === undefined) {
+                return context.superTransformExpression(node)
+              }
 
               // Don't replace if this identifier is:
               // - A property name in a property access (obj.CONFIG_X)
@@ -137,6 +144,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
                 const stmts = ts.isBlock(node.thenStatement)
                   ? [...node.thenStatement.statements]
                   : [node.thenStatement]
+
                 return stmts.flatMap((s) => context.transformStatements(s))
               }
 
@@ -144,6 +152,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
                 const stmts = ts.isBlock(node.elseStatement)
                   ? [...node.elseStatement.statements]
                   : [node.elseStatement]
+
                 return stmts.flatMap((s) => context.transformStatements(s))
               }
 
@@ -154,7 +163,10 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       [ts.SyntaxKind.FunctionDeclaration]:
         defineMap.size > 0
           ? (node: ts.FunctionDeclaration, context) => {
-              if (shouldStripDefineGuard(node, defineMap)) return []
+              if (shouldStripDefineGuard(node, defineMap)) {
+                return []
+              }
+
               return context.superTransformStatements(node)
             }
           : undefined,
@@ -162,7 +174,10 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       [ts.SyntaxKind.VariableStatement]:
         defineMap.size > 0
           ? (node: ts.VariableStatement, context) => {
-              if (shouldStripDefineGuard(node, defineMap)) return []
+              if (shouldStripDefineGuard(node, defineMap)) {
+                return []
+              }
+
               return context.superTransformStatements(node)
             }
           : undefined,
@@ -236,6 +251,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
           if (folded) {
             recordFoldedComment(node.getSourceFile().fileName, folded)
+
             return tstl.createNumericLiteral(folded.value, node)
           }
         }
@@ -253,6 +269,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         // reached when a compound assignment is used as an *expression*; the
         // statement case is handled by the ExpressionStatement visitor below.
         const compoundFn = COMPOUND_BITWISE_OPS[op]
+
         if (compoundFn) {
           const left = context.transformExpression(
             node.left,
@@ -340,6 +357,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
           // Builder chain detection (e.g. $setPrimParams(LINK_THIS).color(0, v, 1))
           const chain = matchBuilderChain(node.expression)
+
           if (chain) {
             return [emitBuilderChain(chain, context, node)]
           }
@@ -351,6 +369,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       [ts.SyntaxKind.CallExpression]: (node: ts.CallExpression, context) => {
         // Options-object pattern (e.g. $castRay(start, end, { maxHits: 4 }))
         const optionsMatch = matchOptionsCall(node)
+
         if (optionsMatch) {
           return emitOptionsCall(optionsMatch, context, node)
         }
@@ -446,12 +465,14 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
 
           if (folded) {
             recordFoldedComment(node.getSourceFile().fileName, folded)
+
             return tstl.createNumericLiteral(folded.value, node)
           }
         }
 
         if (node.operator === ts.SyntaxKind.TildeToken) {
           const operand = context.transformExpression(node.operand)
+
           return createBit32Call("bnot", [operand], node)
         }
 
@@ -466,6 +487,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         const parts: tstl.Expression[] = []
 
         const head = node.head.text
+
         if (head.length > 0) {
           parts.push(tstl.createStringLiteral(head, node.head))
         }
@@ -482,6 +504,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           }
 
           const text = span.literal.text
+
           if (text.length > 0) {
             parts.push(tstl.createStringLiteral(text, span.literal))
           }
@@ -531,6 +554,7 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
     beforeTransform(program, compilerOptions) {
       foldedBitwiseComments.clear()
       lualibFeatures.clear()
+
       const diagnostics: ts.Diagnostic[] = []
 
       if (compilerOptions.luaTarget !== tstl.LuaTarget.Luau) {
@@ -592,10 +616,15 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
     },
 
     afterPrint(program, _options, emitHost, result: ProcessedFile[]) {
-      if (options.reportLualib) recordLualibFeatures(result, lualibFeatures)
+      if (options.reportLualib) {
+        recordLualibFeatures(result, lualibFeatures)
+      }
 
       for (const file of result) {
-        if (!file.luaAst) continue
+        if (!file.luaAst) {
+          continue
+        }
+
         let dirty = false
 
         // Always-on transforms
@@ -604,16 +633,26 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         dirty = parenthesizeIfExpressions(file.luaAst) || dirty
 
         // Opt-in transforms
-        if (opt.defaultParams) dirty = collapseDefaultParamNilChecks(file.luaAst) || dirty
-        if (opt.simplifyNilChecks) dirty = simplifyNegatedInequality(file.luaAst) || dirty
+        if (opt.defaultParams) {
+          dirty = collapseDefaultParamNilChecks(file.luaAst) || dirty
+        }
+
+        if (opt.simplifyNilChecks) {
+          dirty = simplifyNegatedInequality(file.luaAst) || dirty
+        }
 
         if (opt.shortenTemps) {
           dirty = shortenTempNames(file.luaAst) || dirty
           dirty = collapseFieldAccesses(file.luaAst) || dirty
         }
 
-        if (opt.inlineLocals) dirty = inlineForwardDeclarations(file.luaAst) || dirty
-        if (opt.minifyNames) dirty = minifyLocalNames(file.luaAst) || dirty
+        if (opt.inlineLocals) {
+          dirty = inlineForwardDeclarations(file.luaAst) || dirty
+        }
+
+        if (opt.minifyNames) {
+          dirty = minifyLocalNames(file.luaAst) || dirty
+        }
 
         // Re-print if AST was modified
         if (dirty) {
@@ -634,29 +673,40 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
         // Compound assignment stays as regex (no Lua AST node for +=)
         if (opt.compoundAssignment) {
           const before = file.code
+
           file.code = file.code.replace(
             /^(\s*)(\w+) = \2 (\/\/|\.\.|[+\-*/%^]) (\S+)(\s*(?:--.*)?)$/gm,
             "$1$2 $3= $4$5",
           )
-          if (file.code !== before) codeDirty = true
+
+          if (file.code !== before) {
+            codeDirty = true
+          }
         }
 
         // Inject inline comments for folded bitwise constants
         if (opt.foldBitwise && file.sourceFiles) {
           for (const sf of file.sourceFiles) {
             const entries = foldedBitwiseComments.get(sf.fileName)
-            if (!entries) continue
+
+            if (!entries) {
+              continue
+            }
 
             for (const { value, source } of entries) {
               if (/[|&^~<>]/.test(source)) {
                 const numStr = String(value)
                 const before = file.code
+
                 // Replace first occurrence of the bare folded number (not already commented)
                 file.code = file.code.replace(
                   new RegExp(`(?<=\\W)${numStr}(?=\\W)(?!.*--)`, "m"),
                   `${numStr} --[[ ${source} ]]`,
                 )
-                if (file.code !== before) codeDirty = true
+
+                if (file.code !== before) {
+                  codeDirty = true
+                }
               }
             }
 

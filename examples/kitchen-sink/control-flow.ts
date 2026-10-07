@@ -37,8 +37,10 @@ function channelName(ch: number): string {
   switch (ch) {
     case 0:
       return "public"
+
     case DEBUG_CHANNEL: // built-in LSL constant (0x7FFFFFFF)
       return "debug"
+
     default:
       return `channel ${tostring(ch)}`
   }

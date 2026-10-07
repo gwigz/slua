@@ -44,21 +44,29 @@ async function streamOnce(
   // Registered before the round trips below, so output produced while the
   // viewer is publishing still reaches the stream.
   client.on("runtime.debug", (params) => {
-    if (wanted(params)) writeRecord(reporter, toRecord("debug", params, targets.maps))
+    if (wanted(params)) {
+      writeRecord(reporter, toRecord("debug", params, targets.maps))
+    }
   })
 
   client.on("runtime.error", (params) => {
-    if (wanted(params)) writeRecord(reporter, toRecord("error", params, targets.maps))
+    if (wanted(params)) {
+      writeRecord(reporter, toRecord("error", params, targets.maps))
+    }
   })
 
   // The linkset can grow while the stream runs, and a script in a prim linked
   // after the listing would otherwise read as somebody else's output.
   client.on("object.update", (params) => {
-    if (ids?.has(params.objectId)) ids = withUpdate(ids, params)
+    if (ids?.has(params.objectId)) {
+      ids = withUpdate(ids, params)
+    }
   })
 
   client.on("object.publish", (params) => {
-    if (ids?.has(params.object.objectId)) ids = objectIds(params.object)
+    if (ids?.has(params.object.objectId)) {
+      ids = objectIds(params.object)
+    }
   })
 
   if (command.targets && client.connection.handshake?.features.unifiedDiagnostics !== true) {
@@ -186,11 +194,15 @@ async function replay(
   command: Extract<Command, { name: "logs" }>,
   reporter: Reporter,
 ): Promise<void> {
-  if (!command.since || !control) return
+  if (!command.since || !control) {
+    return
+  }
 
   const { logs, truncated, logPath } = await control.logs(sinceParams(command.since))
 
-  for (const payload of logs) writeRecord(reporter, fromPayload(payload))
+  for (const payload of logs) {
+    writeRecord(reporter, fromPayload(payload))
+  }
 
   if (truncated > 0) {
     reporter.note(

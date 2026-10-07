@@ -94,6 +94,7 @@ LLTimers.every(config.PENDING_TIMEOUT, cleanupStale)
 loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   if (!ok) {
     print(`Config load failed: ${error}`)
+
     return
   }
 
@@ -102,6 +103,7 @@ loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
     if (!ok) {
       print(`Config reload failed: ${error}`)
+
       return
     }
 

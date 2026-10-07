@@ -78,18 +78,31 @@ function apply() {
 
 /** Runs one button. An `if` chain compiles to plain comparisons. */
 function press(button: Button) {
-  if (button === Button.Dimmer) step(Offset.Intensity, -10, 100)
-  else if (button === Button.Brighter) step(Offset.Intensity, 10, 100)
-  else if (button === Button.LessGlow) step(Offset.Glow, -5, 100)
-  else if (button === Button.MoreGlow) step(Offset.Glow, 5, 100)
-  else if (button === Button.Smaller) step(Offset.Radius, -1, 20)
-  else if (button === Button.Larger) step(Offset.Radius, 1, 20)
-  else if (button === Button.OnOff) toggle(Flag.Enabled)
-  else if (button === Button.Fullbright) toggle(Flag.Fullbright)
-  else if (button === Button.CastLight) toggle(Flag.CastLight)
-  else if (button === Button.Save) buffer.copy(saved, 0, live)
-  else if (button === Button.Load) buffer.copy(live, 0, saved)
-  else if (button === Button.Reset) buffer.copy(live, 0, defaults)
+  if (button === Button.Dimmer) {
+    step(Offset.Intensity, -10, 100)
+  } else if (button === Button.Brighter) {
+    step(Offset.Intensity, 10, 100)
+  } else if (button === Button.LessGlow) {
+    step(Offset.Glow, -5, 100)
+  } else if (button === Button.MoreGlow) {
+    step(Offset.Glow, 5, 100)
+  } else if (button === Button.Smaller) {
+    step(Offset.Radius, -1, 20)
+  } else if (button === Button.Larger) {
+    step(Offset.Radius, 1, 20)
+  } else if (button === Button.OnOff) {
+    toggle(Flag.Enabled)
+  } else if (button === Button.Fullbright) {
+    toggle(Flag.Fullbright)
+  } else if (button === Button.CastLight) {
+    toggle(Flag.CastLight)
+  } else if (button === Button.Save) {
+    buffer.copy(saved, 0, live)
+  } else if (button === Button.Load) {
+    buffer.copy(live, 0, saved)
+  } else if (button === Button.Reset) {
+    buffer.copy(live, 0, defaults)
+  }
 
   apply()
 }
@@ -108,8 +121,13 @@ let listener: number | undefined
 let expiry: LLTimerCallback | undefined
 
 function closeMenu() {
-  if (listener !== undefined) ll.ListenRemove(listener)
-  if (expiry !== undefined) LLTimers.off(expiry)
+  if (listener !== undefined) {
+    ll.ListenRemove(listener)
+  }
+
+  if (expiry !== undefined) {
+    LLTimers.off(expiry)
+  }
 
   listener = undefined
   expiry = undefined
@@ -129,10 +147,13 @@ function openMenu(avatar: UUID) {
 function touched(avatar: UUID) {
   if (isOn(Flag.OwnerOnly) && avatar !== ll.GetOwner()) {
     ll.RegionSayTo(avatar, 0, "Only the owner can adjust this light.")
+
     return
   }
 
-  if (TRACING) trace(`menu for ${avatar}`)
+  if (TRACING) {
+    trace(`menu for ${avatar}`)
+  }
 
   openMenu(avatar)
 }
@@ -144,9 +165,13 @@ function touched(avatar: UUID) {
 function replied(avatar: UUID, message: string) {
   const button = LABELS.indexOf(message)
 
-  if (button < 0) return
+  if (button < 0) {
+    return
+  }
 
-  if (TRACING) trace(`pressed ${message}`)
+  if (TRACING) {
+    trace(`pressed ${message}`)
+  }
 
   press(button)
   openMenu(avatar)
@@ -157,4 +182,6 @@ LLEvents.on("listen", (_channel, _name, id, message) => replied(id, message))
 
 apply()
 
-if (TRACING) trace(`ready, ${ll.GetUsedMemory()} bytes used`)
+if (TRACING) {
+  trace(`ready, ${ll.GetUsedMemory()} bytes used`)
+}

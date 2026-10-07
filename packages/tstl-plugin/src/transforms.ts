@@ -52,6 +52,7 @@ export const CALL_TRANSFORMS: CallTransform[] = [
     match: (node) => isNamespaceCall(node, "JSON", "stringify"),
     emit: (node, context) => {
       const args = node.arguments.map((a) => context.transformExpression(a))
+
       return createNamespacedCall("lljson", "encode", args, node)
     },
   },
@@ -60,6 +61,7 @@ export const CALL_TRANSFORMS: CallTransform[] = [
     match: (node) => isNamespaceCall(node, "JSON", "parse"),
     emit: (node, context) => {
       const args = node.arguments.map((a) => context.transformExpression(a))
+
       return createNamespacedCall("lljson", "decode", args, node)
     },
   },
@@ -68,6 +70,7 @@ export const CALL_TRANSFORMS: CallTransform[] = [
     match: (node) => isGlobalCall(node, "btoa") && node.arguments.length === 1,
     emit: (node, context) => {
       const args = node.arguments.map((a) => context.transformExpression(a))
+
       return createNamespacedCall("llbase64", "encode", args, node)
     },
   },
@@ -76,6 +79,7 @@ export const CALL_TRANSFORMS: CallTransform[] = [
     match: (node) => isGlobalCall(node, "atob") && node.arguments.length === 1,
     emit: (node, context) => {
       const args = node.arguments.map((a) => context.transformExpression(a))
+
       return createNamespacedCall("llbase64", "decode", args, node)
     },
   },
@@ -312,6 +316,7 @@ export const CALL_TRANSFORMS: CallTransform[] = [
       // case (`"".endsWith(x)` is true in JS when x is empty), then compare
       // the suffix: `e == "" or string.sub(str, -#e) == e`.
       const needle = tstl.createIdentifier(context.createTempName("ends"))
+
       context.addPrecedingStatements(
         tstl.createVariableDeclarationStatement(needle, context.transformExpression(arg), node),
       )

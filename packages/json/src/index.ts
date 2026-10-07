@@ -95,14 +95,17 @@ export interface SlEncodeOptions {
 export interface CodecOptions {
   vector?: {
     create(x: number, y: number, z: number): any
+
     test(value: unknown): boolean
   }
   quaternion?: {
     create(x: number, y: number, z: number, w: number): any
+
     test(value: unknown): boolean
   }
   uuid?: {
     create(value: string): any
+
     test(value: unknown): boolean
     /** Extract UUID string. Defaults to `String(value)`. */
     value?: (u: any) => string
@@ -111,21 +114,26 @@ export interface CodecOptions {
 
 export interface SlCodec {
   slencode(value: unknown, options?: SlEncodeOptions): string
+
   sldecode<T = unknown>(json: string): T
 }
 
 interface ResolvedCodec {
   vector: {
     create(x: number, y: number, z: number): any
+
     test(value: unknown): boolean
   }
   quaternion: {
     create(x: number, y: number, z: number, w: number): any
+
     test(value: unknown): boolean
   }
   uuid: {
     create(value: string): any
+
     test(value: unknown): boolean
+
     value(u: any): string
   }
 }
@@ -227,9 +235,17 @@ export function sldecode<T = unknown>(json: string): T {
  * zero trimming, matching SLua's `luai_formatfloat` + `luai_trimfloat`.
  */
 function formatComponent(v: number) {
-  if (Number.isNaN(v)) return "nan"
-  if (v === Infinity) return "inf"
-  if (v === -Infinity) return "-inf"
+  if (Number.isNaN(v)) {
+    return "nan"
+  }
+
+  if (v === Infinity) {
+    return "inf"
+  }
+
+  if (v === -Infinity) {
+    return "-inf"
+  }
 
   let s = v.toFixed(6)
 
@@ -254,22 +270,40 @@ function formatComponent(v: number) {
 }
 
 function stringifyValue(value: unknown, tight: boolean, codec: ResolvedCodec) {
-  if (value === undefined) return '"!n"'
-  if (value === null) return "null"
+  if (value === undefined) {
+    return '"!n"'
+  }
+
+  if (value === null) {
+    return "null"
+  }
 
   switch (typeof value) {
     case "number":
       return stringifyNumber(value)
+
     case "boolean":
       return value ? "true" : "false"
+
     case "string":
       return stringifyString(value)
   }
 
-  if (codec.vector.test(value)) return stringifyVector(value, tight)
-  if (codec.quaternion.test(value)) return stringifyQuaternion(value, tight)
-  if (codec.uuid.test(value)) return stringifyUUID(value, tight, codec)
-  if (value instanceof Uint8Array) return stringifyBuffer(value)
+  if (codec.vector.test(value)) {
+    return stringifyVector(value, tight)
+  }
+
+  if (codec.quaternion.test(value)) {
+    return stringifyQuaternion(value, tight)
+  }
+
+  if (codec.uuid.test(value)) {
+    return stringifyUUID(value, tight, codec)
+  }
+
+  if (value instanceof Uint8Array) {
+    return stringifyBuffer(value)
+  }
 
   if (Array.isArray(value)) {
     const items: string[] = []
@@ -286,6 +320,7 @@ function stringifyValue(value: unknown, tight: boolean, codec: ResolvedCodec) {
 
     for (const key of Object.keys(value as Record<string, unknown>)) {
       const val = (value as Record<string, unknown>)[key]
+
       entries.push(JSON.stringify(key) + ":" + stringifyValue(val, tight, codec))
     }
 
@@ -296,9 +331,17 @@ function stringifyValue(value: unknown, tight: boolean, codec: ResolvedCodec) {
 }
 
 function stringifyNumber(num: number) {
-  if (Number.isNaN(num)) return '"!fNaN"'
-  if (num === Infinity) return "1e9999"
-  if (num === -Infinity) return "-1e9999"
+  if (Number.isNaN(num)) {
+    return '"!fNaN"'
+  }
+
+  if (num === Infinity) {
+    return "1e9999"
+  }
+
+  if (num === -Infinity) {
+    return "-1e9999"
+  }
 
   return JSON.stringify(num)
 }
@@ -376,8 +419,13 @@ function stringifyBuffer(buf: Uint8Array) {
 
 /** Recursively walk a parsed JSON value, converting tagged strings. */
 function walkDecode(value: unknown, codec: ResolvedCodec) {
-  if (typeof value === "string") return parseTaggedString(value, codec)
-  if (value === null) return null
+  if (typeof value === "string") {
+    return parseTaggedString(value, codec)
+  }
+
+  if (value === null) {
+    return null
+  }
 
   if (Array.isArray(value)) {
     const result: unknown[] = []
@@ -395,6 +443,7 @@ function walkDecode(value: unknown, codec: ResolvedCodec) {
 
     for (const key of Object.keys(obj)) {
       const decodedKey = typeof key === "string" ? decodeTaggedKey(key, codec) : key
+
       result[decodedKey] = walkDecode(obj[key], codec)
     }
 
@@ -409,7 +458,9 @@ function walkDecode(value: unknown, codec: ResolvedCodec) {
  * string if it's not tagged.
  */
 function parseTaggedString(str: string, codec: ResolvedCodec) {
-  if (str.length < 2 || str[0] !== "!") return str
+  if (str.length < 2 || str[0] !== "!") {
+    return str
+  }
 
   const tag = str[1]
   const payload = str.slice(2)
@@ -476,7 +527,9 @@ function parseVector(payload: string, original: string, codec: ResolvedCodec) {
     components = payload.split(",")
   }
 
-  if (components.length !== 3) throw new Error(`malformed tagged vector: ${original}`)
+  if (components.length !== 3) {
+    throw new Error(`malformed tagged vector: ${original}`)
+  }
 
   return codec.vector.create(
     parseComponentNumber(components[0]),
@@ -515,8 +568,13 @@ function parseQuaternion(payload: string, original: string, codec: ResolvedCodec
 }
 
 function parseUUID(payload: string, original: string, codec: ResolvedCodec) {
-  if (payload.length === 0) return codec.uuid.create("00000000-0000-0000-0000-000000000000")
-  if (payload.length === 36) return codec.uuid.create(payload)
+  if (payload.length === 0) {
+    return codec.uuid.create("00000000-0000-0000-0000-000000000000")
+  }
+
+  if (payload.length === 36) {
+    return codec.uuid.create(payload)
+  }
 
   if (payload.length === 22) {
     // Tight base64 format, add padding and decode
@@ -535,9 +593,17 @@ function parseUUID(payload: string, original: string, codec: ResolvedCodec) {
 function parseFloat(payload: string, original: string) {
   const trimmed = payload.trim()
 
-  if (trimmed === "NaN") return NaN
-  if (trimmed === "inf" || trimmed === "1e9999") return Infinity
-  if (trimmed === "-inf" || trimmed === "-1e9999") return -Infinity
+  if (trimmed === "NaN") {
+    return NaN
+  }
+
+  if (trimmed === "inf" || trimmed === "1e9999") {
+    return Infinity
+  }
+
+  if (trimmed === "-inf" || trimmed === "-1e9999") {
+    return -Infinity
+  }
 
   const num = Number(trimmed)
 
@@ -560,10 +626,21 @@ function parseBuffer(payload: string) {
 function parseComponentNumber(s: string) {
   const trimmed = s.trim()
 
-  if (trimmed === "") return 0
-  if (trimmed === "nan") return NaN
-  if (trimmed === "inf") return Infinity
-  if (trimmed === "-inf") return -Infinity
+  if (trimmed === "") {
+    return 0
+  }
+
+  if (trimmed === "nan") {
+    return NaN
+  }
+
+  if (trimmed === "inf") {
+    return Infinity
+  }
+
+  if (trimmed === "-inf") {
+    return -Infinity
+  }
 
   return Number(trimmed)
 }
@@ -589,25 +666,34 @@ function decodeTaggedKey(key: string, codec: ResolvedCodec) {
   switch (tag) {
     case "f": {
       const num = parseFloat(payload, key)
+
       return String(num)
     }
 
     case "b":
       return payload === "1" ? "true" : "false"
+
     case "u": {
       const u = parseUUID(payload, key, codec)
+
       return codec.uuid.value(u)
     }
+
     case "!":
       return key.slice(1)
+
     case "v": {
       const v = parseVector(payload, key, codec)
+
       return `<${formatComponent(v.x)},${formatComponent(v.y)},${formatComponent(v.z)}>`
     }
+
     case "q": {
       const q = parseQuaternion(payload, key, codec)
+
       return `<${formatComponent(q.x)},${formatComponent(q.y)},${formatComponent(q.z)},${formatComponent(q.w)}>`
     }
+
     case "d":
       return `[buffer:${payload}]`
 
@@ -634,7 +720,9 @@ function base64ToBytes(b64: string) {
   const binary = atob(b64)
   const bytes = new Uint8Array(binary.length)
 
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
 
   return bytes
 }

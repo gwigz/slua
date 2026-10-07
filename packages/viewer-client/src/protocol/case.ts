@@ -19,7 +19,9 @@ const SNAKE_FIELD = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/
 const CAMEL_FIELD = /^[a-z][a-zA-Z0-9]*$/
 
 function camelKey(key: string): string {
-  if (!SNAKE_FIELD.test(key)) return key
+  if (!SNAKE_FIELD.test(key)) {
+    return key
+  }
 
   // Letters only: `slot_2` has no camel spelling to go back from, so folding
   // it to `slot2` would make the pair asymmetric.
@@ -27,7 +29,9 @@ function camelKey(key: string): string {
 }
 
 function snakeKey(key: string): string {
-  if (!CAMEL_FIELD.test(key)) return key
+  if (!CAMEL_FIELD.test(key)) {
+    return key
+  }
 
   return key.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`)
 }

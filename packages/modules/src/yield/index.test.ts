@@ -49,6 +49,7 @@ describe("spawn", () => {
 
   it("returns the coroutine thread", () => {
     const result = spawn(() => {})
+
     expect(result).toBeDefined()
   })
 })
@@ -65,6 +66,7 @@ describe("waitFor", () => {
 
   it("handler filters by predicate when provided", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([1, "name", "id", "text"])
@@ -81,6 +83,7 @@ describe("waitFor", () => {
 
   it("removes handler after match", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue(["data"])
@@ -96,7 +99,9 @@ describe("waitFor", () => {
 
   it("with timeout, resumes with [true, args] on match", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([true, ["req-1", "data-1"]])
@@ -108,7 +113,9 @@ describe("waitFor", () => {
 
   it("with timeout, resumes with [false, 'timeout'] on timeout", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([false, "timeout"])
@@ -122,6 +129,7 @@ describe("waitFor", () => {
 describe("sleep", () => {
   it("registers a timer and yields", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     const yieldSpy = spyOn(g.coroutine, "yield")
     const resumeSpy = spyOn(g.coroutine, "resume")
 
@@ -153,7 +161,9 @@ describe("requestAgentData", () => {
 
   it("handler filters by request ID", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     // Override ll.RequestAgentData to return a known ID
@@ -173,6 +183,7 @@ describe("requestAgentData", () => {
 
   it("removes handler after matching", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     g.ll.RequestAgentData = () => "req-123"
@@ -187,7 +198,9 @@ describe("requestAgentData", () => {
 
   it("resumes with [false, 'timeout'] on timeout", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([false, "timeout"])
@@ -203,6 +216,7 @@ describe("requestDisplayName", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "Display Name"])
+
     const result = requestDisplayName("avatar-id" as unknown as UUID, 10) as any
 
     expect(result).toEqual([true, "Display Name"])
@@ -214,6 +228,7 @@ describe("requestSimulatorData", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "sim data"])
+
     const result = requestSimulatorData("Region Name", 5, 10) as any
 
     expect(result).toEqual([true, "sim data"])
@@ -225,6 +240,7 @@ describe("requestInventoryData", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "inv data"])
+
     const result = requestInventoryData("item-name", 10) as any
 
     expect(result).toEqual([true, "inv data"])
@@ -244,6 +260,7 @@ describe("readNotecardLine", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "line content"])
+
     const result = readNotecardLine("uncached.txt", 0, 10) as any
 
     expect(result).toEqual([true, "line content"])
@@ -253,6 +270,7 @@ describe("readNotecardLine", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([false, "timeout"])
+
     const result = readNotecardLine("uncached.txt", 0, 10) as any
 
     expect(result).toEqual([false, "timeout"])
@@ -264,6 +282,7 @@ describe("readNotecard", () => {
     notecard("notecard.txt", ["line 1", "line 2", "line 3"])
 
     const result = readNotecard("notecard.txt", 10) as any
+
     expect(result).toEqual([true, ["line 1", "line 2", "line 3"]])
   })
 
@@ -271,6 +290,7 @@ describe("readNotecard", () => {
     notecard("empty.txt", [])
 
     const result = readNotecard("empty.txt", 10) as any
+
     expect(result).toEqual([true, []])
   })
 
@@ -284,15 +304,21 @@ describe("readNotecard", () => {
     g.ll.GetNotecardLineSync = (_name: string, lineNum: number) => {
       if (nakCount === 0) {
         nakCount++
+
         return NAK
       }
-      if (lineNum >= lines.length) return EOF
+
+      if (lineNum >= lines.length) {
+        return EOF
+      }
+
       return lines[lineNum]
     }
 
     setCoroutineYieldValue([true, "line 1"])
 
     const result = readNotecard("notecard.txt", 10) as any
+
     expect(result).toEqual([true, ["line 1", "line 2"]])
 
     g.ll.GetNotecardLineSync = originalSync
@@ -304,6 +330,7 @@ describe("readNotecard", () => {
     setCoroutineYieldValue([false, "timeout"])
 
     const result = readNotecard("uncached.txt", 10) as any
+
     expect(result).toEqual([false, "timeout"])
   })
 })
@@ -313,6 +340,7 @@ describe("findNotecardTextCount", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "5"])
+
     const result = findNotecardTextCount("notecard.txt", "pattern", [], 10) as any
 
     expect(result).toEqual([true, "5"])
@@ -328,6 +356,7 @@ describe("kvRead", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "1,hello world"])
+
     const result = kvRead("mykey", 10) as any
 
     expect(result).toEqual([true, { ok: true, value: "hello world" }])
@@ -337,6 +366,7 @@ describe("kvRead", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "0,key not found"])
+
     const result = kvRead("missing", 10) as any
 
     expect(result).toEqual([true, { ok: false, value: "key not found" }])
@@ -346,6 +376,7 @@ describe("kvRead", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "1,value,with,commas"])
+
     const result = kvRead("mykey", 10) as any
 
     expect(result).toEqual([true, { ok: true, value: "value,with,commas" }])
@@ -355,6 +386,7 @@ describe("kvRead", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([false, "timeout"])
+
     const result = kvRead("mykey", 10) as any
 
     expect(result).toEqual([false, "timeout"])
@@ -387,9 +419,12 @@ describe("kvUpdate", () => {
 
   it("passes checked=false and original=empty to ll.UpdateKeyValue", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     const calls: any[][] = []
+
     g.ll.UpdateKeyValue = (...args: any[]) => {
       calls.push(args)
+
       return "req-kv"
     }
 
@@ -421,6 +456,7 @@ describe("kvSize", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, "1024,65536"])
+
     const result = kvSize(10) as any
 
     expect(result).toEqual([true, { used: 1024, total: 65536 }])
@@ -434,10 +470,12 @@ describe("kvSize", () => {
 describe("dialog", () => {
   it("opens listen on the given channel", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     let listenChannel: number | undefined
 
     g.ll.Listen = (ch: number) => {
       listenChannel = ch
+
       return 42
     }
 
@@ -449,7 +487,9 @@ describe("dialog", () => {
 
   it("cleans up listener after response", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
     let removedHandle: number | undefined
 
@@ -469,6 +509,7 @@ describe("dialog", () => {
 
   it("ignores listen events on wrong channel", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     g.ll.Listen = () => 42
@@ -482,7 +523,9 @@ describe("dialog", () => {
 
   it("resumes with [false, 'timeout'] on timeout", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     g.ll.Listen = () => 42
@@ -499,14 +542,17 @@ describe("dialog", () => {
 describe("textBox", () => {
   it("opens listen on the given channel and returns input", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
+
     let listenChannel: number | undefined
 
     g.ll.Listen = (ch: number) => {
       listenChannel = ch
+
       return 42
     }
 
     setCoroutineYieldValue([true, "User input"])
+
     const result = textBox(-99001, "avatar-id" as unknown as UUID, "Enter text:", 30) as any
 
     expect(listenChannel).toBe(-99001)
@@ -531,6 +577,7 @@ describe("fetch", () => {
     }
 
     setCoroutineYieldValue([true, { status: 200, metadata: [], body: "OK" }])
+
     const result = fetch("https://example.com", { timeout: 30 }) as any
 
     expect(result).toEqual([true, { status: 200, metadata: [], body: "OK" }])
@@ -564,7 +611,9 @@ describe("fetch", () => {
 
   it("handler filters by request ID", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     g.ll.HTTPRequest = () => "req-http"
@@ -583,7 +632,9 @@ describe("fetch", () => {
 
   it("resumes with [false, 'timeout'] on timeout", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     g.ll.HTTPRequest = () => "req-http"
@@ -605,6 +656,7 @@ describe("requestPermissions", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, 0x2004])
+
     const result = requestPermissions("avatar-id" as unknown as UUID, 0x2004, 10) as any
 
     expect(result).toEqual([true, 0x2004])
@@ -612,7 +664,9 @@ describe("requestPermissions", () => {
 
   it("handler resumes with [true, flags] and removes itself", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([true, 0x04])
@@ -627,7 +681,9 @@ describe("requestPermissions", () => {
 
   it("resumes with [false, 'timeout'] on timeout", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([false, "timeout"])
@@ -643,6 +699,7 @@ describe("transferMoney", () => {
     spyOn(g.coroutine, "running").mockReturnValue({ __mock: true })
 
     setCoroutineYieldValue([true, { success: true, message: "Transfer complete" }])
+
     const result = transferMoney("avatar-id" as unknown as UUID, 100, 10) as any
 
     expect(result).toEqual([true, { success: true, message: "Transfer complete" }])
@@ -650,7 +707,9 @@ describe("transferMoney", () => {
 
   it("handler packs result with success based on successInt", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     g.ll.TransferLindenDollars = () => "req-tx"
@@ -668,7 +727,9 @@ describe("transferMoney", () => {
 
   it("resumes with [false, 'timeout'] on timeout", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     g.ll.TransferLindenDollars = () => "req-tx"
@@ -700,7 +761,9 @@ describe("sensor", () => {
 
   it("returns [true, null] on no_sensor", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([true, null])
@@ -712,13 +775,16 @@ describe("sensor", () => {
 
   it("sensor handler removes both handlers", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([true, [{ index: 0 }]])
     sensor("", NULL_KEY, 1, 20.0, 3.14, 10)
 
     const mockDetected = [{ index: 0, valid: true }] as any
+
     emit("sensor", mockDetected)
     expect(resumeSpy).toHaveBeenCalledTimes(1)
 
@@ -729,7 +795,9 @@ describe("sensor", () => {
 
   it("no_sensor handler removes both handlers", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([true, null])
@@ -745,7 +813,9 @@ describe("sensor", () => {
 
   it("resumes with [false, 'timeout'] on timeout", () => {
     const co = { __mock: true }
+
     spyOn(g.coroutine, "running").mockReturnValue(co)
+
     const resumeSpy = spyOn(g.coroutine, "resume")
 
     setCoroutineYieldValue([false, "timeout"])

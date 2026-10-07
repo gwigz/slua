@@ -13,6 +13,7 @@ function loadExtraFiles(): Record<string, string> {
 
     // Try to load language extensions (may be hoisted to workspace root)
     let langExtTypes = ""
+
     for (const base of ["node_modules", "../../node_modules"]) {
       try {
         const langExtPath = path.resolve(
@@ -20,6 +21,7 @@ function loadExtraFiles(): Record<string, string> {
           base,
           "@typescript-to-lua/language-extensions/index.d.ts",
         )
+
         langExtTypes = fs.readFileSync(langExtPath, "utf-8")
         break
       } catch {

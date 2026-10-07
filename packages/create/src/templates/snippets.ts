@@ -6,9 +6,17 @@ import { formatJson } from "../utils.js"
 function selectedModules(extras: Extras): ModuleName[] {
   const selected: ModuleName[] = []
 
-  if (extras.config) selected.push("config")
-  if (extras.utilities) selected.push("utilities")
-  if (extras.yield) selected.push("yield")
+  if (extras.config) {
+    selected.push("config")
+  }
+
+  if (extras.utilities) {
+    selected.push("utilities")
+  }
+
+  if (extras.yield) {
+    selected.push("yield")
+  }
 
   return selected
 }
@@ -115,6 +123,7 @@ export function buildTsContent(extras: Extras, packageManager: string): string {
   )
 
   let pluginLine = '    { name: "@gwigz/slua-tstl-plugin", optimize: true },'
+
   if (defineEntries.length > 0) {
     pluginLine = `    {
       name: "@gwigz/slua-tstl-plugin",
@@ -143,6 +152,7 @@ ${defineEntries.map((entry) => `        ${entry},`).join("\n")}
     : ""
 
   let styluaBlock = ""
+
   if (extras.stylua) {
     styluaBlock = `
 

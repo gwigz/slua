@@ -19,12 +19,14 @@ export function tryEvaluateCondition(
   // Bare identifier: CONFIG_X
   if (ts.isIdentifier(expr)) {
     const value = defineMap.get(expr.text)
+
     return value === undefined ? undefined : !!value
   }
 
   // Negation: !CONFIG_X
   if (ts.isPrefixUnaryExpression(expr) && expr.operator === ts.SyntaxKind.ExclamationToken) {
     const inner = tryEvaluateCondition(expr.operand, defineMap)
+
     return inner === undefined ? undefined : !inner
   }
 
@@ -51,7 +53,9 @@ export function tryEvaluateCondition(
       literalValue = extractLiteral(expr.left)
     }
 
-    if (identValue === undefined || literalValue === undefined) return undefined
+    if (identValue === undefined || literalValue === undefined) {
+      return undefined
+    }
 
     const equal = identValue === literalValue
 
@@ -68,7 +72,10 @@ export function tryEvaluateCondition(
  */
 export function shouldStripDefineGuard(node: ts.Node, defineMap: DefineMap): boolean {
   const jsDocs = (node as { jsDoc?: ts.JSDoc[] }).jsDoc
-  if (!jsDocs || jsDocs.length === 0) return false
+
+  if (!jsDocs || jsDocs.length === 0) {
+    return false
+  }
 
   for (const tag of ts.getJSDocTags(node)) {
     if (tag.tagName.text === "define" && typeof tag.comment === "string") {
@@ -84,10 +91,21 @@ export function shouldStripDefineGuard(node: ts.Node, defineMap: DefineMap): boo
 }
 
 function extractLiteral(expr: ts.Expression): boolean | number | string | undefined {
-  if (expr.kind === ts.SyntaxKind.TrueKeyword) return true
-  if (expr.kind === ts.SyntaxKind.FalseKeyword) return false
-  if (ts.isNumericLiteral(expr)) return Number(expr.text)
-  if (ts.isStringLiteral(expr)) return expr.text
+  if (expr.kind === ts.SyntaxKind.TrueKeyword) {
+    return true
+  }
+
+  if (expr.kind === ts.SyntaxKind.FalseKeyword) {
+    return false
+  }
+
+  if (ts.isNumericLiteral(expr)) {
+    return Number(expr.text)
+  }
+
+  if (ts.isStringLiteral(expr)) {
+    return expr.text
+  }
 
   // Handle negative numbers: -123
   if (

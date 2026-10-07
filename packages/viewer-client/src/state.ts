@@ -6,6 +6,7 @@ import { join } from "node:path"
 export const STATE_DIRECTORY = ".slua"
 
 export const SESSION_FILE = "session.json"
+
 export const LOG_FILE = "logs.jsonl"
 
 /** Rotated at this size, keeping one previous file. */
@@ -34,9 +35,12 @@ export interface SessionState {
   readonly logPath: string
   /** Writes the session file, once the socket it names is this session's. */
   announce(): Promise<void>
+
   /** Appends one record. Ordering is preserved; failures are reported once. */
   append(record: Record<string, unknown>): void
+
   flush(): Promise<void>
+
   /** Forgets the session, then flushes, so a stale file never outlives it. */
   close(): Promise<void>
 }
@@ -152,7 +156,9 @@ export async function openState(
       )
 
       chain = chain.catch((error: unknown) => {
-        if (reported) return
+        if (reported) {
+          return
+        }
 
         reported = true
 
@@ -168,7 +174,9 @@ export async function openState(
       // Teardown releases the control socket first, so a replacement session
       // may already have written its own file. Deleting that one would hide a
       // session that is running.
-      if (await owned()) await rm(sessionPath, { force: true })
+      if (await owned()) {
+        await rm(sessionPath, { force: true })
+      }
 
       await chain
     },

@@ -279,6 +279,7 @@ describe("pushCommand on a failed compile", () => {
 /** What a chatty client's script says while the save is in flight. */
 interface Say {
   (message: string, objectId?: string): void
+
   /** The same, as the `runtime.error` a script that threw produces. */
   fail(error: string, line?: number, stack?: string[]): void
 }

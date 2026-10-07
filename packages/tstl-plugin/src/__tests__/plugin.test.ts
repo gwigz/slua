@@ -408,6 +408,7 @@ describe("bitwise operators", () => {
 
     it("translates ^= to bit32.bxor", () => {
       const lua = transpileSimple("declare let a: number; a ^= 3")
+
       expect(lua).toContain("bit32.bxor(a, 3)")
     })
 
@@ -431,6 +432,7 @@ describe("bitwise operators", () => {
 
     it("handles property access LHS", () => {
       const lua = transpileSimple("declare let obj: {prop: number}; obj.prop &= 3")
+
       expect(lua).toContain("bit32.band(")
       expect(lua).not.toMatch(/\s&\s/)
     })

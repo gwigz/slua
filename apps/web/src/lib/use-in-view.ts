@@ -8,7 +8,10 @@ export function useInView(threshold = 0.1) {
 
   useEffect(() => {
     const el = ref.current
-    if (!el) return
+
+    if (!el) {
+      return
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -21,6 +24,7 @@ export function useInView(threshold = 0.1) {
     )
 
     observer.observe(el)
+
     return () => observer.disconnect()
   }, [threshold])
 

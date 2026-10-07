@@ -43,16 +43,25 @@ export async function loadTargets(): Promise<Targets> {
   const maps: TargetMap[] = []
   const items = new Set<string>()
 
-  if (!config) return { maps, items }
+  if (!config) {
+    return { maps, items }
+  }
 
   for (const [name, target] of Object.entries(config.targets)) {
-    if (target.item) items.add(target.item.toLowerCase())
-    if (!target.file) continue
+    if (target.item) {
+      items.add(target.item.toLowerCase())
+    }
+
+    if (!target.file) {
+      continue
+    }
 
     const file = isAbsolute(target.file) ? target.file : resolve(config.root, target.file)
     const map = await loadSourceMapFor(file)
 
-    if (map) maps.push({ name, item: target.item, map })
+    if (map) {
+      maps.push({ name, item: target.item, map })
+    }
   }
 
   return { maps, items }
@@ -85,7 +94,9 @@ export function rowIn(text: string): number {
 export function mapsFor(params: RuntimeDebug, maps: TargetMap[]): TargetMap[] {
   const script = params.item?.name
 
-  if (!script) return maps
+  if (!script) {
+    return maps
+  }
 
   const named = maps.filter((entry) => entry.item?.toLowerCase() === script.toLowerCase())
 
@@ -127,7 +138,9 @@ export function fromObject(params: RuntimeDebug, ids: Set<string>): boolean {
 export function namesTarget(params: RuntimeDebug, items: Set<string>): boolean {
   const script = params.item?.name
 
-  if (!script) return true
+  if (!script) {
+    return true
+  }
 
   return items.has(script.toLowerCase())
 }
@@ -145,14 +158,21 @@ export function wantedEvent(
   ids: Set<string> | undefined,
   items: Set<string>,
 ): boolean {
-  if (command.object && !ids) return false
-  if (ids && !fromObject(params, ids)) return false
+  if (command.object && !ids) {
+    return false
+  }
+
+  if (ids && !fromObject(params, ids)) {
+    return false
+  }
 
   return !command.targets || namesTarget(params, items)
 }
 
 export function mapRow(row: number, maps: TargetMap[]): MappedLocation[] {
-  if (row <= 0) return []
+  if (row <= 0) {
+    return []
+  }
 
   return maps.flatMap(({ name, map }) => {
     const location = map.mapRow(row)
@@ -188,17 +208,23 @@ export function runtimeText(params: RuntimeDebug | RuntimeError, level: "debug" 
   const text = params.message || error
 
   if (text) {
-    if (line <= 0) return text
+    if (line <= 0) {
+      return text
+    }
 
     // The text usually names the line itself, as `lua_script:4: ...`, but
     // never the column, so suppressing the whole position would lose one the
     // viewer went to the trouble of reporting.
-    if (!text.includes(`:${line}:`)) return `${text} (${position(line, column)})`
+    if (!text.includes(`:${line}:`)) {
+      return `${text} (${position(line, column)})`
+    }
 
     return column > 0 ? `${text} (column ${column})` : text
   }
 
-  if (line > 0) return `error on ${position(line, column)}`
+  if (line > 0) {
+    return `error on ${position(line, column)}`
+  }
 
   return level === "error"
     ? "script error without text; an older viewer sends the detail as a separate debug message"
@@ -239,7 +265,9 @@ export function runtimeLines(
  * two are indistinguishable without the channel the viewer now sends.
  */
 export function tagFor(level: "debug" | "error", params: RuntimeDebug): string {
-  if (level === "error") return pc.red("error")
+  if (level === "error") {
+    return pc.red("error")
+  }
 
   return params.channel === "owner_say" ? pc.dim("say") : pc.dim("debug")
 }

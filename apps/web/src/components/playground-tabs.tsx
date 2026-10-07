@@ -17,7 +17,10 @@ export function PlaygroundTabs({ activeTab }: { activeTab: "typescript" | "json"
       value={activeTab}
       onValueChange={(value) => {
         const tab = tabs.find((t) => t.value === value)
-        if (tab) router.push(tab.href)
+
+        if (tab) {
+          router.push(tab.href)
+        }
       }}
     >
       <TabsList>

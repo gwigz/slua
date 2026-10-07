@@ -26,6 +26,7 @@ function walkExpression(expr: lua.Expression, visitor: Visitor): void {
 
     case lua.SyntaxKind.BinaryExpression: {
       const bin = expr as lua.BinaryExpression
+
       walkExpression(bin.left, visitor)
       walkExpression(bin.right, visitor)
       break
@@ -41,6 +42,7 @@ function walkExpression(expr: lua.Expression, visitor: Visitor): void {
 
     case lua.SyntaxKind.ConditionalExpression: {
       const cond = expr as lua.ConditionalExpression
+
       walkExpression(cond.condition, visitor)
       walkExpression(cond.whenTrue, visitor)
       walkExpression(cond.whenFalse, visitor)
@@ -49,20 +51,29 @@ function walkExpression(expr: lua.Expression, visitor: Visitor): void {
 
     case lua.SyntaxKind.CallExpression: {
       const call = expr as lua.CallExpression
+
       walkExpression(call.expression, visitor)
-      for (const p of call.params) walkExpression(p, visitor)
+
+      for (const p of call.params) {
+        walkExpression(p, visitor)
+      }
       break
     }
 
     case lua.SyntaxKind.MethodCallExpression: {
       const mc = expr as lua.MethodCallExpression
+
       walkExpression(mc.prefixExpression, visitor)
-      for (const p of mc.params) walkExpression(p, visitor)
+
+      for (const p of mc.params) {
+        walkExpression(p, visitor)
+      }
       break
     }
 
     case lua.SyntaxKind.TableIndexExpression: {
       const ti = expr as lua.TableIndexExpression
+
       walkExpression(ti.table, visitor)
       walkExpression(ti.index, visitor)
       break
@@ -71,20 +82,28 @@ function walkExpression(expr: lua.Expression, visitor: Visitor): void {
     case lua.SyntaxKind.TableExpression:
       for (const f of (expr as lua.TableExpression).fields) {
         walkExpression(f.value, visitor)
-        if (f.key) walkExpression(f.key, visitor)
+
+        if (f.key) {
+          walkExpression(f.key, visitor)
+        }
       }
       break
 
     case lua.SyntaxKind.FunctionExpression: {
       const fn = expr as lua.FunctionExpression
+
       walkBlock(fn.body, visitor)
       break
     }
 
     case lua.SyntaxKind.TableFieldExpression: {
       const tf = expr as lua.TableFieldExpression
+
       walkExpression(tf.value, visitor)
-      if (tf.key) walkExpression(tf.key, visitor)
+
+      if (tf.key) {
+        walkExpression(tf.key, visitor)
+      }
       break
     }
   }
@@ -98,23 +117,34 @@ function walkStatement(stmt: lua.Statement, visitor: Visitor): void {
 
     case lua.SyntaxKind.VariableDeclarationStatement: {
       const vds = stmt as lua.VariableDeclarationStatement
+
       if (vds.right) {
-        for (const r of vds.right) walkExpression(r, visitor)
+        for (const r of vds.right) {
+          walkExpression(r, visitor)
+        }
       }
       break
     }
 
     case lua.SyntaxKind.AssignmentStatement: {
       const as_ = stmt as lua.AssignmentStatement
-      for (const l of as_.left) walkExpression(l, visitor)
-      for (const r of as_.right) walkExpression(r, visitor)
+
+      for (const l of as_.left) {
+        walkExpression(l, visitor)
+      }
+
+      for (const r of as_.right) {
+        walkExpression(r, visitor)
+      }
       break
     }
 
     case lua.SyntaxKind.IfStatement: {
       const is_ = stmt as lua.IfStatement
+
       walkExpression(is_.condition, visitor)
       walkBlock(is_.ifBlock, visitor)
+
       if (is_.elseBlock) {
         if (lua.isIfStatement(is_.elseBlock)) {
           walkStatement(is_.elseBlock, visitor)
@@ -127,6 +157,7 @@ function walkStatement(stmt: lua.Statement, visitor: Visitor): void {
 
     case lua.SyntaxKind.WhileStatement: {
       const ws = stmt as lua.WhileStatement
+
       walkExpression(ws.condition, visitor)
       walkBlock(ws.body, visitor)
       break
@@ -134,6 +165,7 @@ function walkStatement(stmt: lua.Statement, visitor: Visitor): void {
 
     case lua.SyntaxKind.RepeatStatement: {
       const rs = stmt as lua.RepeatStatement
+
       walkExpression(rs.condition, visitor)
       walkBlock(rs.body, visitor)
       break
@@ -141,22 +173,33 @@ function walkStatement(stmt: lua.Statement, visitor: Visitor): void {
 
     case lua.SyntaxKind.ForStatement: {
       const fs = stmt as lua.ForStatement
+
       walkExpression(fs.controlVariableInitializer, visitor)
       walkExpression(fs.limitExpression, visitor)
-      if (fs.stepExpression) walkExpression(fs.stepExpression, visitor)
+
+      if (fs.stepExpression) {
+        walkExpression(fs.stepExpression, visitor)
+      }
+
       walkBlock(fs.body, visitor)
       break
     }
 
     case lua.SyntaxKind.ForInStatement: {
       const fis = stmt as lua.ForInStatement
-      for (const e of fis.expressions) walkExpression(e, visitor)
+
+      for (const e of fis.expressions) {
+        walkExpression(e, visitor)
+      }
+
       walkBlock(fis.body, visitor)
       break
     }
 
     case lua.SyntaxKind.ReturnStatement:
-      for (const e of (stmt as lua.ReturnStatement).expressions) walkExpression(e, visitor)
+      for (const e of (stmt as lua.ReturnStatement).expressions) {
+        walkExpression(e, visitor)
+      }
       break
 
     case lua.SyntaxKind.ExpressionStatement:
@@ -173,6 +216,7 @@ function walkStatement(stmt: lua.Statement, visitor: Visitor): void {
 
 function walkBlock(block: { statements: lua.Statement[] }, visitor: Visitor): void {
   visitor.block?.(block.statements)
+
   for (const stmt of block.statements) {
     walkStatement(stmt, visitor)
   }
@@ -207,6 +251,7 @@ function walkExpressionIds(expr: lua.Expression, cb: IdentifierCallback): void {
 
     case lua.SyntaxKind.BinaryExpression: {
       const bin = expr as lua.BinaryExpression
+
       walkExpressionIds(bin.left, cb)
       walkExpressionIds(bin.right, cb)
       break
@@ -222,6 +267,7 @@ function walkExpressionIds(expr: lua.Expression, cb: IdentifierCallback): void {
 
     case lua.SyntaxKind.ConditionalExpression: {
       const cond = expr as lua.ConditionalExpression
+
       walkExpressionIds(cond.condition, cb)
       walkExpressionIds(cond.whenTrue, cb)
       walkExpressionIds(cond.whenFalse, cb)
@@ -230,21 +276,30 @@ function walkExpressionIds(expr: lua.Expression, cb: IdentifierCallback): void {
 
     case lua.SyntaxKind.CallExpression: {
       const call = expr as lua.CallExpression
+
       walkExpressionIds(call.expression, cb)
-      for (const p of call.params) walkExpressionIds(p, cb)
+
+      for (const p of call.params) {
+        walkExpressionIds(p, cb)
+      }
       break
     }
 
     case lua.SyntaxKind.MethodCallExpression: {
       const mc = expr as lua.MethodCallExpression
+
       walkExpressionIds(mc.prefixExpression, cb)
       walkExpressionIds(mc.name, cb)
-      for (const p of mc.params) walkExpressionIds(p, cb)
+
+      for (const p of mc.params) {
+        walkExpressionIds(p, cb)
+      }
       break
     }
 
     case lua.SyntaxKind.TableIndexExpression: {
       const ti = expr as lua.TableIndexExpression
+
       walkExpressionIds(ti.table, cb)
       walkExpressionIds(ti.index, cb)
       break
@@ -253,23 +308,34 @@ function walkExpressionIds(expr: lua.Expression, cb: IdentifierCallback): void {
     case lua.SyntaxKind.TableExpression:
       for (const f of (expr as lua.TableExpression).fields) {
         walkExpressionIds(f.value, cb)
-        if (f.key) walkExpressionIds(f.key, cb)
+
+        if (f.key) {
+          walkExpressionIds(f.key, cb)
+        }
       }
       break
 
     case lua.SyntaxKind.FunctionExpression: {
       const fn = expr as lua.FunctionExpression
+
       if (fn.params) {
-        for (const p of fn.params) cb(p)
+        for (const p of fn.params) {
+          cb(p)
+        }
       }
+
       walkBlockIds(fn.body, cb)
       break
     }
 
     case lua.SyntaxKind.TableFieldExpression: {
       const tf = expr as lua.TableFieldExpression
+
       walkExpressionIds(tf.value, cb)
-      if (tf.key) walkExpressionIds(tf.key, cb)
+
+      if (tf.key) {
+        walkExpressionIds(tf.key, cb)
+      }
       break
     }
   }
@@ -283,24 +349,38 @@ function walkStatementIds(stmt: lua.Statement, cb: IdentifierCallback): void {
 
     case lua.SyntaxKind.VariableDeclarationStatement: {
       const vds = stmt as lua.VariableDeclarationStatement
-      for (const l of vds.left) cb(l)
+
+      for (const l of vds.left) {
+        cb(l)
+      }
+
       if (vds.right) {
-        for (const r of vds.right) walkExpressionIds(r, cb)
+        for (const r of vds.right) {
+          walkExpressionIds(r, cb)
+        }
       }
       break
     }
 
     case lua.SyntaxKind.AssignmentStatement: {
       const as_ = stmt as lua.AssignmentStatement
-      for (const l of as_.left) walkExpressionIds(l, cb)
-      for (const r of as_.right) walkExpressionIds(r, cb)
+
+      for (const l of as_.left) {
+        walkExpressionIds(l, cb)
+      }
+
+      for (const r of as_.right) {
+        walkExpressionIds(r, cb)
+      }
       break
     }
 
     case lua.SyntaxKind.IfStatement: {
       const is_ = stmt as lua.IfStatement
+
       walkExpressionIds(is_.condition, cb)
       walkBlockIds(is_.ifBlock, cb)
+
       if (is_.elseBlock) {
         if (lua.isIfStatement(is_.elseBlock)) {
           walkStatementIds(is_.elseBlock, cb)
@@ -313,6 +393,7 @@ function walkStatementIds(stmt: lua.Statement, cb: IdentifierCallback): void {
 
     case lua.SyntaxKind.WhileStatement: {
       const ws = stmt as lua.WhileStatement
+
       walkExpressionIds(ws.condition, cb)
       walkBlockIds(ws.body, cb)
       break
@@ -320,6 +401,7 @@ function walkStatementIds(stmt: lua.Statement, cb: IdentifierCallback): void {
 
     case lua.SyntaxKind.RepeatStatement: {
       const rs = stmt as lua.RepeatStatement
+
       walkExpressionIds(rs.condition, cb)
       walkBlockIds(rs.body, cb)
       break
@@ -327,24 +409,38 @@ function walkStatementIds(stmt: lua.Statement, cb: IdentifierCallback): void {
 
     case lua.SyntaxKind.ForStatement: {
       const fs = stmt as lua.ForStatement
+
       cb(fs.controlVariable)
       walkExpressionIds(fs.controlVariableInitializer, cb)
       walkExpressionIds(fs.limitExpression, cb)
-      if (fs.stepExpression) walkExpressionIds(fs.stepExpression, cb)
+
+      if (fs.stepExpression) {
+        walkExpressionIds(fs.stepExpression, cb)
+      }
+
       walkBlockIds(fs.body, cb)
       break
     }
 
     case lua.SyntaxKind.ForInStatement: {
       const fis = stmt as lua.ForInStatement
-      for (const n of fis.names) cb(n)
-      for (const e of fis.expressions) walkExpressionIds(e, cb)
+
+      for (const n of fis.names) {
+        cb(n)
+      }
+
+      for (const e of fis.expressions) {
+        walkExpressionIds(e, cb)
+      }
+
       walkBlockIds(fis.body, cb)
       break
     }
 
     case lua.SyntaxKind.ReturnStatement:
-      for (const e of (stmt as lua.ReturnStatement).expressions) walkExpressionIds(e, cb)
+      for (const e of (stmt as lua.ReturnStatement).expressions) {
+        walkExpressionIds(e, cb)
+      }
       break
 
     case lua.SyntaxKind.ExpressionStatement:
@@ -453,11 +549,19 @@ export function containsIdentifier(node: lua.Node, name: string): boolean {
   }
 
   if (lua.isIfStatement(node)) {
-    if (containsIdentifier(node.condition, name)) return true
-    if (node.ifBlock.statements.some((s) => containsIdentifierInStatement(s, name))) return true
+    if (containsIdentifier(node.condition, name)) {
+      return true
+    }
+
+    if (node.ifBlock.statements.some((s) => containsIdentifierInStatement(s, name))) {
+      return true
+    }
 
     if (node.elseBlock) {
-      if (lua.isIfStatement(node.elseBlock)) return containsIdentifier(node.elseBlock, name)
+      if (lua.isIfStatement(node.elseBlock)) {
+        return containsIdentifier(node.elseBlock, name)
+      }
+
       return node.elseBlock.statements.some((s) => containsIdentifierInStatement(s, name))
     }
 

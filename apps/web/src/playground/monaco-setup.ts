@@ -8,7 +8,10 @@ import { sluaTypes, langExtensions, tsLibs } from "./generated/libs"
 let initialized = false
 
 export const beforeMount: BeforeMount = (monaco) => {
-  if (initialized) return
+  if (initialized) {
+    return
+  }
+
   initialized = true
 
   // Vitesse Light theme

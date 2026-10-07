@@ -26,36 +26,50 @@ export async function scrapeMediaParams(): Promise<TypedListParamSet[]> {
   const $ = load(html)
 
   let table: ReturnType<typeof $> | null = null
+
   $("table").each((_, t) => {
     const text = $(t).text()
+
     if (
       text.includes("PRIM_MEDIA_CURRENT_URL") &&
       text.includes("PRIM_MEDIA_HOME_URL") &&
       text.includes("PRIM_MEDIA_CONTROLS")
     ) {
       table = $(t)
+
       return false
     }
   })
 
-  if (!table) throw new Error("Could not find media params table on wiki page")
+  if (!table) {
+    throw new Error("Could not find media params table on wiki page")
+  }
 
   const params: { name: string; value: number; args: never[]; returns: TypedListArg[] }[] = []
 
   ;(table as ReturnType<typeof $>).find("tr").each((_, row) => {
     const cells = $(row).children("td")
-    if (cells.length < 3) return
+
+    if (cells.length < 3) {
+      return
+    }
 
     // Column 0: [ CONSTANT_NAME ]
     const flagText = cells.eq(0).text().trim()
     const flagMatch = flagText.match(/\[\s*(PRIM_MEDIA_\w+)\s*\]/)
-    if (!flagMatch) return
+
+    if (!flagMatch) {
+      return
+    }
 
     const flag = flagMatch[1]
 
     // Column 1: integer value
     const value = parseInt(cells.eq(1).text().trim(), 10)
-    if (isNaN(value)) return
+
+    if (isNaN(value)) {
+      return
+    }
 
     // Column 3: description
     const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
@@ -64,16 +78,20 @@ export async function scrapeMediaParams(): Promise<TypedListParamSet[]> {
     // Check for manual override first
     if (returnOverrides[flag]) {
       params.push({ name: flag, value, args: [], returns: returnOverrides[flag], ...commentField })
+
       return
     }
 
     // Column 2: [ type name ] description — parse the bracketed return type
     const descText = cells.eq(2).text().trim()
     const returnMatch = descText.match(/\[\s*(\w+\s+\w+)\s*\]/)
+
     if (returnMatch) {
       const parsed = parseInlineParam(returnMatch[1])
+
       if (parsed.length > 0) {
         params.push({ name: flag, value, args: [], returns: parsed, ...commentField })
+
         return
       }
     }

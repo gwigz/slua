@@ -13,7 +13,9 @@ import { fromPayload, writeRecord } from "../runtime-view.js"
 export type Since = { cursor: number } | { ms: number }
 
 export function sinceParams(since: Since | undefined): { since?: number; sinceMs?: number } {
-  if (!since) return {}
+  if (!since) {
+    return {}
+  }
 
   return "cursor" in since ? { since: since.cursor } : { sinceMs: since.ms }
 }
@@ -53,7 +55,9 @@ export async function statusCommand(control: ControlClient, reporter: Reporter):
     reporter.line(`  ${target.name} → ${target.item ?? "?"}  ${state}`)
   }
 
-  if (viewer.logPath) reporter.line(pc.dim(`  logs in ${displayPath(viewer.logPath)}`))
+  if (viewer.logPath) {
+    reporter.line(pc.dim(`  logs in ${displayPath(viewer.logPath)}`))
+  }
 
   return 0
 }
@@ -84,7 +88,9 @@ export async function waitCommand(
     reporter.note(pc.yellow("nothing settled before the timeout"))
   }
 
-  for (const payload of result.logs) writeRecord(reporter, fromPayload(payload))
+  for (const payload of result.logs) {
+    writeRecord(reporter, fromPayload(payload))
+  }
 
   if (result.truncated > 0) {
     reporter.note(
@@ -137,7 +143,9 @@ export async function replayLogs(
   const lines = createInterface({ crlfDelay: Infinity, input: createReadStream(path, "utf8") })
 
   for await (const line of lines) {
-    if (line.trim() === "") continue
+    if (line.trim() === "") {
+      continue
+    }
 
     let entry: Record<string, unknown>
 
@@ -148,9 +156,17 @@ export async function replayLogs(
       continue
     }
 
-    if (entry.kind !== "runtime") continue
-    if (cursor !== undefined && Number(entry.seq ?? 0) <= cursor) continue
-    if (cutoff !== undefined && new Date(String(entry.time)).getTime() < cutoff) continue
+    if (entry.kind !== "runtime") {
+      continue
+    }
+
+    if (cursor !== undefined && Number(entry.seq ?? 0) <= cursor) {
+      continue
+    }
+
+    if (cutoff !== undefined && new Date(String(entry.time)).getTime() < cutoff) {
+      continue
+    }
 
     records.push(entry)
   }
@@ -159,7 +175,9 @@ export async function replayLogs(
     pc.dim(`replaying ${records.length} records from ${displayPath(path)}, no session running`),
   )
 
-  for (const record of records) writeRecord(reporter, fromPayload(record))
+  for (const record of records) {
+    writeRecord(reporter, fromPayload(record))
+  }
 
   return 0
 }

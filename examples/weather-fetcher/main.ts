@@ -53,9 +53,11 @@ function updateHoverText() {
     case RequestState.Pending:
       setFloatText("Fetching weather...", new Vector(1, 1, 0), 0.8)
       break
+
     case RequestState.Error:
       setFloatText("Weather: request failed\nTouch to retry", new Vector(1, 0.3, 0.3), 0.8)
       break
+
     default:
       if (lastWeather) {
         setFloatText(formatWeather(lastWeather), new Vector(0.5, 1.0, 0.5), 1.0)
@@ -92,6 +94,7 @@ function handleResponse(status: number, body: string) {
   if (status !== 200) {
     state = RequestState.Error
     updateHoverText()
+
     return
   }
 
@@ -131,8 +134,10 @@ LLEvents.on("listen", (_channel, _name, _id, message) => {
     case "weather":
       fetchWeather()
       break
+
     case "status": {
       const temp = lastWeather?.temperature ?? "N/A"
+
       ll.Say(chatChannel, `State: ${RequestState[state]}, last temp: ${temp}`)
       break
     }

@@ -251,6 +251,7 @@ export function loadConfig<T extends Record<string, ConfigValue>>(
 
   spawn(() => {
     const [ok, lines] = readNotecardLines(notecard, timeout)
+
     applyFromLines(config, lines, type)
 
     if (ok) {
@@ -317,6 +318,7 @@ export function onConfigChanged<T extends Record<string, ConfigValue>>(
       }
 
       const [ok, lines] = readNotecardLines(notecard, timeout)
+
       applyFromLines(config, lines, type)
 
       if (ok) {

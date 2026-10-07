@@ -14,6 +14,7 @@ export function remove(b: number) { return b }
 function internal() { return keep(1) }
 `
     const result = stripDeadExports(source, new Set(["keep"]))
+
     expect(result).toContain("keep")
     // internal references keep, but keep does NOT reference internal,
     // so internal is unreachable from surviving exports and gets stripped
@@ -29,6 +30,7 @@ export function used() { return helper() }
 export function unused() { return unusedHelper() }
 `
     const result = stripDeadExports(source, new Set(["used"]))
+
     expect(result).toContain("helper")
     expect(result).toContain("used")
     expect(result).not.toContain("unusedHelper")
@@ -42,6 +44,7 @@ export function keep() { return something() }
 export function remove() { return 1 }
 `
     const result = stripDeadExports(source, new Set(["keep"]))
+
     expect(result).toContain("import")
     expect(result).toContain("keep")
     expect(result).not.toContain("function remove")
@@ -56,6 +59,7 @@ export function keep() { return used() }
 export function remove(): DeadType { return dead() as DeadType }
 `
     const result = stripDeadExports(source, new Set(["keep"]))
+
     expect(result).toContain('from "./live"')
     expect(result).not.toContain('from "./gone"')
     expect(result).not.toContain('from "./gone-type"')
@@ -68,6 +72,7 @@ import "./side-effect"
 export function keep() { return 1 }
 `
     const result = stripDeadExports(source, new Set(["keep"]))
+
     expect(result).toContain('import "./side-effect"')
   })
 
@@ -77,6 +82,7 @@ export { alive, dead } from "./target"
 export { aliveToo } from "./other"
 `
     const result = stripDeadExports(source, new Set(["alive", "aliveToo"]))
+
     expect(result).toContain("alive")
     expect(result).toContain("aliveToo")
     expect(result).not.toContain("dead")
@@ -88,6 +94,7 @@ export { a, b } from "./gone"
 export { c } from "./live"
 `
     const result = stripDeadExports(source, new Set(["c"]))
+
     expect(result).not.toContain('"./gone"')
     expect(result).toContain('"./live"')
   })
@@ -99,6 +106,7 @@ export { c } from "./live"
 export { alive, dead, type Alive, type Dead } from "./target"
 `
     const result = stripDeadExports(source, new Set(["alive"]))
+
     expect(result).toContain("alive")
     expect(result).toContain("Alive")
     expect(result).toContain("Dead")
@@ -111,6 +119,7 @@ export type { A, B } from "./types"
 export { keep } from "./live"
 `
     const result = stripDeadExports(source, new Set(["keep"]))
+
     expect(result).toContain("type")
     expect(result).toContain("A")
     expect(result).toContain("B")
@@ -125,9 +134,11 @@ describe("shakeModules", () => {
     })
 
     const mathFile = [...result.survivingExports.keys()].find((f) => f.includes("modules/math"))
+
     expect(mathFile).toBeDefined()
 
     const surviving = result.survivingExports.get(mathFile!)!
+
     expect(surviving.has("add")).toBe(true)
     expect(surviving.has("multiply")).toBe(false)
     expect(surviving.has("subtract")).toBe(false)
@@ -140,9 +151,11 @@ describe("shakeModules", () => {
     })
 
     const mathFile = [...result.survivingExports.keys()].find((f) => f.includes("modules/math"))
+
     expect(mathFile).toBeDefined()
 
     const surviving = result.survivingExports.get(mathFile!)!
+
     expect(surviving.has("multiply")).toBe(true)
     expect(surviving.has("add")).toBe(false)
     expect(surviving.has("subtract")).toBe(false)
@@ -155,9 +168,11 @@ describe("shakeModules", () => {
     })
 
     const mathFile = [...result.survivingExports.keys()].find((f) => f.includes("modules/math"))
+
     expect(mathFile).toBeDefined()
 
     const surviving = result.survivingExports.get(mathFile!)!
+
     expect(surviving.has("add")).toBe(true)
     expect(surviving.has("multiply")).toBe(true)
     expect(surviving.has("subtract")).toBe(true)
@@ -174,9 +189,11 @@ describe("shakeModules exact-match paths", () => {
     const helpersFile = [...result.survivingExports.keys()].find((f) =>
       f.includes("internal/helpers"),
     )
+
     expect(helpersFile).toBeDefined()
 
     const surviving = result.survivingExports.get(helpersFile!)!
+
     expect(surviving.has("double")).toBe(true)
     expect(surviving.has("triple")).toBe(false)
   })

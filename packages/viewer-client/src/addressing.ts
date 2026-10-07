@@ -38,7 +38,9 @@ export function parseObjectSelector(raw: string): ObjectSelector {
     if (raw.startsWith(prefix)) {
       const value = raw.slice(prefix.length)
 
-      if (value === "") throw new Error(`"${raw}" is missing a value after ${prefix}`)
+      if (value === "") {
+        throw new Error(`"${raw}" is missing a value after ${prefix}`)
+      }
 
       return { kind, value }
     }
@@ -55,7 +57,9 @@ export function parseObjectSelector(raw: string): ObjectSelector {
  * resolve to the same prim.
  */
 export function descriptionMatches(description: string, value: string): boolean {
-  if (value === "") return false
+  if (value === "") {
+    return false
+  }
 
   for (
     let index = description.indexOf(value);
@@ -66,7 +70,9 @@ export function descriptionMatches(description: string, value: string): boolean 
     const end = index + value.length
     const after = end === description.length ? " " : description[end]
 
-    if (/\s/.test(before) && /\s/.test(after)) return true
+    if (/\s/.test(before) && /\s/.test(after)) {
+      return true
+    }
   }
 
   return false
@@ -112,7 +118,9 @@ export function parseObjectRef(ref: string): ObjectRef {
  * display and tolerated on input.
  */
 export function displayExtension(item: ObjectInventoryItem): string {
-  if (item.type !== "script") return ""
+  if (item.type !== "script") {
+    return ""
+  }
 
   return item.subtype === 1 || item.vm === "luau" ? ".luau" : ".lsl"
 }
@@ -122,18 +130,27 @@ export function displayName(item: ObjectInventoryItem): string {
 }
 
 function itemMatches(item: ObjectInventoryItem, needle: string): boolean {
-  if (isUuid(needle)) return item.itemId.toLowerCase() === needle.toLowerCase()
+  if (isUuid(needle)) {
+    return item.itemId.toLowerCase() === needle.toLowerCase()
+  }
 
   return item.name === needle || displayName(item) === needle
 }
 
 function linkMatches(link: LinkedObject, needle: string, ambiguous: boolean): boolean {
-  if (isUuid(needle)) return link.linkId.toLowerCase() === needle.toLowerCase()
-  if (needle === String(link.linkNumber)) return true
+  if (isUuid(needle)) {
+    return link.linkId.toLowerCase() === needle.toLowerCase()
+  }
+
+  if (needle === String(link.linkNumber)) {
+    return true
+  }
 
   // Sibling prims often share a name, so the viewer disambiguates them as
   // "Name (linkNumber)". Accept both forms.
-  if (ambiguous) return needle === `${link.linkName} (${link.linkNumber})`
+  if (ambiguous) {
+    return needle === `${link.linkName} (${link.linkNumber})`
+  }
 
   return link.linkName === needle
 }
@@ -279,7 +296,9 @@ export async function withStaleRetry<T>(fn: (attempt: number) => Promise<T>): Pr
     try {
       return await fn(attempt)
     } catch (error) {
-      if (!isStaleInventory(error) || attempt >= LOOKUP_RETRY_MS.length) throw error
+      if (!isStaleInventory(error) || attempt >= LOOKUP_RETRY_MS.length) {
+        throw error
+      }
 
       await new Promise((sleep) => setTimeout(sleep, staleBackoffMs(attempt)))
     }
@@ -327,7 +346,9 @@ function watchPublish(
     }, timeoutMs)
 
     const off = client.on("object.publish", (message: ObjectPublishMessage) => {
-      if (!message?.object || !matches(message.object)) return
+      if (!message?.object || !matches(message.object)) {
+        return
+      }
 
       cancel()
       resolvePublish(message.object)
@@ -380,7 +401,9 @@ export async function listPublished(
   client: ViewerClient,
   options: PublishOptions = {},
 ): Promise<PublishedObject[]> {
-  if (!options.waitMs) return (await client.objectList()).objects ?? []
+  if (!options.waitMs) {
+    return (await client.objectList()).objects ?? []
+  }
 
   const { published, cancel } = waitForAnyPublish(client, options.waitMs)
 
@@ -531,7 +554,9 @@ export async function resolveItem(
       return findItem(object, ref)
     } catch (error) {
       // A closed connection will not have improved by the next look.
-      if (error instanceof ConnectionClosedError || attempt >= LOOKUP_RETRY_MS.length) throw error
+      if (error instanceof ConnectionClosedError || attempt >= LOOKUP_RETRY_MS.length) {
+        throw error
+      }
 
       await new Promise((sleep) => setTimeout(sleep, staleBackoffMs(attempt)))
     }

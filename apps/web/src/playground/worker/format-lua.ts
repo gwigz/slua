@@ -79,8 +79,14 @@ function tryCollapse(lines: string[], openIdx: number): string[] | null {
     const headerLine = `${indent}${prefix}(${allArgs}`
 
     const dedentedBody = lastArg.bodyLines.map((line) => {
-      if (line.length === 0) return line
-      if (line.startsWith(argIndent)) return indent + line.slice(argIndent.length)
+      if (line.length === 0) {
+        return line
+      }
+
+      if (line.startsWith(argIndent)) {
+        return indent + line.slice(argIndent.length)
+      }
+
       return line
     })
 

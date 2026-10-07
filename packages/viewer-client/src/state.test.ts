@@ -7,7 +7,9 @@ import { LOG_FILE, openState, readSession, stateDirectory } from "./state"
 const made: string[] = []
 
 afterEach(async () => {
-  for (const dir of made.splice(0)) await rm(dir, { recursive: true, force: true })
+  for (const dir of made.splice(0)) {
+    await rm(dir, { recursive: true, force: true })
+  }
 })
 
 async function root(): Promise<string> {

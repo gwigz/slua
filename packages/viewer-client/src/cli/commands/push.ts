@@ -59,7 +59,9 @@ function vmFromExtension(file: string): ScriptVM | undefined {
 }
 
 function vmFromItem(item: ObjectInventoryItem): ScriptVM | undefined {
-  if (item.vm) return item.vm
+  if (item.vm) {
+    return item.vm
+  }
 
   return item.subtype === 1 ? "luau" : undefined
 }
@@ -125,7 +127,9 @@ export async function collectTargets(
     // that produced it.
     const file = cli.file ?? fromConfig?.file
 
-    if (!file) throw new Error(`target "${name}" has no file to push`)
+    if (!file) {
+      throw new Error(`target "${name}" has no file to push`)
+    }
 
     const resolvedFile = isAbsolute(file) ? file : resolve(config?.root ?? process.cwd(), file)
 
@@ -176,6 +180,7 @@ export interface PushScope {
 interface Drain {
   /** Scopes the drain to a target the push resolved. */
   add(scope: PushScope): void
+
   /** Waits the window out, printing the result document at the right moment. */
   settle(document: Record<string, unknown>): Promise<void>
 }
@@ -197,8 +202,11 @@ function startDrain(
 
     // Held until the pushes name what they touched, since output can arrive
     // before the save call that caused it has even returned.
-    if (deliver) deliver(record)
-    else buffered.push(record)
+    if (deliver) {
+      deliver(record)
+    } else {
+      buffered.push(record)
+    }
   }
 
   // Subscribed before the first save, never after. The script restarts the
@@ -241,7 +249,9 @@ function startDrain(
     async settle(document) {
       // Nothing resolved, so there is no object whose output this could be.
       if (ids.size === 0) {
-        for (const off of unsubscribe) off()
+        for (const off of unsubscribe) {
+          off()
+        }
 
         reporter.data(document)
 
@@ -256,21 +266,34 @@ function startDrain(
       const logs: Record<string, unknown>[] = []
 
       deliver = (record) => {
-        if (!wanted(record)) return
+        if (!wanted(record)) {
+          return
+        }
 
-        if (collect) logs.push(recordPayload(record))
-        else writeRecord(reporter, record)
+        if (collect) {
+          logs.push(recordPayload(record))
+        } else {
+          writeRecord(reporter, record)
+        }
       }
 
-      if (!collect) reporter.data(document)
+      if (!collect) {
+        reporter.data(document)
+      }
 
-      for (const record of buffered.splice(0)) deliver(record)
+      for (const record of buffered.splice(0)) {
+        deliver(record)
+      }
 
       await window()
 
-      for (const off of unsubscribe) off()
+      for (const off of unsubscribe) {
+        off()
+      }
 
-      if (collect) reporter.data({ ...document, logs })
+      if (collect) {
+        reporter.data({ ...document, logs })
+      }
     },
   }
 }
@@ -298,12 +321,19 @@ export async function pushCommand(
 
       results.push(result.payload)
 
-      if (result.scope) drain?.add(result.scope)
-      if (!result.ok) failed++
+      if (result.scope) {
+        drain?.add(result.scope)
+      }
+
+      if (!result.ok) {
+        failed++
+      }
     } catch (error) {
       // A dead connection will not improve for the next target, and a single
       // target reads better through the CLI's own error advice.
-      if (error instanceof ConnectionClosedError || targets.length === 1) throw error
+      if (error instanceof ConnectionClosedError || targets.length === 1) {
+        throw error
+      }
 
       // Otherwise one unreachable object must not strand the targets behind
       // it, nor rob a --json consumer of its result document.
@@ -319,8 +349,11 @@ export async function pushCommand(
 
   // One drain at the end scoped to every target it touched, rather than one
   // window per target. `push --all` would otherwise wait once per script.
-  if (drain) await drain.settle(document)
-  else reporter.data(document)
+  if (drain) {
+    await drain.settle(document)
+  } else {
+    reporter.data(document)
+  }
 
   return failed === 0 ? 0 : 1
 }

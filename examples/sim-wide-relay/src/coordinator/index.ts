@@ -133,6 +133,7 @@ function pollAgents() {
 function assignListener(avatar: UUID) {
   if (freeListeners.length === 0) {
     ll.Say(DEBUG_CHANNEL, "Pool exhausted, no listener for " + ll.Key2Name(avatar))
+
     return
   }
 
@@ -218,6 +219,7 @@ function ensureBuffer() {
 function cullExcess() {
   while (freeListeners.length > config.POOL_BUFFER_MAX) {
     const listener = freeListeners.pop()!
+
     ll.RegionSayTo(
       listener,
       config.PRIVATE_CHANNEL,
@@ -230,7 +232,11 @@ function cullExcess() {
 
 function assignedCount() {
   let count = 0
-  for (const _ in assignedListeners) count++
+
+  for (const _ in assignedListeners) {
+    count++
+  }
+
   return count
 }
 
@@ -268,6 +274,7 @@ function startPool() {
   for (const key in assignedListeners) {
     assignedListeners[key] = undefined
   }
+
   freeListeners = []
 
   const initialPool = config.POOL_BUFFER
@@ -306,6 +313,7 @@ function startPool() {
 loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   if (!ok) {
     print(`Config load failed: ${error}`)
+
     return
   }
 
@@ -321,6 +329,7 @@ loadConfig(NOTECARD_NAME, { config }, (ok, error) => {
   onConfigChanged(NOTECARD_NAME, { config }, (ok, error) => {
     if (!ok) {
       print(`Config reload failed: ${error}`)
+
       return
     }
 

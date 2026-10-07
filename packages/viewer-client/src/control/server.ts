@@ -51,10 +51,15 @@ export class SessionAlreadyRunningError extends Error {
 export interface ControlHandlers {
   /** The viewer's own handshake, so a client sees the real feature set. */
   handshake(): SessionHandshake | undefined
+
   status(): unknown
+
   logs(params: { since?: number; sinceMs?: number; limit?: number }): unknown
+
   push(params: { targets?: string[] }): Promise<unknown>
+
   wait(params: { since?: number; timeoutMs?: number }): Promise<unknown>
+
   forward(method: string, params: unknown): Promise<unknown>
 }
 
@@ -62,6 +67,7 @@ export interface ControlServer {
   readonly path: string
   /** Passes a viewer notification on to every attached client. */
   broadcast(method: string, params: unknown): void
+
   readonly clients: number
   close(): Promise<void>
 }
@@ -222,23 +228,31 @@ export async function startControlServer(
   try {
     await listen()
   } catch (error) {
-    if (!inUse(error)) throw error
+    if (!inUse(error)) {
+      throw error
+    }
 
     // Only connecting settles whether the socket that refused the bind is
     // live. Unlinking one that still answers would strand the session behind
     // it with its clients attached.
     const refused = await identity(path)
 
-    if (await answering(path)) throw new SessionAlreadyRunningError(path)
+    if (await answering(path)) {
+      throw new SessionAlreadyRunningError(path)
+    }
 
     // Another start may have cleaned the same corpse up while we were asking.
     // Its socket is live, and not ours to remove.
-    if ((await identity(path)) === refused) await unlink(path).catch(() => {})
+    if ((await identity(path)) === refused) {
+      await unlink(path).catch(() => {})
+    }
 
     try {
       await listen()
     } catch (retry) {
-      if (!inUse(retry)) throw retry
+      if (!inUse(retry)) {
+        throw retry
+      }
 
       // Somebody bound it between the unlink and here; the project is theirs.
       throw new SessionAlreadyRunningError(path)
@@ -247,7 +261,9 @@ export async function startControlServer(
 
   // Only this user, which is what actually keeps the socket private. Named
   // pipes on Windows are not files, so there is nothing to chmod there.
-  if (process.platform !== "win32") await chmod(path, 0o600).catch(() => {})
+  if (process.platform !== "win32") {
+    await chmod(path, 0o600).catch(() => {})
+  }
 
   const bound = await identity(path)
 
@@ -269,7 +285,9 @@ export async function startControlServer(
     },
 
     async close() {
-      for (const peer of peers) peer.close()
+      for (const peer of peers) {
+        peer.close()
+      }
 
       peers.clear()
 
@@ -277,7 +295,9 @@ export async function startControlServer(
 
       // Only while the path is still the socket this session bound. A session
       // that took the project over in the meantime owns what is there now.
-      if ((await identity(path)) === bound) await unlink(path).catch(() => {})
+      if ((await identity(path)) === bound) {
+        await unlink(path).catch(() => {})
+      }
     },
   }
 }

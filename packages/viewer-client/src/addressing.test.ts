@@ -512,7 +512,9 @@ describe("withStaleRetry", () => {
     let calls = 0
 
     const result = await withStaleRetry(async () => {
-      if (++calls < 3) throw stale()
+      if (++calls < 3) {
+        throw stale()
+      }
 
       return "saved"
     })
@@ -554,7 +556,9 @@ describe("withStaleRetry", () => {
 
     const delays = await backoffDelays(0.5, () =>
       withStaleRetry(async () => {
-        if (++calls < 2) throw stale()
+        if (++calls < 2) {
+          throw stale()
+        }
 
         return "saved"
       }),

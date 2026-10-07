@@ -95,7 +95,9 @@ export function JsonPlayground() {
     setPrettyPrint(newVal)
     localStorage.setItem("slua.json-playground-pretty", String(newVal))
 
-    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
 
     encodeNow(
       input,
@@ -110,7 +112,9 @@ export function JsonPlayground() {
     setTight(newVal)
     localStorage.setItem("slua.json-playground-tight", String(newVal))
 
-    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
 
     encodeNow(
       input,
@@ -125,7 +129,9 @@ export function JsonPlayground() {
     setDetectVectors(newVal)
     localStorage.setItem("slua.json-playground-detect-vectors", String(newVal))
 
-    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
 
     encodeNow(
       input,
@@ -140,7 +146,9 @@ export function JsonPlayground() {
     setDetectQuaternions(newVal)
     localStorage.setItem("slua.json-playground-detect-quats", String(newVal))
 
-    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
 
     encodeNow(
       input,
@@ -155,7 +163,9 @@ export function JsonPlayground() {
     setDetectUuids(newVal)
     localStorage.setItem("slua.json-playground-detect-uuids", String(newVal))
 
-    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
 
     encodeNow(
       input,

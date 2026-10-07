@@ -14,7 +14,9 @@ export class FakeTransport implements Transport {
   }
 
   close(): void {
-    if (this.closed) return
+    if (this.closed) {
+      return
+    }
 
     this.closed = true
     this.onclose?.()
@@ -45,7 +47,9 @@ export async function waitFor(predicate: () => boolean, timeoutMs = 1_000): Prom
   const deadline = Date.now() + timeoutMs
 
   while (!predicate()) {
-    if (Date.now() > deadline) throw new Error("timed out waiting for condition")
+    if (Date.now() > deadline) {
+      throw new Error("timed out waiting for condition")
+    }
 
     await new Promise((resolve) => setTimeout(resolve, 1))
   }

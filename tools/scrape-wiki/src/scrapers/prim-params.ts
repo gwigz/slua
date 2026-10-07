@@ -21,26 +21,40 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
 
     if (headers[0] === "Flag" && headers[1] === "V" && headers[3] === "Usage") {
       paramsTable = $(table)
+
       return false
     }
   })
 
-  if (!paramsTable) throw new Error("Could not find setter params table on LlSetPrimitiveParams")
+  if (!paramsTable) {
+    throw new Error("Could not find setter params table on LlSetPrimitiveParams")
+  }
 
   const params: TypedListRule[] = []
 
   ;(paramsTable as ReturnType<typeof $>).find(":scope > tbody > tr, :scope > tr").each((_, row) => {
     const cells = $(row).children("td")
-    if (cells.length < 4) return
+
+    if (cells.length < 4) {
+      return
+    }
 
     const flag = cells.eq(0).text().trim()
     const value = parseInt(cells.eq(1).text().trim(), 10)
     const comment = cleanDescription(cells.eq(2).text())
     const usage = cells.eq(3).text().trim()
 
-    if (!flag.startsWith("PRIM_") || isNaN(value)) return
-    if (usage.includes("flag_parameters")) return
-    if (flag.includes("LEGACY")) return
+    if (!flag.startsWith("PRIM_") || isNaN(value)) {
+      return
+    }
+
+    if (usage.includes("flag_parameters")) {
+      return
+    }
+
+    if (flag.includes("LEGACY")) {
+      return
+    }
 
     params.push({
       name: flag,
@@ -55,10 +69,16 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
 
   $("table").each((_, table) => {
     const rows = $(table).find("tr")
-    if (rows.length < 5 || rows.length > 30) return
+
+    if (rows.length < 5 || rows.length > 30) {
+      return
+    }
+
     const text = $(table).text()
+
     if (text.includes("PRIM_TYPE_BOX") && text.includes("PRIM_TYPE_SCULPT")) {
       typeShapeTable = $(table)
+
       return false
     }
   })
@@ -68,18 +88,27 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
   if (typeShapeTable) {
     ;(typeShapeTable as ReturnType<typeof $>).find("tr").each((_, row) => {
       const cells = $(row).children("td")
-      if (cells.length < 3) return
+
+      if (cells.length < 3) {
+        return
+      }
 
       const flag = cells.eq(0).text().trim()
       const value = parseInt(cells.eq(1).text().trim(), 10)
       let usage = cells.eq(2).text().trim()
 
-      if (!flag.startsWith("PRIM_TYPE_") || isNaN(value)) return
+      if (!flag.startsWith("PRIM_TYPE_") || isNaN(value)) {
+        return
+      }
 
       const bracketEnd = usage.lastIndexOf("]")
-      if (bracketEnd !== -1) usage = usage.slice(0, bracketEnd + 1)
+
+      if (bracketEnd !== -1) {
+        usage = usage.slice(0, bracketEnd + 1)
+      }
 
       const innerContent = usage.replace(/^\[?\s*/, "").replace(/\s*\]?\s*$/, "")
+
       typeShapes.push({ name: flag, value, args: parseRawParams(innerContent) })
     })
   }
@@ -99,8 +128,10 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
       .find("th, td")
       .map((_i, el) => $g(el).text().trim())
       .get()
+
     if (headers[0] === "Parameter" && headers.some((h) => h.includes("Return"))) {
       getterTable = $g(table)
+
       return false
     }
   })
@@ -112,7 +143,10 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
       .find(":scope > tbody > tr, :scope > tr")
       .each((_, row) => {
         const cells = $g(row).children("td")
-        if (cells.length < 3) return
+
+        if (cells.length < 3) {
+          return
+        }
 
         const paramCell = cells.eq(0).text().trim()
         const valueCell = cells.eq(1).text().trim()
@@ -120,11 +154,21 @@ export async function scrapePrimParams(): Promise<TypedListParamSet[]> {
         const comment = cells.length > 3 ? cleanDescription(cells.eq(3).text()) : ""
 
         const constMatch = paramCell.match(/\[\s*(PRIM_\w+)/)
-        if (!constMatch) return
+
+        if (!constMatch) {
+          return
+        }
+
         const flag = constMatch[1]
         const value = parseInt(valueCell, 10)
-        if (isNaN(value)) return
-        if (flag.includes("LEGACY")) return
+
+        if (isNaN(value)) {
+          return
+        }
+
+        if (flag.includes("LEGACY")) {
+          return
+        }
 
         const args = parseUsageString(paramCell)
 

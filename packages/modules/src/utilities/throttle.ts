@@ -29,6 +29,7 @@ export function throttle<A extends any[]>(
   function onExpiry() {
     if (trailing) {
       const args = trailing
+
       trailing = undefined
 
       fn(...args)
@@ -41,6 +42,7 @@ export function throttle<A extends any[]>(
   function wrapped(this: void, ...args: A) {
     if (timer) {
       trailing = args
+
       return
     }
 

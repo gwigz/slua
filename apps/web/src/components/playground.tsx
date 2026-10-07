@@ -112,6 +112,7 @@ const OPTIMIZE_KEY = "slua.playground-optimize"
 function loadOptimize(): OptimizeFlags {
   try {
     const saved = localStorage.getItem(OPTIMIZE_KEY)
+
     return saved ? { ...DEFAULT_OPTIMIZE, ...JSON.parse(saved) } : { ...DEFAULT_OPTIMIZE }
   } catch {
     return { ...DEFAULT_OPTIMIZE }
@@ -291,6 +292,7 @@ export default function Playground() {
 
     if (!didMountRef.current) {
       didMountRef.current = true
+
       return
     }
 

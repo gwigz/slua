@@ -34,6 +34,7 @@ function checkCompiles(code: string): { success: boolean; output: string } {
   })
 
   const output = result.stdout.toString() + result.stderr.toString()
+
   rmSync(dir, { recursive: true, force: true })
 
   return { success: result.exitCode === 0, output }
@@ -44,12 +45,17 @@ describe("ParsePrimParams type validation", () => {
     const { success, output } = checkCompiles(
       `ll.SetLinkPrimitiveParamsFast(0, [PRIM_NAME, "hello"]);`,
     )
-    if (!success) console.log(output)
+
+    if (!success) {
+      console.log(output)
+    }
+
     expect(success).toBe(true)
   })
 
   test("INVALID: PRIM_NAME with number arg (should fail)", () => {
     const { success } = checkCompiles(`ll.SetLinkPrimitiveParamsFast(0, [PRIM_NAME, 42]);`)
+
     expect(success).toBe(false)
   })
 
@@ -57,7 +63,11 @@ describe("ParsePrimParams type validation", () => {
     const { success, output } = checkCompiles(
       `ll.SetLinkPrimitiveParamsFast(0, [PRIM_NAME, "test", PRIM_PHYSICS, true]);`,
     )
-    if (!success) console.log(output)
+
+    if (!success) {
+      console.log(output)
+    }
+
     expect(success).toBe(true)
   })
 
@@ -65,7 +75,11 @@ describe("ParsePrimParams type validation", () => {
     const { success, output } = checkCompiles(
       `ll.SetLinkPrimitiveParamsFast(0, [PRIM_TEXTURE, 0, "texture-uuid", new Vector(1, 1, 0), new Vector(0, 0, 0), 0.0]);`,
     )
-    if (!success) console.log(output)
+
+    if (!success) {
+      console.log(output)
+    }
+
     expect(success).toBe(true)
   })
 
@@ -73,12 +87,17 @@ describe("ParsePrimParams type validation", () => {
     const { success } = checkCompiles(
       `ll.SetLinkPrimitiveParamsFast(0, [PRIM_TEXTURE, 0, "texture-uuid"]);`,
     )
+
     expect(success).toBe(false)
   })
 
   test("VALID: empty params []", () => {
     const { success, output } = checkCompiles(`ll.SetLinkPrimitiveParamsFast(0, []);`)
-    if (!success) console.log(output)
+
+    if (!success) {
+      console.log(output)
+    }
+
     expect(success).toBe(true)
   })
 
@@ -86,12 +105,17 @@ describe("ParsePrimParams type validation", () => {
     const { success, output } = checkCompiles(
       `ll.SetLinkPrimitiveParamsFast(0, [PRIM_NAME, "hello"] as const);`,
     )
-    if (!success) console.log(output)
+
+    if (!success) {
+      console.log(output)
+    }
+
     expect(success).toBe(true)
   })
 
   test("INVALID: PRIM_NAME with number using as const (should fail)", () => {
     const { success } = checkCompiles(`ll.SetLinkPrimitiveParamsFast(0, [PRIM_NAME, 42] as const);`)
+
     expect(success).toBe(false)
   })
 })

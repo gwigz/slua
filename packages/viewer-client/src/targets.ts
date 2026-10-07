@@ -58,19 +58,25 @@ export function leadingComment(source: string): string {
     if (blockEnd !== undefined) {
       lines.push(trimmed)
 
-      if (trimmed.includes(blockEnd)) blockEnd = undefined
+      if (trimmed.includes(blockEnd)) {
+        blockEnd = undefined
+      }
 
       continue
     }
 
-    if (trimmed === "") continue
+    if (trimmed === "") {
+      continue
+    }
 
     const opener = trimmed.startsWith("/*") ? "*/" : trimmed.startsWith("--[[") ? "]]" : undefined
 
     if (opener !== undefined) {
       lines.push(trimmed)
 
-      if (!trimmed.includes(opener)) blockEnd = opener
+      if (!trimmed.includes(opener)) {
+        blockEnd = opener
+      }
 
       continue
     }
@@ -80,7 +86,6 @@ export function leadingComment(source: string): string {
 
       continue
     }
-
     break
   }
 
@@ -124,37 +129,33 @@ export function parseHeaderTags(
         tags.object = ref.object
         tags.link = ref.link
         tags.item = ref.item
-
         break
       }
 
       case "object":
         tags.object = parseObjectSelector(value)
-
         break
 
       case "item":
         tags.item = value
-
         break
 
       case "link":
         tags.link = value
-
         break
 
       case "vm":
         tags.vm = parseVm(value, where)
-
         break
 
       case "save-back":
         tags.saveBack = value === "" || value === "true"
-
         break
 
       default:
-        if (options.lenient) break
+        if (options.lenient) {
+          break
+        }
 
         throw new Error(`${where}: unknown tag @slua-${tag}`)
     }
@@ -193,7 +194,9 @@ export async function readHeaderTagsFor(file: string): Promise<PartialTarget | u
   for (const source of map?.sources ?? []) {
     const tags = await tagsIn(source, { lenient: true })
 
-    if (tags) found.push(tags)
+    if (tags) {
+      found.push(tags)
+    }
   }
 
   // TSTL emits dependencies before the entry, so when several files carry
@@ -212,11 +215,21 @@ interface RawTarget {
 }
 
 function parseSelector(raw: NonNullable<RawTarget["object"]>, where: string): ObjectSelector {
-  if (typeof raw === "string") return parseObjectSelector(raw)
+  if (typeof raw === "string") {
+    return parseObjectSelector(raw)
+  }
 
-  if (raw.id) return { kind: "id", value: raw.id }
-  if (raw.name) return { kind: "name", value: raw.name }
-  if (raw.description) return { kind: "description", value: raw.description }
+  if (raw.id) {
+    return { kind: "id", value: raw.id }
+  }
+
+  if (raw.name) {
+    return { kind: "name", value: raw.name }
+  }
+
+  if (raw.description) {
+    return { kind: "description", value: raw.description }
+  }
 
   throw new Error(`${where}: object needs one of id, name or description`)
 }
@@ -271,12 +284,16 @@ export async function loadConfig(from: string = process.cwd()): Promise<Config |
     } catch (error) {
       // A malformed config is worth reporting; a missing one just means we
       // keep looking further up.
-      if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") throw error
+      if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") {
+        throw error
+      }
     }
 
     const parent = dirname(dir)
 
-    if (parent === dir) return undefined
+    if (parent === dir) {
+      return undefined
+    }
 
     dir = parent
   }
@@ -288,7 +305,9 @@ function merge(...layers: (PartialTarget | undefined)[]): PartialTarget {
   // Later layers win, so callers pass them in increasing precedence.
   for (const layer of layers) {
     for (const [key, value] of Object.entries(layer ?? {})) {
-      if (value !== undefined) (result as Record<string, unknown>)[key] = value
+      if (value !== undefined) {
+        ;(result as Record<string, unknown>)[key] = value
+      }
     }
   }
 
@@ -314,10 +333,17 @@ export interface ResolveOptions {
 export function resolveTarget({ name, cli, config, header, configRoot }: ResolveOptions): Target {
   const merged = merge(header, config, cli)
 
-  if (!merged.file) throw new Error(`target "${name}" has no file to push`)
-  if (!merged.object)
+  if (!merged.file) {
+    throw new Error(`target "${name}" has no file to push`)
+  }
+
+  if (!merged.object) {
     throw new Error(`target "${name}" has no object; set @slua-target or --object`)
-  if (!merged.item) throw new Error(`target "${name}" has no item; set @slua-target or --item`)
+  }
+
+  if (!merged.item) {
+    throw new Error(`target "${name}" has no item; set @slua-target or --item`)
+  }
 
   const base = configRoot ?? process.cwd()
 

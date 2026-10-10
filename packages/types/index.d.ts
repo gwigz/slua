@@ -357,6 +357,9 @@ declare type LLJsonDecodeOptionsWithPath = {
 /** Configuration options for lljson decoding */
 declare type LLJsonDecodeOptions = LLJsonDecodeOptionsWithoutPath | LLJsonDecodeOptionsWithPath
 
+/** Keyframed motion parameter table. Pass to llprim.keyframedMotion() to animate. */
+declare type KeyframedMotionParams = Record<string, any>
+
 /** Particle system parameter table. Pass to llprim.setParticleSystem() to emit particles. */
 declare type ParticleParams = Record<string, any>
 
@@ -400,7 +403,7 @@ declare interface LLTimers {
  * Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast
  * @noSelf
  */
-declare interface PrimParamsSetterType {
+declare interface PrimParamSetterType {
   /** Call ll.SetLinkPrimitiveParamsFast with my instance list */
   apply(link?: number): void
 }
@@ -1022,7 +1025,7 @@ declare namespace llprim {
   export function setMedia(face: number, params?: MediaParams, link?: number): number
 
   /** Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast */
-  export const ParamsSetter: PrimParamsSetterTypeMeta
+  export const ParamSetter: PrimParamSetterTypeMeta
 }
 
 /** Mathematical functions library. */
@@ -1356,8 +1359,11 @@ declare namespace table {
   /** Copies elements [i..j] from src array into dest array starting at [d], overwriting existing elements. */
   export function move<V>(src: V[], i: number, j: number, d: number, dest?: V[]): V[]
 
+  /** Creates a new unfilled table with pre-allocated array capacity. */
+  export function create(n: number): any[]
+
   /** Creates a new table with pre-allocated array capacity, optionally filled. Preallocation only benefits array portions and is counter-productive for dictionaries. */
-  export function create<V>(n: number, v?: V): V[]
+  export function create<V>(n: number, v: V): V[]
 
   /** Finds the first occurrence of a value in the array and returns its index. Traversal stops at the first nil. */
   export function find<V>(t: V[], v: V, i?: number): number | undefined
@@ -1963,6 +1969,15 @@ declare namespace ll {
 
   /** Returns a float representing the time in seconds since midnight GMT (truncated to whole seconds). */
   export function GetGMTclock(): number
+
+  /** Returns a GAME_CONTROL_MODE_* integer indicating the current game-control mode for the avatar specified by id. */
+  export function GetGameControlMode(id: UUID): number
+
+  /** Returns a list of floats representing the modal axes for the current game-control mode of the avatar specified by id. Element count and index meanings vary by mode; use the GAME_CONTROL_AXIS_* constants as indices. */
+  export function GetGameControlModeAxes(id: UUID): number[]
+
+  /** Returns a bitmask of the modal buttons currently active for the current game-control mode of the avatar specified by id. Bit meanings vary by mode; use the GAME_CONTROL_BUTTON_* constants as masks. */
+  export function GetGameControlModeButtons(id: UUID): number
 
   /** Returns a vector representing the geometric center of the object relative to its root prim. */
   export function GetGeometricCenter(): Vector
@@ -4345,59 +4360,258 @@ declare const FORCE_DIRECT_PATH: 1
 /** Used with llSetPhysicsMaterial to enable the friction override. The value must be between 0.0 and 255.0. */
 declare const FRICTION: 2
 
+/** Forward/backward movement. Modal axis index 1 for AVATAR, MOUSELOOK, and CAPTIVE modes. */
+declare const GAME_CONTROL_AXIS_ADVANCE: 1
+
+/** Camera up/down movement. Modal axis index 4 for FLYCAM mode. */
+declare const GAME_CONTROL_AXIS_BOOM: 4
+
+/** Camera forward/backward movement. Modal axis index 1 for FLYCAM mode. */
+declare const GAME_CONTROL_AXIS_DOLLY: 1
+
+/** Left stick X axis. Canonical axis index 0. */
 declare const GAME_CONTROL_AXIS_LEFTX: 0
 
+/** Left stick Y axis. Canonical axis index 1. */
 declare const GAME_CONTROL_AXIS_LEFTY: 1
 
+/** Left trigger. Canonical axis index 4. */
+declare const GAME_CONTROL_AXIS_LEFT_TRIGGER: 4
+
+/** Looking up/down. Modal axis index 3 for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_AXIS_LOOK: 3
+
+/** Camera pan left/right. Modal axis index 2 for FLYCAM mode. */
+declare const GAME_CONTROL_AXIS_PAN: 2
+
+/** Right stick X axis. Canonical axis index 2. */
 declare const GAME_CONTROL_AXIS_RIGHTX: 2
 
+/** Right stick Y axis. Canonical axis index 3. */
 declare const GAME_CONTROL_AXIS_RIGHTY: 3
 
+/** Right trigger. Canonical axis index 5. */
+declare const GAME_CONTROL_AXIS_RIGHT_TRIGGER: 5
+
+/** Up/down movement. Modal axis index 4 for AVATAR, MOUSELOOK, and CAPTIVE modes. */
+declare const GAME_CONTROL_AXIS_RISE: 4
+
+/** Camera roll. Modal axis index 5 for FLYCAM mode. */
+declare const GAME_CONTROL_AXIS_ROLL: 5
+
+/** Left/right movement. Modal axis index 0 for AVATAR, MOUSELOOK, and CAPTIVE modes. */
+declare const GAME_CONTROL_AXIS_STRAFE: 0
+
+/** Camera tilt up/down. Modal axis index 3 for FLYCAM mode. */
+declare const GAME_CONTROL_AXIS_TILT: 3
+
+/**
+ * Left trigger. Canonical axis index 4 (deprecated, use GAME_CONTROL_AXIS_LEFT_TRIGGER).
+ * @deprecated Use 'GAME_CONTROL_AXIS_LEFT_TRIGGER' instead.
+ */
 declare const GAME_CONTROL_AXIS_TRIGGERLEFT: 4
 
+/**
+ * Right trigger. Canonical axis index 5 (deprecated, use GAME_CONTROL_AXIS_RIGHT_TRIGGER).
+ * @deprecated Use 'GAME_CONTROL_AXIS_RIGHT_TRIGGER' instead.
+ */
 declare const GAME_CONTROL_AXIS_TRIGGERRIGHT: 5
 
+/** Camera lateral (left/right) movement. Modal axis index 0 for FLYCAM mode. */
+declare const GAME_CONTROL_AXIS_TRUCK: 0
+
+/** Turning left/right. Modal axis index 2 for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_AXIS_TURN: 2
+
+/** Camera zoom in/out. Modal axis index 6 for AVATAR, MOUSELOOK, CAPTIVE, and FLYCAM modes. */
+declare const GAME_CONTROL_AXIS_ZOOM: 6
+
+/**
+ * Bottom face button (deprecated, use GAME_CONTROL_BUTTON_SOUTH).
+ * @deprecated Use 'GAME_CONTROL_BUTTON_SOUTH' instead.
+ */
 declare const GAME_CONTROL_BUTTON_A: 1
 
+/** Move backward. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_ADVANCE_BACK: 4096
+
+/** Move forward. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_ADVANCE_FORWARD: 2048
+
+/**
+ * Right face button (deprecated, use GAME_CONTROL_BUTTON_EAST).
+ * @deprecated Use 'GAME_CONTROL_BUTTON_EAST' instead.
+ */
 declare const GAME_CONTROL_BUTTON_B: 2
 
+/**
+ * Select/back button (deprecated, use GAME_CONTROL_BUTTON_SELECT).
+ * @deprecated Use 'GAME_CONTROL_BUTTON_SELECT' instead.
+ */
 declare const GAME_CONTROL_BUTTON_BACK: 16
 
+/** Crouch. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_CROUCH: 2
+
+/** Left mouse button click. Modal button for MOUSELOOK and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_CURSOR_BUTTON_LEFT: 512
+
+/** Right mouse button click. Modal button for MOUSELOOK and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_CURSOR_BUTTON_RIGHT: 1024
+
+/** Camera dolly backward. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_DOLLY_BACK: 4096
+
+/** Camera dolly forward. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_DOLLY_FORWARD: 2048
+
+/** D-pad down. */
 declare const GAME_CONTROL_BUTTON_DPAD_DOWN: 4096
 
+/** D-pad left. */
 declare const GAME_CONTROL_BUTTON_DPAD_LEFT: 8192
 
+/** D-pad right. */
 declare const GAME_CONTROL_BUTTON_DPAD_RIGHT: 16384
 
+/** D-pad up. */
 declare const GAME_CONTROL_BUTTON_DPAD_UP: 2048
 
+/** Right face button. */
+declare const GAME_CONTROL_BUTTON_EAST: 2
+
+/**
+ * Home/guide button (deprecated, use GAME_CONTROL_BUTTON_HOME).
+ * @deprecated Use 'GAME_CONTROL_BUTTON_HOME' instead.
+ */
 declare const GAME_CONTROL_BUTTON_GUIDE: 32
 
+/** Home/guide button. */
+declare const GAME_CONTROL_BUTTON_HOME: 32
+
+/** Jump. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_JUMP: 1
+
+/** Left shoulder/bumper button. */
 declare const GAME_CONTROL_BUTTON_LEFTSHOULDER: 512
 
+/** Left analog stick click. */
 declare const GAME_CONTROL_BUTTON_LEFTSTICK: 128
 
+/** Miscellaneous button 1. */
 declare const GAME_CONTROL_BUTTON_MISC1: 32768
 
+/** Top face button. */
+declare const GAME_CONTROL_BUTTON_NORTH: 8
+
+/** Paddle button 1. */
 declare const GAME_CONTROL_BUTTON_PADDLE1: 65536
 
+/** Paddle button 2. */
 declare const GAME_CONTROL_BUTTON_PADDLE2: 131072
 
+/** Paddle button 3. */
 declare const GAME_CONTROL_BUTTON_PADDLE3: 262144
 
+/** Paddle button 4. */
 declare const GAME_CONTROL_BUTTON_PADDLE4: 524288
 
+/** Camera pan left. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_PAN_LEFT: 4
+
+/** Camera pan right. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_PAN_RIGHT: 2
+
+/** Reset camera to default view. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_RESET: 128
+
+/** Right shoulder/bumper button. */
 declare const GAME_CONTROL_BUTTON_RIGHTSHOULDER: 1024
 
+/** Right analog stick click. */
 declare const GAME_CONTROL_BUTTON_RIGHTSTICK: 256
 
+/** Roll camera counter-clockwise. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_ROLL_CCW: 512
+
+/** Roll camera clockwise. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_ROLL_CW: 1024
+
+/** Select/back button. */
+declare const GAME_CONTROL_BUTTON_SELECT: 16
+
+/** Toggle sitting. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_SIT: 4
+
+/** Bottom face button. */
+declare const GAME_CONTROL_BUTTON_SOUTH: 1
+
+/** Start/menu button. */
 declare const GAME_CONTROL_BUTTON_START: 64
 
+/** Strafe left. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_STRAFE_LEFT: 8192
+
+/** Strafe right. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_STRAFE_RIGHT: 16384
+
+/** Toggle alt-zoom. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_TOGGLE_ALT_ZOOM: 16
+
+/** Toggle cursor mode. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_TOGGLE_CURSOR: 16
+
+/** Toggle flycam mode. Modal button for all modes. */
+declare const GAME_CONTROL_BUTTON_TOGGLE_FLYCAM: 256
+
+/** Toggle camera follow mode. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_TOGGLE_FOLLOW: 64
+
+/** Toggle mouselook mode. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_TOGGLE_MOUSELOOK: 64
+
+/** Toggle voice speak. Modal button for AVATAR, MOUSELOOK, CAPTIVE, and CURSOR modes. */
+declare const GAME_CONTROL_BUTTON_TOGGLE_SPEAK: 32
+
+/** Touchpad click. */
 declare const GAME_CONTROL_BUTTON_TOUCHPAD: 1048576
 
+/** Camera truck left. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_TRUCK_LEFT: 8192
+
+/** Camera truck right. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_TRUCK_RIGHT: 16384
+
+/** Left face button. */
+declare const GAME_CONTROL_BUTTON_WEST: 4
+
+/**
+ * Left face button (deprecated, use GAME_CONTROL_BUTTON_WEST).
+ * @deprecated Use 'GAME_CONTROL_BUTTON_WEST' instead.
+ */
 declare const GAME_CONTROL_BUTTON_X: 4
 
+/**
+ * Top face button (deprecated, use GAME_CONTROL_BUTTON_NORTH).
+ * @deprecated Use 'GAME_CONTROL_BUTTON_NORTH' instead.
+ */
 declare const GAME_CONTROL_BUTTON_Y: 8
+
+/** Zoom camera in. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_ZOOM_IN: 8
+
+/** Zoom camera out. Modal button for FLYCAM mode. */
+declare const GAME_CONTROL_BUTTON_ZOOM_OUT: 1
+
+declare const GAME_CONTROL_MODE_AVATAR: 0
+
+declare const GAME_CONTROL_MODE_CAPTIVE: 3
+
+declare const GAME_CONTROL_MODE_CURSOR: 4
+
+declare const GAME_CONTROL_MODE_FLYCAM: 2
+
+declare const GAME_CONTROL_MODE_MOUSELOOK: 1
 
 declare const GCNP_GET_WALKABILITY: 2
 
@@ -5250,6 +5464,8 @@ declare const PERMISSION_RETURN_OBJECTS: 65536
 
 /** Runtime permission that grants the script privileged access to land parcel functions, which is required to use llSetParcelForSale. */
 declare const PERMISSION_PRIVILEGED_LAND_ACCESS: 524288
+
+declare const PERMISSION_GAME_CONTROL: 1048576
 
 /** Permissions mask representing a combination of move, modify, copy, and transfer permissions. */
 declare const PERM_ALL: 2147483647

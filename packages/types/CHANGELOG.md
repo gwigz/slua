@@ -1,5 +1,11 @@
 # @gwigz/slua-types
 
+## 1.5.3
+
+### Patch Changes
+
+- [#157](https://github.com/gwigz/slua/pull/157) [`60d3cf0`](https://github.com/gwigz/slua/commit/60d3cf022d5c9a07463d030162dff673425ce571) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update SLua definitions submodule to latest upstream
+
 ## 1.5.2
 
 ### Patch Changes

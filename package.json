@@ -32,11 +32,11 @@
     "@changesets/changelog-github": "^1.0.1",
     "@changesets/cli": "^3.0.3",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "@types/bun": "^1.4.2",
+    "@types/bun": "^1.4.3",
     "husky": "^9.1.7",
     "oxfmt": "^0.71.0",
-    "oxlint": "^1.85.0",
-    "rollup": "^4.63.5",
+    "oxlint": "^1.88.0",
+    "rollup": "^4.64.7",
     "typescript": "6.0.3"
   },
   "patchedDependencies": {

@@ -237,58 +237,23 @@ declare interface LLEventMap {
 /** 'rotation' is an alias for 'quaternion' */
 declare type rotation = Quaternion
 
-declare type list = (string | number | Vector | UUID | Quaternion | boolean)[]
+/** LSL list functions return these types. */
+declare type LSLTypes = string | number | Vector | UUID | Quaternion
 
-declare type LLDetectedEventName =
-  | "touch_start"
-  | "touch"
-  | "touch_end"
-  | "collision_start"
-  | "collision"
-  | "collision_end"
-  | "sensor"
-  | "on_damage"
-  | "final_damage"
+/** LSL list functions can read these types as input. */
+declare type LSLReadableTypes = LSLTypes | boolean
 
-declare type LLNonDetectedEventName =
-  | "land_collision_start"
-  | "land_collision"
-  | "land_collision_end"
-  | "timer"
-  | "listen"
-  | "on_rez"
-  | "no_sensor"
-  | "control"
-  | "money"
-  | "email"
-  | "at_target"
-  | "not_at_target"
-  | "at_rot_target"
-  | "not_at_rot_target"
-  | "run_time_permissions"
-  | "changed"
-  | "attach"
-  | "dataserver"
-  | "link_message"
-  | "moving_start"
-  | "moving_end"
-  | "object_rez"
-  | "remote_data"
-  | "http_response"
-  | "http_request"
-  | "experience_permissions"
-  | "transaction_result"
-  | "path_update"
-  | "experience_permissions_denied"
-  | "linkset_data"
-  | "game_control"
-  | "on_death"
+declare type list = LSLReadableTypes[]
+
+declare type LLMultiEventName = any[]
+
+declare type LLSingleEventName = any[]
 
 declare type LLEventName = keyof LLEventMap
 
 declare type LLEventHandler = (this: void, ...args: any[]) => void
 
-declare type LLDetectedEventHandler = (this: void, detected: DetectedEvent[]) => void
+declare type LLMultiEventHandler = (this: void, events: DetectedEvent[]) => void
 
 /** Callback type for LLTimers.every() - receives scheduled time and interval */
 declare type LLTimerEveryCallback = (this: void, scheduled: number, interval: number) => void
@@ -357,6 +322,15 @@ declare type LLJsonDecodeOptionsWithPath = {
 /** Configuration options for lljson decoding */
 declare type LLJsonDecodeOptions = LLJsonDecodeOptionsWithoutPath | LLJsonDecodeOptionsWithPath
 
+/** Camera parameter table. Pass to ll.SetCameraParams(). */
+declare type CameraParams = Record<string, any>
+
+/** Give inventory parameter table. Pass to ll.GiveAgentInventory(). */
+declare type GiveAgentInventoryParams = Record<string, any>
+
+/** HTTP request parameter table. Pass to ll.HTTPRequest() to configure an HTTP request. */
+declare type HttpRequestParams = Record<string, any>
+
 /** Keyframed motion parameter table. Pass to llprim.keyframedMotion() to animate. */
 declare type KeyframedMotionParams = Record<string, any>
 
@@ -364,10 +338,7 @@ declare type KeyframedMotionParams = Record<string, any>
 declare type ParticleParams = Record<string, any>
 
 /** Prim face media parameter table. Pass to llprim.setMedia() to configure media on a face. */
-declare type MediaParams = Record<string, any>
-
-/** HTTP request parameter table. Pass to ll.HTTPRequest() to configure an HTTP request. */
-declare type HttpRequestParams = Record<string, any>
+declare type PrimMediaParams = Record<string, any>
 
 /** Event registration and management class for Second Life events. Supports adding multiple handlers per event and dynamic registration. */
 declare interface LLEvents {
@@ -1022,7 +993,7 @@ declare namespace llprim {
   export function setParticleSystem(params?: ParticleParams, link?: number): void
 
   /** Configure media on a specific face. Omit link to apply to the current prim. */
-  export function setMedia(face: number, params?: MediaParams, link?: number): number
+  export function setMedia(face: number, params?: PrimMediaParams, link?: number): number
 
   /** Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast */
   export const ParamSetter: PrimParamSetterTypeMeta
@@ -1292,7 +1263,7 @@ declare namespace string {
   /** Returns a copy of the substring from src within the inclusive byte range start_index..end_index. Negative indices count backward from the end of the string. */
   export function sub(src: string, startIndex: number, endIndex?: number): string
 
-  /** Decodes a binary string using a pack format, starting from index start. Negative indices count backward from the end of the string. */
+  /** Decodes a binary string using a pack format, starting from index start and returns a tuple of the decoded values, followed by a number representing the index of the first unread byte. Negative indices count backward from the end of the string. */
   export function unpack(formatString: string, src: string, start?: number): any[]
 
   /** Returns an uppercase copy of the string src. Only converts ASCII characters. Use ll.ToUpper for strings that may contain Unicode. */

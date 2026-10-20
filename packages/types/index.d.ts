@@ -222,7 +222,7 @@ declare interface LLEventMap {
   path_update: (type: number, reserved: list) => void
   /** Triggered when the agent specified by agent_id denies experience permissions, or when permission is blocked for other reasons (specified by the error code reason). */
   experience_permissions_denied: (agentId: UUID, reason: number) => void
-  /** Fires in all scripts in the linkset whenever the datastore has been modified via an llLinksetData function. Passes the action taken, the affected key name, and the new value. */
+  /** Fires in all scripts in the linkset whenever the linkset datastore is modified via an llLinksetData function. Passes the action taken, the affected key name, and the new value. */
   linkset_data: (action: number, name: string, value: string) => void
   /** Triggered when a compatible viewer sends game controller input changes for the avatar specified by id. Only triggers for scripts in attachments or seats. */
   game_control: (id: UUID, buttonLevels: number, axes: number[]) => void
@@ -237,58 +237,23 @@ declare interface LLEventMap {
 /** 'rotation' is an alias for 'quaternion' */
 declare type rotation = Quaternion
 
-declare type list = (string | number | Vector | UUID | Quaternion | boolean)[]
+/** LSL list functions return these types. */
+declare type LSLTypes = string | number | Vector | UUID | Quaternion
 
-declare type LLDetectedEventName =
-  | "touch_start"
-  | "touch"
-  | "touch_end"
-  | "collision_start"
-  | "collision"
-  | "collision_end"
-  | "sensor"
-  | "on_damage"
-  | "final_damage"
+/** LSL list functions can read these types as input. */
+declare type LSLReadableTypes = LSLTypes | boolean
 
-declare type LLNonDetectedEventName =
-  | "land_collision_start"
-  | "land_collision"
-  | "land_collision_end"
-  | "timer"
-  | "listen"
-  | "on_rez"
-  | "no_sensor"
-  | "control"
-  | "money"
-  | "email"
-  | "at_target"
-  | "not_at_target"
-  | "at_rot_target"
-  | "not_at_rot_target"
-  | "run_time_permissions"
-  | "changed"
-  | "attach"
-  | "dataserver"
-  | "link_message"
-  | "moving_start"
-  | "moving_end"
-  | "object_rez"
-  | "remote_data"
-  | "http_response"
-  | "http_request"
-  | "experience_permissions"
-  | "transaction_result"
-  | "path_update"
-  | "experience_permissions_denied"
-  | "linkset_data"
-  | "game_control"
-  | "on_death"
+declare type list = LSLReadableTypes[]
+
+declare type LLMultiEventName = any[]
+
+declare type LLSingleEventName = any[]
 
 declare type LLEventName = keyof LLEventMap
 
 declare type LLEventHandler = (this: void, ...args: any[]) => void
 
-declare type LLDetectedEventHandler = (this: void, detected: DetectedEvent[]) => void
+declare type LLMultiEventHandler = (this: void, events: DetectedEvent[]) => void
 
 /** Callback type for LLTimers.every() - receives scheduled time and interval */
 declare type LLTimerEveryCallback = (this: void, scheduled: number, interval: number) => void
@@ -357,17 +322,53 @@ declare type LLJsonDecodeOptionsWithPath = {
 /** Configuration options for lljson decoding */
 declare type LLJsonDecodeOptions = LLJsonDecodeOptionsWithoutPath | LLJsonDecodeOptionsWithPath
 
-/** Keyframed motion parameter table. Pass to llprim.keyframedMotion() to animate. */
-declare type KeyframedMotionParams = Record<string, any>
+/** Attached list filer table. Pass to ll.GetAttachedListFiltered to get attachments. */
+declare type AttachedListFilterParams = Record<string, any>
 
-/** Particle system parameter table. Pass to llprim.setParticleSystem() to emit particles. */
-declare type ParticleParams = Record<string, any>
+/** Camera parameter table. Pass to ll.SetCameraParams() to configure the camera. */
+declare type CameraParams = Record<string, any>
 
-/** Prim face media parameter table. Pass to llprim.setMedia() to configure media on a face. */
-declare type MediaParams = Record<string, any>
+/** Pathfinding character parameter table. Pass to ll.CreateCharacter() to configure a character. */
+declare type CharacterParams = Record<string, any>
+
+/** Pathfinding character navigate parameter table. Pass to ll.NavigateTo() to navigate. */
+declare type CharacterNavigateParams = Record<string, any>
+
+/** Pathfinding character patrol points parameter table. Pass to ll.PatrolPoints() to configure the route. */
+declare type CharacterPatrolPointsParams = Record<string, any>
+
+/** Pathfinding character pursue parameter table. Pass to ll.Pursue() to configure the pursuit. */
+declare type CharacterPursueParams = Record<string, any>
+
+/** Pathfinding character wander within parameter table. Pass to ll.WanderWithin() to configure the route. */
+declare type CharacterWanderWithinParams = Record<string, any>
+
+/** Get closest nav point parameter table. Pass to ll.GetClosestNavPoint to find the navmesh. */
+declare type GetClosestNavPointParams = Record<string, any>
+
+/** Get static path parameter table. Pass to ll.GetStaticPath() to find a path. */
+declare type GetStaticPathParams = Record<string, any>
+
+/** Give inventory parameter table. Pass to ll.GiveAgentInventory(). */
+declare type GiveAgentInventoryParams = Record<string, any>
+
+/** GLTF overrides parameter table. Pass to ll.SetLinkGLTFOverrides() to configure material. */
+declare type GltfOverrides = Record<string, any>
 
 /** HTTP request parameter table. Pass to ll.HTTPRequest() to configure an HTTP request. */
 declare type HttpRequestParams = Record<string, any>
+
+/** Keyframed motion parameter table. Pass to ll.SetKeyframedMotion() to animate. */
+declare type KeyframedMotionParams = Record<string, any>
+
+/** Parcel sale parameter table. Pass to ll.SetParcelForSale() to configure the sale of a parcel. */
+declare type ParcelSaleParams = Record<string, any>
+
+/** Particle system parameter table. Pass to ll.LinkParticleSystem() to emit particles. */
+declare type ParticleParams = Record<string, any>
+
+/** Prim face media parameter table. Pass to ll.SetLinkMediaParams() to configure media on a face. */
+declare type PrimMediaParams = Record<string, any>
 
 /** Event registration and management class for Second Life events. Supports adding multiple handlers per event and dynamic registration. */
 declare interface LLEvents {
@@ -1018,12 +1019,6 @@ declare namespace lljson {
 /** Utilities for working with prims / objects */
 /** @noSelf */
 declare namespace llprim {
-  /** Emit a particle system from a ParticleParams table. Omit link to apply to the current prim. */
-  export function setParticleSystem(params?: ParticleParams, link?: number): void
-
-  /** Configure media on a specific face. Omit link to apply to the current prim. */
-  export function setMedia(face: number, params?: MediaParams, link?: number): number
-
   /** Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast */
   export const ParamSetter: PrimParamSetterTypeMeta
 }
@@ -1292,7 +1287,7 @@ declare namespace string {
   /** Returns a copy of the substring from src within the inclusive byte range start_index..end_index. Negative indices count backward from the end of the string. */
   export function sub(src: string, startIndex: number, endIndex?: number): string
 
-  /** Decodes a binary string using a pack format, starting from index start. Negative indices count backward from the end of the string. */
+  /** Decodes a binary string using a pack format, starting from index start and returns a tuple of the decoded values, followed by a number representing the index of the first unread byte. Negative indices count backward from the end of the string. */
   export function unpack(formatString: string, src: string, start?: number): any[]
 
   /** Returns an uppercase copy of the string src. Only converts ASCII characters. Use ll.ToUpper for strings that may contain Unicode. */
@@ -1826,11 +1821,11 @@ declare namespace ll {
    */
   export function Fabs(val: number): number
 
-  /** Searches the text of a cached notecard for lines containing the given pattern and returns the number of matches found through a dataserver event. */
-  export function FindNotecardTextCount(notecardname: string, pattern: string, options: list): UUID
+  /** Asynchronously requests the number of matches of pattern in the notecard name. Returns a key query handle for the dataserver event. */
+  export function FindNotecardTextCount(name: string, pattern: string, options: list): UUID
 
   /**
-   * Synchronously searches a cached notecard name for lines containing pattern, returning a list of line and column numbers. Returns a list containing 'NAK' if the notecard is not cached, or an empty list if no matches are found.
+   * Synchronously searches the notecard name in the region's cache for matches of pattern, without raising a dataserver event. Returns a strided list of the form [line, column, length, ...] with one stride per match, a list containing NAK if the notecard is not cached, or an empty list if there are no matches.
    * @indexArg start
    * @indexReturn
    */
@@ -2097,18 +2092,18 @@ declare namespace ll {
   export function GetNextEmail(address: string, subject: string): void
 
   /**
-   * Asynchronously requests the line index line of the notecard name from the dataserver. Returns a key query handle for the dataserver event, which will return 'EOF' when reaching past the end of the notecard.
+   * Asynchronously requests the text of line in the notecard name. Returns a key query handle for the dataserver event, which receives EOF if line is past the end of the notecard.
    * @indexArg line
    */
   export function GetNotecardLine(name: string, line: number): UUID
 
   /**
-   * Synchronously reads the line index line of the notecard name from the region's cache, immediately returning its text without raising a dataserver event. Returns 'NAK' if not cached or 'EOF' if out of bounds.
+   * Synchronously reads the text of line in the notecard name from the region's cache, without raising a dataserver event. Returns NAK if the notecard is not cached, or EOF if line is past the end of the notecard.
    * @indexArg line
    */
   export function GetNotecardLineSync(name: string, line: number): string
 
-  /** Asynchronously requests the total line count of the notecard name. Returns a key query handle for the dataserver event. */
+  /** Asynchronously requests the number of lines in the notecard name. Returns a key query handle for the dataserver event. */
   export function GetNumberOfNotecardLines(name: string): UUID
 
   /** Returns an integer representing the total number of prims and seated avatars in the linkset containing the script. */
@@ -2488,49 +2483,49 @@ declare namespace ll {
   /** Stops the playback of any currently playing attached sound on the linked prim link. */
   export function LinkStopSound(link: number): void
 
-  /** Returns an integer representing the number of bytes available/remaining in the linkset's datastore. */
+  /** Returns the number of bytes remaining in the linkset datastore. */
   export function LinksetDataAvailable(): number
 
-  /** Returns the total count of keys in the linkset datastore that match the regular expression pattern. */
+  /** Returns the number of keys in the linkset datastore that match the regular expression pattern. */
   export function LinksetDataCountFound(pattern: string): number
 
-  /** Returns an integer representing the total number of unique keys stored in the linkset's datastore. */
+  /** Returns the number of keys in the linkset datastore. */
   export function LinksetDataCountKeys(): number
 
-  /** Deletes the unprotected key-value pair specified by name from the linkset's datastore, triggering a linkset_data event. */
+  /** Deletes the unprotected key name from the linkset datastore, triggering a linkset_data event if the datastore changes. Returns an integer success or failure code. */
   export function LinksetDataDelete(name: string): number
 
-  /** Deletes all keys in the datastore matching the regular expression pattern. Returns a list [num_deleted, num_failed_protected]. Decrypts and deletes protected keys if matching pass is provided. */
+  /** Deletes all keys in the linkset datastore that match the regular expression pattern, triggering a linkset_data event if the datastore changes. Protected keys are only deleted if their passphrase matches pass. Returns a list [num_deleted, num_failed_protected]. */
   export function LinksetDataDeleteFound(pattern: string, pass: string): number[]
 
-  /** Deletes the protected key-value pair specified by name from the linkset's datastore using the passphrase pass, triggering a linkset_data event. */
+  /** Deletes the protected key name from the linkset datastore using the passphrase pass, triggering a linkset_data event if the datastore changes. Returns an integer success or failure code. */
   export function LinksetDataDeleteProtected(name: string, pass: string): number
 
   /**
-   * Returns an alphabetically sorted list of up to count keys from the datastore that match the regular expression pattern, starting at index start (returns all matching keys if count < 1).
+   * Returns an alphabetically sorted list of up to count keys from the linkset datastore that match the regular expression pattern, starting at index start (returns all matching keys if count < 1).
    * @indexArg start
    */
   export function LinksetDataFindKeys(pattern: string, start: number, count: number): string[]
 
   /**
-   * Returns an alphabetically sorted list of up to count keys from the datastore, starting at index start (returns all keys if count < 1).
+   * Returns an alphabetically sorted list of up to count keys from the linkset datastore, starting at index start (returns all keys if count < 1).
    * @indexArg start
    */
   export function LinksetDataListKeys(start: number, count: number): string[]
 
-  /** Reads and returns the string value corresponding to key name from the linkset's datastore. */
+  /** Returns the value of the unprotected key name from the linkset datastore. Returns an empty string if the key is not found or is protected. */
   export function LinksetDataRead(name: string): string
 
-  /** Reads and returns the string value of the protected key name from the linkset's datastore using the passphrase pass. */
+  /** Returns the value of the protected key name from the linkset datastore using the passphrase pass. Returns an empty string if the key is not found or pass does not match. */
   export function LinksetDataReadProtected(name: string, pass: string): string
 
-  /** Erases all key-value pairs stored in the linkset's datastore, triggering a linkset_data event (with LINKSETDATA_RESET) in all scripts in the linkset. */
+  /** Deletes all keys from the linkset datastore, triggering a linkset_data event. */
   export function LinksetDataReset(): void
 
-  /** Creates or updates an unprotected key-value pair (name and value) in the linkset's datastore. Returns an integer success or failure code. */
+  /** Creates or updates the unprotected key name in the linkset datastore with value, triggering a linkset_data event if the datastore changes. Returns an integer success or failure code. */
   export function LinksetDataWrite(name: string, value: string): number
 
-  /** Creates or updates a protected key-value pair (name and value) in the linkset's datastore using the passphrase pass. Returns an integer success or failure code. */
+  /** Creates or updates the protected key name in the linkset datastore with value using the passphrase pass, triggering a linkset_data event if the datastore changes. Returns an integer success or failure code. */
   export function LinksetDataWriteProtected(name: string, value: string, pass: string): number
 
   /** Returns a string of comma-separated values taken in order from the list src. */
@@ -4309,7 +4304,7 @@ declare const ENV_THROTTLE: -8
 /** Could not validate the environmental settings or values passed. */
 declare const ENV_VALIDATION_FAIL: -6
 
-/** A value equal to three newline characters ("\n\n\n") returned by the dataserver event, indicating that the requested line is past the end of the notecard. */
+/** Value returned by llGetNotecardLine (through the dataserver event) and llGetNotecardLineSync when the requested line is past the end of the notecard. Equal to three newline characters ("\n\n\n"). */
 declare const EOF: string
 
 /** An inexplicable and generic error where nothing is known about the cause. */
@@ -4867,19 +4862,19 @@ declare const LAND_SMOOTH: 3
 
 declare const LEGACY_MASS_FACTOR: number
 
-/** Event or flag indicating a key-value pair has been removed from the linkset datastore, either via llLinksetDataDelete or by writing an empty value. */
+/** Action indicating a key was deleted from the linkset datastore via llLinksetDataDelete, llLinksetDataDeleteProtected, or by writing an empty value. */
 declare const LINKSETDATA_DELETE: 2
 
-/** Error code indicating a key-value pair was too large to write to the linkset datastore. */
+/** Error code indicating the key and value were too large to write to the linkset datastore. */
 declare const LINKSETDATA_EMEMORY: 1
 
 /** Error code indicating the key name supplied to a linkset datastore operation was empty. */
 declare const LINKSETDATA_ENOKEY: 2
 
-/** Error code indicating the key-value pair is protected from being deleted or overwritten in the linkset datastore. */
+/** Error code indicating the key is protected from being deleted or overwritten in the linkset datastore. */
 declare const LINKSETDATA_EPROTECTED: 3
 
-/** Flag or value indicating a comma-separated list of keys has been deleted from the linkset datastore via llLinksetDataDeleteFound. */
+/** Action indicating keys were deleted from the linkset datastore via llLinksetDataDeleteFound. The event's name is a comma-separated list of the deleted keys. */
 declare const LINKSETDATA_MULTIDELETE: 3
 
 /** Error code indicating the specified key could not be found in the linkset datastore. */
@@ -4891,10 +4886,10 @@ declare const LINKSETDATA_NOUPDATE: 5
 /** Status code indicating the linkset datastore operation completed successfully. */
 declare const LINKSETDATA_OK: 0
 
-/** Event or flag indicating the linkset datastore has been cleared/reset via llLinksetDataReset. */
+/** Action indicating all keys were deleted from the linkset datastore via llLinksetDataReset. */
 declare const LINKSETDATA_RESET: 0
 
-/** Event or flag indicating a key in the linkset datastore has been created or updated with a new value via llLinksetDataWrite. */
+/** Action indicating a key was created or updated in the linkset datastore via llLinksetDataWrite or llLinksetDataWriteProtected. */
 declare const LINKSETDATA_UPDATE: 1
 
 /** Refers to all child prims in the linkset (every prim except the root). */
@@ -4963,7 +4958,7 @@ declare const MASK_NEXT: 4
 /** Permissions mask option representing current owner permissions. */
 declare const MASK_OWNER: 1
 
-/** Value returned by llGetNotecardLineSync (ASCII NAK surrounded by newlines, i.e., codes 10, 21, 10) when requested notecard data is not in the region's cache. */
+/** Value returned by llGetNotecardLineSync and llFindNotecardTextSync (as a single-entry list) when the notecard is not in the region's cache. Equal to an ASCII NAK surrounded by newlines (codes 10, 21, 10). */
 declare const NAK: string
 
 declare const NAVIGATE_TO_GOAL_REACHED_DIST: 2

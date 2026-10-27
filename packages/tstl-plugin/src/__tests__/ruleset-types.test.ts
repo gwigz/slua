@@ -118,6 +118,22 @@ describe("ruleset dict keys", () => {
     expect(lua).toContain("____exports.verifyCert = params.verify_cert")
   })
 
+  it("leaves destructuring inside nested functions to its own statement", () => {
+    const lua = transpile(`
+      declare const params: HttpRequestParams
+      const settings = { maxBodyLength: 1 }
+      const { maxBodyLength } = params,
+        read = () => {
+          const { maxBodyLength } = settings
+
+          return maxBodyLength
+        }
+    `)
+
+    expect(lua).toContain("local maxBodyLength = params.max_body_length")
+    expect(lua).toContain("local maxBodyLength = settings.maxBodyLength")
+  })
+
   it("leaves the same names on other objects alone", () => {
     const lua = transpile(`
       const settings = { maxBodyLength: 1 }

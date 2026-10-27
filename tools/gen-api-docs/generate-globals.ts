@@ -36,7 +36,15 @@ const PLUGIN_GLOBALS = new Set([
 ])
 const OMIT_GLOBALS = new Set<string>(["dangerouslyexecuterequiredmodule"])
 
+/** Escape MDX syntax outside inline code spans, where backslashes would render literally. */
 function escapeMdx(s: string): string {
+  return s
+    .split(/(`[^`]*`)/)
+    .map((part) => (part.startsWith("`") ? part : escapeMdxText(part)))
+    .join("")
+}
+
+function escapeMdxText(s: string): string {
   return s
     .replace(/</g, "\\<")
     .replace(/>/g, "\\>")

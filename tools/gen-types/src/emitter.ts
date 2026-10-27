@@ -274,9 +274,15 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
 
 /**
  * `@deprecated` JSDoc line for a builder root replaced by its ll.* function's
- * ruleset dict form, or an empty list when the root is not deprecated.
+ * ruleset dict form, or an empty list when the root is not deprecated. Dicts
+ * cannot hold `""`, so clearable sets point at the list form for clearing,
+ * using `clearConstant` as the example.
  */
-function builderRootDeprecation(root: BuilderRootConfig, lsl: LSLDefinitions) {
+function builderRootDeprecation(
+  root: BuilderRootConfig,
+  lsl: LSLDefinitions,
+  clearConstant?: string,
+) {
   if (!root.deprecated) {
     return []
   }
@@ -287,6 +293,12 @@ function builderRootDeprecation(root: BuilderRootConfig, lsl: LSLDefinitions) {
 
   if (!tableType) {
     throw new Error(`${root.name} is deprecated but ll.${root.llFunction} takes no ruleset dict`)
+  }
+
+  if (clearConstant) {
+    return [
+      `/** @deprecated Use \`ll.${root.llFunction}\` with a \`${tableType}\` dict to set overrides, or the list form to clear them, e.g. \`[${clearConstant}, ""]\`. */`,
+    ]
   }
 
   return [`/** @deprecated Use \`ll.${root.llFunction}\` with a \`${tableType}\` dict instead. */`]
@@ -1858,6 +1870,8 @@ export function emitAll(
         continue
       }
 
+      const clearConstant = config.clearable ? set.params[0]?.name : undefined
+
       // Options-only roots skip the fluent builder interface entirely
       const optionsOnly = config.roots.every((r) => r.optionsArg)
 
@@ -1923,7 +1937,7 @@ export function emitAll(
           const args = root.preListArgs.concat(root.postListArgs ?? []).join(", ")
 
           builderLines.push("")
-          builderLines.push(...builderRootDeprecation(root, lsl))
+          builderLines.push(...builderRootDeprecation(root, lsl, clearConstant))
           builderLines.push(`declare function ${root.name}(${args}): ${interfaceName}`)
         }
       }
@@ -1971,7 +1985,7 @@ export function emitAll(
           : "list"
 
         builderLines.push("")
-        builderLines.push(...builderRootDeprecation(root, lsl))
+        builderLines.push(...builderRootDeprecation(root, lsl, clearConstant))
 
         if (root.optionsReturnType) {
           const generic = `<const Opts extends ${optionsName}>`

@@ -358,7 +358,8 @@ function $setCameraParams(): CameraParamBuilder
 ### ~~`$setGltfOverrides`~~
 
 <Callout type="warn" title="Deprecated">
-  Use `ll.SetLinkGLTFOverrides` with a `GltfOverrides` dict instead.
+  Use `ll.SetLinkGLTFOverrides` with a `GltfOverrides` dict to set overrides, or the list form to
+  clear them, e.g. `[OVERRIDE_GLTF_BASE_COLOR_FACTOR, ""]`.
 </Callout>
 
 ```ts

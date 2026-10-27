@@ -336,7 +336,10 @@ export function renameBindingKeys(
   for (const statement of statements) {
     if (tstl.isVariableDeclarationStatement(statement) || tstl.isAssignmentStatement(statement)) {
       for (const expression of statement.right ?? []) {
-        walkExpression(expression, { expression: renameGeneratedIndex })
+        walkExpression(expression, {
+          expression: renameGeneratedIndex,
+          skipFunctionBodies: true,
+        })
       }
     }
   }

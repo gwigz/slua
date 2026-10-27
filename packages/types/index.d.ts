@@ -9336,7 +9336,7 @@ interface GltfOverrideParamBuilder {
   emissiveFactor(emissiveFactor: Vector | ""): GltfOverrideParamBuilder
 }
 
-/** @deprecated Use `ll.SetLinkGLTFOverrides` with a `GltfOverrides` dict instead. */
+/** @deprecated Use `ll.SetLinkGLTFOverrides` with a `GltfOverrides` dict to set overrides, or the list form to clear them, e.g. `[OVERRIDE_GLTF_BASE_COLOR_FACTOR, ""]`. */
 declare function $setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
 
 /** Fluent builder for RezParam lists. Compiles to a flat parameter list at build time. */

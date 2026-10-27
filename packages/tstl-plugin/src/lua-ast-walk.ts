@@ -10,7 +10,7 @@ interface Visitor {
   expression?: ExpressionVisitor
 }
 
-function walkExpression(expr: lua.Expression, visitor: Visitor): void {
+export function walkExpression(expr: lua.Expression, visitor: Visitor): void {
   visitor.expression?.(expr)
 
   switch (expr.kind) {

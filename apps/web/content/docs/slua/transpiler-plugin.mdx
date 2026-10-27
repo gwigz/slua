@@ -103,6 +103,35 @@ SLua's `ll.*` functions use 1-based indexing (Lua convention), but TypeScript us
 - **`@indexReturn`** wraps the result in a nil-safe `____tmp and (____tmp - 1)` expression
 - Functions without these tags (e.g. `ll.Say`) are left unchanged
 
+### Ruleset dict keys
+
+Functions like `ll.HTTPRequest` and `ll.SetCameraParams` accept a dict instead of a flat list. The types use camelCase keys, and the plugin renames them to the snake_case keys the SLua runtime reads:
+
+| TypeScript                                         | Lua output                                          |
+| -------------------------------------------------- | --------------------------------------------------- |
+| `ll.HTTPRequest(url, { maxBodyLength: 4096 }, "")` | `ll.HTTPRequest(url, {max_body_length = 4096}, "")` |
+| `params.userAgent = "bot"`                         | `params.user_agent = "bot"`                         |
+| `params["verifyCert"]`                             | `params.verify_cert`                                |
+| `const { focusLag } = camera`                      | `local focusLag = camera.focus_lag`                 |
+
+Keys are renamed by the type they are declared on, so the same names on other objects are left alone. Object literals are renamed when they are typed as a dict where they are written, such as an argument, an annotated variable, or a return value. Keys inside `customHeader` are header names and are never renamed.
+
+The plugin reports an error when a key cannot be renamed at compile time:
+
+- Dynamic keys, such as `params[key]` or `key in params`
+- Destructuring outside a `const`/`let` statement, or with a rest element
+- An object built without the dict type, then passed where a dict is expected
+
+```ts
+const settings = { maxBodyLength: 4096 } // keys stay camelCase
+ll.HTTPRequest(url, settings, "") // error, type `settings` as HttpRequestParams
+
+const params: HttpRequestParams = { maxBodyLength: 4096 } // renamed
+ll.HTTPRequest(url, params, "")
+```
+
+`Object.keys` and `Object.entries` on a dict return the snake_case runtime keys, so the plugin warns about them.
+
 ### Array concat self-assignment
 
 When an array is reassigned to itself with additional elements appended, the plugin emits `table.extend` (SLua's in-place append) instead of TSTL's `__TS__ArrayConcat` which allocates a new table:

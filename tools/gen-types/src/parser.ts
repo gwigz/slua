@@ -53,5 +53,7 @@ export function parseLslDefinitions(yamlContent: string) {
     constants: (raw.constants as Record<string, any>) ?? {},
     functions: (raw.functions as Record<string, any>) ?? {},
     events: (raw.events as Record<string, any>) ?? {},
+    enums: (raw.enums as Record<string, any>) ?? {},
+    builderRulesets: (raw["builder-rulesets"] as Record<string, any>) ?? {},
   }
 }

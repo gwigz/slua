@@ -323,52 +323,314 @@ declare type LLJsonDecodeOptionsWithPath = {
 declare type LLJsonDecodeOptions = LLJsonDecodeOptionsWithoutPath | LLJsonDecodeOptionsWithPath
 
 /** Attached list filer table. Pass to ll.GetAttachedListFiltered to get attachments. */
-declare type AttachedListFilterParams = Record<string, any>
+declare type AttachedListFilterParams = {
+  /** Flags used to control which attachments are returned. */
+  flags?: number
+  /** Filter flag used with llGetAttachedListFiltered to include HUDs with matching experiences in the returned result. */
+  huds?: boolean
+  /** Filter parameter used to include a specific attachment point. */
+  include?: number
+}
 
 /** Camera parameter table. Pass to ll.SetCameraParams() to configure the camera. */
-declare type CameraParams = Record<string, any>
+declare type CameraParams = {
+  /** Option flag used with llSetCameraParams to turn scripted control of the camera on or off. */
+  active?: boolean
+  /** Sets the angle in degrees within which the camera is not constrained by changes in target rotation. */
+  behindnessAngle?: number
+  /** Sets how strongly the camera is forced to stay behind the target if outside of the behindness angle. */
+  behindnessLag?: number
+  /** Sets how far away the camera wants to be from its target. */
+  distance?: number
+  /** Sets camera focus (target position) in region coordinates. */
+  focus?: Vector
+  /** Sets how much the camera lags as it aims toward the target. */
+  focusLag?: number
+  /** Option flag used with llSetCameraParams to lock the camera focus so it does not move. */
+  focusLocked?: boolean
+  /** Adjusts the camera focus position relative to the target. */
+  focusOffset?: Vector
+  /** Sets the radius of a sphere around the camera's target position within which its focus is not affected by target motion. */
+  focusThreshold?: number
+  /** Adjusts the angular amount that the camera aims straight ahead versus straight down, maintaining the same distance (analogous to 'incidence'). */
+  pitch?: number
+  /** Sets camera position in region coordinates. */
+  position?: Vector
+  /** Sets how much the camera lags as it moves toward its ideal position. */
+  positionLag?: number
+  /** Option flag used with llSetCameraParams to lock the camera position so it does not move. */
+  positionLocked?: boolean
+  /** Sets the radius of a sphere around the camera's ideal position within which it is not affected by target motion. */
+  positionThreshold?: number
+}
 
 /** Pathfinding character parameter table. Pass to ll.CreateCharacter() to configure a character. */
-declare type CharacterParams = Record<string, any>
+declare type CharacterParams = {
+  /** If set to FALSE, the pathfinding character will not attempt to catch up on lost time when performance is low, potentially providing more reliable (though potentially more stuttery) movement. Default is TRUE. */
+  accountForSkippedFrames?: boolean
+  /** Specifies which objects a pathfinding character avoids (other characters, dynamic obstacles like fast-moving objects and avatars, or both). Combined using bit flags; setting to AVOID_NONE disables avoidance for both categories. */
+  avoidanceMode?: number
+  /** Constant used to indicate that the following argument is the desired speed (or speed of pursuit in meters per second) for a pathfinding character. */
+  desiredSpeed?: number
+  /** Specifies the character's maximum speed while turning about the Z-axis (default is 6 meters/second). Note that this is only loosely enforced, and a character may turn at higher speeds under certain conditions. */
+  desiredTurnSpeed?: number
+  /** Sets the collision capsule length for a pathfinding character. If the value is less than twice the radius plus 0.1m, it automatically adjusts to twice the radius plus 0.1m. */
+  length?: number
+  /** Specifies the character's maximum acceleration rate (default is 20 m/s²). */
+  maxAccel?: number
+  /** Specifies the character's maximum deceleration rate (default is 30 m/s²). */
+  maxDecel?: number
+  /** Specifies the character's maximum speed (must be between 0.2 and 50 meters/second; default is 20 m/s). Affects speed when avoiding dynamic obstacles and when traversing low-walkability objects in TRAVERSAL_TYPE_FAST mode. */
+  maxSpeed?: number
+  /** Specifies the character's turn radius when traveling at CHARACTER_DESIRED_TURN_SPEED (default is 1.25 meters). */
+  maxTurnRadius?: number
+  /** Specifies the orientation of the collision capsule for a pathfinding character to denote how to interpret its size. Valid options are VERTICAL and HORIZONTAL. */
+  orientation?: number
+  /** Sets the collision capsule radius used to define the size of a pathfinding character. */
+  radius?: number
+  /** Determines whether a character is restricted to its starting parcel (default is FALSE). If TRUE, parcel boundaries act as one-way obstacles; the character cannot voluntarily leave and pathfinding behaviors (wander, flee, evade, pursue) will only choose goal points within the parcel. If pushed out, it can re-enter but cannot voluntarily leave again. */
+  stayWithinParcel?: boolean
+  /** Pathfinding parameter specifying the character's movement traversal type. Expects TRAVERSAL_TYPE_SLOW (default), _FAST, or _NONE. */
+  traversalType?: number
+  /** Specifies the preferred surface and terrain terrain-type for the character (default is CHARACTER_TYPE_NONE). Used to describe preferred surfaces rather than behavior (e.g., cows prefer type B, sheep herded along a road prefer type C). */
+  type?: number
+}
 
 /** Pathfinding character navigate parameter table. Pass to ll.NavigateTo() to navigate. */
-declare type CharacterNavigateParams = Record<string, any>
+declare type CharacterNavigateParams = {
+  /** Forces the pathfinding character to navigate in a straight line toward the specified position (can be set to TRUE or FALSE). */
+  forceDirectPath?: boolean
+}
 
 /** Pathfinding character patrol points parameter table. Pass to ll.PatrolPoints() to configure the route. */
-declare type CharacterPatrolPointsParams = Record<string, any>
+declare type CharacterPatrolPointsParams = {
+  /** Option parameter for llPatrolPoints (defaults to FALSE). If TRUE, the character slows down and momentarily pauses at each waypoint. If FALSE, the character moves to the next waypoint at full speed with no pause. */
+  pauseAtWaypoints?: boolean
+}
 
 /** Pathfinding character pursue parameter table. Pass to ll.Pursue() to configure the pursuit. */
-declare type CharacterPursueParams = Record<string, any>
+declare type CharacterPursueParams = {
+  /** Option for llPursue that selects a random destination near the PURSUIT_OFFSET (range is 0 to 1, where 1 is most random). Requires a non-zero PURSUIT_OFFSET. */
+  fuzzFactor?: number
+  /** Option for llPursue defining how close (between 0.25m and 10m) the character must be to consider the goal reached. */
+  goalTolerance?: number
+  /** Option for llPursue specifying whether the pathfinding character attempts to predict and intercept the target's future location. */
+  intercept?: boolean
+  /** Option for llPursue specifying a constant position offset relative to the target for the character to navigate toward. */
+  offset?: Vector
+  /** Option flag for llPursue defining whether the character requires a physical line-of-sight to chase the target. When active, it will not target positions blocked by solid obstacles. */
+  requireLineOfSight?: boolean
+}
 
 /** Pathfinding character wander within parameter table. Pass to ll.WanderWithin() to configure the route. */
-declare type CharacterWanderWithinParams = Record<string, any>
+declare type CharacterWanderWithinParams = {
+  /** Option parameter for llWanderWithin specifying whether the character should pause briefly after reaching each wander waypoint. */
+  pauseAtWaypoints?: boolean
+}
 
 /** Get closest nav point parameter table. Pass to ll.GetClosestNavPoint to find the navmesh. */
-declare type GetClosestNavPointParams = Record<string, any>
+declare type GetClosestNavPointParams = {
+  /** Specifies the preferred surface and terrain terrain-type for the character (default is CHARACTER_TYPE_NONE). Used to describe preferred surfaces rather than behavior (e.g., cows prefer type B, sheep herded along a road prefer type C). */
+  characterType?: number
+  /** Used with llGetClosestNavPoint to limit how far out to search for a navigation point. */
+  radius?: number
+  /** Used with llGetClosestNavPoint to specify that the test should use the static navmesh, ignoring all dynamic obstacles. */
+  static?: boolean
+}
 
 /** Get static path parameter table. Pass to ll.GetStaticPath() to find a path. */
-declare type GetStaticPathParams = Record<string, any>
+declare type GetStaticPathParams = {
+  /** Specifies the preferred surface and terrain terrain-type for the character (default is CHARACTER_TYPE_NONE). Used to describe preferred surfaces rather than behavior (e.g., cows prefer type B, sheep herded along a road prefer type C). */
+  characterType?: number
+}
 
 /** Give inventory parameter table. Pass to ll.GiveAgentInventory(). */
-declare type GiveAgentInventoryParams = Record<string, any>
+declare type GiveAgentInventoryParams = {
+  /** Inventory option specifying the destination root folder to transfer inventory into. */
+  dest?: string
+  /** Inventory parameter specifying flags to control the behavior of inventory transfers. */
+  flags?: number
+}
 
 /** GLTF overrides parameter table. Pass to ll.SetLinkGLTFOverrides() to configure material. */
-declare type GltfOverrides = Record<string, any>
+declare type GltfOverrides = {
+  /** GLTF override setting used with llSetLinkGLTFOverrides to set the alpha for the face(s). Only impacts rendering when the alpha mode is set to PRIM_GLTF_ALPHA_MODE_BLEND. */
+  alpha?: number
+  /** GLTF override setting used with llSetLinkGLTFOverrides to set the alpha cutoff level on the face(s) when the alpha mode is set to mask. */
+  alphaMask?: number
+  /** GLTF override setting used with llSetLinkGLTFOverrides to set the alpha mode on the face(s) to one of the valid blend modes. */
+  alphaMode?: number
+  /** GLTF override setting used with llSetLinkGLTFOverrides to set the tinting color (specified in linear RGB) used for the base color. Use llsRGB2Linear to convert colors from Blinn-Phong to PBR. */
+  color?: Vector
+  /** GLTF override setting used with llSetLinkGLTFOverrides. If set to TRUE, the texture on the face(s) will be rendered as double-sided. */
+  doubleSided?: boolean
+  /** GLTF override setting used with llSetLinkGLTFOverrides to set the tint (specified in linear RGB) used for the emissive texture on the face(s). */
+  emmissiveColor?: Vector
+  /** GLTF override setting used with llSetLinkGLTFOverrides to adjust the metallic factor on the specified face(s) to a value between 0 and 1. */
+  metalness?: number
+  /** GLTF override setting used with llSetLinkGLTFOverrides to adjust the roughness factor on the specified face(s) to a value between 0 and 1. */
+  roughness?: number
+}
 
 /** HTTP request parameter table. Pass to ll.HTTPRequest() to configure an HTTP request. */
-declare type HttpRequestParams = Record<string, any>
+declare type HttpRequestParams = {
+  /** Used with llHTTPRequest to override the default Accept header with custom MIME types (such as application/json, text/html, etc.). Responses with unlisted content types will return status 415. */
+  accept?: string[]
+  /** Adds custom HTTP headers to the request (up to 8 per request). At the SLua level, provide a string-keyed table mapping header names to values; the serializer emits one HTTP_CUSTOM_HEADER/key/value triple per entry. Some default or sensitive headers are blocked for security reasons. */
+  customHeader?: Record<string, string | number | boolean | Vector | Quaternion>
+  /** If set to TRUE, llHTTPRequest always returns a key. If an error occurs during the request, detailed error information (delivered in an RFC 7807 JSON block) is reported through the http_response event using that key. */
+  extendedError?: boolean
+  /** Sets the maximum (UTF-8 encoded) byte length of the HTTP response body. The maximum limit depends on the VM being used (Mono Max: 16384 bytes, LSO Max: 4096 bytes). */
+  maxBodyLength?: number
+  /** Specifies the HTTP method ('GET', 'POST', 'PUT', or 'DELETE') for the request. */
+  method?: string
+  /** Specifies the request Content-Type MIME type. Text types should define a charset (e.g., 'text/plain;charset=utf-8'). Use 'application/x-www-form-urlencoded' to emulate HTML forms. */
+  mimetype?: string
+  /** Controls whether the 'Pragma: no-cache' header is sent with the HTTP request. When SendHeader is TRUE (default), the header is sent; when FALSE, it is omitted. */
+  pragmaNoCache?: boolean
+  /** Appends a custom string to the default LSL User-Agent header value. Must follow HTTP standard syntax (e.g., 'My-Script-Name/1.0'). Spaces are not allowed and will cause a script error; use hyphens instead. */
+  userAgent?: string
+  /** If set to TRUE, shouts error messages to DEBUG_CHANNEL if the outgoing request rate exceeds the server limit. If FALSE, these error messages are suppressed. */
+  verboseThrottle?: boolean
+  /** If set to TRUE, the server's SSL certificate must be verifiable using a standard certificate authority when making HTTPS requests. If FALSE, any SSL certificate is accepted. */
+  verifyCert?: boolean
+}
 
 /** Keyframed motion parameter table. Pass to ll.SetKeyframedMotion() to animate. */
-declare type KeyframedMotionParams = Record<string, any>
+declare type KeyframedMotionParams = {
+  /** Option flag in llSetKeyframedMotion followed by KFM_CMD_STOP, KFM_CMD_PLAY, or KFM_CMD_PAUSE to play, stop, or pause the motion. */
+  command?: number
+  /** Option flag in llSetKeyframedMotion followed by a bitwise combination of KFM_TRANSLATION and KFM_ROTATION to specify keyframe data. If absent, both rotation and translation data must be provided. */
+  data?: number
+  /** Option flag in llSetKeyframedMotion followed by KFM_LOOP, KFM_REVERSE, KFM_FORWARD, or KFM_PING_PONG to set the playback mode (defaults to KFM_FORWARD). Must be specified when the keyframe list is provided. */
+  mode?: number
+  /** Specifies that rotation data is included in the moves list for llSetKeyframedMotion. */
+  rotation?: boolean
+  /** Specifies that translation data is included in the moves list for llSetKeyframedMotion. */
+  translation?: boolean
+}
 
 /** Parcel sale parameter table. Pass to ll.SetParcelForSale() to configure the sale of a parcel. */
-declare type ParcelSaleParams = Record<string, any>
+declare type ParcelSaleParams = {
+  /** Option used with llSetParcelForSale to specify the agent ID authorized to buy the parcel. If none is set, any agent can purchase it. */
+  agent?: string | UUID
+  /** Option used with llSetParcelForSale. If set to TRUE, objects on the parcel are included in the sale. */
+  objects?: boolean
+  /** Option used with llSetParcelForSale to set the parcel price. If no authorized agent is set, the price must be greater than 0. */
+  price?: number
+}
 
 /** Particle system parameter table. Pass to ll.LinkParticleSystem() to emit particles. */
-declare type ParticleParams = Record<string, any>
+declare type ParticleParams = {
+  /** Vector parameter <x, y, z> specifying the constant acceleration to apply to particles. */
+  accel?: Vector
+  /** Float parameter that determines the starting alpha (transparency) of the particles. */
+  alphaBegin?: number
+  /** Float parameter that determines the ending alpha (transparency) of the particles. */
+  alphaEnd?: number
+  /** Float parameter specifying the angle in radians where particles will not be created (for ANGLE patterns). */
+  angleBegin?: number
+  /** Float parameter specifying the ending angle in radians to be filled with particles (for ANGLE patterns). If smaller than angle_begin, their roles are swapped. */
+  angleEnd?: number
+  /** Float parameter specifying the inner angle of the arc for ANGLE or ANGLE_CONE patterns. The specified inner area will not contain particles. */
+  angleInner?: number
+  /** Float parameter specifying the outer angle of the arc for ANGLE or ANGLE_CONE patterns. The area between the outer and inner angles is filled with particles. */
+  angleOuter?: number
+  /** Integer parameter defining the destination blending function. */
+  blendFuncDest?: number
+  /** Integer parameter defining the source blending function. */
+  blendFuncSource?: number
+  /** Particle flag causing particles to bounce off a plane at the emitter object's Z height. */
+  bounce?: boolean
+  /** Integer parameter specifying the number of particles to release in each burst. */
+  burstCount?: number
+  /** Float parameter specifying the radial distance from the emitter's center at which particles are created. */
+  burstRadius?: number
+  /** Float parameter specifying the interval in seconds between particle bursts. */
+  burstRate?: number
+  /** Float parameter specifying the maximum initial speed of emitted particles. */
+  burstSpeedMax?: number
+  /** Float parameter specifying the minimum initial speed of emitted particles. */
+  burstSpeedMin?: number
+  /** Vector parameter <r, g, b> that determines the starting color of the particles. */
+  colorBegin?: Vector
+  /** Vector parameter <r, g, b> that determines the ending color of the particles. */
+  colorEnd?: Vector
+  /** Particle flag causing the particle's color and alpha to smoothly interpolate from their START values to their END values over its lifetime. */
+  colorInterp?: boolean
+  /** Particle flag that makes particles full-bright and unaffected by global lighting (sunlight). Otherwise, particles are lit by current global lighting or local point lights. */
+  emissive?: boolean
+  /** Integer bitfield parameter specifying the simulation flags for emitted particles. Multiple flags can be combined using bitwise OR (|). */
+  flags?: number
+  /** Particle flag causing particle positions to remain relative to the position and movement of the emitter. Enabling this flag disables the PSYS_SRC_BURST_RADIUS rule. */
+  follow?: boolean
+  /** Particle flag causing particles to rotate and orient their vertical 'top' toward their direction of movement or emission. Otherwise, they remain vertically oriented with the top of the texture facing up. */
+  followVelocity?: boolean
+  /** Float parameter that determines the starting glow value of the particles. */
+  glowBegin?: number
+  /** Float parameter that determines the ending glow value of the particles. */
+  glowEnd?: number
+  /** Vector parameter setting the angular velocity used to rotate the emission axis for ANGLE and ANGLE_CONE patterns. */
+  omega?: Vector
+  /** Float parameter specifying the lifetime (age in seconds) of an individual particle before it dies. */
+  partMaxAge?: number
+  /** Integer parameter specifying the generation pattern (PSYS_SRC_PATTERN_*) used to emit particles. */
+  pattern?: number
+  /** Particle flag that joins emitted particles into a continuous ribbon strip. Textures stretch to join adjacent edges. Width is controlled by the 'x' start/end scale; 'y' controls maximum visibility distance. Ribbon segments are not camera-facing, mimic the emitter's Z-axis, and require horizontal movement to render. */
+  ribbon?: boolean
+  /** Vector parameter <sx, sy, z> defining the starting size of the particle billboard in meters (z-axis value is ignored). */
+  scaleBegin?: Vector
+  /** Vector parameter <sx, sy, z> defining the ending size of the particle billboard in meters (z-axis value is ignored). */
+  scaleEnd?: Vector
+  /** Particle flag causing the particle's size/scale to transition from its START setting to its END setting over its lifetime. */
+  scaleInterp?: boolean
+  /** Float parameter specifying the active duration of the particle system in seconds (0.0 means forever). */
+  srcMaxAge?: number
+  /** Key (UUID) of the target object that particles travel toward when PSYS_PART_TARGET_POS_MASK or PSYS_PART_TARGET_LINEAR_MASK is enabled. */
+  targetKey?: string | UUID
+  /** Particle flag causing emitted particles to move in a straight, evenly-spaced line toward the PSYS_SRC_TARGET_KEY target. Ignores non-DROP patterns, radius, burst speeds, angles, omega, acceleration, and wind. Combining with bounce while target is below emitter deflects particles upward. */
+  targetLinear?: boolean
+  /** Particle flag causing emitted particles to change course and travel toward the target specified by PSYS_SRC_TARGET_KEY during their lifetime. If no valid or reachable target is set, particles target the emitting prim itself. */
+  targetPos?: boolean
+  /** String parameter specifying the inventory name or UUID asset key of the texture used for the particles. */
+  texture?: string | UUID
+  /** Particle flag that applies wind as a secondary force on the particles, damping their velocity toward the wind velocity. */
+  wind?: boolean
+}
 
 /** Prim face media parameter table. Pass to ll.SetLinkMediaParams() to configure media on a face. */
-declare type PrimMediaParams = Record<string, any>
+declare type PrimMediaParams = {
+  /** Boolean. Gets or sets the default image state (the image a user sees before media is active) on a face. The default is specified by the server for that media type. Note: This flag is not currently implemented. */
+  altImageEnable?: boolean
+  /** Boolean. Gets or sets whether auto-looping is enabled for the face media. */
+  autoLoop?: boolean
+  /** Boolean. Gets or sets whether media auto-plays when a resident is able to view it. */
+  autoPlay?: boolean
+  /** Boolean. Gets or sets whether auto-scaling is enabled, which forces the media to fill the entire texture size. */
+  autoScale?: boolean
+  /** Boolean. Gets or sets whether clicking the media triggers auto-zoom and auto-focus. */
+  autoZoom?: boolean
+  /** Integer. Gets or sets the style of media controls (can be set to PRIM_MEDIA_CONTROLS_STANDARD or PRIM_MEDIA_CONTROLS_MINI). */
+  controls?: number
+  /** String. Gets or sets the current URL displayed on the chosen face (maximum 1024 characters). Changing this URL triggers media navigation. */
+  currentUrl?: string
+  /** Boolean. Gets or sets what happens when someone click on a playing, but unfocused media face: TRUE: Does the same thing a focused media face does, and forwards the click to the web browser. FALSE: Focuses the media prim so that future clicks are forwarded to the web browser. Note: Viewer settings affect this flag. It works by default on most prims. */
+  firstClickInteract?: boolean
+  /** Integer. Gets or sets the height of the media in pixels. */
+  height?: number
+  /** String. Gets or sets the home URL for the chosen face (maximum 1024 characters). */
+  homeUrl?: string
+  /** Integer. Gets or sets the permissions mask controlling who can see the media control bar (PRIM_MEDIA_PERM_ANYONE, _GROUP, _NONE, or _OWNER). */
+  permsControl?: number
+  /** Integer. Gets or sets the permissions mask controlling who can interact with the media (PRIM_MEDIA_PERM_ANYONE, _GROUP, _NONE, or _OWNER). */
+  permsInteract?: number
+  /** Gets or sets the media whitelist as an array of URL strings (up to 64 URLs or 1024 characters, whichever comes first). At the SLua level, provide a {string} array; the serializer encodes it as an escaped, comma-separated string for the underlying LSL API. */
+  whitelist?: string[]
+  /** Boolean. Gets or sets whether media navigation is restricted to the URLs listed in PRIM_MEDIA_WHITELIST. */
+  whitelistEnable?: boolean
+  /** Integer. Gets or sets the width of the media in pixels. */
+  width?: number
+}
 
 /** Event registration and management class for Second Life events. Supports adding multiple handlers per event and dynamic registration. */
 declare interface LLEvents {
@@ -400,13 +662,293 @@ declare interface LLTimers {
   off(callback: LLTimerCallback): boolean
 }
 
-/**
- * Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast
- * @noSelf
- */
+/** Metatable for building lists to pass to ll.SetLinkPrimitiveParamsFast */
 declare interface PrimParamSetterType {
   /** Call ll.SetLinkPrimitiveParamsFast with my instance list */
   apply(link?: number): void
+
+  /** Prim parameter [PRIM_LINK_TARGET, integer link_target] used to get or set properties for multiple linked prims within a single primitive parameters call. */
+  targetLink(linkTarget: number): this
+
+  /** Prim parameter [PRIM_MATERIAL, integer PRIM_MATERIAL_*] to get or set the prim's material. The material determines the default collision sound, sprite, friction coefficient, and restitution coefficient (elasticity) without affecting mass. */
+  physicsMaterial(flag: number): this
+
+  /** Prim parameter [PRIM_PHYSICS, integer boolean] to get or set whether the object responds to Second Life physics. */
+  physical(enabled: boolean): this
+
+  /** Prim parameter used to get or set the object's temporary status. Temporary objects live until the next garbage collection cycle (about 1 minute), do not count against normal prim limits, but are subject to regional limits. */
+  temporary(enabled: boolean): this
+
+  /** Prim parameter [PRIM_PHANTOM, integer boolean] to get or set whether phantom status is enabled. */
+  phantom(enabled: boolean): this
+
+  /** Prim parameter [PRIM_POSITION, vector position] to get or set the position of the prim in region coordinates (or local coordinates depending on the script context). */
+  pos(position: Vector): this
+
+  /** Prim parameter [PRIM_SIZE, vector size] to get or set the prim's physical dimensions (equivalent to llGetScale/llSetScale). */
+  size(size: Vector): this
+
+  /** Prim parameter [PRIM_ROTATION, rotation global_rot] to get or set the global rotation of the prim (equivalent to llGetRot/llSetRot; note that setting this on child prims may be broken). */
+  rot(rot: Quaternion): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a box and configure its shape properties. */
+  primTypeBox(
+    holeType: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a cylinder and configure its shape properties. */
+  primTypeCylinder(
+    holeType: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a prism and configure its shape properties. */
+  primTypePrism(
+    holeType: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    topSize: Vector,
+    topShear: Vector,
+  ): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a sphere and configure its shape properties. */
+  primTypeSphere(holeType: number, cut: Vector, hollow: number, twist: Vector, dimple: Vector): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a torus and configure its shape properties. */
+  primTypeTorus(
+    holeType: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a tube and configure its shape properties. */
+  primTypeTube(
+    holeType: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a ring and configure its shape properties. */
+  primTypeRing(
+    holeType: number,
+    cut: Vector,
+    hollow: number,
+    twist: Vector,
+    holeSize: Vector,
+    topShear: Vector,
+    advancedCut: Vector,
+    taper: Vector,
+    revolutions: number,
+    radiusOffset: number,
+    skew: number,
+  ): this
+
+  /** Shape parameter for PRIM_TYPE used to define the prim as a sculpted prim (sculpty) or mesh of a specific type. */
+  primTypeSculpt(texture: string | UUID, sculptType: number): this
+
+  /** Prim parameter [PRIM_TEXTURE, integer face, string texture, vector repeats, vector offsets, float rotation_in_radians] to get or set the Blinn-Phong diffuse texture settings of a face. */
+  texture(
+    face: number,
+    texture: string | UUID,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ): this
+
+  /** Prim parameter to get or set the Blinn-Phong color and opacity of a face. integer face – face number or ALL_SIDES vector color – color in RGB <R, G, B> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white) float alpha – from 0.0 (clear) to 1.0 (solid) (0.0 <= alpha <= 1.0) */
+  color(face: number, color: Vector, alpha: number): this
+
+  /** Prim parameter used to get or set both the shininess and bump mapping settings of a face. */
+  shinyBump(face: number, shiny: number, bump: number): this
+
+  /** Prim parameter [PRIM_FULLBRIGHT, integer face, integer boolean] to get or set whether full-bright rendering is enabled on the specified face. */
+  fullbright(face: number, enabled: boolean): this
+
+  /** Prim parameter to get or set the prim's flexible configuration. integer boolean – TRUE enables, FALSE disables integer softness – ranges from 0 to 3 float gravity – ranges from -10.0 to 10.0 float friction – ranges from 0.0 to 10.0 float wind – ranges from 0.0 to 10.0 float tension – ranges from 0.0 to 10.0 vector force */
+  flexible(
+    enabled: boolean,
+    softness: number,
+    gravity: number,
+    friction: number,
+    wind: number,
+    tension: number,
+    force: Vector,
+  ): this
+
+  /** Prim parameter [PRIM_TEXGEN, integer face, integer mode] to get or set the texture mapping mode of the face. */
+  texgen(face: number, mode: number): this
+
+  /** Prim parameter to configure local lighting. Accepts color in linear space (use llsRGB2Linear to convert from sRGB). integer boolean – TRUE enables, FALSE disables vector linear_color – linear color in RGB <R, G, B&> (<0.0, 0.0, 0.0> = black, <1.0, 1.0, 1.0> = white) float intensity – ranges from 0.0 to 1.0 float radius – ranges from 0.1 to 20.0 float falloff – ranges from 0.01 to 2.0 */
+  pointLight(
+    enabled: boolean,
+    linearColor: Vector,
+    intensity: number,
+    radius: number,
+    falloff: number,
+  ): this
+
+  /** Prim parameter [PRIM_GLOW, integer face, float intensity] to get or set the glow intensity on a face (the compiler integer value is 25 if the named constant is rejected). */
+  glow(face: number, intensity: number): this
+
+  /** Prim parameter [PRIM_TEXT, string text, vector color, float alpha] to get or set the object's floating/hover text (equivalent to llSetText). */
+  text(text: string, color: Vector, alpha: number): this
+
+  /** Prim parameter [PRIM_NAME, string name] to get or set the prim's name (equivalent to llGetObjectName/llSetObjectName). */
+  name(name: string): this
+
+  /** Prim parameter [PRIM_DESC, string description] to get or set the prim's description (equivalent to llGetObjectDesc/llSetObjectDesc). */
+  description(description: string): this
+
+  /** Prim parameter [PRIM_ROT_LOCAL, rotation local_rot] to get or set the local rotation of a prim (equivalent to llGetLocalRot/llSetLocalRot). */
+  rotLocal(rot: Quaternion): this
+
+  /** Prim parameter used to get or set the type of shape the physics engine uses for the prim (PRIM_PHYSICS_SHAPE_NONE, _PRIM, or _CONVEX). Mainly used for physics optimization. */
+  physicsShapeType(shapeType: number): this
+
+  /** Prim parameter to get, set, or disable a client-side physical-like rotation (analogous to llTargetOmega). vector axis – arbitrary axis to rotate the object around float spinrate – rate of rotation in radians per second float gain – also modulates the final spinrate and disables the rotation behavior if zero */
+  omega(axis: Vector, spinrate: number, gain: number): this
+
+  /** Prim parameter [PRIM_POS_LOCAL, vector position] to get or set the local position of a prim (equivalent to llGetLocalPos/llSetPos). */
+  posLocal(position: Vector): this
+
+  /** Prim parameter [PRIM_SLICE, vector slice] to get or set the prim's slice values (a shape attribute equivalent to advanced cut). */
+  slice(slice: Vector): this
+
+  /** Prim parameter to get or set the Blinn-Phong specular map texture settings of a face. Requires face, texture, repeats, offsets, rotation_in_radians, color, glossy, and environment arguments. */
+  specular(
+    face: number,
+    texture: string | UUID,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+    color: Vector,
+    glossiness: number,
+    environment: number,
+  ): this
+
+  /** Prim parameter to get or set the Blinn-Phong normal map texture settings of a face. Requires face, texture, repeats, offsets, and rotation_in_radians arguments. */
+  normal(
+    face: number,
+    texture: string | UUID,
+    repeats: Vector,
+    offsets: Vector,
+    rotationInRadians: number,
+  ): this
+
+  /** Prim parameter used to set diffuse texture alpha rendering mode attributes. Requires face, alpha_mode (PRIM_ALPHA_MODE_BLEND, _NONE, _MASK, or _EMISSIVE), and alpha_cutoff (used only for _MASK) parameters. */
+  alphaMode(face: number, alphaMode: number, maskCutoff: number): this
+
+  /** Prim parameter for allowing or restricting manual standing for avatars seated on this prim within a valid experience. Ignored if the avatar was not seated via llSitOnLink. When restriction is active, participating seated avatars cannot manually stand or select another prim to sit on. */
+  allowUnsit(allowed: boolean): this
+
+  /** Prim parameter restricting manual sitting on this prim. When active, sitting can only be initiated via llSitOnLink; manual sitting attempts fail. This restriction applies even outside experience-enabled regions. */
+  scriptedSitOnly(enabled: boolean): this
+
+  /** Prim parameter [PRIM_SIT_TARGET, integer boolean, vector offset, rotation rot] to get or set the prim's sit target. Setting the boolean to FALSE deactivates the target. Unlike llLinkSitTarget, offset <0.0, 0.0, 0.0> can be explicitly set. */
+  sitTarget(active: boolean, offset: Vector, rot: Quaternion): this
+
+  /** Prim parameter [PRIM_PROJECTOR, string texture, float fov, float focus, float ambiance] to configure light projection settings. If the prim is not configured as a projector, the texture key will return NULL_KEY. */
+  projector(texture: string, fov: number, focus: number, ambiance: number): this
+
+  /** Prim parameter followed by a CLICK_ACTION_* constant to specify the default action taken when a user clicks or touches the prim. */
+  clickAction(action: number): this
+
+  /** Prim parameter to configure the object as a custom-placed reflection probe for Image-Based Lighting (IBL). Only affects objects inside its volume of influence. */
+  reflectionProbe(enabled: boolean, ambiance: number, clipDistance: number, flags: number): this
+
+  /** Prim parameter to get or set the GLTF normal map override of a face. Requires face, texture, repeats, offsets, and rotation arguments. */
+  gltfNormal(
+    face: number,
+    texture: string | UUID | "",
+    repeats: Vector | "",
+    offsets: Vector | "",
+    rotationInRadians: number | "",
+  ): this
+
+  /** Prim parameter to get or set the GLTF emission override of a face. Requires face, texture, repeats, offsets, rotation, and emissive_tint (specified in linear space; use llsRGB2Linear). */
+  gltfEmissive(
+    face: number,
+    texture: string | UUID | "",
+    repeats: Vector | "",
+    offsets: Vector | "",
+    rotationInRadians: number | "",
+    linearEmissiveTint: Vector | "",
+  ): this
+
+  /** Prim parameter to get or set the GLTF occlusion/metallic/roughness override of a face. Requires face, texture, repeats, offsets, rotation, metallic_factor, and roughness_factor arguments. */
+  gltfMetallicRoughness(
+    face: number,
+    texture: string | UUID | "",
+    repeats: Vector | "",
+    offsets: Vector | "",
+    rotationInRadians: number | "",
+    metallicFactor: number | "",
+    roughnessFactor: number | "",
+  ): this
+
+  /** Prim parameter to get or set the GLTF base color override of an object's face. Requires face, texture, repeats, offsets, rotation, linear_color (in linear space; use llsRGB2Linear), alpha_mode (PRIM_GLTF_ALPHA_MODE_*), alpha_cutoff, and double_sided arguments. */
+  gltfBaseColor(
+    face: number,
+    texture: string | UUID | "",
+    repeats: Vector | "",
+    offsets: Vector | "",
+    rotationInRadians: number | "",
+    linearColor: Vector | "",
+    alpha: number | "",
+    gltfAlphaMode: number | "",
+    alphaMaskCutoff: number | "",
+    doubleSided: boolean | "",
+  ): this
+
+  /** Prim parameter [PRIM_RENDER_MATERIAL, integer face, string material] to get or set face material settings. Note: Setting this clears most PRIM_GLTF_* properties on the face, except for repeats, offsets, and rotation_in_radians. */
+  renderMaterial(face: number, renderMaterial: string | UUID): this
+
+  /** Prim parameter used to get or set sit-related flags currently active on the prim. */
+  sitFlags(flags: number): this
+
+  /** Prim parameter used to get or set the damage amount and damage type delivered by the prim on collision. */
+  damage(damage: number, damageType: number): this
+
+  /** Prim parameter used to get or set the health of the prim. Objects default to 0 health. */
+  health(health: number): this
+
+  /** Prim parameter to set the collision sound UUID and volume level for the prim. */
+  collisionSound(sound: string | UUID, volume: number): this
+}
+
+/**
+ * Metatable for PrimParamSetterType.
+ * @noSelf
+ */
+declare interface PrimParamSetterTypeMeta {
+  /** Create an empty list with PrimParamSetterTypeMeta as metatable */
+  "new"(): PrimParamSetterType
 }
 
 /** rotation is an alias for quaternion. */
@@ -1634,6 +2176,11 @@ declare namespace ll {
   /**
    * Converts the linkset containing the script into a pathfinding character entity (required to use pathfinding functions) using the specified options.
    */
+  export function CreateCharacter(options: CharacterParams): void
+
+  /**
+   * Converts the linkset containing the script into a pathfinding character entity (required to use pathfinding functions) using the specified options.
+   */
   export function CreateCharacter<const T extends readonly unknown[]>(
     options: T & ParseCharacterParams<T>,
   ): void
@@ -1889,7 +2436,10 @@ declare namespace ll {
   export function GetAttachedList(avatar: UUID): UUID[] | string[]
 
   /** Returns a list of object keys (UUIDs) worn by the specified avatar, in the order they were attached, filtered by options. Returns a list containing an error message string on failure. */
-  export function GetAttachedListFiltered(avatar: UUID, options: list): UUID[] | string[]
+  export function GetAttachedListFiltered(
+    avatar: UUID,
+    options: list | AttachedListFilterParams,
+  ): UUID[] | string[]
 
   /** Returns the bounding box of object (including any linked prims) relative to its root prim in local coordinates, formatted as [ (vector) min_corner, (vector) max_corner ]. */
   export function GetBoundingBox(object: UUID): Vector[]
@@ -1910,7 +2460,10 @@ declare namespace ll {
   export function GetCenterOfMass(): Vector
 
   /** Returns a list containing the closest vector position on the navigation mesh (navmesh) to the specified point (expressed in region-local space), or an empty list if none is found. Configured using options. */
-  export function GetClosestNavPoint(point: Vector, options: list): Vector[]
+  export function GetClosestNavPoint(
+    point: Vector,
+    options: list | GetClosestNavPointParams,
+  ): Vector[]
 
   /** Returns the Blinn-Phong RGB color vector of face (values between 0.0 and 1.0). If face is ALL_SIDES, returns the mean average of all faces. */
   export function GetColor(face: number): Vector
@@ -2280,7 +2833,7 @@ declare namespace ll {
     startPos: Vector,
     endPos: Vector,
     radius: number,
-    params: list,
+    params: list | GetStaticPathParams,
   ): list
 
   /** Returns a boolean integer indicating whether the specified status flag status is enabled for the object. */
@@ -2349,7 +2902,7 @@ declare namespace ll {
     agent: UUID,
     folder: string,
     items: string[],
-    options: list,
+    options: list | GiveAgentInventoryParams,
   ): number
 
   /** Gives the specified inventory item to the target, as permitted by the permissions system. The target can be any agent or an object located in the same region. */
@@ -2381,6 +2934,11 @@ declare namespace ll {
 
   /** Returns a Base64-encoded HMAC hash of msg using the secret key private_key and the specified digest algorithm (md5, sha1, sha224, sha256, sha384, or sha512). */
   export function HMAC(privateKey: string, msg: string, algorithm: string): string
+
+  /**
+   * Sends an HTTP request to the specified url containing body and configured via parameters. Raises an http_response event and returns a key query handle identifying the request.
+   */
+  export function HTTPRequest(url: string, parameters: HttpRequestParams, body: string): UUID
 
   /**
    * Sends an HTTP request to the specified url containing body and configured via parameters. Raises an http_response event and returns a key query handle identifying the request.
@@ -2459,6 +3017,11 @@ declare namespace ll {
 
   /** Adjusts the volume of the currently playing sound attached to the linked prim link (has no effect on sounds started with llTriggerSound). */
   export function LinkAdjustSoundVolume(link: number, volume: number): void
+
+  /**
+   * Creates or updates a particle system on the linked prim link based on the list of rules. An empty list removes the particle system.
+   */
+  export function LinkParticleSystem(link: number, rules: ParticleParams): void
 
   /**
    * Creates or updates a particle system on the linked prim link based on the list of rules. An empty list removes the particle system.
@@ -2811,7 +3374,7 @@ declare namespace ll {
   export function Name2Key(name: string): UUID
 
   /** Directs a pathfinding character to navigate to the position pos (located in the current or adjacent regions) using the parameters specified in options. */
-  export function NavigateTo(pos: Vector, options: list): void
+  export function NavigateTo(pos: Vector, options: list | CharacterNavigateParams): void
 
   /** Sets the texture horizontal (u) and vertical (v) offsets for the chosen face. If face is ALL_SIDES, offsets all faces. */
   export function OffsetTexture(u: number, v: number, face: number): void
@@ -2863,6 +3426,11 @@ declare namespace ll {
   /**
    * Creates or updates a particle system on the prim containing the script based on rules. An empty list removes the particle system.
    */
+  export function ParticleSystem(rules: ParticleParams): void
+
+  /**
+   * Creates or updates a particle system on the prim containing the script based on rules. An empty list removes the particle system.
+   */
   export function ParticleSystem<const T extends readonly unknown[]>(
     rules: T & ParseParticleSystemParams<T>,
   ): void
@@ -2874,7 +3442,10 @@ declare namespace ll {
   export function PassTouches(pass: number): void
 
   /** Directs a pathfinding character to patrol sequentially through the coordinates specified in patrolPoints, configured by options. */
-  export function PatrolPoints(patrolPoints: Vector[], options: list): void
+  export function PatrolPoints(
+    patrolPoints: Vector[],
+    options: list | CharacterPatrolPointsParams,
+  ): void
 
   /** Plays the specified sound once at volume, attached to the object. Only one sound can be attached to a prim at a time; new sounds or calling llStopSound stops previous playback. A second call with the same sound adjusts the volume without restarting it. */
   export function PlaySound(sound: string, volume: number): void
@@ -2898,7 +3469,7 @@ declare namespace ll {
   export function PreloadSound(sound: string): void
 
   /** Directs a pathfinding character to pursue and chase target, configured by the parameters specified in options. */
-  export function Pursue(target: UUID, options: list): void
+  export function Pursue(target: UUID, options: list | CharacterPursueParams): void
 
   /** Applies physical impulse (force) and ang_impulse (rotational force) to the specified target avatar or object. */
   export function PushObject(
@@ -3206,6 +3777,11 @@ declare namespace ll {
   /**
    * Sets multiple camera parameters simultaneously using the list of rules. Requires the PERMISSION_CONTROL_CAMERA runtime permission.
    */
+  export function SetCameraParams(rules: CameraParams): void
+
+  /**
+   * Sets multiple camera parameters simultaneously using the list of rules. Requires the PERMISSION_CONTROL_CAMERA runtime permission.
+   */
   export function SetCameraParams<const T extends readonly unknown[]>(
     rules: T & ParseCameraParams<T>,
   ): void
@@ -3244,7 +3820,7 @@ declare namespace ll {
   export function SetInventoryPermMask(item: string, group: number, flags: number): void
 
   /** Smoothly moves a non-physical object between the positions, orientations, and times specified in the keyframes list, configured via options. Collisions with keyframed objects are ignored. An empty keyframes list terminates the motion. */
-  export function SetKeyframedMotion(keyframes: list, options: list): void
+  export function SetKeyframedMotion(keyframes: list, options: list | KeyframedMotionParams): void
 
   /** Sets the Blinn-Phong alpha (transparency) of face on the linked prim link. */
   export function SetLinkAlpha(link: number, alpha: number, face: number): void
@@ -3258,6 +3834,11 @@ declare namespace ll {
   /**
    * Sets or removes individual GLTF override parameters specified by params on face of the linked prim link.
    */
+  export function SetLinkGLTFOverrides(link: number, face: number, params: GltfOverrides): void
+
+  /**
+   * Sets or removes individual GLTF override parameters specified by params on face of the linked prim link.
+   */
   export function SetLinkGLTFOverrides<const T extends readonly unknown[]>(
     link: number,
     face: number,
@@ -3265,7 +3846,7 @@ declare namespace ll {
   ): void
 
   /** Sets the media parameters specified by params on face of the linked prim link without a script delay. Returns an integer STATUS_* flag detailing success or failure. */
-  export function SetLinkMedia(link: number, face: number, params: list): number
+  export function SetLinkMedia(link: number, face: number, params: list | PrimMediaParams): number
 
   /**
    * Deprecated (use llSetLinkPrimitiveParamsFast instead). Sets primitive parameters for the linked prim link according to rules.
@@ -3318,7 +3899,7 @@ declare namespace ll {
   export function SetObjectPermMask(group: number, flags: number): void
 
   /** Sets the parcel the object is on for sale. If ForSale is TRUE, puts the land up for sale using Options (price, buyer, objects included). Setting ForSale to FALSE removes the parcel from sale. Requires parcel ownership and the PERMISSION_PRIVILEGED_LAND_ACCESS permission. Returns an error code or 0 if successful. */
-  export function SetParcelForSale(forSale: boolean, options: list): number
+  export function SetParcelForSale(forSale: boolean, options: list | ParcelSaleParams): number
 
   /** Sets the streaming audio (music) URL for the parcel containing the object. The object owner must match the landowner or land group. */
   export function SetParcelMusicURL(url: string): void
@@ -3339,7 +3920,7 @@ declare namespace ll {
   export function SetPos(pos: Vector): void
 
   /** Sets the media parameters specified by params on the designated face of the prim. Returns an integer STATUS_* flag detailing success or failure. */
-  export function SetPrimMediaParams(face: number, params: list): number
+  export function SetPrimMediaParams(face: number, params: list | PrimMediaParams): number
 
   /**
    * Deprecated (use llSetPrimMediaParams instead). Updates the URL displayed on the prim's faces.
@@ -3597,6 +4178,11 @@ declare namespace ll {
   /**
    * Updates settings for a pathfinding character using the parameters specified in options.
    */
+  export function UpdateCharacter(options: CharacterParams): void
+
+  /**
+   * Updates settings for a pathfinding character using the parameters specified in options.
+   */
   export function UpdateCharacter<const T extends readonly unknown[]>(
     options: T & ParseCharacterParams<T>,
   ): void
@@ -3639,7 +4225,11 @@ declare namespace ll {
   export function VolumeDetect(detect: boolean): void
 
   /** Directs a pathfinding character to wander around a central coordinate origin, restricted within the bounding distance limits of dist and configured by options. */
-  export function WanderWithin(origin: Vector, dist: Vector, options: list): void
+  export function WanderWithin(
+    origin: Vector,
+    dist: Vector,
+    options: list | CharacterWanderWithinParams,
+  ): void
 
   /** Returns a float representing the water height directly below the prim's position offset by the vector offset. */
   export function Water(offset: Vector): number

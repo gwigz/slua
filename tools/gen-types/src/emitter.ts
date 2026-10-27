@@ -12,6 +12,8 @@ import type {
   JSDocStructure,
   JSDocTagStructure,
 } from "ts-morph"
+import { expandBuilderRuleset, expandTableRulesets, rulesetTableType } from "./rulesets.js"
+import type { TableRulesetProperty } from "./rulesets.js"
 import { mapType, mapReturnType, splitTopLevel } from "./type-mapper.js"
 import type {
   SLuaDefinitions,
@@ -143,6 +145,8 @@ interface BuilderRootConfig {
   optionsDefaults?: Record<string, string>
   /** Custom return type for options overload (uses generic Opts parameter for the options type) */
   optionsReturnType?: string
+  /** When true, mark the root deprecated in favor of the ll.* function's ruleset dict form */
+  deprecated?: boolean
 }
 
 interface BuilderSetConfig {
@@ -175,18 +179,26 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     setName: "ParticleSystemParam",
     prefix: "PSYS_",
     roots: [
-      { name: "$particleSystem", llFunction: "ParticleSystem", preListArgs: [] },
+      { name: "$particleSystem", llFunction: "ParticleSystem", preListArgs: [], deprecated: true },
       {
         name: "$linkParticleSystem",
         llFunction: "LinkParticleSystem",
         preListArgs: ["linkNumber: number"],
+        deprecated: true,
       },
     ],
   },
   {
     setName: "CameraParam",
     prefix: "CAMERA_",
-    roots: [{ name: "$setCameraParams", llFunction: "SetCameraParams", preListArgs: [] }],
+    roots: [
+      {
+        name: "$setCameraParams",
+        llFunction: "SetCameraParams",
+        preListArgs: [],
+        deprecated: true,
+      },
+    ],
   },
   {
     setName: "HttpParam",
@@ -199,6 +211,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
         postListArgs: ["body: string"],
         optionsArg: true,
         optionsDefaults: { method: '"GET"', body: '""' },
+        deprecated: true,
       },
     ],
   },
@@ -219,8 +232,18 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     setName: "CharacterParam",
     prefix: "CHARACTER_",
     roots: [
-      { name: "$createCharacter", llFunction: "CreateCharacter", preListArgs: [] },
-      { name: "$updateCharacter", llFunction: "UpdateCharacter", preListArgs: [] },
+      {
+        name: "$createCharacter",
+        llFunction: "CreateCharacter",
+        preListArgs: [],
+        deprecated: true,
+      },
+      {
+        name: "$updateCharacter",
+        llFunction: "UpdateCharacter",
+        preListArgs: [],
+        deprecated: true,
+      },
     ],
   },
   {
@@ -232,6 +255,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
         name: "$setGltfOverrides",
         llFunction: "SetLinkGLTFOverrides",
         preListArgs: ["link: number", "face: number"],
+        deprecated: true,
       },
     ],
   },
@@ -247,6 +271,38 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     ],
   },
 ]
+
+/**
+ * `@deprecated` JSDoc line for a builder root replaced by its ll.* function's
+ * ruleset dict form, or an empty list when the root is not deprecated. Dicts
+ * cannot hold `""`, so clearable sets point at the list form for clearing,
+ * using `clearConstant` as the example.
+ */
+function builderRootDeprecation(
+  root: BuilderRootConfig,
+  lsl: LSLDefinitions,
+  clearConstant?: string,
+) {
+  if (!root.deprecated) {
+    return []
+  }
+
+  const args = lsl.functions[`ll${root.llFunction}`]?.arguments ?? []
+  const ruleset = args.map((arg) => Object.values(arg)[0].ruleset).find((name) => name)
+  const tableType = rulesetTableType(lsl, ruleset)
+
+  if (!tableType) {
+    throw new Error(`${root.name} is deprecated but ll.${root.llFunction} takes no ruleset dict`)
+  }
+
+  if (clearConstant) {
+    return [
+      `/** @deprecated Use \`ll.${root.llFunction}\` with a \`${tableType}\` dict to set overrides, or the list form to clear them, e.g. \`[${clearConstant}, ""]\`. */`,
+    ]
+  }
+
+  return [`/** @deprecated Use \`ll.${root.llFunction}\` with a \`${tableType}\` dict instead. */`]
+}
 
 // GLTF material prim-params accept "" on each override argument — except the leading
 // `face` — to clear/keep that override (SL's documented behaviour). They live inside the
@@ -662,7 +718,12 @@ function addEventMap(sf: SourceFile, lsl: LSLDefinitions) {
 }
 
 /** Classes that use colon-style (self) method calls at runtime */
-const SELF_CLASSES = new Set(["LLEvents", "LLTimers", "DetectedEvent"])
+const SELF_CLASSES = new Set(["LLEvents", "LLTimers", "DetectedEvent", "PrimParamSetterType"])
+
+/** Classes whose methods are generated from a builder ruleset, keyed by ruleset name. */
+const BUILDER_RULESET_CLASSES: Record<string, string> = {
+  PrimParamSetterType: "prim-params",
+}
 
 /** Build a JSDoc comment, conditionally omitting @noSelf for self-call classes. */
 function buildInterfaceComment(name: string, comment: string | undefined): string | undefined {
@@ -746,6 +807,45 @@ function addClassDef(sf: SourceFile, cls: ClassDef) {
       })
     }
   }
+
+  if (cls.functions?.length) {
+    addClassMeta(sf, cls)
+  }
+}
+
+/**
+ * Emit the metatable interface for a class with dot-called functions, such as
+ * `PrimParamSetterTypeMeta` with `new()`. Names are quoted so `new` stays a
+ * method rather than a construct signature.
+ */
+function addClassMeta(sf: SourceFile, cls: ClassDef) {
+  const meta = sf.addInterface({
+    name: `${cls.name}Meta`,
+    hasDeclareKeyword: true,
+    docs: [{ description: `Metatable for ${cls.name}.\n@noSelf` }],
+  })
+
+  for (const fn of cls.functions ?? []) {
+    meta.addMethod({
+      name: JSON.stringify(fn.name),
+      parameters: buildParams(fn.parameters, false),
+      returnType: mapReturnType(fn.returnType ?? "void"),
+      ...(fn.comment ? { docs: [{ description: sanitizeComment(fn.comment) }] } : {}),
+    })
+  }
+}
+
+/** Object type literal for a table ruleset, one documented optional property per member. */
+function tableRulesetType(properties: TableRulesetProperty[]) {
+  const fields = properties.map((property) => {
+    const docs = property.comment ? `/** ${sanitizeComment(property.comment)} */\n` : ""
+    const optional = property.type.endsWith("?")
+    const baseType = optional ? property.type.slice(0, -1) : property.type
+
+    return `${docs}${property.name}${optional ? "?" : ""}: ${mapType(baseType)}`
+  })
+
+  return `{\n${fields.join("\n")}\n}`
 }
 
 function addGlobalVariable(sf: SourceFile, gv: GlobalVariable) {
@@ -1163,9 +1263,20 @@ export function emitAll(
     .filter(([, ev]) => !ev["detected-semantics"])
     .map(([name]) => `"${name}"`)
 
+  const tableRulesets = expandTableRulesets(lsl)
+
   for (const alias of slua.typeAliases) {
-    // Override placeholder definitions for event name types
-    if (alias.name === "LLDetectedEventName" && detectedEvents.length > 0) {
+    const tableProperties = tableRulesets.get(alias.name)
+
+    // Override placeholder definitions for ruleset tables and event name types
+    if (tableProperties) {
+      sf.addTypeAlias({
+        name: alias.name,
+        type: tableRulesetType(tableProperties),
+        hasDeclareKeyword: true,
+        ...(alias.comment ? { docs: [{ description: sanitizeComment(alias.comment) }] } : {}),
+      })
+    } else if (alias.name === "LLDetectedEventName" && detectedEvents.length > 0) {
       sf.addTypeAlias({
         name: "LLDetectedEventName",
         type: detectedEvents.join(" | "),
@@ -1193,9 +1304,16 @@ export function emitAll(
     }
   }
 
-  // 5. Classes
+  // 5. Classes -- builder classes get their methods from the matching ruleset,
+  // the YAML only declares `apply` as a placeholder.
   for (const cls of slua.classes) {
-    addClassDef(sf, cls)
+    const rulesetName = BUILDER_RULESET_CLASSES[cls.name]
+
+    const methods = rulesetName
+      ? [...cls.methods, ...expandBuilderRuleset(lsl, rulesetName)]
+      : cls.methods
+
+    addClassDef(sf, { ...cls, methods })
   }
 
   // 6. Global variables (skip slua-removed)
@@ -1286,13 +1404,25 @@ export function emitAll(
         const useBool = argDef["bool-semantics"] && argDef.type === "integer"
         const tsType = useBool ? "boolean" : sluaType ? mapType(sluaType) : mapLslType(argDef.type)
         const paramName = sanitizeParamName(argName)
+        const tableType = rulesetTableType(lsl, argDef.ruleset)
 
         if (argDef["index-semantics"]) {
           indexTags.push({ tagName: "indexArg", text: paramName })
         }
 
-        return { name: paramName, type: tsType }
+        return { name: paramName, type: tsType, tableType }
       })
+
+      // Ruleset arguments also accept the dict form, e.g. `list | HttpRequestParams`
+      const hasTableParam = params.some((p) => p.tableType)
+
+      const widenedParams = params.map(({ tableType, ...p }) =>
+        tableType ? { ...p, type: `${p.type} | ${tableType}` } : p,
+      )
+
+      const tableParams = params.map(({ tableType, ...p }) =>
+        tableType ? { ...p, type: tableType } : p,
+      )
 
       const hasIndexReturn = !!fn["index-semantics"]
 
@@ -1335,7 +1465,7 @@ export function emitAll(
 
         if (typedSet.hasReturns) {
           const mapperType = `Map${typedSet.name}`
-          const typedParams = params.map((p) => {
+          const typedParams = widenedParams.map((p) => {
             if (p.type === "list" || p.type === "number[]") {
               return `${p.name}: T`
             }
@@ -1349,7 +1479,7 @@ export function emitAll(
           llNs.insertText(llNs.getEnd() - 1, sig)
         } else {
           // Flags-only without return info: keep old behavior
-          const simpleParams = params.map((p) =>
+          const simpleParams = widenedParams.map((p) =>
             p.type === "list" || p.type === "number[]" ? { ...p, type: `${flagType}[]` } : p,
           )
 
@@ -1374,6 +1504,15 @@ export function emitAll(
 
         const jsdoc = serializeJSDoc(docs)
 
+        // Dict overload first: arrays never match the all-optional ruleset table
+        // type, so list arguments fall through to the typed list signature.
+        if (hasTableParam) {
+          const dictParams = tableParams.map((p) => `${p.name}: ${p.type}`)
+          const dictSig = `${jsdoc}export function ${name}(${dictParams.join(", ")}): ${returnType};\n`
+
+          llNs.insertText(llNs.getEnd() - 1, dictSig)
+        }
+
         const mappedReturn = typedSet.hasReturns ? `Map${typedSet.name}<T> | []` : returnType
         const sig = `${jsdoc}export function ${name}<const T extends readonly unknown[]>(${typedParams.join(", ")}): ${mappedReturn};\n`
 
@@ -1382,7 +1521,7 @@ export function emitAll(
         llNs.addFunction({
           name,
           isExported: true,
-          parameters: params,
+          parameters: widenedParams,
           returnType,
           ...(docs.length > 0 ? { docs } : {}),
         })
@@ -1731,6 +1870,8 @@ export function emitAll(
         continue
       }
 
+      const clearConstant = config.clearable ? set.params[0]?.name : undefined
+
       // Options-only roots skip the fluent builder interface entirely
       const optionsOnly = config.roots.every((r) => r.optionsArg)
 
@@ -1796,6 +1937,7 @@ export function emitAll(
           const args = root.preListArgs.concat(root.postListArgs ?? []).join(", ")
 
           builderLines.push("")
+          builderLines.push(...builderRootDeprecation(root, lsl, clearConstant))
           builderLines.push(`declare function ${root.name}(${args}): ${interfaceName}`)
         }
       }
@@ -1843,6 +1985,7 @@ export function emitAll(
           : "list"
 
         builderLines.push("")
+        builderLines.push(...builderRootDeprecation(root, lsl, clearConstant))
 
         if (root.optionsReturnType) {
           const generic = `<const Opts extends ${optionsName}>`
@@ -2022,6 +2165,33 @@ export function emitBuilderData(typedListParams: TypedListParams): string {
  * Only all-letter names are kept — minified names use a letters-only alphabet,
  * so names with digits or underscores can't collide.
  */
+/**
+ * Emit the plugin's ruleset key map: for each ruleset dict type, the camelCase
+ * TypeScript key mapped to the snake_case key the SLua runtime reads.
+ */
+export function emitRulesetKeys(lsl: LSLDefinitions): string {
+  const lines = [
+    "// Auto-generated by gen-types, do not edit manually.",
+    "",
+    "/** Lua key for each camelCase ruleset dict property, keyed by dict type name. */",
+    "export const RULESET_KEYS: Readonly<Record<string, Readonly<Record<string, string>>>> = {",
+  ]
+
+  for (const [typeName, properties] of expandTableRulesets(lsl)) {
+    lines.push(`  ${typeName}: {`)
+
+    for (const property of properties) {
+      lines.push(`    ${property.name}: ${JSON.stringify(property.luaName)},`)
+    }
+
+    lines.push("  },")
+  }
+
+  lines.push("}", "")
+
+  return lines.join("\n")
+}
+
 export function emitSluaGlobals(slua: SLuaDefinitions, lsl: LSLDefinitions): string {
   const names = new Set<string>()
 

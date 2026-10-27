@@ -57,7 +57,8 @@ export function matchBuilderChain(node: ts.CallExpression): BuilderChain | null 
   const rootName = current.expression.text
   const rootDef = BUILDER_ROOTS[rootName]
 
-  if (!rootDef) {
+  // Options-object roots ($httpRequest, $castRay) are handled by the options transform
+  if (!rootDef || rootDef.optionsArg) {
     return null
   }
 

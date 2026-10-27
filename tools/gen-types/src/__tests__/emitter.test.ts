@@ -9,6 +9,7 @@ import {
   emitModule,
   emitGlobalVariable,
   emitAll,
+  emitRulesetKeys,
 } from "../emitter.js"
 import type { ConstructorInfo } from "../emitter.js"
 import { parseSluaDefinitions, parseLslDefinitions } from "../parser.js"
@@ -590,5 +591,42 @@ describe("emitAll (end-to-end)", () => {
     const llModuleCount = (output.match(/declare namespace ll \{/g) || []).length
 
     expect(llModuleCount).toBe(1)
+  })
+
+  it("emits typed ruleset dicts instead of Record placeholders", () => {
+    expect(output).not.toContain("= Record<string, any>")
+    expect(output).toMatch(/declare type HttpRequestParams = \{[^}]*method\?: string/)
+    expect(output).toContain(
+      "customHeader?: Record<string, string | number | boolean | Vector | Quaternion>",
+    )
+  })
+
+  it("widens ruleset arguments to accept their dict type", () => {
+    expect(output).toContain(
+      "export function SetKeyframedMotion(keyframes: list, options: list | KeyframedMotionParams)",
+    )
+    expect(output).toContain("export function SetCameraParams(rules: list | CameraParams): void;")
+  })
+
+  it("generates PrimParamSetterType methods with self calls", () => {
+    expect(output).not.toMatch(/declare interface PrimParamSetterType \{[^}]*@noSelf/)
+    expect(output).toContain("pos(position: Vector): this;")
+    expect(output).toContain("color(face: number, color: Vector, alpha: number): this;")
+    expect(output).toContain("primTypeBox(holeType: number,")
+  })
+
+  it("declares the PrimParamSetterTypeMeta metatable", () => {
+    expect(output).toMatch(
+      /declare interface PrimParamSetterTypeMeta \{[^}]*"new"\(\): PrimParamSetterType;/,
+    )
+  })
+
+  it("maps camelCase ruleset dict keys to their Lua keys", () => {
+    const keys = emitRulesetKeys(lsl)
+
+    expect(keys).toContain("export const RULESET_KEYS")
+    expect(keys).toContain('maxBodyLength: "max_body_length",')
+    expect(keys).toContain('customHeader: "custom_header",')
+    expect(output).toContain("maxBodyLength?: number")
   })
 })

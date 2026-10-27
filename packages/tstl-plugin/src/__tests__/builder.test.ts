@@ -143,6 +143,19 @@ describe("options-object transform", () => {
     expect(lua).toContain("ll.CastRay")
   })
 
+  it("options call as a bare statement", () => {
+    const lua = transpile(`
+      declare const start: Vector, end_: Vector
+      $httpRequest("https://example.com", { method: "POST", body: "payload" })
+      $castRay(start, end_, { maxHits: 2 })
+    `)
+
+    expect(lua).toMatch(
+      /ll\.HTTPRequest\("https:\/\/example\.com", \{HTTP_METHOD, "POST"\}, "payload"\)/,
+    )
+    expect(lua).toMatch(/ll\.CastRay\(start, end_, \{RC_MAX_HITS, 2\}\)/)
+  })
+
   it("httpRequest with options object", () => {
     const lua = transpile(`
       const id = $httpRequest("https://example.com", {

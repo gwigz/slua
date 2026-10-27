@@ -145,6 +145,8 @@ interface BuilderRootConfig {
   optionsDefaults?: Record<string, string>
   /** Custom return type for options overload (uses generic Opts parameter for the options type) */
   optionsReturnType?: string
+  /** When true, mark the root deprecated in favor of the ll.* function's ruleset dict form */
+  deprecated?: boolean
 }
 
 interface BuilderSetConfig {
@@ -177,18 +179,26 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     setName: "ParticleSystemParam",
     prefix: "PSYS_",
     roots: [
-      { name: "$particleSystem", llFunction: "ParticleSystem", preListArgs: [] },
+      { name: "$particleSystem", llFunction: "ParticleSystem", preListArgs: [], deprecated: true },
       {
         name: "$linkParticleSystem",
         llFunction: "LinkParticleSystem",
         preListArgs: ["linkNumber: number"],
+        deprecated: true,
       },
     ],
   },
   {
     setName: "CameraParam",
     prefix: "CAMERA_",
-    roots: [{ name: "$setCameraParams", llFunction: "SetCameraParams", preListArgs: [] }],
+    roots: [
+      {
+        name: "$setCameraParams",
+        llFunction: "SetCameraParams",
+        preListArgs: [],
+        deprecated: true,
+      },
+    ],
   },
   {
     setName: "HttpParam",
@@ -201,6 +211,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
         postListArgs: ["body: string"],
         optionsArg: true,
         optionsDefaults: { method: '"GET"', body: '""' },
+        deprecated: true,
       },
     ],
   },
@@ -221,8 +232,18 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     setName: "CharacterParam",
     prefix: "CHARACTER_",
     roots: [
-      { name: "$createCharacter", llFunction: "CreateCharacter", preListArgs: [] },
-      { name: "$updateCharacter", llFunction: "UpdateCharacter", preListArgs: [] },
+      {
+        name: "$createCharacter",
+        llFunction: "CreateCharacter",
+        preListArgs: [],
+        deprecated: true,
+      },
+      {
+        name: "$updateCharacter",
+        llFunction: "UpdateCharacter",
+        preListArgs: [],
+        deprecated: true,
+      },
     ],
   },
   {
@@ -234,6 +255,7 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
         name: "$setGltfOverrides",
         llFunction: "SetLinkGLTFOverrides",
         preListArgs: ["link: number", "face: number"],
+        deprecated: true,
       },
     ],
   },
@@ -249,6 +271,26 @@ const BUILDER_CONFIGS: BuilderSetConfig[] = [
     ],
   },
 ]
+
+/**
+ * `@deprecated` JSDoc line for a builder root replaced by its ll.* function's
+ * ruleset dict form, or an empty list when the root is not deprecated.
+ */
+function builderRootDeprecation(root: BuilderRootConfig, lsl: LSLDefinitions) {
+  if (!root.deprecated) {
+    return []
+  }
+
+  const args = lsl.functions[`ll${root.llFunction}`]?.arguments ?? []
+  const ruleset = args.map((arg) => Object.values(arg)[0].ruleset).find((name) => name)
+  const tableType = rulesetTableType(lsl, ruleset)
+
+  if (!tableType) {
+    throw new Error(`${root.name} is deprecated but ll.${root.llFunction} takes no ruleset dict`)
+  }
+
+  return [`/** @deprecated Use \`ll.${root.llFunction}\` with a \`${tableType}\` dict instead. */`]
+}
 
 // GLTF material prim-params accept "" on each override argument — except the leading
 // `face` — to clear/keep that override (SL's documented behaviour). They live inside the
@@ -1881,6 +1923,7 @@ export function emitAll(
           const args = root.preListArgs.concat(root.postListArgs ?? []).join(", ")
 
           builderLines.push("")
+          builderLines.push(...builderRootDeprecation(root, lsl))
           builderLines.push(`declare function ${root.name}(${args}): ${interfaceName}`)
         }
       }
@@ -1928,6 +1971,7 @@ export function emitAll(
           : "list"
 
         builderLines.push("")
+        builderLines.push(...builderRootDeprecation(root, lsl))
 
         if (root.optionsReturnType) {
           const generic = `<const Opts extends ${optionsName}>`

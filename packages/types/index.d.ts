@@ -9210,8 +9210,10 @@ interface ParticleSystemParamBuilder {
   srcBurstSpeedMax(speedMax: number): ParticleSystemParamBuilder
 }
 
+/** @deprecated Use `ll.ParticleSystem` with a `ParticleParams` dict instead. */
 declare function $particleSystem(): ParticleSystemParamBuilder
 
+/** @deprecated Use `ll.LinkParticleSystem` with a `ParticleParams` dict instead. */
 declare function $linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
 
 /** Fluent builder for CameraParam lists. Compiles to a flat parameter list at build time. */
@@ -9245,6 +9247,7 @@ interface CameraParamBuilder {
   positionThreshold(meters: number): CameraParamBuilder
 }
 
+/** @deprecated Use `ll.SetCameraParams` with a `CameraParams` dict instead. */
 declare function $setCameraParams(): CameraParamBuilder
 
 /** Options object for $httpRequest. All properties are optional. */
@@ -9262,6 +9265,7 @@ interface HttpParamOptions {
   body?: string
 }
 
+/** @deprecated Use `ll.HTTPRequest` with a `HttpRequestParams` dict instead. */
 declare function $httpRequest(url: string, options: HttpParamOptions): UUID
 
 /** Options object for $castRay. All properties are optional. */
@@ -9307,8 +9311,10 @@ interface CharacterParamBuilder {
   stayWithinParcel(stayWithinParcel: number): CharacterParamBuilder
 }
 
+/** @deprecated Use `ll.CreateCharacter` with a `CharacterParams` dict instead. */
 declare function $createCharacter(): CharacterParamBuilder
 
+/** @deprecated Use `ll.UpdateCharacter` with a `CharacterParams` dict instead. */
 declare function $updateCharacter(): CharacterParamBuilder
 
 /** Fluent builder for GltfOverrideParam lists. Compiles to a flat parameter list at build time. */
@@ -9330,6 +9336,7 @@ interface GltfOverrideParamBuilder {
   emissiveFactor(emissiveFactor: Vector | ""): GltfOverrideParamBuilder
 }
 
+/** @deprecated Use `ll.SetLinkGLTFOverrides` with a `GltfOverrides` dict instead. */
 declare function $setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
 
 /** Fluent builder for RezParam lists. Compiles to a flat parameter list at build time. */

@@ -299,25 +299,41 @@ function $castRay<const Opts extends CastRayParamOptions>(
 ): CastRayResult<Opts>
 ```
 
-### `$createCharacter`
+### ~~`$createCharacter`~~
+
+<Callout type="warn" title="Deprecated">
+  Use `ll.CreateCharacter` with a `CharacterParams` dict instead.
+</Callout>
 
 ```ts
 function $createCharacter(): CharacterParamBuilder
 ```
 
-### `$httpRequest`
+### ~~`$httpRequest`~~
+
+<Callout type="warn" title="Deprecated">
+  Use `ll.HTTPRequest` with a `HttpRequestParams` dict instead.
+</Callout>
 
 ```ts
 function $httpRequest(url: string, options: HttpParamOptions): UUID
 ```
 
-### `$linkParticleSystem`
+### ~~`$linkParticleSystem`~~
+
+<Callout type="warn" title="Deprecated">
+  Use `ll.LinkParticleSystem` with a `ParticleParams` dict instead.
+</Callout>
 
 ```ts
 function $linkParticleSystem(linkNumber: number): ParticleSystemParamBuilder
 ```
 
-### `$particleSystem`
+### ~~`$particleSystem`~~
+
+<Callout type="warn" title="Deprecated">
+  Use `ll.ParticleSystem` with a `ParticleParams` dict instead.
+</Callout>
 
 ```ts
 function $particleSystem(): ParticleSystemParamBuilder
@@ -329,13 +345,21 @@ function $particleSystem(): ParticleSystemParamBuilder
 function $rezObjectWithParams(inventoryItem: string): RezParamBuilder
 ```
 
-### `$setCameraParams`
+### ~~`$setCameraParams`~~
+
+<Callout type="warn" title="Deprecated">
+  Use `ll.SetCameraParams` with a `CameraParams` dict instead.
+</Callout>
 
 ```ts
 function $setCameraParams(): CameraParamBuilder
 ```
 
-### `$setGltfOverrides`
+### ~~`$setGltfOverrides`~~
+
+<Callout type="warn" title="Deprecated">
+  Use `ll.SetLinkGLTFOverrides` with a `GltfOverrides` dict instead.
+</Callout>
 
 ```ts
 function $setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
@@ -347,7 +371,11 @@ function $setGltfOverrides(link: number, face: number): GltfOverrideParamBuilder
 function $setPrimParams(linkNumber: number): PrimParamBuilder
 ```
 
-### `$updateCharacter`
+### ~~`$updateCharacter`~~
+
+<Callout type="warn" title="Deprecated">
+  Use `ll.UpdateCharacter` with a `CharacterParams` dict instead.
+</Callout>
 
 ```ts
 function $updateCharacter(): CharacterParamBuilder

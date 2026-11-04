@@ -202,6 +202,17 @@ export function initFull(sluaTypes: string, langExt: string) {
   fullFiles = { "language-extensions.d.ts": langExt, "slua.d.ts": sluaTypes }
 }
 
+// Program with SLua types + language extensions, for checks that run before transformation
+export function createFullProgram(code: string) {
+  if (!fullFiles) {
+    throw new Error("Call initFull() before createFullProgram()")
+  }
+
+  const files = { "main.ts": code, ...fullFiles }
+
+  return ts.createProgram(Object.keys(files), fullOptions, createHost(files))
+}
+
 export function transpileFull(code: string) {
   if (!fullFiles) {
     throw new Error("Call initFull() before transpileFull()")

@@ -29,6 +29,15 @@ import { matchOptionsCall, emitOptionsCall } from "./options-transform.js"
 import { tryFoldBitwise } from "./fold-bitwise.js"
 import { createOptimizeTransforms, countFilterCalls, ALL_OPTIMIZE } from "./optimize.js"
 import { tryEvaluateCondition, shouldStripDefineGuard } from "./define.js"
+import {
+  checkRulesetKeys,
+  renameBindingKeys,
+  renameDelete,
+  renameElementAccess,
+  renameInOperator,
+  renameObjectLiteralKeys,
+  renamePropertyAccess,
+} from "./ruleset-keys.js"
 import { recordLualibFeatures, reportLualibHelpers } from "./lualib-report.js"
 import {
   stripInternalJSDocTags,
@@ -171,19 +180,47 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
             }
           : undefined,
 
-      [ts.SyntaxKind.VariableStatement]:
-        defineMap.size > 0
-          ? (node: ts.VariableStatement, context) => {
-              if (shouldStripDefineGuard(node, defineMap)) {
-                return []
-              }
+      [ts.SyntaxKind.VariableStatement]: (node: ts.VariableStatement, context) => {
+        if (defineMap.size > 0 && shouldStripDefineGuard(node, defineMap)) {
+          return []
+        }
 
-              return context.superTransformStatements(node)
-            }
-          : undefined,
+        const statements = context.superTransformStatements(node)
+
+        renameBindingKeys(node.declarationList, statements, context.checker)
+
+        return statements
+      },
+
+      // Ruleset dict keys are camelCase in TypeScript and snake_case at runtime
+      [ts.SyntaxKind.ObjectLiteralExpression]: (node: ts.ObjectLiteralExpression, context) => {
+        const result = context.superTransformExpression(node)
+
+        renameObjectLiteralKeys(node, result, context.checker)
+
+        return result
+      },
+
+      [ts.SyntaxKind.ElementAccessExpression]: (node: ts.ElementAccessExpression, context) => {
+        const result = context.superTransformExpression(node)
+
+        renameElementAccess(node, result, context.checker)
+
+        return result
+      },
+
+      [ts.SyntaxKind.DeleteExpression]: (node: ts.DeleteExpression, context) => {
+        const result = context.superTransformExpression(node)
+
+        renameDelete(node, result, context.checker)
+
+        return result
+      },
 
       [ts.SyntaxKind.PropertyAccessExpression]: (node: ts.PropertyAccessExpression, context) => {
         const result = context.superTransformExpression(node)
+
+        renamePropertyAccess(node, result, context.checker)
 
         // Rewrite identifiers in the Lua AST (PascalCase -> lowercase, TSTL keyword fixups).
         if (tstl.isTableIndexExpression(result) && tstl.isIdentifier(result.table)) {
@@ -211,6 +248,14 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
       },
 
       [ts.SyntaxKind.BinaryExpression]: (node: ts.BinaryExpression, context) => {
+        if (node.operatorToken.kind === ts.SyntaxKind.InKeyword) {
+          const result = context.superTransformExpression(node)
+
+          renameInOperator(node, result, context.checker)
+
+          return result
+        }
+
         // Check for btest pattern: (a & b) !== 0, 0 === (a & b), etc.
         const btest = extractBtestPattern(node)
 
@@ -597,6 +642,8 @@ function createPlugin(options: SluaPluginOptions = {}): tstl.Plugin {
           source: "@gwigz/slua-tstl-plugin",
         })
       }
+
+      diagnostics.push(...checkRulesetKeys(program))
 
       // Pre-scan: skip filter inlining for files with multiple .filter() calls
       // (the shared __TS__ArrayFilter helper is smaller than 2+ inlined loops).

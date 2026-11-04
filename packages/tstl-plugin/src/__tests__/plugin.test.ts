@@ -25,10 +25,13 @@ const LANG_EXT_PATH = resolve(
 
 initFull(readFileSync(TYPES_PATH, "utf-8"), readFileSync(LANG_EXT_PATH, "utf-8"))
 
+// beforeTransform scans source files for ruleset dict keys, so it needs a real program
+const emptyProgram = ts.createProgram([], {})
+
 describe("ts-slua plugin", () => {
   it("beforeTransform errors on non-Luau target", () => {
     const diagnostics = createPlugin().beforeTransform!(
-      {} as ts.Program,
+      emptyProgram,
       {
         luaTarget: tstl.LuaTarget.Lua53,
         luaLibImport: tstl.LuaLibImportKind.Inline,
@@ -42,7 +45,7 @@ describe("ts-slua plugin", () => {
 
   it("beforeTransform warns when luaLibImport is not inline", () => {
     const diagnostics = createPlugin().beforeTransform!(
-      {} as ts.Program,
+      emptyProgram,
       { luaTarget: tstl.LuaTarget.Luau } as tstl.CompilerOptions,
       {} as tstl.EmitHost,
     )
@@ -54,7 +57,7 @@ describe("ts-slua plugin", () => {
 
   it("beforeTransform passes with correct config", () => {
     const diagnostics = createPlugin().beforeTransform!(
-      {} as ts.Program,
+      emptyProgram,
       {
         luaTarget: tstl.LuaTarget.Luau,
         luaLibImport: tstl.LuaLibImportKind.None,
@@ -71,7 +74,7 @@ describe("ts-slua plugin", () => {
       tstl.LuaLibImportKind.RequireMinimal,
     ]) {
       const diagnostics = createPlugin().beforeTransform!(
-        {} as ts.Program,
+        emptyProgram,
         {
           luaTarget: tstl.LuaTarget.Luau,
           luaLibImport,
@@ -88,7 +91,7 @@ describe("ts-slua plugin", () => {
 
   it("beforeTransform still warns on require-minimal without the flatten plugin", () => {
     const diagnostics = createPlugin().beforeTransform!(
-      {} as ts.Program,
+      emptyProgram,
       {
         luaTarget: tstl.LuaTarget.Luau,
         luaLibImport: tstl.LuaLibImportKind.RequireMinimal,
@@ -105,7 +108,7 @@ describe("ts-slua plugin", () => {
 
   it("beforeTransform still warns on require-minimal with flatten but no luaBundle", () => {
     const diagnostics = createPlugin().beforeTransform!(
-      {} as ts.Program,
+      emptyProgram,
       {
         luaTarget: tstl.LuaTarget.Luau,
         luaLibImport: tstl.LuaLibImportKind.RequireMinimal,

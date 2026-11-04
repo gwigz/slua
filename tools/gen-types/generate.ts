@@ -21,6 +21,7 @@ const files: [path: string, content: string | undefined][] = [
   [fromRoot("packages/types/index.d.ts"), result.types],
   [fromRoot("packages/tstl-plugin/src/generated/builder-data.ts"), result.builderData],
   [fromRoot("packages/tstl-plugin/src/generated/slua-globals.ts"), result.sluaGlobals],
+  [fromRoot("packages/tstl-plugin/src/generated/ruleset-keys.ts"), result.rulesetKeys],
 ]
 
 const written: string[] = []

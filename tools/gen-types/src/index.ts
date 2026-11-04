@@ -1,13 +1,13 @@
 import { readFileSync } from "fs"
 import { parseSluaDefinitions, parseLslDefinitions } from "./parser"
-import { emitAll, emitBuilderData, emitSluaGlobals } from "./emitter"
+import { emitAll, emitBuilderData, emitRulesetKeys, emitSluaGlobals } from "./emitter"
 import type { TypedListParams } from "./types"
 
 export function generate(
   sluaYamlPath: string,
   lslYamlPath: string,
   typedListParamsPath?: string,
-): { types: string; builderData?: string; sluaGlobals: string } {
+): { types: string; builderData?: string; sluaGlobals: string; rulesetKeys: string } {
   const sluaYaml = readFileSync(sluaYamlPath, "utf8")
   const lslYaml = readFileSync(lslYamlPath, "utf8")
   const slua = parseSluaDefinitions(sluaYaml)
@@ -22,6 +22,7 @@ export function generate(
   const types = emitAll(slua, lsl, typedListParams)
   const builderData = typedListParams ? emitBuilderData(typedListParams) : undefined
   const sluaGlobals = emitSluaGlobals(slua, lsl)
+  const rulesetKeys = emitRulesetKeys(lsl)
 
-  return { types, builderData, sluaGlobals }
+  return { types, builderData, sluaGlobals, rulesetKeys }
 }

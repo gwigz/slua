@@ -54,6 +54,8 @@ export interface ClassDef {
   comment?: string
   methods: MethodDef[]
   properties: PropertyDef[]
+  /** Dot-called functions, emitted on the class metatable (`<name>Meta`). */
+  functions?: FunctionDef[]
 }
 
 export interface GlobalVariable {
@@ -93,12 +95,52 @@ export interface LSLDefinitions {
   constants: Record<string, LSLConstant>
   functions: Record<string, LSLFunction>
   events: Record<string, LSLEvent>
+  enums: Record<string, LSLEnum>
+  builderRulesets: Record<string, BuilderRuleset>
+}
+
+export interface LSLEnum {
+  type: string
+  prefix?: string
+  tooltip?: string
+}
+
+/** `[type, name]` pair from a builder-ruleset rule's `params` list. */
+export type BuilderRuleParam = [type: string, name: string]
+
+export interface BuilderRuleVariant {
+  "applies-to": string[]
+  params: BuilderRuleParam[]
+}
+
+export interface BuilderRule {
+  "method-name"?: string
+  "face-target"?: boolean
+  nullable?: boolean
+  params: BuilderRuleParam[]
+  "variant-enum"?: string
+  variants?: BuilderRuleVariant[]
+}
+
+export interface BuilderRuleset {
+  type: "builder" | "table"
+  enum: string
+  "lua-type"?: string
+  "filler-tokens"?: string[]
+  "flag-enum"?: string
+  "flag-field"?: string
+  "flag-mask"?: string
+  rules?: Record<string, BuilderRule>
 }
 
 export interface LSLConstant {
   type: string
   value: string
   tooltip?: string
+  private?: boolean
+  "member-of"?: string[]
+  "value-type"?: string
+  "pretty-name"?: string
   "slua-type"?: string
   "slua-removed"?: boolean
   deprecated?: boolean | { reason?: string; use?: string }
@@ -109,7 +151,13 @@ export interface LSLFunction {
   return?: string
   arguments?: Record<
     string,
-    { type: string; tooltip?: string; "index-semantics"?: boolean; "bool-semantics"?: boolean }
+    {
+      type: string
+      tooltip?: string
+      ruleset?: string
+      "index-semantics"?: boolean
+      "bool-semantics"?: boolean
+    }
   >[]
   tooltip?: string
   "slua-removed"?: boolean

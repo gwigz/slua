@@ -8,9 +8,11 @@ export type ExpressionVisitor = (expr: lua.Expression) => void
 interface Visitor {
   block?: BlockVisitor
   expression?: ExpressionVisitor
+  /** Stay out of function expression bodies, which belong to other statements. */
+  skipFunctionBodies?: boolean
 }
 
-function walkExpression(expr: lua.Expression, visitor: Visitor): void {
+export function walkExpression(expr: lua.Expression, visitor: Visitor): void {
   visitor.expression?.(expr)
 
   switch (expr.kind) {
@@ -92,7 +94,9 @@ function walkExpression(expr: lua.Expression, visitor: Visitor): void {
     case lua.SyntaxKind.FunctionExpression: {
       const fn = expr as lua.FunctionExpression
 
-      walkBlock(fn.body, visitor)
+      if (!visitor.skipFunctionBodies) {
+        walkBlock(fn.body, visitor)
+      }
       break
     }
 

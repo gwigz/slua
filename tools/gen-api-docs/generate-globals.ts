@@ -36,7 +36,15 @@ const PLUGIN_GLOBALS = new Set([
 ])
 const OMIT_GLOBALS = new Set<string>(["dangerouslyexecuterequiredmodule"])
 
+/** Escape MDX syntax outside inline code spans, where backslashes would render literally. */
 function escapeMdx(s: string): string {
+  return s
+    .split(/(`[^`]*`)/)
+    .map((part) => (part.startsWith("`") ? part : escapeMdxText(part)))
+    .join("")
+}
+
+function escapeMdxText(s: string): string {
   return s
     .replace(/</g, "\\<")
     .replace(/>/g, "\\>")
@@ -66,36 +74,47 @@ function buildSignature(fn: FunctionDeclaration): string {
   return `function ${name}${typeParamStr}(${params.join(", ")}): ${returnType}`
 }
 
-function extractJsDoc(fn: FunctionDeclaration): string {
-  const jsDocs = fn.getJsDocs()
+function extractJsDoc(fn: FunctionDeclaration): { jsdoc: string; deprecated: string | null } {
+  let jsdoc = ""
+  let deprecated: string | null = null
 
-  if (jsDocs.length === 0) {
-    return ""
-  }
+  for (const doc of fn.getJsDocs()) {
+    for (const tag of doc.getTags()) {
+      if (tag.getTagName() === "deprecated") {
+        deprecated = tag.getCommentText()?.trim() || "This function is deprecated."
+      }
+    }
 
-  for (const doc of jsDocs) {
     const comment = doc.getCommentText()?.trim()
 
-    if (comment) {
-      return escapeMdx(comment)
+    if (comment && !jsdoc) {
+      jsdoc = escapeMdx(comment)
     }
   }
 
-  return ""
+  return { jsdoc, deprecated }
 }
 
 interface GlobalFunction {
   name: string
   signature: string
   jsdoc: string
+  deprecated: string | null
 }
 
 function renderFunctions(fns: GlobalFunction[]): string[] {
   const lines: string[] = []
 
   for (const fn of fns) {
-    lines.push(`### \`${fn.name}\``)
+    lines.push(fn.deprecated ? `### ~~\`${fn.name}\`~~` : `### \`${fn.name}\``)
     lines.push(``)
+
+    if (fn.deprecated) {
+      lines.push(`<Callout type="warn" title="Deprecated">`)
+      lines.push(escapeMdx(fn.deprecated))
+      lines.push(`</Callout>`)
+      lines.push(``)
+    }
 
     if (fn.jsdoc) {
       lines.push(fn.jsdoc)
@@ -160,8 +179,8 @@ for (const fn of allFunctions) {
   }
 
   const signature = buildSignature(fn)
-  const jsdoc = extractJsDoc(fn)
-  const entry: GlobalFunction = { name, signature, jsdoc }
+  const { jsdoc, deprecated } = extractJsDoc(fn)
+  const entry: GlobalFunction = { name, signature, jsdoc, deprecated }
 
   if (SLUA_GLOBALS.has(name)) {
     sluaFns.push(entry)

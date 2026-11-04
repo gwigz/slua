@@ -1,5 +1,16 @@
 # @gwigz/slua-tstl-plugin
 
+## 1.11.0
+
+### Minor Changes
+
+- [#173](https://github.com/gwigz/slua/pull/173) [`70442ca`](https://github.com/gwigz/slua/commit/70442ca9602e7185d4de3e18381c1ad734b38b07) Thanks [@gwigz](https://github.com/gwigz)! - rename camelCase ruleset dict keys to their snake_case lua keys, report keys that can't be renamed at compile time
+
+### Patch Changes
+
+- Updated dependencies [[`60d3cf0`](https://github.com/gwigz/slua/commit/60d3cf022d5c9a07463d030162dff673425ce571), [`70442ca`](https://github.com/gwigz/slua/commit/70442ca9602e7185d4de3e18381c1ad734b38b07), [`70442ca`](https://github.com/gwigz/slua/commit/70442ca9602e7185d4de3e18381c1ad734b38b07)]:
+  - @gwigz/slua-types@1.6.0
+
 ## 1.10.0
 
 ### Minor Changes

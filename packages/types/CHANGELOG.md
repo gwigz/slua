@@ -1,5 +1,17 @@
 # @gwigz/slua-types
 
+## 1.6.0
+
+### Minor Changes
+
+- [#173](https://github.com/gwigz/slua/pull/173) [`70442ca`](https://github.com/gwigz/slua/commit/70442ca9602e7185d4de3e18381c1ad734b38b07) Thanks [@gwigz](https://github.com/gwigz)! - deprecate `$particleSystem`, `$linkParticleSystem`, `$setCameraParams`, `$httpRequest`, `$createCharacter`, `$updateCharacter` and `$setGltfOverrides` in favor of `ll.*` dict params
+
+- [#173](https://github.com/gwigz/slua/pull/173) [`70442ca`](https://github.com/gwigz/slua/commit/70442ca9602e7185d4de3e18381c1ad734b38b07) Thanks [@gwigz](https://github.com/gwigz)! - type ruleset param dicts with camelCase keys and accept them in `ll.*` functions, generate `llprim.ParamSetter` methods, dicts no longer accept unknown keys
+
+### Patch Changes
+
+- [#157](https://github.com/gwigz/slua/pull/157) [`60d3cf0`](https://github.com/gwigz/slua/commit/60d3cf022d5c9a07463d030162dff673425ce571) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update SLua definitions submodule to latest upstream
+
 ## 1.5.2
 
 ### Patch Changes

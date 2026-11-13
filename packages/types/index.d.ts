@@ -6826,6 +6826,9 @@ declare const REZ_FLAG_DIE_ON_COLLIDE: 8
 /** Rez flag causing the object to die/delete if it attempts to enter an unauthorized parcel. */
 declare const REZ_FLAG_DIE_ON_NOENTRY: 16
 
+/** Rez flag causing the object to die if the rezzing object or agent is not present. */
+declare const REZ_FLAG_DIE_ON_NO_REZZER: 256
+
 /** Rez flag preventing collision events from triggering when colliding with other objects created by the same rezzer. */
 declare const REZ_FLAG_NO_COLLIDE_FAMILY: 64
 
@@ -7108,6 +7111,9 @@ declare const STATUS_DIE_AT_EDGE: 128
 
 /** Status flag (default FALSE) that causes the object to be deleted if it attempts to enter an unauthorized or full parcel. No-copy objects ignore this setting and remain in-world. */
 declare const STATUS_DIE_AT_NO_ENTRY: 2048
+
+/** Status flag (default FALSE) that causes the object to be deleted if the rezzing object or agent is not present. */
+declare const STATUS_DIE_ON_NO_REZZER: 4096
 
 /** Status code indicating an internal error occurred. */
 declare const STATUS_INTERNAL_ERROR: 1999

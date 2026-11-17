@@ -35,7 +35,6 @@ export const SLUA_GLOBAL_NAMES: ReadonlySet<string> = new Set([
   "getmetatable",
   "graphheap",
   "graphuserheap",
-  "integer",
   "ipairs",
   "ll",
   "llcompat",

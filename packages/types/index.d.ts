@@ -1264,9 +1264,6 @@ declare namespace buffer {
   /** Reads a signed 32-bit integer from the buffer at the given offset. */
   export function readi32(b: buffer, offset: number): number
 
-  /** Reads a signed or unsigned 64-bit integer from the buffer at the given offset. */
-  export function readinteger(b: buffer, offset: number): integer
-
   /** Reads an unsigned 32-bit integer from the buffer at the given offset. */
   export function readu32(b: buffer, offset: number): number
 
@@ -1290,9 +1287,6 @@ declare namespace buffer {
 
   /** Writes a signed 32-bit integer to the buffer at the given offset. */
   export function writei32(b: buffer, offset: number, value: number): void
-
-  /** Writes a signed or unsigned 64-bit integer to the buffer at the given offset. */
-  export function writeinteger(b: buffer, offset: number, value: integer): void
 
   /** Writes an unsigned 32-bit integer to the buffer at the given offset. */
   export function writeu32(b: buffer, offset: number, value: number): void
@@ -1382,133 +1376,6 @@ declare namespace debug {
 
   /** Returns a human-readable call stack starting from the specified level. */
   export function traceback(co: LuaThread, msg?: string, level?: number): string
-}
-
-/** 64-bit integer operations library. */
-/** @noSelf */
-declare namespace integer {
-  /** Returns the sum of two 64-bit integers (signed or unsigned), wrapping on overflow. */
-  export function add(int1: integer, int2: integer): integer
-
-  /** Returns val shifted by i bits to the right. If i is negative, a left shift is performed. Does an arithmetic shift: The most significant bit of n is propagated during the shift. */
-  export function arshift(val: integer, i: integer): integer
-
-  /** Returns the bitwise AND of the given integers. */
-  export function band(...args: integer[]): integer
-
-  /** Returns the bitwise negation of val. */
-  export function bnot(val: integer): integer
-
-  /** Returns the bitwise OR of the given integers. */
-  export function bor(...args: integer[]): integer
-
-  /** Returns the bitwise XOR of the given integers. */
-  export function bxor(...args: integer[]): integer
-
-  /** Returns val with its bytes swapped to the reverse order. */
-  export function bswap(val: integer): integer
-
-  /** Returns true if the bitwise AND of the given integers is non-zero. */
-  export function btest(...args: integer[]): boolean
-
-  /** Returns val clamped between min and max. Raises an error if min is greater than max. */
-  export function clamp(val: integer, min: integer, max: integer): integer
-
-  /** Returns the count of val's leading zeros. */
-  export function countlz(val: integer): integer
-
-  /** Returns the count of val's trailing zeros. */
-  export function countrz(val: integer): integer
-
-  /** Returns number val converted to an integer. Returns nil if it has a fractional part, is out of range, or is NaN. */
-  export function create(val: number): integer | undefined
-
-  /** Returns dividend / divisor (signed), rounding toward zero. Raises an error if divisor is zero. */
-  export function div(dividend: integer, divisor: integer): integer
-
-  /** Returns width bits from src, starting from bit index field. Raises an error if the selected bit range is goes outside the range [0, 63]. */
-  export function extract(src: integer, field: integer, width?: integer): integer
-
-  /** Converts the input string to an integer in the specified base. Returns nil if not an integer. */
-  export function fromstring(value: string, base?: number): integer | undefined
-
-  /** Returns true if int1 >= int2 (signed). */
-  export function ge(int1: integer, int2: integer): boolean
-
-  /** Returns true if int1 > int2 (signed). */
-  export function gt(int1: integer, int2: integer): boolean
-
-  /** Returns dividend / divisor (signed), rounding toward negative infinity. Raises an error if divisor is zero. */
-  export function idiv(dividend: integer, divisor: integer): integer
-
-  /** Returns true if int1 <= int2 (signed). */
-  export function le(int1: integer, int2: integer): boolean
-
-  /** Returns true if int1 < int2 (signed). */
-  export function lt(int1: integer, int2: integer): boolean
-
-  /** Returns val rotated by i bits to the left. If i is negative, a right rotate is performed. */
-  export function lrotate(val: integer, i: integer): integer
-
-  /** Returns val shifted by i bits to the left. If i is negative, a right shift is performed. Returns 0 if i is outside the [-63, 63] range. */
-  export function lshift(val: integer, i: integer): integer
-
-  /** Returns the maximum value from the given integers (signed). */
-  export function max(val: integer, ...args: integer[]): integer
-
-  /** Returns the minimum value from the given integers (signed). */
-  export function min(val: integer, ...args: integer[]): integer
-
-  /** Returns the remainder of dividend / divisor (signed). The result always has the same sign as the divisor. Raises an error if divisor is zero. */
-  export function mod(dividend: integer, divisor: integer): integer
-
-  /** Returns the product of two 64-bit integers (signed or unsigned), wrapping on overflow. */
-  export function mul(int1: integer, int2: integer): integer
-
-  /** Returns the negation of val. integer.neg(integer.minsigned) == integer.minsigned due to overflow. */
-  export function neg(val: integer): integer
-
-  /** Returns the remainder of dividend / divisor (signed). The result always has the same sign as the dividend. Raises an error if divisor is zero. */
-  export function rem(dividend: integer, divisor: integer): integer
-
-  /** Returns dst with width bits replaced from src, starting from bit index field. Raises an error if the selected bit range goes outside the range [0, 63]. */
-  export function replace(dst: integer, src: integer, field: integer, width?: integer): integer
-
-  /** Returns val rotated by i bits to the right. If i is negative, a left rotate is performed. */
-  export function rrotate(val: integer, i: integer): integer
-
-  /** Returns val shifted by i bits to the right. If i is negative, a left shift is performed. Returns 0 if i is outside the [-63, 63] range. */
-  export function rshift(val: integer, i: integer): integer
-
-  /** Returns the difference between two 64-bit integers (signed or unsigned), wrapping on overflow. */
-  export function sub(int1: integer, int2: integer): integer
-
-  /** Returns the nearest float64 to the given int64. Is inexact above 2^53. */
-  export function tonumber(val: integer): number
-
-  /** Returns dividend / divisor (unsigned), rounding toward negative infinity. Raises an error if divisor is zero. */
-  export function udiv(dividend: integer, divisor: integer): integer
-
-  /** Returns true if int1 >= int2 (unsigned). */
-  export function uge(int1: integer, int2: integer): boolean
-
-  /** Returns true if int1 > int2 (unsigned). */
-  export function ugt(int1: integer, int2: integer): boolean
-
-  /** Returns true if int1 <= int2 (unsigned). */
-  export function ule(int1: integer, int2: integer): boolean
-
-  /** Returns true if int1 < int2 (unsigned). */
-  export function ult(int1: integer, int2: integer): boolean
-
-  /** Returns the remainder of dividend / divisor (unsigned). Raises an error if divisor is zero. */
-  export function urem(dividend: integer, divisor: integer): integer
-
-  /** The most positive signed int64 (2^63-1). */
-  export const maxsigned: integer
-
-  /** The most negative signed int64 (-2^63). */
-  export const minsigned: integer
 }
 
 /** Base64 encoding/decoding library. */
@@ -6826,6 +6693,9 @@ declare const REZ_FLAG_DIE_ON_COLLIDE: 8
 /** Rez flag causing the object to die/delete if it attempts to enter an unauthorized parcel. */
 declare const REZ_FLAG_DIE_ON_NOENTRY: 16
 
+/** Rez flag causing the object to die if the rezzing object or agent is not present. */
+declare const REZ_FLAG_DIE_ON_NO_REZZER: 256
+
 /** Rez flag preventing collision events from triggering when colliding with other objects created by the same rezzer. */
 declare const REZ_FLAG_NO_COLLIDE_FAMILY: 64
 
@@ -7108,6 +6978,9 @@ declare const STATUS_DIE_AT_EDGE: 128
 
 /** Status flag (default FALSE) that causes the object to be deleted if it attempts to enter an unauthorized or full parcel. No-copy objects ignore this setting and remain in-world. */
 declare const STATUS_DIE_AT_NO_ENTRY: 2048
+
+/** Status flag (default FALSE) that causes the object to be deleted if the rezzing object or agent is not present. */
+declare const STATUS_DIE_ON_NO_REZZER: 4096
 
 /** Status code indicating an internal error occurred. */
 declare const STATUS_INTERNAL_ERROR: 1999
